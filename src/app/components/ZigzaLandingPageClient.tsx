@@ -638,316 +638,407 @@ export function ZigzaLandingPageClient({
 
             {/* Mockup Body Content */}
             <div className="p-4 sm:p-6 bg-[#FAFAF8] space-y-4 sm:space-y-5">
-              
-              {/* 4 Executive Metric Cards (Smooth AnimatedCounter with cubic easing) */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                {mockupTab === 'cutting' && (
+              {(() => {
+                interface MetricItem {
+                  label: string
+                  value: string | number
+                  sub: string
+                  color: string
+                  isNumeric: boolean
+                  prefix?: string
+                  suffix?: string
+                  decimals?: number
+                }
+
+                const departmentMetrics: Record<'cutting' | 'sewing' | 'qc', MetricItem[]> = {
+                  cutting: [
+                    {
+                      label: 'Active Cutting Lot',
+                      value: 'LOT-2024-C8',
+                      sub: 'Polo T-Shirt · 220 GSM Pique',
+                      color: 'text-slate-900',
+                      isNumeric: false
+                    },
+                    {
+                      label: 'Total Pieces Cut',
+                      value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0),
+                      sub: '98.8% Fabric Utilization',
+                      suffix: ' Pcs',
+                      color: 'text-[#3A3564]',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'Fabric Rolls Laid',
+                      value: 24 + (mockupTick >= 2 ? 1 : 0),
+                      sub: 'ASTM 4-Pt: Zero Defects',
+                      suffix: ' Rolls',
+                      color: 'text-[#D97706]',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'Panel QC Pass',
+                      value: 99.4 + (mockupTick >= 2 ? 0.2 : 0),
+                      sub: '4,820 Panels Inspected',
+                      decimals: 1,
+                      suffix: '%',
+                      color: 'text-emerald-600',
+                      isNumeric: true
+                    }
+                  ],
+                  sewing: [
+                    {
+                      label: 'Active Sewing Lines',
+                      value: 'Line 01 & Line 02',
+                      sub: '32 Stations Active',
+                      color: 'text-slate-900',
+                      isNumeric: false
+                    },
+                    {
+                      label: 'Pieces Stitched Today',
+                      value: 3420 + (mockupTick > 0 ? mockupTick * 35 : 0),
+                      sub: 'Target: 3,800 Pcs · 90%',
+                      suffix: ' Pcs',
+                      color: 'text-[#3A3564]',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'Line Pace & Speed',
+                      value: 385 + (mockupTick > 0 ? mockupTick * 4 : 0),
+                      sub: 'Overlock & Flatlock',
+                      suffix: ' Pcs/Hr',
+                      color: 'text-[#D97706]',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'Piece Wages Earned',
+                      value: 18450 + (mockupTick > 0 ? mockupTick * 180 : 0),
+                      sub: 'Instant Tailor Ledger',
+                      prefix: '₹',
+                      color: 'text-emerald-600',
+                      isNumeric: true
+                    }
+                  ],
+                  qc: [
+                    {
+                      label: 'Inspection Audited',
+                      value: 4210 + (mockupTick > 0 ? mockupTick * 30 : 0),
+                      sub: 'Inline & End-Line Audit',
+                      suffix: ' Pcs',
+                      color: 'text-slate-900',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'AQL 2.5 Pass Rate',
+                      value: 99.2 + (mockupTick >= 2 ? 0.1 : 0),
+                      sub: 'Zero Critical Defects',
+                      decimals: 1,
+                      suffix: '%',
+                      color: 'text-emerald-600',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'Master Cartons Packed',
+                      value: 142 + (mockupTick >= 1 ? mockupTick : 0),
+                      sub: 'Gross Weight Verified',
+                      suffix: ' Cartons',
+                      color: 'text-[#D97706]',
+                      isNumeric: true
+                    },
+                    {
+                      label: 'Ready for Dispatch',
+                      value: 4260 + (mockupTick > 0 ? mockupTick * 36 : 0),
+                      sub: 'Gate Pass Cleared',
+                      suffix: ' Pcs',
+                      color: 'text-[#3A3564]',
+                      isNumeric: true
+                    }
+                  ]
+                }
+
+                const departmentBanners = {
+                  cutting: {
+                    icon: <FileSpreadsheet className="w-4 h-4 text-[#3A3564] shrink-0" />,
+                    title: 'Fabric Lay Sheet & Marker Breakdown',
+                    badge: 'Marker Ratio 1:2:2:1 (S-XL)',
+                    col1: 'Lay Sheet',
+                    col2: 'Fabric Lot & Color',
+                    col3: 'Marker Ratio',
+                    col4: 'Plies',
+                    col5: 'Cut Pcs',
+                    col6: 'Panel QC'
+                  },
+                  sewing: {
+                    icon: <Scissors className="w-4 h-4 text-[#3A3564] shrink-0" />,
+                    title: 'Tailor Piece-Rate Ledger & Operation Sync',
+                    badge: '32 Stations Real-Time Ledger',
+                    col1: 'Sewing Line',
+                    col2: 'Tailor / Operator',
+                    col3: 'Garment Operation',
+                    col4: 'Bundle Lot',
+                    col5: 'Done',
+                    col6: 'Piece Wage'
+                  },
+                  qc: {
+                    icon: <PackageCheck className="w-4 h-4 text-[#3A3564] shrink-0" />,
+                    title: 'End-Line QC & Master Carton Packing Stream',
+                    badge: 'AQL 2.5 & Weight-Check Verified',
+                    col1: 'Carton #',
+                    col2: 'Style & Color',
+                    col3: 'Pack Size Breakdown',
+                    col4: 'Pcs / Ctn',
+                    col5: 'Gross Weight',
+                    col6: 'AQL Audit'
+                  }
+                }
+
+                const departmentRows = {
+                  cutting: [
+                    {
+                      id: 'cut-row-1',
+                      c1: mockupTick === 1 ? 'LAY-104-05' : 'LAY-104-04',
+                      c2: mockupTick === 1 ? 'Heather Grey · Lot 5A' : 'Navy Blue · Lot 4A',
+                      c2Color: 'text-slate-800',
+                      c3: '1 : 2 : 2 : 1 (S-XL)',
+                      c4: mockupTick === 1 ? '50 Plies' : '60 Plies',
+                      c5: mockupTick === 1 ? '+300 Pcs' : '360 Pcs',
+                      badge: mockupTick === 1 ? 'Lay Cut Verified' : 'Bundled & Cleared',
+                      badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 1
+                    },
+                    {
+                      id: 'cut-row-2',
+                      c1: 'LAY-104-03',
+                      c2: 'Olive Green · Lot 2B',
+                      c2Color: 'text-emerald-700',
+                      c3: '1 : 2 : 2 : 1 (S-XL)',
+                      c4: '60 Plies',
+                      c5: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
+                      badge: mockupTick === 2 ? 'Panel QC Cleared' : 'Bundled & Cleared',
+                      badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 2
+                    },
+                    {
+                      id: 'cut-row-3',
+                      c1: 'LAY-104-02',
+                      c2: 'Mustard · Lot 1C',
+                      c2Color: 'text-amber-700',
+                      c3: '2 : 2 : 1 : 1 (S-XL)',
+                      c4: '55 Plies',
+                      c5: mockupTick === 3 ? '+330 Pcs' : '330 Pcs',
+                      badge: mockupTick === 3 ? 'Plies Verified' : 'Bundled & Cleared',
+                      badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 3
+                    },
+                    {
+                      id: 'cut-row-4',
+                      c1: 'LAY-104-01',
+                      c2: 'Charcoal · Lot 3D',
+                      c2Color: 'text-slate-800',
+                      c3: '1 : 2 : 2 : 1 (S-XL)',
+                      c4: '60 Plies',
+                      c5: '360 Pcs',
+                      badge: 'Bundled & Cleared',
+                      badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: false
+                    }
+                  ],
+                  sewing: [
+                    {
+                      id: 'sew-row-1',
+                      c1: 'Line 01',
+                      c2: 'Aslam Khan (Tailor #12)',
+                      c2Color: 'text-slate-900',
+                      c3: 'Collar Rib & Neckband',
+                      c4: 'BDL-104-09',
+                      c5: mockupTick === 1 ? '+30 Pcs' : '30 Pcs',
+                      badge: mockupTick === 1 ? '+₹165 Synced' : '₹165 Synced',
+                      badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 1
+                    },
+                    {
+                      id: 'sew-row-2',
+                      c1: 'Line 01',
+                      c2: 'Ramesh Dev (Tailor #08)',
+                      c2Color: 'text-slate-900',
+                      c3: 'Shoulder Join & Topstitch',
+                      c4: 'BDL-104-08',
+                      c5: mockupTick === 2 ? '+30 Pcs' : '30 Pcs',
+                      badge: mockupTick === 2 ? '+₹120 Synced' : '₹120 Synced',
+                      badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 2
+                    },
+                    {
+                      id: 'sew-row-3',
+                      c1: 'Line 02',
+                      c2: 'Sunita Roy (Tailor #15)',
+                      c2Color: 'text-slate-900',
+                      c3: 'Sleeve Hemming & Attach',
+                      c4: 'BDL-104-07',
+                      c5: mockupTick === 3 ? '+30 Pcs' : '30 Pcs',
+                      badge: mockupTick === 3 ? '+₹150 Synced' : '₹150 Synced',
+                      badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 3
+                    },
+                    {
+                      id: 'sew-row-4',
+                      c1: 'Line 02',
+                      c2: 'Md. Parvez (Tailor #04)',
+                      c2Color: 'text-slate-900',
+                      c3: 'Side Seam & Bottom Hem',
+                      c4: 'BDL-104-06',
+                      c5: '30 Pcs',
+                      badge: '₹180 Synced',
+                      badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: false
+                    }
+                  ],
+                  qc: [
+                    {
+                      id: 'qc-row-1',
+                      c1: mockupTick === 1 ? 'CTN-0143' : 'CTN-0142',
+                      c2: mockupTick === 1 ? 'Style 408 · Heather Grey' : 'Style 408 · Navy Blue',
+                      c2Color: mockupTick === 1 ? 'text-slate-700' : 'text-blue-700',
+                      c3: 'S:6 · M:12 · L:12 · XL:6',
+                      c4: mockupTick === 1 ? '+36 Pcs' : '36 Pcs',
+                      c5: mockupTick === 1 ? '11.42 kg' : '11.40 kg',
+                      badge: mockupTick === 1 ? 'Weight Verified' : 'Carton Sealed',
+                      badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 1
+                    },
+                    {
+                      id: 'qc-row-2',
+                      c1: 'CTN-0141',
+                      c2: 'Style 408 · Olive Green',
+                      c2Color: 'text-emerald-700',
+                      c3: 'S:6 · M:12 · L:12 · XL:6',
+                      c4: '36 Pcs',
+                      c5: '11.40 kg',
+                      badge: mockupTick === 2 ? 'AQL 2.5 Pass' : 'Carton Sealed',
+                      badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 2
+                    },
+                    {
+                      id: 'qc-row-3',
+                      c1: 'CTN-0140',
+                      c2: 'Style 408 · Mustard',
+                      c2Color: 'text-amber-700',
+                      c3: 'S:6 · M:12 · L:12 · XL:6',
+                      c4: '36 Pcs',
+                      c5: '11.45 kg',
+                      badge: mockupTick === 3 ? 'Weight Checked' : 'AQL Passed',
+                      badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                      isActive: mockupTick === 3
+                    },
+                    {
+                      id: 'qc-row-4',
+                      c1: 'CTN-0139',
+                      c2: 'Style 408 · Charcoal',
+                      c2Color: 'text-slate-800',
+                      c3: 'S:6 · M:12 · L:12 · XL:6',
+                      c4: '36 Pcs',
+                      c5: '11.38 kg',
+                      badge: 'Dispatch Bay',
+                      badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60',
+                      isActive: false
+                    }
+                  ]
+                }
+
+                const currentBanner = departmentBanners[mockupTab]
+                const currentRows = departmentRows[mockupTab]
+
+                return (
                   <>
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Job Work</span>
-                      <p className="text-base sm:text-xl font-black text-slate-900 mt-1 font-mono">JOB-457</p>
-                      <span className="text-[11px] font-medium text-[#3A3564] font-semibold">OLLYPOP Kids 2-Pc</span>
+                    {/* 4 Executive Metric Cards (Unified DOM structure to prevent reflow / blinking) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                      {departmentMetrics[mockupTab].map((metric, idx) => (
+                        <div
+                          key={`metric-${idx}`}
+                          className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                            {metric.label}
+                          </span>
+                          <div className={`text-base sm:text-xl font-black mt-1 font-mono truncate ${metric.color}`}>
+                            {metric.isNumeric ? (
+                              <AnimatedCounter
+                                value={metric.value as number}
+                                prefix={metric.prefix}
+                                suffix={metric.suffix}
+                                decimals={metric.decimals}
+                                duration={800}
+                              />
+                            ) : (
+                              <span>{metric.value}</span>
+                            )}
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-500 block truncate mt-0.5">
+                            {metric.sub}
+                          </span>
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cutting Volume</span>
-                      <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
-                        <AnimatedCounter value={1650 + mockupTick * 14} duration={900} suffix=" Sets" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500 font-mono">
-                        <AnimatedCounter value={14850 + mockupTick * 126} duration={900} suffix=" Pieces" />
-                      </span>
-                    </div>
+                    {/* Dynamic Live Table (Fixed column widths prevent any horizontal layout shifts; stable keys prevent DOM thrashing) */}
+                    <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-2xs">
+                      <div className="flex items-center justify-between mb-3 gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {currentBanner.icon}
+                          <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                            {currentBanner.title}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-slate-500 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
+                          {currentBanner.badge}
+                        </span>
+                      </div>
 
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Fabric Rolls Inward</span>
-                      <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
-                        <AnimatedCounter value={18 + (mockupTick >= 2 ? 1 : 0)} duration={900} suffix=" Rolls" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500">100% Lay Ratio</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">QC Pass Rate</span>
-                      <p className="text-base sm:text-xl font-black text-emerald-600 mt-1 font-mono">
-                        <AnimatedCounter value={98.4 + mockupTick * 0.1} decimals={1} duration={900} suffix="%" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500 font-mono">
-                        <AnimatedCounter value={14612 + mockupTick * 25} duration={900} suffix=" Passed" />
-                      </span>
+                      <div className="overflow-x-auto -mx-1">
+                        <table className="w-full table-fixed text-xs text-left min-w-[620px]">
+                          <thead>
+                            <tr className="border-b border-slate-100 text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
+                              <th className="py-2.5 px-3 w-[18%] transition-colors duration-300">{currentBanner.col1}</th>
+                              <th className="py-2.5 px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
+                              <th className="py-2.5 px-3 w-[22%] transition-colors duration-300">{currentBanner.col3}</th>
+                              <th className="py-2.5 px-3 w-[11%] text-right transition-colors duration-300">{currentBanner.col4}</th>
+                              <th className="py-2.5 px-3 w-[12%] text-right transition-colors duration-300">{currentBanner.col5}</th>
+                              <th className="py-2.5 px-3 w-[13%] text-center transition-colors duration-300">{currentBanner.col6}</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                            {currentRows.map((r) => (
+                              <tr 
+                                key={r.id} 
+                                className={`transition-all duration-700 ease-out ${
+                                  r.isActive 
+                                    ? 'bg-emerald-50/70 border-l-2 border-emerald-500' 
+                                    : 'hover:bg-[#FAF7F0]/40'
+                                }`}
+                              >
+                                <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564] truncate">
+                                  <span className="flex items-center gap-1.5">
+                                    {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />}
+                                    {r.c1}
+                                  </span>
+                                </td>
+                                <td className={`py-2.5 px-3 font-semibold truncate ${r.c2Color}`}>{r.c2}</td>
+                                <td className="py-2.5 px-3 font-mono text-slate-600 truncate">{r.c3}</td>
+                                <td className="py-2.5 px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
+                                <td className={`py-2.5 px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
+                                <td className="py-2.5 px-3 text-center">
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
+                                    {r.badge}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </>
-                )}
-
-                {mockupTab === 'sewing' && (
-                  <>
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Sewing Lines</span>
-                      <p className="text-base sm:text-xl font-black text-slate-900 mt-1 font-mono">24 Stations</p>
-                      <span className="text-[11px] font-medium text-[#3A3564] font-semibold">12 Overlock · 12 Flatlock</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Bundles in Sewing</span>
-                      <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
-                        <AnimatedCounter value={320 + mockupTick * 6} duration={900} /> <span className="text-xs font-semibold text-slate-500">/ 450</span>
-                      </p>
-                      <span className="text-[11px] font-medium text-emerald-600 font-semibold">100% Accounted For</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Line Output Today</span>
-                      <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
-                        <AnimatedCounter value={8420 + mockupTick * 35} duration={900} suffix=" Pcs" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500">Avg 350 Pcs/Hr Pace</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Piece Wages Logged</span>
-                      <p className="text-base sm:text-xl font-black text-emerald-600 mt-1 font-mono">
-                        <AnimatedCounter value={46280 + mockupTick * 195} duration={900} prefix="₹" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500">Auto-Synced to Ledger</span>
-                    </div>
-                  </>
-                )}
-
-                {mockupTab === 'qc' && (
-                  <>
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total QC Audited</span>
-                      <p className="text-base sm:text-xl font-black text-slate-900 mt-1 font-mono">
-                        <AnimatedCounter value={14612 + mockupTick * 28} duration={900} suffix=" Pcs" />
-                      </p>
-                      <span className="text-[11px] font-medium text-[#3A3564] font-semibold">1st & 2nd Stage Audit</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">First-Pass Rate</span>
-                      <p className="text-base sm:text-xl font-black text-emerald-600 mt-1 font-mono">
-                        <AnimatedCounter value={98.4 + (mockupTick >= 2 ? 0.2 : 0)} decimals={1} duration={900} suffix="%" />
-                      </p>
-                      <span className="text-[11px] font-medium text-emerald-600 font-semibold">0 Critical Defects</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cartons Packed</span>
-                      <p className="text-base sm:text-xl font-black text-[#F59E0B] mt-1 font-mono">
-                        <AnimatedCounter value={185 + mockupTick} duration={900} suffix=" Boxes" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500">Master Cartons Verified</span>
-                    </div>
-
-                    <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-colors">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ready for Dispatch</span>
-                      <p className="text-base sm:text-xl font-black text-[#3A3564] mt-1 font-mono">
-                        <AnimatedCounter value={14400 + mockupTick * 80} duration={900} suffix=" Pcs" />
-                      </p>
-                      <span className="text-[11px] font-medium text-slate-500">Gate Pass Generated</span>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Dynamic Live Journal Table (Always exactly 4 rows in view; new rows enter at top and oldest drops off) */}
-              <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-2xs">
-                <div className="flex items-center justify-between mb-3 gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    {mockupTab === 'cutting' && <FileSpreadsheet className="w-4 h-4 text-[#3A3564] shrink-0" />}
-                    {mockupTab === 'sewing' && <Scissors className="w-4 h-4 text-[#3A3564] shrink-0" />}
-                    {mockupTab === 'qc' && <PackageCheck className="w-4 h-4 text-[#3A3564] shrink-0" />}
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                      {mockupTab === 'cutting' && 'Cutting Lot Breakdown Matrix'}
-                      {mockupTab === 'sewing' && 'Live Line Allocation & Piece-Rate Log'}
-                      {mockupTab === 'qc' && 'End-Line QC & Carton Packing Stream'}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-500 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
-                    {mockupTab === 'cutting' && 'Ratio 1:9 Auto-Calculated'}
-                    {mockupTab === 'sewing' && '24 Stations Live Sync'}
-                    {mockupTab === 'qc' && '100% Audit Verified'}
-                  </span>
-                </div>
-
-                <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-xs text-left min-w-[500px]">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
-                        {mockupTab === 'cutting' && (
-                          <>
-                            <th className="py-2 px-3">Article</th>
-                            <th className="py-2 px-3">Colorway</th>
-                            <th className="py-2 px-3">Size Ratio</th>
-                            <th className="py-2 px-3 text-right">Sets</th>
-                            <th className="py-2 px-3 text-right">Total Pcs</th>
-                            <th className="py-2 px-3 text-center">Stage</th>
-                          </>
-                        )}
-                        {mockupTab === 'sewing' && (
-                          <>
-                            <th className="py-2 px-3">Station</th>
-                            <th className="py-2 px-3">Operator</th>
-                            <th className="py-2 px-3">Operation</th>
-                            <th className="py-2 px-3">Bundle Tag</th>
-                            <th className="py-2 px-3 text-right">Done</th>
-                            <th className="py-2 px-3 text-center">Wage Synced</th>
-                          </>
-                        )}
-                        {mockupTab === 'qc' && (
-                          <>
-                            <th className="py-2 px-3">Carton #</th>
-                            <th className="py-2 px-3">Colorway / Size</th>
-                            <th className="py-2 px-3">Pieces</th>
-                            <th className="py-2 px-3">Inspector</th>
-                            <th className="py-2 px-3 text-center">Audit Status</th>
-                            <th className="py-2 px-3 text-center">Status</th>
-                          </>
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                      {/* CUTTING ROWS (Exactly 4 rows displayed) */}
-                      {mockupTab === 'cutting' && (() => {
-                        const baseRows = [
-                          { id: 'c-1', c1: '2027-A', c2: 'Sky Blue', c2Color: 'text-blue-700', c3: 'L / XXL', c4: '550', c5: '4,950', badge: 'Stitching', badgeCls: 'bg-blue-50 text-blue-700 border-blue-200/60', isNew: false },
-                          { id: 'c-2', c1: '2027-B', c2: 'Mustard', c2Color: 'text-amber-700', c3: '22 × 26', c4: '600', c5: '5,400', badge: 'QC Audit', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 'c-3', c1: '2027-C', c2: 'Charcoal', c2Color: 'text-slate-800', c3: '28 × 32', c4: '500', c5: '4,500', badge: 'Dispatch Bay', badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60', isNew: false },
-                          { id: 'c-4', c1: '2027-D', c2: 'Dusty Rose', c2Color: 'text-rose-700', c3: 'M / XL', c4: '420', c5: '3,780', badge: 'Spreading', badgeCls: 'bg-purple-50 text-purple-700 border-purple-200/60', isNew: false }
-                        ]
-                        const incoming = [
-                          { id: 'c-in-1', c1: '2027-E', c2: 'Olive Green', c2Color: 'text-emerald-700', c3: '24 × 28', c4: '+25', c5: '+225', badge: 'Lay Cut #19', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
-                          { id: 'c-in-2', c1: '2027-A (Re-cut)', c2: 'Sky Blue', c2Color: 'text-blue-700', c3: 'Pocket Ply', c4: '+10', c5: '+90', badge: 'Cut Bundle', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
-                          { id: 'c-in-3', c1: '2027-F', c2: 'Navy Blue', c2Color: 'text-indigo-700', c3: '30 × 34', c4: '+30', c5: '+270', badge: 'Gate Inward', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
-                        ]
-                        let displayRows = baseRows
-                        if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
-                        if (mockupTick === 2) displayRows = [incoming[1], incoming[0], baseRows[0], baseRows[1]]
-                        if (mockupTick === 3) displayRows = [incoming[2], incoming[1], incoming[0], baseRows[0]]
-
-                        return displayRows.slice(0, 4).map((r) => (
-                          <tr 
-                            key={r.id} 
-                            className={`transition-all duration-700 ease-out ${
-                              r.isNew 
-                                ? 'bg-emerald-50/80 animate-in fade-in duration-700' 
-                                : 'hover:bg-[#FAF7F0]/40'
-                            }`}
-                          >
-                            <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
-                              <span className="flex items-center gap-1.5">
-                                {r.isNew && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />}
-                                {r.c1}
-                              </span>
-                            </td>
-                            <td className={`py-2.5 px-3 font-semibold ${r.c2Color}`}>{r.c2}</td>
-                            <td className="py-2.5 px-3 font-mono text-slate-600">{r.c3}</td>
-                            <td className="py-2.5 px-3 text-right font-mono font-semibold">{r.c4}</td>
-                            <td className="py-2.5 px-3 text-right font-bold text-emerald-600 font-mono">{r.c5}</td>
-                            <td className="py-2.5 px-3 text-center">
-                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 ${r.badgeCls}`}>
-                                {r.badge}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      })()}
-
-                      {/* SEWING ROWS (Exactly 4 rows displayed) */}
-                      {mockupTab === 'sewing' && (() => {
-                        const baseRows = [
-                          { id: 's-1', c1: 'Line 04', c2: 'Aslam Khan', c3: 'Front Body + Rib', c4: 'BDL-8821', c5: '180 Pcs', badge: '₹1,080 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 's-2', c1: 'Line 07', c2: 'Ramesh Dev', c3: 'Sleeve Attachment', c4: 'BDL-8822', c5: '165 Pcs', badge: '₹990 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 's-3', c1: 'Line 12', c2: 'Sunita Roy', c3: 'Bottom Hem Lock', c4: 'BDL-8823', c5: '190 Pcs', badge: '₹1,140 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 's-4', c1: 'Line 18', c2: 'Md. Parvez', c3: 'Collar Assembly', c4: 'BDL-8824', c5: '150 Pcs', badge: '₹900 Logged', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false }
-                        ]
-                        const incoming = [
-                          { id: 's-in-1', c1: 'Line 02', c2: 'Karan Sharma', c3: 'Side Seam Lock', c4: 'BDL-8825', c5: '+25 Pcs', badge: '+₹150 Logged', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
-                          { id: 's-in-2', c1: 'Line 09', c2: 'Deepak S.', c3: 'Pocket Stitch', c4: 'BDL-8826', c5: '+20 Pcs', badge: '+₹120 Logged', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
-                          { id: 's-in-3', c1: 'Line 15', c2: 'Fatima Bi', c3: 'Cuff Overlock', c4: 'BDL-8827', c5: '+30 Pcs', badge: '+₹180 Logged', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
-                        ]
-                        let displayRows = baseRows
-                        if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
-                        if (mockupTick === 2) displayRows = [incoming[1], incoming[0], baseRows[0], baseRows[1]]
-                        if (mockupTick === 3) displayRows = [incoming[2], incoming[1], incoming[0], baseRows[0]]
-
-                        return displayRows.slice(0, 4).map((r) => (
-                          <tr 
-                            key={r.id} 
-                            className={`transition-all duration-700 ease-out ${
-                              r.isNew 
-                                ? 'bg-emerald-50/80 animate-in fade-in duration-700' 
-                                : 'hover:bg-[#FAF7F0]/40'
-                            }`}
-                          >
-                            <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
-                              <span className="flex items-center gap-1.5">
-                                {r.isNew && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />}
-                                {r.c1}
-                              </span>
-                            </td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-900">{r.c2}</td>
-                            <td className="py-2.5 px-3 font-mono text-slate-600">{r.c3}</td>
-                            <td className="py-2.5 px-3 font-mono text-indigo-700 font-semibold">{r.c4}</td>
-                            <td className="py-2.5 px-3 text-right font-bold text-emerald-600 font-mono">{r.c5}</td>
-                            <td className="py-2.5 px-3 text-center">
-                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 ${r.badgeCls}`}>
-                                {r.badge}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      })()}
-
-                      {/* QC & PACKING ROWS (Exactly 4 rows displayed) */}
-                      {mockupTab === 'qc' && (() => {
-                        const baseRows = [
-                          { id: 'q-1', c1: 'BOX-185', c2: 'Sky Blue (L/XXL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'AUDIT PASS', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 'q-2', c1: 'BOX-184', c2: 'Mustard (22×26)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'AUDIT PASS', badge: 'Carton Sealed', badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60', isNew: false },
-                          { id: 'q-3', c1: 'BOX-183', c2: 'Charcoal (28×32)', c2Color: 'text-slate-800', c3: '80 Pcs', c4: 'Vikram QC', c5: 'AUDIT PASS', badge: 'Gate Pass Ready', badgeCls: 'bg-blue-50 text-blue-700 border-blue-200/60', isNew: false },
-                          { id: 'q-4', c1: 'BOX-182', c2: 'Sky Blue (M/XL)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Vikram QC', c5: 'AUDIT PASS', badge: 'Dispatch Bay', badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60', isNew: false }
-                        ]
-                        const incoming = [
-                          { id: 'q-in-1', c1: 'BOX-186', c2: 'Mustard (28×32)', c2Color: 'text-amber-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'WEIGHT PASS', badge: 'Just Sealed', badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold', isNew: true },
-                          { id: 'q-in-2', c1: 'BOX-187', c2: 'Charcoal (L/XXL)', c2Color: 'text-slate-800', c3: '80 Pcs', c4: 'Vikram QC', c5: 'PASS AUDIT', badge: 'Weight Verified', badgeCls: 'bg-blue-100 text-blue-800 border-blue-300 font-bold', isNew: true },
-                          { id: 'q-in-3', c1: 'BOX-188', c2: 'Sky Blue (22×26)', c2Color: 'text-blue-700', c3: '80 Pcs', c4: 'Anita QC', c5: 'DISPATCH OK', badge: 'Gate Pass #457', badgeCls: 'bg-purple-100 text-purple-800 border-purple-300 font-bold', isNew: true }
-                        ]
-                        let displayRows = baseRows
-                        if (mockupTick === 1) displayRows = [incoming[0], baseRows[0], baseRows[1], baseRows[2]]
-                        if (mockupTick === 2) displayRows = [incoming[1], incoming[0], baseRows[0], baseRows[1]]
-                        if (mockupTick === 3) displayRows = [incoming[2], incoming[1], incoming[0], baseRows[0]]
-
-                        return displayRows.slice(0, 4).map((r) => (
-                          <tr 
-                            key={r.id} 
-                            className={`transition-all duration-700 ease-out ${
-                              r.isNew 
-                                ? 'bg-emerald-50/80 animate-in fade-in duration-700' 
-                                : 'hover:bg-[#FAF7F0]/40'
-                            }`}
-                          >
-                            <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
-                              <span className="flex items-center gap-1.5">
-                                {r.isNew && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />}
-                                {r.c1}
-                              </span>
-                            </td>
-                            <td className={`py-2.5 px-3 font-semibold ${r.c2Color}`}>{r.c2}</td>
-                            <td className="py-2.5 px-3 font-mono text-slate-600">{r.c3}</td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">{r.c4}</td>
-                            <td className="py-2.5 px-3 text-center font-bold text-emerald-600 font-mono text-[11px]">{r.c5}</td>
-                            <td className="py-2.5 px-3 text-center">
-                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 ${r.badgeCls}`}>
-                                {r.badge}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      })()}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                )
+              })()}
 
             </div>
           </div>
