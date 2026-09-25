@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  AlertCircle,
   Lock,
   Mail,
   User,
@@ -102,6 +103,77 @@ export default function RegisterFreeTrialPage() {
     const raw = val.replace(/\D/g, '')
     setPhone(raw.slice(0, 10))
   }
+
+  // Live Password Evaluation & 5-Word Recommendations
+  const hasMinLength = password.length >= 6
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasLowercase = /[a-z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const hasSymbol = /[^A-Za-z0-9]/.test(password)
+
+  const passwordCriteria = [
+    { id: 'len', label: '6+ characters', met: hasMinLength },
+    { id: 'upper', label: 'Uppercase', met: hasUppercase },
+    { id: 'lower', label: 'Lowercase', met: hasLowercase },
+    { id: 'num', label: 'Number', met: hasNumber },
+    { id: 'sym', label: 'Symbol', met: hasSymbol },
+  ]
+
+  let strengthScore = 0
+  if (password.length > 0) {
+    if (!hasMinLength) {
+      strengthScore = 1
+    } else {
+      const extraMet = (hasUppercase ? 1 : 0) + (hasLowercase ? 1 : 0) + (hasNumber ? 1 : 0) + (hasSymbol ? 1 : 0)
+      if (extraMet <= 1) strengthScore = 1
+      else if (extraMet === 2) strengthScore = 2
+      else if (extraMet === 3) strengthScore = 3
+      else strengthScore = 4
+    }
+  }
+
+  let strengthLabel = ''
+  let strengthTextColor = ''
+  let strengthBarColor = ''
+
+  if (strengthScore === 1) {
+    strengthLabel = hasMinLength ? 'Weak' : 'Too Short'
+    strengthTextColor = 'text-rose-600'
+    strengthBarColor = 'bg-rose-500'
+  } else if (strengthScore === 2) {
+    strengthLabel = 'Fair'
+    strengthTextColor = 'text-amber-600'
+    strengthBarColor = 'bg-amber-500'
+  } else if (strengthScore === 3) {
+    strengthLabel = 'Good'
+    strengthTextColor = 'text-blue-600'
+    strengthBarColor = 'bg-blue-600'
+  } else if (strengthScore === 4) {
+    strengthLabel = 'Strong'
+    strengthTextColor = 'text-emerald-600'
+    strengthBarColor = 'bg-emerald-600'
+  }
+
+  // Exactly 5-word recommendations telling user what to add to make it better
+  const get5WordRecommendation = () => {
+    if (password.length === 0) return 'Use at least 6 characters'
+    if (!hasMinLength) return 'Needs at least 6 characters'
+    if (!hasUppercase && !hasNumber && !hasSymbol) return 'Add uppercase, numbers, and symbols'
+    if (!hasUppercase && !hasNumber) return 'Add uppercase letters and numbers'
+    if (!hasUppercase && !hasSymbol) return 'Add uppercase letters and symbols'
+    if (!hasNumber && !hasSymbol) return 'Add numbers and special symbols'
+    if (!hasUppercase) return 'Add uppercase letters to strengthen'
+    if (!hasNumber) return 'Add numbers to improve strength'
+    if (!hasSymbol) return 'Add symbols to improve strength'
+    if (!hasLowercase) return 'Add lowercase letters to strengthen'
+    return 'Great! Your password is secure'
+  }
+
+  const recommendationTip = get5WordRecommendation()
+
+  // Live Password Matching
+  const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
+  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword
 
   // Handle Step 1 Validation -> Proceed to Step 2
   const handleStep1Next = (e: React.FormEvent) => {
