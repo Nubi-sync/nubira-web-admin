@@ -191,9 +191,9 @@ export function PlatformAdminSidebar({
                   : 'opacity-0 max-w-0 duration-500 ease-in-out'
               }`}>
                 <img 
-                  src="/z i g z a (2).png" 
-                  alt="zigza." 
-                  className="h-9 w-auto object-contain rounded-xl shadow-2xs"
+                  src="/z i g z a (6)4.png" 
+                  alt="Zigza" 
+                  className="h-8 w-auto object-contain"
                 />
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white shrink-0 shadow-2xs ml-2">
                   ROOT
@@ -303,9 +303,9 @@ export function PlatformAdminSidebar({
                 className="w-7 h-7 object-contain rounded-lg shadow-xs"
               />
               <img
-                src="/z i g z a (2).png"
-                alt="zigza."
-                className="h-7 w-auto object-contain rounded-xl shadow-2xs ml-1"
+                src="/z i g z a (6)4.png"
+                alt="Zigza"
+                className="h-7 w-auto object-contain ml-1"
               />
             </Link>
             <div className="flex items-center gap-2">
