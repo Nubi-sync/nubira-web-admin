@@ -232,9 +232,9 @@ export default function LoginPage() {
         <div className="flex items-center gap-3">
           <Link href="/" className="inline-block group">
             <img 
-              src="/z i g z a (2).png" 
-              alt="zigza." 
-              className="h-10 sm:h-11 w-auto object-contain rounded-xl overflow-hidden transition-opacity group-hover:opacity-85"
+              src="/z i g z a (6)4.png" 
+              alt="Zigza" 
+              className="h-9 sm:h-10 w-auto object-contain transition-opacity group-hover:opacity-85"
             />
           </Link>
           <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black/10 bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] shadow-2xs">

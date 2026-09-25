@@ -292,12 +292,12 @@ export function ZigzaLandingPageClient({
       <header className="sticky top-0 z-40 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#57564E]/15">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
-          {/* Brand Logo: Single new_logo.png without scroll switching */}
+          {/* Brand Logo */}
           <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0">
             <img 
-              src="/z i g z a (2).png" 
-              alt="zigza." 
-              className="h-[42px] sm:h-[54px] lg:h-[60px] w-auto object-contain rounded-xl overflow-hidden shadow-xs transition-transform duration-150 group-hover:scale-[1.02]"
+              src="/z i g z a (6)4.png" 
+              alt="Zigza" 
+              className="h-[36px] sm:h-[46px] lg:h-[50px] w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02]"
             />
           </Link>
 
@@ -2076,9 +2076,9 @@ export function ZigzaLandingPageClient({
             <div className="col-span-2 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
-                  src="/z i g z a (2).png" 
-                  alt="zigza." 
-                  className="h-8 sm:h-9 w-auto object-contain rounded-md sm:rounded-lg overflow-hidden group-hover:opacity-90 transition-opacity duration-150"
+                  src="/z i g z a (6)4.png" 
+                  alt="Zigza" 
+                  className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
                 />
               </Link>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
@@ -2279,9 +2279,9 @@ export function ZigzaLandingPageClient({
 
             <div className="flex items-center gap-3 mb-2">
               <img 
-                src="/z i g z a (2).png" 
-                alt="zigza." 
-                className="h-7 w-auto object-contain rounded-md overflow-hidden"
+                src="/z i g z a (6)4.png" 
+                alt="Zigza" 
+                className="h-7 sm:h-8 w-auto object-contain"
               />
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                 Request a Live Demo
