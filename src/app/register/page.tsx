@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -52,19 +52,21 @@ function IndiaFlag({ className = 'w-5 h-3.5' }: { className?: string }) {
   )
 }
 
+const STEP1_CACHE_KEY = 'zigza_trial_step1_draft_v1'
+
 const ALL_12_MODULES = [
-  { code: '01', name: 'Design & Tech-Pack Studio', route: '/design', desc: 'CAD measurements, bill of materials, and tech pack approvals' },
-  { code: '02', name: 'Merchandising & Sourcing', route: '/merchandising', desc: 'Purchase orders, consumption formulas, and costings' },
-  { code: '03', name: 'Cutting & Lay Floor', route: '/cutting', desc: 'Marker ratios, fabric lay sheets, and bundle tracking' },
-  { code: '04', name: 'Screen & Digital Printing', route: '/printing', desc: 'Strike-off signoffs, color approvals, and printing lots' },
-  { code: '05', name: 'Multi-Head Embroidery', route: '/embroidery', desc: 'DST stitch runs, thread wastage, and head allocations' },
-  { code: '06', name: 'Stitching & Sewing Floor', route: '/stitching-sewing', desc: 'Lineman tickets, bundle handovers, and tailor piece wages' },
-  { code: '07', name: 'Industrial Washing & Dyeing', route: '/washing', desc: 'Recipe timing, garment shrinkage, and shade clearance' },
-  { code: '08', name: 'Steam Pressing & Ironing', route: '/iron', desc: 'Station allotments, finishing outputs, and defect sorting' },
-  { code: '09', name: 'Ready Goods & Packing', route: '/ready-goods', desc: 'Master cartons, gross weight checks, and AQL 2.5 audit' },
-  { code: '10', name: 'Alteration & Quality Clinic', route: '/alter', desc: 'Defect intake, tailor repair routing, and reinspection' },
-  { code: '11', name: 'Central Store Godown', route: '/store', desc: 'Fabric roll inwarding, ASTM 4-point QC, and trims vault' },
-  { code: '12', name: 'Dispatch & Logistics', route: '/dispatch', desc: 'Gate pass clearance, transporter LR, and export dispatch' }
+  { code: '01', name: 'Design & Tech-Pack', route: '/design' },
+  { code: '02', name: 'Merchandising & Sourcing', route: '/merchandising' },
+  { code: '03', name: 'Cutting & Lay Floor', route: '/cutting' },
+  { code: '04', name: 'Screen & Digital Printing', route: '/printing' },
+  { code: '05', name: 'Multi-Head Embroidery', route: '/embroidery' },
+  { code: '06', name: 'Stitching & Sewing Floor', route: '/stitching-sewing' },
+  { code: '07', name: 'Industrial Washing & Dyeing', route: '/washing' },
+  { code: '08', name: 'Steam Pressing & Ironing', route: '/iron' },
+  { code: '09', name: 'Ready Goods & Packing', route: '/ready-goods' },
+  { code: '10', name: 'Alteration & Quality Clinic', route: '/alter' },
+  { code: '11', name: 'Central Store Godown', route: '/store' },
+  { code: '12', name: 'Dispatch & Logistics', route: '/dispatch' }
 ]
 
 export default function RegisterFreeTrialPage() {
@@ -92,6 +94,7 @@ export default function RegisterFreeTrialPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [createdCompany, setCreatedCompany] = useState<string>('')
   const [trialExpiresAt, setTrialExpiresAt] = useState<string>('')
+  const [userNavigatedBack, setUserNavigatedBack] = useState(false)
 
   // Derive Industry Name from First Name
   const cleanFirst = fullName.trim().split(/\s+/)[0] || 'Apparel'
@@ -175,6 +178,64 @@ export default function RegisterFreeTrialPage() {
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword
 
+  // Restore cached Step 1 draft from localStorage on initial mount.
+  // If Step 1 is filled or step was 2, automatically jump directly to Step 2 upon refresh.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STEP1_CACHE_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object') return
+
+      if (parsed.fullName) setFullName(parsed.fullName)
+      if (parsed.email) setEmail(parsed.email)
+      if (parsed.phone) setPhone(parsed.phone)
+      if (parsed.password) setPassword(parsed.password)
+      if (parsed.confirmPassword) setConfirmPassword(parsed.confirmPassword)
+      if (parsed.userNavigatedBack) setUserNavigatedBack(true)
+
+      const isStep1Filled =
+        typeof parsed.fullName === 'string' && parsed.fullName.trim().length >= 2 &&
+        typeof parsed.email === 'string' && parsed.email.includes('@') &&
+        typeof parsed.phone === 'string' && parsed.phone.length === 10 &&
+        typeof parsed.password === 'string' && parsed.password.length >= 6 &&
+        parsed.password === parsed.confirmPassword
+
+      if (parsed.step === 2 || (isStep1Filled && !parsed.userNavigatedBack)) {
+        setCurrentStep(2)
+      }
+    } catch (_) {}
+  }, [])
+
+  // Auto-sync form data to localStorage as user enters credentials
+  useEffect(() => {
+    if (fullName || email || phone || password || confirmPassword) {
+      try {
+        const isStep1Filled =
+          fullName.trim().length >= 2 &&
+          email.trim().includes('@') &&
+          email.trim().includes('.') &&
+          phone.length === 10 &&
+          password.length >= 6 &&
+          password === confirmPassword
+
+        const targetStep: 1 | 2 = (currentStep === 2 || (isStep1Filled && !userNavigatedBack)) ? 2 : 1
+
+        const draft = {
+          fullName,
+          email,
+          phone,
+          password,
+          confirmPassword,
+          step: targetStep,
+          userNavigatedBack,
+          savedAt: Date.now()
+        }
+        localStorage.setItem(STEP1_CACHE_KEY, JSON.stringify(draft))
+      } catch (_) {}
+    }
+  }, [fullName, email, phone, password, confirmPassword, currentStep, userNavigatedBack])
+
   // Handle Step 1 Validation -> Proceed to Step 2
   const handleStep1Next = (e: React.FormEvent) => {
     e.preventDefault()
@@ -206,7 +267,40 @@ export default function RegisterFreeTrialPage() {
       return
     }
 
+    setUserNavigatedBack(false)
+
+    // Cache valid step 1 data and mark step as 2
+    try {
+      const draft = {
+        fullName: fullName.trim(),
+        email: cleanEmail,
+        phone,
+        password,
+        confirmPassword,
+        step: 2,
+        userNavigatedBack: false,
+        savedAt: Date.now()
+      }
+      localStorage.setItem(STEP1_CACHE_KEY, JSON.stringify(draft))
+    } catch (_) {}
+
     setCurrentStep(2)
+  }
+
+  // Handle Back to Step 1 (updating cache so user isn't forced forward on refresh)
+  const handleBackToStep1 = () => {
+    setErrorMsg(null)
+    setUserNavigatedBack(true)
+    setCurrentStep(1)
+    try {
+      const raw = localStorage.getItem(STEP1_CACHE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        parsed.step = 1
+        parsed.userNavigatedBack = true
+        localStorage.setItem(STEP1_CACHE_KEY, JSON.stringify(parsed))
+      }
+    } catch (_) {}
   }
 
   // Toggle Module Selection
@@ -255,6 +349,11 @@ export default function RegisterFreeTrialPage() {
       setCreatedCompany(res.companyName || derivedIndustryName)
       setTrialExpiresAt(res.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
       
+      // Clear Step 1 draft cache upon successful trial activation
+      try {
+        localStorage.removeItem(STEP1_CACHE_KEY)
+      } catch (_) {}
+
       // Broadcast update to sync local admin tenant directory if viewed in this browser session
       try {
         if (typeof window !== 'undefined') {
@@ -514,7 +613,7 @@ export default function RegisterFreeTrialPage() {
                     {/* 5-Word Dynamic Recommendation */}
                     <div className="flex items-center justify-between text-[11px] pt-0.5">
                       <span className="text-slate-600 font-medium">
-                        💡 {recommendationTip}
+                        {recommendationTip}
                       </span>
                       <span className={`font-mono text-[10.5px] ${hasMinLength ? 'text-emerald-600 font-semibold' : 'text-slate-400'}`}>
                         {password.length} chars (min 6)
@@ -616,96 +715,86 @@ export default function RegisterFreeTrialPage() {
           {/* STEP 2: CHOOSE MODULES TO TRY OUT                              */}
           {/* ============================================================== */}
           {currentStep === 2 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="space-y-3.5 animate-in fade-in duration-300">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                   Choose Modules to Try Out
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Select your preferred units. All 12 enterprise options are pre-selected for your trial.
+                <p className="text-xs text-slate-500 mt-1">
+                  All 12 enterprise units are pre-selected for your trial. Click any to toggle.
                 </p>
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-700">
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-700">
                   {errorMsg}
                 </div>
               )}
 
-              {/* Industry Name Preview Banner */}
-              <div className="p-3.5 bg-[#FAF7F0] border border-black/15 rounded-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#3A3564] shrink-0">
-                  <Building2 className="w-5 h-5" />
+              {/* Unified Factory Workspace Strip & Active Counter */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <div className="flex items-baseline gap-1.5 min-w-0 truncate">
+                    <span className="font-extrabold text-slate-900 truncate">
+                      {derivedIndustryName}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">
+                      (Auto-Assigned)
+                    </span>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-mono uppercase font-bold text-slate-500 block">
-                    Auto-Assigned Plant Name
-                  </span>
-                  <span className="text-sm font-extrabold text-slate-900 block truncate">
-                    {derivedIndustryName}
-                  </span>
-                  <span className="text-[11px] text-slate-500 block">
-                    (Fully editable in your Profile anytime)
-                  </span>
-                </div>
-              </div>
 
-              {/* Selection Controls */}
-              <div className="flex items-center justify-between text-xs font-semibold pt-1">
-                <span className="text-slate-700 font-mono">
-                  {selectedDivisions.length} of 12 Modules Selected
-                </span>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={selectAllDivisions}
-                    className="text-[#3A3564] hover:underline cursor-pointer"
-                  >
-                    Select All
-                  </button>
+                <div className="flex items-center justify-between sm:justify-end gap-3 text-xs shrink-0">
+                  <span className="font-mono text-[11px] font-bold text-[#3A3564]">
+                    {selectedDivisions.length} of 12 Active
+                  </span>
                   <span className="text-slate-300">|</span>
-                  <button
-                    type="button"
-                    onClick={clearAllDivisions}
-                    className="text-slate-500 hover:text-slate-800 cursor-pointer"
-                  >
-                    Clear All
-                  </button>
+                  <div className="flex items-center gap-2 font-semibold">
+                    <button
+                      type="button"
+                      onClick={selectAllDivisions}
+                      className="text-[#3A3564] hover:underline cursor-pointer"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-slate-300">•</span>
+                    <button
+                      type="button"
+                      onClick={clearAllDivisions}
+                      className="text-slate-500 hover:text-slate-800 cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* 12 Modules Selectable List */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[310px] overflow-y-auto pr-1">
+              {/* 12 Modules: Clean 1-Line Chips in a 2-Column Grid (Zero Scrollbar) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {ALL_12_MODULES.map((mod) => {
                   const isSelected = selectedDivisions.includes(mod.route)
                   return (
                     <div
                       key={mod.code}
                       onClick={() => toggleDivision(mod.route)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 ${
+                      className={`px-3 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-2.5 select-none ${
                         isSelected
-                          ? 'border-[#3A3564] bg-[#FAF7F0]/60'
-                          : 'border-slate-200 bg-white hover:border-slate-300 opacity-60'
+                          ? 'border-[#3A3564] bg-[#FAF7F0] text-slate-900 shadow-2xs'
+                          : 'border-slate-200 bg-white hover:border-slate-300 text-slate-400 opacity-60'
                       }`}
                     >
-                      <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 border transition-all ${
+                      <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 border transition-all ${
                         isSelected ? 'bg-[#3A3564] border-[#3A3564] text-white' : 'border-slate-300 bg-white'
                       }`}>
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-mono font-bold text-slate-400">
-                            {mod.code}
-                          </span>
-                          <h4 className="text-xs font-bold text-slate-900 truncate">
-                            {mod.name}
-                          </h4>
-                        </div>
-                        <p className="text-[11px] text-slate-500 leading-tight mt-0.5 line-clamp-1">
-                          {mod.desc}
-                        </p>
-                      </div>
+                      <span className="text-[10px] font-mono font-bold text-slate-400 shrink-0">
+                        {mod.code}
+                      </span>
+                      <span className="text-xs font-bold truncate">
+                        {mod.name}
+                      </span>
                     </div>
                   )
                 })}
@@ -715,9 +804,9 @@ export default function RegisterFreeTrialPage() {
               <div className="pt-2 flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(1)}
+                  onClick={handleBackToStep1}
                   disabled={isPending}
-                  className="px-4 py-3.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-all cursor-pointer"
+                  className="px-5 py-3.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-all cursor-pointer"
                 >
                   Back
                 </button>
@@ -795,7 +884,7 @@ export default function RegisterFreeTrialPage() {
               </div>
 
               <div className="p-3 bg-blue-50 border border-blue-200/70 rounded-xl text-left text-[11.5px] text-blue-800 leading-relaxed">
-                💡 <span className="font-bold">Factory Name Notice:</span> Your industry name has been initialized as <span className="font-bold">{createdCompany}</span> based on your first name, and can be edited anytime under your <Link href="/modules/profile" className="underline font-bold">Profile</Link>.
+                <span className="font-bold text-blue-900">Factory Name Notice:</span> Your industry name has been initialized as <span className="font-bold">{createdCompany}</span> based on your first name, and can be edited anytime under your <Link href="/modules/profile" className="underline font-bold">Profile</Link>.
               </div>
 
               {/* Action Buttons */}
