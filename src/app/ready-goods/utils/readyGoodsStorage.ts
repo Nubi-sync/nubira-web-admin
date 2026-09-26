@@ -7,7 +7,11 @@ import {
   ScaleWeightLog,
   GodownHandoverPallet,
   ReadyGoodsMetrics,
-  CartonStatus
+  CartonStatus,
+  ReadyGoodsWorker,
+  FinishingInspectionTask,
+  InspectionChecklist,
+  InspectionTaskStatus
 } from '../types/readyGoods'
 import {
   INITIAL_CARTONS,
@@ -15,7 +19,9 @@ import {
   INITIAL_HANGTAG_SCANS,
   INITIAL_SCALE_LOGS,
   INITIAL_PALLETS,
-  INITIAL_METRICS
+  INITIAL_METRICS,
+  INITIAL_READY_GOODS_WORKERS,
+  INITIAL_INSPECTION_TASKS
 } from '../data/initialData'
 
 export const READY_GOODS_UPDATE_EVENT = 'zigza:ready_goods_updated'
@@ -26,7 +32,9 @@ const KEYS = {
   HANGTAG_SCANS: 'zigza_ready_goods_hangtag_scans_v2',
   SCALE_LOGS: 'zigza_ready_goods_scale_logs_v2',
   PALLETS: 'zigza_ready_goods_pallets_v2',
-  METRICS: 'zigza_ready_goods_metrics_v2'
+  METRICS: 'zigza_ready_goods_metrics_v2',
+  WORKERS: 'zigza_ready_goods_workers_v1',
+  INSPECTION_TASKS: 'zigza_ready_goods_inspection_tasks_v1'
 }
 
 function emitUpdate() {
