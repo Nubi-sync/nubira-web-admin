@@ -314,3 +314,139 @@ export function getReadyGoodsMetrics(): ReadyGoodsMetrics {
     return INITIAL_METRICS
   }
 }
+
+// 7. Floor Workers (Checkers, Packers, Both)
+export function getReadyGoodsWorkers(companyName?: string): ReadyGoodsWorker[] {
+  if (typeof window === 'undefined') return INITIAL_READY_GOODS_WORKERS
+  try {
+    const raw = localStorage.getItem(KEYS.WORKERS)
+    if (!raw) {
+      localStorage.setItem(KEYS.WORKERS, JSON.stringify(INITIAL_READY_GOODS_WORKERS))
+      return INITIAL_READY_GOODS_WORKERS
+    }
+    const parsed = JSON.parse(raw)
+    const list: ReadyGoodsWorker[] = Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_READY_GOODS_WORKERS
+    if (companyName) {
+      const cleanComp = companyName.trim().toLowerCase()
+      return list.filter(w => !w.company_name || w.company_name.trim().toLowerCase() === cleanComp)
+    }
+    return list
+  } catch (e) {
+    console.error('Failed to parse workers from storage', e)
+    return INITIAL_READY_GOODS_WORKERS
+  }
+}
+
+export function saveReadyGoodsWorker(worker: ReadyGoodsWorker): ReadyGoodsWorker[] {
+  if (typeof window === 'undefined') return [worker]
+  const current = getReadyGoodsWorkers()
+  const idx = current.findIndex(w => w.id === worker.id || (w.phone_number && w.phone_number === worker.phone_number))
+  let updated: ReadyGoodsWorker[]
+  if (idx >= 0) {
+    updated = [...current]
+    updated[idx] = { ...current[idx], ...worker }
+  } else {
+    updated = [worker, ...current]
+  }
+  localStorage.setItem(KEYS.WORKERS, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+// 8. Finishing Quality Inspection Tasks (Incoming from Washing & Iron)
+export function getFinishingInspectionTasks(companyName?: string): FinishingInspectionTask[] {
+  if (typeof window === 'undefined') return INITIAL_INSPECTION_TASKS
+  try {
+    const raw = localStorage.getItem(KEYS.INSPECTION_TASKS)
+    if (!raw) {
+      localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify(INITIAL_INSPECTION_TASKS))
+      return INITIAL_INSPECTION_TASKS
+    }
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_INSPECTION_TASKS
+  } catch (e) {
+    console.error('Failed to parse inspection tasks from storage', e)
+    return INITIAL_INSPECTION_TASKS
+  }
+}
+
+export function saveFinishingInspectionTask(task: FinishingInspectionTask): FinishingInspectionTask[] {
+  if (typeof window === 'undefined') return [task]
+  const current = getFinishingInspectionTasks()
+  const idx = current.findIndex(t => t.id === task.id || t.task_code === task.task_code)
+  let updated: FinishingInspectionTask[]
+  if (idx >= 0) {
+    updated = [...current]
+    updated[idx] = { ...current[idx], ...task, updated_at: new Date().toISOString() }
+  } else {
+    updated = [task, ...current]
+  }
+  localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+export function updateFinishingInspectionStatus(
+  taskId: string,
+  status: InspectionTaskStatus,
+  updates?: Partial<FinishingInspectionTask>
+): FinishingInspectionTask[] {
+  if (typeof window === 'undefined') return []
+  const current = getFinishingInspectionTasks()
+  const updated = current.map(t => {
+    if (t.id === taskId || t.task_code === taskId) {
+      return {
+        ...t,
+        status,
+        ...updates,
+        updated_at: new Date().toISOString()
+      }
+    }
+    return t
+  })
+  localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+export function submitQualityInspectionResult(params: {
+  taskId: string
+  workerId: string
+  workerName: string
+  checklist: InspectionChecklist
+  decision: 'APPROVE' | 'REJECT_TO_ALTER'
+  defectNotes?: string
+  defectCategory?: string
+}): FinishingInspectionTask[] {
+  const { taskId, workerId, workerName, checklist, decision, defectNotes, defectCategory } = params
+
+  const newStatus: InspectionTaskStatus = decision === 'APPROVE' ? 'PASSED_TO_PACKING' : 'REJECTED_TO_ALTERATION'
+  const altTicketId = decision === 'REJECT_TO_ALTER' ? `ALT-${Math.floor(1000 + Math.random() * 9000)}` : undefined
+
+  // Update inspection task
+  const updatedTasks = updateFinishingInspectionStatus(taskId, newStatus, {
+    checklist,
+    checked_by_worker_id: workerId,
+    checked_by_worker_name: workerName,
+    defect_notes: defectNotes,
+    defect_category: defectCategory,
+    alteration_ticket_id: altTicketId,
+    completed_at: new Date().toISOString()
+  })
+
+  // Increment worker's inspected pieces count
+  const task = updatedTasks.find(t => t.id === taskId || t.task_code === taskId)
+  const pieceCount = task?.pieces_count || 1
+  const workers = getReadyGoodsWorkers()
+  const workerIdx = workers.findIndex(w => w.id === workerId || w.worker_name === workerName)
+  if (workerIdx >= 0) {
+    workers[workerIdx] = {
+      ...workers[workerIdx],
+      inspected_pieces: (workers[workerIdx].inspected_pieces || 0) + pieceCount
+    }
+    localStorage.setItem(KEYS.WORKERS, JSON.stringify(workers))
+  }
+
+  emitUpdate()
+  return updatedTasks
+}
