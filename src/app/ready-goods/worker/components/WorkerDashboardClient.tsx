@@ -26,7 +26,8 @@ import {
   Wrench,
   X,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  Users
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -251,6 +252,32 @@ export function WorkerDashboardClient({
     saveReadyGoodsWorker(updatedWorker)
 
     toast.success(`Packed ${task.pieces_count} pcs of ${task.style_name} into export carton!`)
+  }
+
+  if (workers.length === 0) {
+    return (
+      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-2xl w-full mx-auto select-none pt-12">
+        <div className="bg-white p-8 sm:p-10 rounded-2xl border border-black/10 shadow-2xs text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+            <Users className="w-7 h-7" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">
+            No Registered Floor Workers
+          </h2>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+            There are no active floor workers registered yet. Register a Checker or Packer in the Alteration &amp; Quality Clinic to operate this terminal.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/ready-goods"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            >
+              <span>Go to Alteration &amp; Quality Clinic &rarr;</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

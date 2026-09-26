@@ -68,6 +68,7 @@ export function AlterationQualityClinicClient({
   // Modals
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
   const [isWorkerListOpen, setIsWorkerListOpen] = useState(false)
+  const [isAddLotOpen, setIsAddLotOpen] = useState(false)
   const [selectedTaskToInspect, setSelectedTaskToInspect] = useState<FinishingInspectionTask | null>(null)
 
   const reloadData = () => {
@@ -142,6 +143,22 @@ export function AlterationQualityClinicClient({
     reloadData()
   }
 
+  const handleDeleteTask = (taskId: string, taskCode: string) => {
+    if (confirm(`Remove lot #${taskCode} from inspection queue?`)) {
+      deleteFinishingInspectionTask(taskId)
+      toast.success(`Lot #${taskCode} removed.`)
+      reloadData()
+    }
+  }
+
+  const handleResetAllData = () => {
+    if (confirm('Clear all floor test data and reset this module to a completely clean state?')) {
+      clearAllReadyGoodsData()
+      toast.success('Ready goods floor reset to clean state.')
+      reloadData()
+    }
+  }
+
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
       
@@ -196,11 +213,11 @@ export function AlterationQualityClinicClient({
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <button
             type="button"
-            onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+            onClick={() => setIsAddLotOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
-            <Users className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Worker List ({workers.length})</span>
+            <PackagePlus className="w-3.5 h-3.5" />
+            <span>+ Inward Lot</span>
           </button>
 
           <button
@@ -212,6 +229,15 @@ export function AlterationQualityClinicClient({
             <span>+ Add Worker</span>
           </button>
 
+          <button
+            type="button"
+            onClick={() => setIsWorkerListOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+          >
+            <Users className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Worker List ({workers.length})</span>
+          </button>
+
           <Link
             href="/ready-goods/worker"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
@@ -219,6 +245,16 @@ export function AlterationQualityClinicClient({
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Worker Terminal</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={handleResetAllData}
+            title="Reset Floor to Clean State"
+            className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
 
           <Link
             href="/ready-goods/zigza-ai"
@@ -348,6 +384,7 @@ export function AlterationQualityClinicClient({
                 <th className="py-3 px-4">Pieces &amp; Size</th>
                 <th className="py-3 px-4">Wash &amp; Iron Origin</th>
                 <th className="py-3 px-4">Tech-Pack Criteria</th>
+                <th className="py-3 px-4">Assigned Checker</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
@@ -355,8 +392,36 @@ export function AlterationQualityClinicClient({
             <tbody className="divide-y divide-black/5">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
-                    No garment lots matching the current filter.
+                  <td colSpan={8} className="py-16 text-center">
+                    <div className="max-w-md mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+                        <Scissors className="w-6 h-6" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        Quality Inspection Queue is Empty
+                      </h4>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        No hardcoded mock records. Inward incoming garments from finishing to test your quality checking and worker assignment flow.
+                      </p>
+                      <div className="flex items-center justify-center gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsAddLotOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                        >
+                          <PackagePlus className="w-3.5 h-3.5" />
+                          <span>+ Inward Garments Lot</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsAddWorkerOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+                        >
+                          <UserPlus className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>+ Add Worker</span>
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -422,6 +487,20 @@ export function AlterationQualityClinicClient({
                         </div>
                       </td>
 
+                      {/* Assigned Checker */}
+                      <td className="py-3.5 px-4">
+                        {task.checked_by_worker_name ? (
+                          <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                            <div className="w-5 h-5 rounded-full bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[10px] text-[#3A3564]">
+                              <Scissors className="w-2.5 h-2.5" />
+                            </div>
+                            <span>{task.checked_by_worker_name}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] font-mono text-slate-400 italic">Unassigned</span>
+                        )}
+                      </td>
+
                       {/* Status */}
                       <td className="py-3.5 px-4">
                         {isPending && (
@@ -453,34 +532,45 @@ export function AlterationQualityClinicClient({
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
-                        {isPending && (
+                        <div className="flex items-center justify-end gap-1.5">
+                          {isPending && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedTaskToInspect(task)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                              <span>Inspect &amp; Verify</span>
+                            </button>
+                          )}
+                          {isAlteration && (
+                            <button
+                              type="button"
+                              onClick={() => handleMarkRepaired(task.id, task.task_code)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all cursor-pointer"
+                            >
+                              <Wrench className="w-3.5 h-3.5" />
+                              <span>Mark Mended</span>
+                            </button>
+                          )}
+                          {isPassed && (
+                            <Link
+                              href="/ready-goods/packing"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all cursor-pointer"
+                            >
+                              <span>Open Packing &rarr;</span>
+                            </Link>
+                          )}
+
                           <button
                             type="button"
-                            onClick={() => setSelectedTaskToInspect(task)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                            onClick={() => handleDeleteTask(task.id, task.task_code)}
+                            title="Remove Lot"
+                            className="p-1.5 rounded-lg border border-black/10 hover:border-rose-300 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                           >
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                            <span>Inspect &amp; Verify</span>
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        )}
-                        {isAlteration && (
-                          <button
-                            type="button"
-                            onClick={() => handleMarkRepaired(task.id, task.task_code)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all cursor-pointer"
-                          >
-                            <Wrench className="w-3.5 h-3.5" />
-                            <span>Mark Mended</span>
-                          </button>
-                        )}
-                        {isPassed && (
-                          <Link
-                            href="/ready-goods/packing"
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all cursor-pointer"
-                          >
-                            <span>Open Packing &rarr;</span>
-                          </Link>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   )
@@ -492,6 +582,14 @@ export function AlterationQualityClinicClient({
       </div>
 
       {/* Modals */}
+      <InwardLotModal
+        isOpen={isAddLotOpen}
+        onClose={() => setIsAddLotOpen(false)}
+        workers={workers}
+        companyName={companyName}
+        onLotCreated={() => reloadData()}
+      />
+
       <AddWorkerModal
         isOpen={isAddWorkerOpen}
         onClose={() => setIsAddWorkerOpen(false)}
