@@ -416,10 +416,10 @@ export function InspectLotModal({
                 type="button"
                 onClick={handleApprove}
                 disabled={!canApprove()}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Approve & Pass to Packing</span>
+                <span>Approve &amp; Pass to Packing</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </>

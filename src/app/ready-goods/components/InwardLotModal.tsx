@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 import { FinishingInspectionTask, ReadyGoodsWorker } from '../types/readyGoods'
 import { saveFinishingInspectionTask } from '../utils/readyGoodsStorage'
 import { broadcastFloorEvent } from '@/utils/floorRealtime'
+import { getActiveBuyers } from '@/app/merchandising/utils/merchandisingStorage'
 
 interface InwardLotModalProps {
   isOpen: boolean
@@ -105,11 +106,19 @@ export function InwardLotModal({
   const [hasEmbroidery, setHasEmbroidery] = useState(true)
   const [techPackSummary, setTechPackSummary] = useState('Embroidery First, Then Printing')
   const [assignedWorkerId, setAssignedWorkerId] = useState<string>('')
+  const [activeMerchBuyers, setActiveMerchBuyers] = useState<string[]>([])
 
-  // Sync default buyer when opened
+  // Sync default buyer and active buyers list when opened
   React.useEffect(() => {
-    if (isOpen && defaultBuyerName && defaultBuyerName !== 'ALL') {
-      setBuyer(defaultBuyerName)
+    if (isOpen) {
+      if (defaultBuyerName && defaultBuyerName !== 'ALL') {
+        setBuyer(defaultBuyerName)
+      }
+      try {
+        const list = getActiveBuyers()
+        const names = list.map((b: any) => b.buyer_name || b.id).filter(Boolean)
+        setActiveMerchBuyers(Array.from(new Set(names)))
+      } catch {}
     }
   }, [isOpen, defaultBuyerName])
 
@@ -302,6 +311,25 @@ export function InwardLotModal({
                 placeholder="e.g. Urban Outfitters, Zara, H&M"
                 className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
               />
+              {activeMerchBuyers.length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                  <span className="text-[10px] font-mono font-bold text-slate-400">Buyers:</span>
+                  {activeMerchBuyers.map(bName => (
+                    <button
+                      key={bName}
+                      type="button"
+                      onClick={() => setBuyer(bName)}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                        buyer.toLowerCase() === bName.toLowerCase()
+                          ? 'bg-[#3A3564] text-white shadow-2xs'
+                          : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
+                      }`}
+                    >
+                      {bName}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
