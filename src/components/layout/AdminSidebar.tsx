@@ -718,7 +718,7 @@ export function AdminSidebar({
         ],
       },
       {
-        section: '11. Central Store & Godown',
+        section: '10. Central Store & Godown',
         items: [
           { label: 'Central Hub (Cloth Stock)', href: '/store', icon: Store },
           { label: 'Merchandise Store', href: '/store/merchandise', icon: Briefcase },

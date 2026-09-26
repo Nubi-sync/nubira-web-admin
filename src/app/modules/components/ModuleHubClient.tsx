@@ -192,7 +192,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
 
   const headingSubtitle = resolvedCompany
     ? `Central manufacturing execution and floor operations hub for ${resolvedCompany}`
-    : `Central manufacturing execution hub across ${visibleModules.length === MODULES.length ? 'all 12 apparel production divisions' : 'your authorized division modules'}`
+    : `Central manufacturing execution hub across ${visibleModules.length === MODULES.length ? 'all 11 apparel production divisions' : 'your authorized division modules'}`
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
@@ -223,7 +223,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           <Link
             href="/modules/access-control"
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
-            title="Appoint and manage Division Heads across all 12 manufacturing units"
+            title="Appoint and manage Division Heads across all 11 manufacturing units"
           >
             <ShieldCheck className="w-4 h-4" />
             <span>Department Heads</span>

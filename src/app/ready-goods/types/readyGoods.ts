@@ -185,5 +185,6 @@ export interface FinishingInspectionTask {
   alteration_ticket_id?: string
   packed_carton_id?: string
   created_at: string
+  updated_at?: string
   completed_at?: string
 }

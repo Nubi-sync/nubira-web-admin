@@ -190,7 +190,7 @@ export function WorkerDashboardClient({
       companyName,
       title: 'QC Inspection Passed',
       message: `${currentTask.pieces_count} pcs of ${currentTask.style_name} approved and sent to Packing line.`,
-      module: 'ready-goods'
+      sourceModule: 'ready-goods'
     })
 
     toast.success(`Lot #${currentTask.task_code} approved! Passed to Packing line.`)
@@ -222,7 +222,7 @@ export function WorkerDashboardClient({
       companyName,
       title: 'Garment Flagged for Alteration',
       message: `${currentTask.pieces_count} pcs of ${currentTask.style_name} routed to Alteration Clinic (${defectReason}).`,
-      module: 'alter'
+      sourceModule: 'alter'
     })
 
     toast.error(`Lot #${currentTask.task_code} flagged as defect -> Routed to ${defectStation}`)
