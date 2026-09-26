@@ -332,27 +332,27 @@ export function AlterationQualityClinicClient({
         </div>
       </div>
 
-      {/* 2. Module Title Header Card (Clean & Uncluttered) */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+      {/* 2. Module Title Header Card (Clean, Spacious & Brand-Aligned) */}
+      <div className="bg-white p-6 sm:p-7 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
             <Wrench className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
               Alteration &amp; Quality Clinic
             </h1>
-            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
-              Post-wash &amp; steam iron inspection, tech-pack criteria verification, defect alteration, and packing clearance
+            <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+              Post-wash inspection, defect mending, and export packing clearance
             </p>
           </div>
         </div>
 
         {/* Quick Utilities in Header */}
-        <div className="flex items-center gap-2.5 w-full lg:w-auto justify-end flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2.5 w-full md:w-auto justify-end flex-wrap sm:flex-nowrap">
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-all shadow-2xs"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Worker Terminal</span>
@@ -360,7 +360,7 @@ export function AlterationQualityClinicClient({
 
           <Link
             href="/ready-goods/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-all shadow-2xs"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
@@ -370,312 +370,161 @@ export function AlterationQualityClinicClient({
             type="button"
             onClick={handleResetAllData}
             title="Reset Floor to Clean State"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset Floor</span>
+            <span className="hidden sm:inline">Reset</span>
           </button>
         </div>
       </div>
 
-      {/* 3. Buyer Selection & Floor Control Bar */}
+      {/* 3. Unified Buyer Switcher & Floor Action Bar (Spacey, Brand-Styled, No Duplicate Dropdowns) */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         
-        {/* Left: Active Buyer Info Pill */}
-        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-              Selected Buyer Contract
-            </div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
-              <span>{selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers & Contracts'}</span>
-              {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                  PO: {selectedBuyer.linked_article_number}
+        {/* Left: Direct Buyer Switching Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none flex-1">
+          <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
+            Buyer:
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setSelectedBuyerId('ALL')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
+              activeSelectedBuyerId === 'ALL'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
+            }`}
+          >
+            <span>All Buyers</span>
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+              activeSelectedBuyerId === 'ALL' ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
+            }`}>
+              {tasks.length}
+            </span>
+          </button>
+
+          {buyers.map(b => {
+            const bName = b.buyer_name || b.brand_name || ''
+            const bLots = tasks.filter(t => (t.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
+            const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
+
+            return (
+              <button
+                key={b.id || bName}
+                type="button"
+                onClick={() => setSelectedBuyerId(b.id || bName)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
+                  isSelected
+                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
+                }`}
+              >
+                <span>{bName}</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                  isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
+                }`}>
+                  {bLots.length}
                 </span>
-              )}
-            </div>
-          </div>
+              </button>
+            )
+          })}
         </div>
 
-        {/* Right: Searchable Buyer Dropdown + Floor Actions */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
-          
-          {/* Buyer Selector Dropdown */}
-          <div className="relative min-w-[200px] sm:min-w-[240px]">
-            <button
-              type="button"
-              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-2 truncate">
-                <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
-                <span className="truncate">{selectedBuyerDisplayText}</span>
-              </div>
-              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isBuyerMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={buyerSearchQuery}
-                    onChange={e => setBuyerSearchQuery(e.target.value)}
-                    placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
-                    autoFocus
-                  />
-                </div>
-                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
-                  {/* All Buyers Option */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedBuyerId('ALL')
-                      setIsBuyerMenuOpen(false)
-                    }}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
-                      activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
-                        Show all {tasks.length} lots ({tasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)} pcs)
-                      </div>
-                    </div>
-                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
-                  </button>
-
-                  {filteredBuyersList.length === 0 ? (
-                    <div className="py-3 px-2 text-center text-xs text-slate-400">
-                      No buyers found
-                    </div>
-                  ) : (
-                    filteredBuyersList.map(b => {
-                      const bName = b.buyer_name || b.brand_name || ''
-                      const bLots = tasks.filter(t => (t.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
-                      const bPcs = bLots.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
-                      const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
-
-                      return (
-                        <button
-                          key={b.id || bName}
-                          type="button"
-                          onClick={() => {
-                            setSelectedBuyerId(b.id || bName)
-                            setIsBuyerMenuOpen(false)
-                          }}
-                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
-                            isSelected
-                              ? 'bg-[#3A3564] text-white font-bold'
-                              : 'text-slate-700 hover:bg-[#FAF7F0]'
-                          }`}
-                        >
-                          <div className="truncate pr-2">
-                            <div className="font-bold">{bName}</div>
-                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-indigo-200' : 'text-slate-500'}`}>
-                              {bLots.length} Lots • {bPcs} Pcs in QC
-                            </div>
-                          </div>
-                          {isSelected && <Check className="w-4 h-4 text-white shrink-0" />}
-                        </button>
-                      )
-                    })
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Worker List Button */}
+        {/* Right: Floor Actions Using Brand Colors */}
+        <div className="flex items-center gap-2.5 shrink-0 justify-end flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
-            <span>Worker List ({workers.length})</span>
+            <Users className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Workers ({workers.length})</span>
           </button>
 
-          {/* + Add Worker Button */}
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
-            <UserPlus className="w-4 h-4" />
-            <span>+ Add Worker</span>
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>+ Worker</span>
           </button>
 
-          {/* + Inward Lot Button */}
           <button
             type="button"
             onClick={() => setIsAddLotOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
-            <PackagePlus className="w-4 h-4" />
+            <PackagePlus className="w-3.5 h-3.5" />
             <span>+ Inward Lot</span>
           </button>
         </div>
       </div>
 
-      {/* 4. Buyer Quick-Tabs Bar (One-click direct switching) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          type="button"
-          onClick={() => setSelectedBuyerId('ALL')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
-            activeSelectedBuyerId === 'ALL'
-              ? 'bg-[#3A3564] text-white shadow-xs'
-              : 'bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700'
-          }`}
-        >
-          <span>All Buyers</span>
-          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeSelectedBuyerId === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}`}>
-            {tasks.length}
-          </span>
-        </button>
-
-        {buyers.map(b => {
-          const bName = b.buyer_name || b.brand_name || ''
-          const bLots = tasks.filter(t => (t.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
-          const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
-
-          return (
-            <button
-              key={b.id || bName}
-              type="button"
-              onClick={() => setSelectedBuyerId(b.id || bName)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
-                isSelected
-                  ? 'bg-[#3A3564] text-white shadow-xs'
-                  : 'bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700'
-              }`}
-            >
-              <span>{bName}</span>
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                {bLots.length}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* 5. Work & Quality Clearance Progress Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      {/* 4. Visual Quality Clearance Strip (Airy, Minimalist, Visual with Pure Numbers) */}
+      <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3.5">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>Inspection &amp; Clearance Progress</span>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                  {selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers Combined'}
-                </span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                {totalBuyerLots > 0
-                  ? `${totalBuyerPieces} pcs across ${totalBuyerLots} lots • Tracking inspection clearance to packing export cartons`
-                  : 'No lots inwarded yet for this selection. Inward lots from finishing to start quality inspection.'}
-              </p>
-            </div>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Floor Clearance
+            </span>
+            <span className="text-sm font-black font-mono text-[#3A3564] px-2.5 py-0.5 rounded-lg bg-[#FAF7F0] border border-black/5">
+              {clearanceRate}%
+            </span>
+            {selectedBuyer && (
+              <span className="text-xs font-bold text-slate-700">
+                {selectedBuyer.buyer_name || selectedBuyer.brand_name}
+              </span>
+            )}
           </div>
 
-          {/* Clearance Rate Badge */}
-          <div className="flex items-center gap-2">
-            <div className="text-right hidden sm:block">
-              <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
-                Clearance Rate
-              </div>
-              <div className="text-lg font-black font-mono text-emerald-700">
-                {clearanceRate}%
-              </div>
+          {/* Clean visual chips - numbers only, zero redundant sentences */}
+          <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono font-bold flex-wrap">
+            <div className="flex items-center gap-1.5 text-slate-800">
+              <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+              <span>{passedPcs}</span>
+              <span className="text-slate-400 font-normal">Passed</span>
             </div>
-            <div className="px-3.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-mono font-bold">
-              {passedPcs} / {totalBuyerPieces || 0} Pcs Cleared
+            <div className="flex items-center gap-1.5 text-slate-800">
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span>{inCheckingPcs}</span>
+              <span className="text-slate-400 font-normal">In QC</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-800">
+              <span className="w-2 h-2 rounded-full bg-rose-500" />
+              <span>{alterationPcs}</span>
+              <span className="text-slate-400 font-normal">Mending</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-800">
+              <span className="w-2 h-2 rounded-full bg-slate-300" />
+              <span>{pendingPcs}</span>
+              <span className="text-slate-400 font-normal">Queue</span>
+            </div>
+            <div className="text-slate-400 pl-2 border-l border-black/10 font-normal">
+              {totalBuyerPieces} pcs total
             </div>
           </div>
         </div>
 
-        {/* Multi-Segment Visual Progress Bar */}
-        <div className="space-y-1.5">
-          <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex border border-black/5">
-            {passedPct > 0 && (
-              <div
-                style={{ width: `${passedPct}%` }}
-                className="bg-emerald-500 hover:bg-emerald-600 transition-all duration-300"
-                title={`Passed to Packing: ${passedPcs} pcs (${Math.round(passedPct)}%)`}
-              />
-            )}
-            {inCheckingPct > 0 && (
-              <div
-                style={{ width: `${inCheckingPct}%` }}
-                className="bg-amber-400 hover:bg-amber-500 transition-all duration-300"
-                title={`In Checking: ${inCheckingPcs} pcs (${Math.round(inCheckingPct)}%)`}
-              />
-            )}
-            {alterationPct > 0 && (
-              <div
-                style={{ width: `${alterationPct}%` }}
-                className="bg-rose-500 hover:bg-rose-600 transition-all duration-300"
-                title={`In Alteration Rework: ${alterationPcs} pcs (${Math.round(alterationPct)}%)`}
-              />
-            )}
-            {pendingPct > 0 && (
-              <div
-                style={{ width: `${pendingPct}%` }}
-                className="bg-slate-300 hover:bg-slate-400 transition-all duration-300"
-                title={`Pending Check: ${pendingPcs} pcs (${Math.round(pendingPct)}%)`}
-              />
-            )}
-          </div>
-
-          {/* Legend & Breakdown Chips */}
-          <div className="flex items-center justify-between flex-wrap gap-2 text-xs pt-1">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-                <span className="font-semibold text-slate-700">Passed:</span>
-                <span className="font-mono font-bold text-slate-900">{passedPcs} pcs ({passedTasks.length} lots)</span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0" />
-                <span className="font-semibold text-slate-700">In Checking:</span>
-                <span className="font-mono font-bold text-slate-900">{inCheckingPcs} pcs ({inCheckingTasks.length} lots)</span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
-                <span className="font-semibold text-slate-700">In Alteration:</span>
-                <span className="font-mono font-bold text-slate-900">{alterationPcs} pcs ({alterationTasks.length} lots)</span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0" />
-                <span className="font-semibold text-slate-700">Pending:</span>
-                <span className="font-mono font-bold text-slate-900">{pendingPcs} pcs ({pendingTasks.length} lots)</span>
-              </div>
-            </div>
-
-            <div className="font-mono text-xs font-bold text-[#3A3564]">
-              Total: {totalBuyerPieces} pcs
-            </div>
-          </div>
+        {/* Minimalist Multi-Segment Progress Track */}
+        <div className="h-2 w-full bg-[#FAF7F0] rounded-full overflow-hidden flex border border-black/5">
+          {passedPct > 0 && (
+            <div style={{ width: `${passedPct}%` }} className="bg-[#3A3564] transition-all duration-300" />
+          )}
+          {inCheckingPct > 0 && (
+            <div style={{ width: `${inCheckingPct}%` }} className="bg-amber-500 transition-all duration-300" />
+          )}
+          {alterationPct > 0 && (
+            <div style={{ width: `${alterationPct}%` }} className="bg-rose-500 transition-all duration-300" />
+          )}
+          {pendingPct > 0 && (
+            <div style={{ width: `${pendingPct}%` }} className="bg-slate-300 transition-all duration-300" />
+          )}
         </div>
       </div>
 
-      {/* 6. Summary Metric Boxes (Scoped to Active Buyer) */}
+      {/* 5. Summary Metric Boxes (STRICTLY 3 ELEMENTS: Title, Icon, Pure Number ONLY) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
         
         {/* Box 1: Inspection Queue */}
@@ -688,13 +537,8 @@ export function AlterationQualityClinicClient({
               <Scissors className="w-5 h-5" />
             </div>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
-              {inspectionQueueCount}
-            </div>
-            <p className="text-xs font-semibold text-slate-500 mt-1">
-              {inspectionQueuePcs > 0 ? `${inspectionQueuePcs} garments awaiting inspection` : '0 garments in check queue'}
-            </p>
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            {inspectionQueueCount}
           </div>
         </div>
 
@@ -708,13 +552,8 @@ export function AlterationQualityClinicClient({
               <Wrench className="w-5 h-5" />
             </div>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
-              {alterationTasks.length}
-            </div>
-            <p className="text-xs font-semibold text-slate-500 mt-1">
-              {alterationPcs > 0 ? `${alterationPcs} garments in mending` : '0 garments in alteration'}
-            </p>
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            {alterationTasks.length}
           </div>
         </div>
 
@@ -728,19 +567,14 @@ export function AlterationQualityClinicClient({
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
-              {passedTasks.length}
-            </div>
-            <p className="text-xs font-semibold text-slate-500 mt-1">
-              {passedPcs > 0 ? `${passedPcs} garments cleared for packing` : '0 garments cleared'}
-            </p>
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            {passedTasks.length}
           </div>
         </div>
 
       </div>
 
-      {/* 7. Controls & Filter Bar */}
+      {/* 6. Controls & Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
@@ -783,7 +617,7 @@ export function AlterationQualityClinicClient({
         </div>
       </div>
 
-      {/* 8. Incoming Post-Wash & Iron Quality Checking Lots Table */}
+      {/* 7. Incoming Post-Wash & Iron Quality Checking Lots Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         <div className="p-4 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -822,28 +656,26 @@ export function AlterationQualityClinicClient({
                         <Scissors className="w-6 h-6" />
                       </div>
                       <h4 className="text-sm font-bold text-slate-900">
-                        {selectedBuyer ? `No Lots Found for ${selectedBuyer.buyer_name || selectedBuyer.brand_name}` : 'Quality Inspection Queue is Empty'}
+                        {selectedBuyer ? `No Lots for ${selectedBuyer.buyer_name || selectedBuyer.brand_name}` : 'Inspection Queue Ready'}
                       </h4>
                       <p className="text-xs text-slate-500 leading-relaxed">
-                        {selectedBuyer
-                          ? `Inward incoming garment lots for ${selectedBuyer.buyer_name || selectedBuyer.brand_name} to test quality checking and worker assignment.`
-                          : 'Inward incoming garments from finishing to test your quality checking and worker assignment flow.'}
+                        Inward incoming garment lots or assign workers to begin inspection.
                       </p>
                       <div className="flex items-center justify-center gap-2 pt-2">
                         <button
                           type="button"
                           onClick={() => setIsAddLotOpen(true)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
                         >
                           <PackagePlus className="w-3.5 h-3.5" />
-                          <span>+ Inward Garments Lot</span>
+                          <span>+ Inward Lot</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsAddWorkerOpen(true)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
                         >
-                          <UserPlus className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <UserPlus className="w-3.5 h-3.5" />
                           <span>+ Add Worker</span>
                         </button>
                       </div>
@@ -973,7 +805,7 @@ export function AlterationQualityClinicClient({
                             <button
                               type="button"
                               onClick={() => handleMarkRepaired(task.id, task.task_code)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold transition-all cursor-pointer"
                             >
                               <Wrench className="w-3.5 h-3.5" />
                               <span>Mark Mended</span>
@@ -982,7 +814,7 @@ export function AlterationQualityClinicClient({
                           {isPassed && (
                             <Link
                               href="/ready-goods/packing"
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold transition-all cursor-pointer"
                             >
                               <span>Open Packing &rarr;</span>
                             </Link>
