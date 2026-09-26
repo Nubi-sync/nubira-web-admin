@@ -35,13 +35,15 @@ import {
   Menu,
   Check,
   Mail,
+  Send,
   Settings,
   Zap,
   Building2,
   Loader2
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
-import { submitDemoRequestAction, checkContactInUseAction } from '../platform-admin/actions'
+import { submitDemoRequestAction, checkContactInUseAction, submitCustomerQueryAction } from '../platform-admin/actions'
 
 // Smooth Easing Animated Counter for Live Metrics
 function AnimatedCounter({ 
@@ -225,6 +227,71 @@ export function ZigzaLandingPageClient({
     setDemoForm(prev => ({ ...prev, email: val }))
     // Clear duplicate errors when user edits email (they'll re-check on submit)
     if (emailDuplicate) setEmailDuplicate(null)
+  }
+
+  // Simple Direct Query Form State (Contact Us window sending to team.anga9@gmail.com)
+  const [queryForm, setQueryForm] = useState({
+    name: '',
+    phone: '',
+    companyName: '',
+    query: ''
+  })
+  const [isSubmittingQuery, setIsSubmittingQuery] = useState(false)
+  const [querySubmitted, setQuerySubmitted] = useState(false)
+  const [queryError, setQueryError] = useState<string | null>(null)
+
+  const handleQueryPhoneChange = (val: string) => {
+    let digits = val.replace(/\D/g, '')
+    if (digits.length > 10 && digits.startsWith('91')) digits = digits.slice(2)
+    if (digits.length > 10 && digits.startsWith('0')) digits = digits.slice(1)
+    digits = digits.slice(0, 10)
+    let formatted = digits
+    if (digits.length > 5) formatted = `${digits.slice(0, 5)} ${digits.slice(5)}`
+    setQueryForm(prev => ({ ...prev, phone: formatted }))
+  }
+
+  const handleQuerySubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setQueryError(null)
+
+    const rawDigits = queryForm.phone.replace(/\D/g, '')
+    if (rawDigits.length !== 10) {
+      setQueryError('Please enter a valid 10-digit mobile number.')
+      return
+    }
+
+    if (!queryForm.name.trim()) {
+      setQueryError('Please enter your full name.')
+      return
+    }
+
+    if (!queryForm.query.trim()) {
+      setQueryError('Please enter your query or message.')
+      return
+    }
+
+    setIsSubmittingQuery(true)
+
+    try {
+      const res = await submitCustomerQueryAction({
+        name: queryForm.name.trim(),
+        phone: rawDigits,
+        query: queryForm.query.trim(),
+        companyName: queryForm.companyName.trim() || undefined
+      })
+
+      if (res.success) {
+        setQuerySubmitted(true)
+        toast.success('Your query has been sent directly to our team!')
+      } else {
+        setQueryError(res.error || 'Failed to send query. Please try again.')
+      }
+    } catch (err: any) {
+      console.error('Customer query submission error:', err)
+      setQueryError('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsSubmittingQuery(false)
+    }
   }
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
@@ -2007,271 +2074,142 @@ export function ZigzaLandingPageClient({
       </section>
 
       {/* =================================================================== */}
-      {/* 9. BOTTOM CALL TO ACTION BANNER & REQUEST DEMO FORM                 */}
+      {/* 9. BOTTOM DIRECT QUERY & CONTACT US WINDOW                          */}
       {/* =================================================================== */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80">
         <div className="relative max-w-5xl mx-auto bg-[#FAF7F0] border border-black md:hover:border-[#3A3564]/60 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm md:hover:shadow-md transition-all duration-300 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
-            {/* Left Text */}
+            {/* Left Column: Direct Assistance & Contact */}
             <div className="lg:col-span-6 space-y-4 text-center lg:text-left">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-white border border-black/15 px-3 py-1 rounded-md">
-                Fast Onboarding · 24-48 Hour Go-Live
-              </span>
-
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Transform Your Garment Factory Today
+                Have a Question? <br className="hidden sm:inline" />Talk With Our Team
               </h2>
+
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-                Book a personalized live demonstration tailored to your plant capacity, 
-                cutting tables, and floor workflow.
+                Whether you want to understand how a module fits your factory floor or discuss custom plans, drop your message and we'll reach out directly.
               </p>
 
               {/* Trust Points */}
-              <div className="space-y-3 pt-2 text-xs sm:text-sm font-semibold text-slate-800 text-left">
+              <div className="space-y-2.5 pt-1 text-xs sm:text-sm font-semibold text-slate-800 text-left">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
-                  <span>Zero commitment — test with your live buyer Excel sheet</span>
+                  <span>Direct response from apparel operations specialists</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
-                  <span>Direct walkthrough with an apparel MES operations engineer</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
-                  <span>Full lineman wage ledger & QC alteration setup included</span>
+                  <span>Prompt phone callback or WhatsApp message</span>
                 </div>
               </div>
 
-              <div className="pt-4 flex items-center justify-center lg:justify-start gap-3">
+              <div className="pt-3 flex items-center justify-center lg:justify-start">
                 <a
-                  href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES%20for%20our%20garment%20factory."
+                  href="https://wa.me/?text=Hi%20Zigza%20Team,%20I%20have%20a%20query%20about%20your%20apparel%20MES%20system."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-sm font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>Instant WhatsApp Consultation</span>
+                  <span>Instant WhatsApp Chat</span>
                 </a>
               </div>
             </div>
 
-            {/* Right Consultation Form Card: Generous Spacing & Clean Stacked Inputs */}
+            {/* Right Simple Contact Us Form Card */}
             <div className="lg:col-span-6 bg-white text-slate-900 p-7 sm:p-9 rounded-2xl border border-black shadow-sm">
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
-                Request a Live Demonstration
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mb-6">
-                Enter your factory details for a customized walkthrough.
-              </p>
+              <div className="mb-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
+                  Contact Us
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Leave your name, phone number, and query below.
+                </p>
+              </div>
 
-              {isSubmitted ? (
-                submitAlreadyExists ? (
-                  <div className="p-6 sm:p-7 bg-[#FFFDF9] rounded-2xl border border-amber-300/90 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 border border-amber-200">
-                        <AlertTriangle className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                      <div>
-                        <h4 className="text-base sm:text-lg font-bold text-slate-900">Inquiry Already Registered</h4>
-                        <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                          {submitError || 'An active inquiry or account is already registered with this phone number or email address. Our engineering team is currently reviewing your factory parameters.'}
-                        </p>
-                      </div>
+              {querySubmitted ? (
+                <div className="p-6 sm:p-7 bg-[#FAFAF8] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/80">
+                      <CheckCircle2 className="w-5 h-5 stroke-[2.4]" />
                     </div>
-
-                    <div className="p-3.5 bg-white border border-amber-200/60 rounded-xl text-xs space-y-2 text-slate-700">
-                      <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Organization</span>
-                        <span className="font-semibold text-slate-900">{demoForm.companyName || 'Registered Factory'}</span>
-                      </div>
-                      <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Registered Contact</span>
-                        <span className="font-semibold text-slate-900">{demoForm.ownerName || 'Plant Head'}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-500 font-medium">Status</span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
-                          In Queue / Review by Platform Operations
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      No further action is required from your side. Our enterprise deployment team will contact you directly to schedule your walkthrough and dispatch your credentials.
-                    </p>
-
-                    <div className="pt-2 flex items-center justify-end">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsSubmitted(false)
-                          setSubmitAlreadyExists(false)
-                          setSubmitError(null)
-                        }}
-                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
-                      >
-                        Modify Details
-                      </button>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-bold text-slate-900">Message Received!</h4>
+                      <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                        Thank you, {queryForm.name}! Our team has received your query and will connect with you shortly.
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="p-6 sm:p-7 bg-[#FAFAF8] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/80">
-                        <CheckCircle2 className="w-5 h-5 stroke-[2.4]" />
-                      </div>
-                      <div>
-                        <h4 className="text-base sm:text-lg font-bold text-slate-900">Demo Walkthrough Request Received</h4>
-                        <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                          Your factory walkthrough inquiry has been saved to our enterprise deployment queue.
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-xs space-y-2.5 text-slate-700">
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Requested Plan</span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#3A3564]/10 text-[#3A3564]">
-                          {demoForm.plan === 'FULL_PLANT_AI' ? 'Full Plant + Zigza AI (12 Units)' : demoForm.plan === 'MODULAR' ? 'Modular Floor' : 'Custom Enterprise Build'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Organization / Plant</span>
-                        <span className="font-semibold text-slate-900">{demoForm.companyName || 'Garment Factory'}</span>
-                      </div>
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Plant Location</span>
-                        <span className="font-semibold text-slate-900">{demoForm.cityState || 'Surat, Gujarat'}</span>
-                      </div>
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Primary Contact</span>
-                        <span className="font-semibold text-slate-900">{demoForm.ownerName || 'Plant Head'}</span>
-                      </div>
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <span className="text-slate-500 font-medium">Phone / WhatsApp</span>
-                        <span className="font-mono font-semibold text-slate-800">{demoForm.phone.trim() ? `+91 ${demoForm.phone.trim()}` : '+91 98000 00000'}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-500 font-medium">Delivery Email</span>
-                        <span className="font-mono font-semibold text-slate-800">{demoForm.email}</span>
-                      </div>
+                  <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-xs space-y-2.5 text-slate-700">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <span className="text-slate-500 font-medium">Name</span>
+                      <span className="font-semibold text-slate-900">{queryForm.name}</span>
                     </div>
-
-                    <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-xs text-slate-700 leading-relaxed">
-                      <span className="font-bold text-emerald-950">Next step: </span>
-                      Our platform team will review your unit specifications and contact you to coordinate the live walkthrough. Following the walkthrough, factory credentials will be dispatched to <span className="font-semibold text-slate-900">{demoForm.email}</span>.
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <span className="text-slate-500 font-medium">Phone Number</span>
+                      <span className="font-mono font-semibold text-slate-900">+91 {queryForm.phone}</span>
                     </div>
-
-                    <div className="pt-2 flex items-center justify-end">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsSubmitted(false)
-                          setSubmitAlreadyExists(false)
-                          setSubmitError(null)
-                          setDemoForm({
-                            plan: 'FULL_PLANT_AI',
-                            companyName: '',
-                            cityState: '',
-                            ownerName: '',
-                            phone: '',
-                            email: '',
-                            estimatedMachines: '',
-                            customRequirements: ''
-                          })
-                        }}
-                        className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
-                      >
-                        Submit Another Inquiry
-                      </button>
+                    {queryForm.companyName && (
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 font-medium">Factory / Organization</span>
+                        <span className="font-semibold text-slate-900">{queryForm.companyName}</span>
+                      </div>
+                    )}
+                    <div className="pt-1">
+                      <span className="text-slate-500 font-medium block mb-1">Your Query:</span>
+                      <p className="p-2.5 bg-slate-50 rounded-lg text-slate-800 text-xs italic leading-relaxed border border-slate-100">
+                        "{queryForm.query}"
+                      </p>
                     </div>
                   </div>
-                )
-              ) : (
-                <form onSubmit={handleDemoSubmit} className="space-y-4">
-                  {/* Field 1: Type of Plan Desired */}
-                  <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Type of Plan Desired *
-                    </label>
-                    <select
-                      value={demoForm.plan}
-                      onChange={e => setDemoForm({ ...demoForm, plan: e.target.value as any })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all font-medium cursor-pointer"
+
+                  <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-xs text-slate-700 leading-relaxed">
+                    <span className="font-bold text-emerald-950">Next: </span>
+                    An apparel operations engineer from our team will call or WhatsApp you at <span className="font-mono font-bold text-slate-900">+91 {queryForm.phone}</span> shortly.
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuerySubmitted(false)
+                        setQueryError(null)
+                        setQueryForm({
+                          name: '',
+                          phone: '',
+                          companyName: '',
+                          query: ''
+                        })
+                      }}
+                      className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
-                      <option value="FULL_PLANT_AI">Full Plant + Zigza AI (All 12 Units - ₹4,999/mo)</option>
-                      <option value="MODULAR">Modular Floor (1-3 Units - ₹1,999/mo)</option>
-                      <option value="CUSTOM">Custom Enterprise Build (Bespoke Requirements)</option>
-                    </select>
+                      Send Another Query
+                    </button>
                   </div>
-
+                </div>
+              ) : (
+                <form onSubmit={handleQuerySubmit} className="space-y-4">
+                  {/* Field 1: Name */}
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Company / Factory Name *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Enter company / factory name"
-                        value={demoForm.companyName}
-                        onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                      />
-                      {demoForm.companyName.trim().length > 0 && (
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
-                          <Check className="w-4 h-4 stroke-[2.5]" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Plant Location / City */}
-                  <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Plant Location / City & State *
+                      Your Name *
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Enter plant location / city & state"
-                      value={demoForm.cityState}
-                      onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
+                      placeholder="e.g. Ramesh Patel"
+                      value={queryForm.name}
+                      onChange={e => setQueryForm({ ...queryForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Owner / Plant Head Name *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Enter full name"
-                        value={demoForm.ownerName}
-                        onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                      />
-                      {demoForm.ownerName.trim().length > 0 && (
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600">
-                          <Check className="w-4 h-4 stroke-[2.5]" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
+                  {/* Field 2: Phone Number */}
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
                       Phone Number *
                     </label>
-                    <div className={`relative flex rounded-xl border transition-all overflow-hidden bg-white shadow-2xs ${
-                      phoneDuplicate?.inUse 
-                        ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300' 
-                        : 'border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent'
-                    }`}>
+                    <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
                       <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
                         +91
                       </div>
@@ -2279,117 +2217,64 @@ export function ZigzaLandingPageClient({
                         type="tel"
                         required
                         placeholder="Enter 10-digit mobile number"
-                        value={demoForm.phone}
-                        onChange={e => handlePhoneChange(e.target.value)}
+                        value={queryForm.phone}
+                        onChange={e => handleQueryPhoneChange(e.target.value)}
                         maxLength={11}
                         className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                       />
-                      {phoneDuplicate?.inUse && (
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
-                          <AlertTriangle className="w-4 h-4 text-rose-600" />
-                        </div>
-                      )}
                     </div>
-                    {phoneDuplicate?.inUse && (
-                      <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
-                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                        <div className="leading-relaxed">
-                          <span>{phoneDuplicate.message}</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
+                  {/* Field 3: Company / Factory Name (Optional) */}
                   <div>
                     <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                      Business Email ID *
+                      Company / Factory Name <span className="text-slate-400 font-normal">(Optional)</span>
                     </label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        required
-                        placeholder="Enter business email ID"
-                        value={demoForm.email}
-                        onChange={e => handleEmailChange(e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
-                          emailDuplicate?.inUse
-                            ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300'
-                            : 'border-slate-300 focus:ring-2 focus:ring-[#3A3564] focus:border-transparent'
-                        }`}
-                      />
-                      {emailDuplicate?.inUse && (
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                          <AlertTriangle className="w-4 h-4 text-rose-600" />
-                        </div>
-                      )}
-                    </div>
-                    {emailDuplicate?.inUse && (
-                      <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
-                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                        <div className="leading-relaxed">
-                          <span>{emailDuplicate.message}</span>
-                        </div>
-                      </div>
-                    )}
+                    <input
+                      type="text"
+                      placeholder="e.g. Apex Apparels, Surat"
+                      value={queryForm.companyName}
+                      onChange={e => setQueryForm({ ...queryForm, companyName: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    />
                   </div>
 
-                  {demoForm.plan === 'CUSTOM' && (
-                    <>
-                      <div>
-                        <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                          Custom Engineering Requirements & Scope *
-                        </label>
-                        <textarea
-                          rows={3}
-                          required
-                          placeholder="Describe your custom engineering requirements and scope..."
-                          value={demoForm.customRequirements}
-                          onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
-                          className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
-                        />
-                      </div>
+                  {/* Field 4: Query / Message */}
+                  <div>
+                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      Your Query / Message *
+                    </label>
+                    <textarea
+                      rows={3}
+                      required
+                      placeholder="Describe your question, plant requirements, or anything you'd like to ask..."
+                      value={queryForm.query}
+                      onChange={e => setQueryForm({ ...queryForm, query: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                    />
+                  </div>
 
-                      <div>
-                        <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
-                          Estimated Machines / Capacity (Optional)
-                        </label>
-                        <input
-                          type="number"
-                          placeholder="Enter estimated machines / capacity"
-                          value={demoForm.estimatedMachines}
-                          onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
-                          className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {submitError && !submitAlreadyExists && (
+                  {queryError && (
                     <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-800">
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                      <span className="leading-relaxed">{submitError}</span>
+                      <span className="leading-relaxed">{queryError}</span>
                     </div>
                   )}
 
                   <button
                     type="submit"
-                    disabled={isSubmittingDemo || isCheckingDuplicate}
-                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
+                    disabled={isSubmittingQuery}
+                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
                   >
-                    {isSubmittingDemo ? (
+                    {isSubmittingQuery ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                        <span>Submitting Request...</span>
-                      </>
-                    ) : isCheckingDuplicate ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                        <span>Verifying Contact Details...</span>
+                        <span>Sending Query...</span>
                       </>
                     ) : (
                       <>
-                        <Mail className="w-4 h-4 shrink-0" />
-                        <span>Send Demo Request</span>
+                        <Send className="w-4 h-4 shrink-0" />
+                        <span>Send Query</span>
                       </>
                     )}
                   </button>
