@@ -357,6 +357,16 @@ export function saveReadyGoodsWorker(worker: ReadyGoodsWorker): ReadyGoodsWorker
   return updated
 }
 
+export function deleteReadyGoodsWorker(id: string): ReadyGoodsWorker[] {
+  if (typeof window === 'undefined') return []
+  const current = getReadyGoodsWorkers()
+  const updated = current.filter(w => w.id !== id)
+  localStorage.setItem(KEYS.WORKERS, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+
 // 8. Finishing Quality Inspection Tasks (Incoming from Washing & Iron)
 export function getFinishingInspectionTasks(companyName?: string): FinishingInspectionTask[] {
   if (typeof window === 'undefined') return INITIAL_INSPECTION_TASKS

@@ -10,6 +10,7 @@ interface AddWorkerModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: (worker: ReadyGoodsWorker) => void
+  onWorkerAdded?: (worker: ReadyGoodsWorker) => void
   companyName?: string
 }
 
@@ -39,7 +40,7 @@ const AVAILABLE_ROLES: {
   }
 ]
 
-export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddWorkerModalProps) {
+export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, companyName }: AddWorkerModalProps) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
@@ -96,6 +97,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
       saveReadyGoodsWorker(newWorker)
       toast.success(`Worker "${name.trim()}" registered successfully!`)
       if (onSuccess) onSuccess(newWorker)
+      if (onWorkerAdded) onWorkerAdded(newWorker)
       onClose()
     } catch (err: any) {
       toast.error(err?.message || 'Failed to save worker.')

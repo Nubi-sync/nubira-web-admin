@@ -649,7 +649,7 @@ export function AdminSidebar({
         ],
       },
     ]
-  } else if (pathname?.startsWith('/ready-goods')) {
+  } else if (pathname?.startsWith('/ready-goods') || pathname?.startsWith('/alter')) {
     activeNavSections = [
       {
         section: 'Workspace Hub',
@@ -660,16 +660,8 @@ export function AdminSidebar({
       {
         section: '9. Quality Clinic & Export Packing',
         items: [
-          { label: 'Packing Dashboard', href: '/ready-goods', icon: Boxes },
-          { label: 'Quality Checking (QC)', href: '/ready-goods/checking', icon: Scissors },
-          { label: 'Alteration Clinic', href: '/ready-goods/alteration', icon: Wrench },
-          { label: 'Floor Workers & Roles', href: '/ready-goods/workers', icon: Users },
-          { label: 'Worker Terminal', href: '/ready-goods/worker', icon: CheckCircle2 },
-          { label: 'AQL 2.5 Inspection', href: '/ready-goods/aql-inspection', icon: CheckCircle2 },
-          { label: 'Hangtag & Polybag', href: '/ready-goods/tagging-polybag', icon: Tag },
-          { label: 'Carton Packing Manifest', href: '/ready-goods/carton-packing', icon: PackageCheck },
-          { label: 'Scale Weight & Audit', href: '/ready-goods/carton-weight', icon: Gauge },
-          { label: 'Central Godown Handover', href: '/ready-goods/handover', icon: Warehouse },
+          { label: 'Alteration & Quality Clinic', href: '/ready-goods', icon: Wrench },
+          { label: 'Packing Goods', href: '/ready-goods/packing', icon: PackageCheck },
           { label: 'Notification', href: '/ready-goods/notifications', icon: Bell },
           { label: 'Zigza AI', href: '/ready-goods/zigza-ai', icon: Bot },
         ],
@@ -678,34 +670,6 @@ export function AdminSidebar({
         section: 'Account',
         items: [
           { label: 'Division Profile', href: '/ready-goods/profile', icon: User },
-        ],
-      },
-    ]
-  } else if (pathname?.startsWith('/alter')) {
-    activeNavSections = [
-      {
-        section: 'Workspace Hub',
-        items: [
-          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-        ],
-      },
-      {
-        section: '10. Alteration & Quality Recovery',
-        items: [
-          { label: 'Clinic Dashboard', href: '/alter', icon: Wrench },
-          { label: 'Notification', href: '/alter/notifications', icon: Bell },
-          { label: 'Defect Intake & Pareto', href: '/alter/defect-intake', icon: AlertTriangle },
-          { label: 'Master Mending Stations', href: '/alter/repair-stations', icon: Scissors },
-          { label: 'Chemical Spotting & Clean', href: '/alter/spot-cleaning', icon: Droplets },
-          { label: 'Secondary AQL Re-Audit', href: '/alter/secondary-qc', icon: CheckCircle2 },
-          { label: 'Scrap Salvage & Write-Off', href: '/alter/scrap-salvage', icon: FileText },
-          { label: 'Zigza AI', href: '/alter/zigza-ai', icon: Bot },
-        ],
-      },
-      {
-        section: 'Account',
-        items: [
-          { label: 'Division Profile', href: '/alter/profile', icon: User },
         ],
       },
     ]
