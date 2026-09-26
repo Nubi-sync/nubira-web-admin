@@ -24,7 +24,10 @@ import {
   ArrowRight,
   ExternalLink,
   ShieldCheck,
-  Box
+  Box,
+  PackagePlus,
+  Trash2,
+  RotateCcw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents } from '@/utils/floorRealtime'
@@ -37,11 +40,14 @@ import {
   getReadyGoodsWorkers,
   getFinishingInspectionTasks,
   updateFinishingInspectionStatus,
+  deleteFinishingInspectionTask,
+  clearAllReadyGoodsData,
   READY_GOODS_UPDATE_EVENT
 } from '../utils/readyGoodsStorage'
 import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { InspectLotModal } from './InspectLotModal'
+import { InwardLotModal } from './InwardLotModal'
 
 interface AlterationQualityClinicClientProps {
   userEmail?: string

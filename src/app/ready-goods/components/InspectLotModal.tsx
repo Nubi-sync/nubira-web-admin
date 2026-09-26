@@ -55,12 +55,18 @@ export function InspectLotModal({
       setIsDefectMode(false)
       setDefectNotes('')
     }
-    // Default to first active checker or both
-    const checker = workers.find(w => w.role === 'CHECKER' || w.role === 'BOTH')
-    if (checker) {
-      setSelectedWorkerId(checker.id)
-    } else if (workers.length > 0) {
-      setSelectedWorkerId(workers[0].id)
+    // Default to task's assigned worker if present, else first active checker
+    if (task?.checked_by_worker_id && workers.some(w => w.id === task.checked_by_worker_id)) {
+      setSelectedWorkerId(task.checked_by_worker_id)
+    } else {
+      const checker = workers.find(w => w.role === 'CHECKER' || w.role === 'BOTH')
+      if (checker) {
+        setSelectedWorkerId(checker.id)
+      } else if (workers.length > 0) {
+        setSelectedWorkerId(workers[0].id)
+      } else {
+        setSelectedWorkerId('')
+      }
     }
   }, [task, workers, isOpen])
 
@@ -76,7 +82,7 @@ export function InspectLotModal({
     return true
   }
 
-  const assignedWorker = workers.find(w => w.id === selectedWorkerId) || workers[0]
+  const assignedWorker = workers.find(w => w.id === selectedWorkerId) || (workers.length > 0 ? workers[0] : null)
 
   const handleApprove = () => {
     if (!assignedWorker) {
@@ -195,7 +201,7 @@ export function InspectLotModal({
               className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
             >
               {workers.length === 0 ? (
-                <option value="">No registered floor workers</option>
+                <option value="">No registered floor workers (Register via + Add Worker)</option>
               ) : (
                 workers.map(w => (
                   <option key={w.id} value={w.id}>
@@ -204,6 +210,11 @@ export function InspectLotModal({
                 ))
               )}
             </select>
+            {workers.length === 0 && (
+              <p className="text-[11px] text-amber-700 mt-1">
+                No workers registered yet. Register a Checker via <strong>+ Add Worker</strong> to assign and approve.
+              </p>
+            )}
           </div>
 
           {/* Verification Criteria */}
