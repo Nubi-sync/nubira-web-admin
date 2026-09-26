@@ -6,7 +6,8 @@ import {
   GodownHandoverPallet,
   ReadyGoodsMetrics,
   ReadyGoodsWorker,
-  FinishingInspectionTask
+  FinishingInspectionTask,
+  PackingAssignment
 } from '../types/readyGoods'
 
 export const INITIAL_METRICS: ReadyGoodsMetrics = {
@@ -26,6 +27,33 @@ export const INITIAL_HANGTAG_SCANS: HangtagVerification[] = []
 export const INITIAL_WEIGHT_LOGS: ScaleWeightLog[] = []
 export const INITIAL_SCALE_LOGS: ScaleWeightLog[] = []
 export const INITIAL_PALLETS: GodownHandoverPallet[] = []
+
+export const INITIAL_PACKING_ASSIGNMENTS: PackingAssignment[] = [
+  {
+    id: 'pkg-asn-01',
+    assignment_code: 'PKG-ASN-7714-01',
+    inspection_task_id: 'task-fin-06',
+    task_code: 'QC-7712-01',
+    order_number: 'PO-7712',
+    buyer: 'H&M Basics',
+    style_name: 'Regular Fit Combed Cotton Tee',
+    color: 'Pure White',
+    size: 'L',
+    total_pieces: 100,
+    cartons_count: 5,
+    pieces_per_carton: 20,
+    packer_worker_id: 'rgw-02',
+    packer_worker_name: 'Sunita Mehra',
+    carton_prefix: 'CTN-EXP-7712',
+    carton_numbers: ['CTN-EXP-7712-01', 'CTN-EXP-7712-02', 'CTN-EXP-7712-03', 'CTN-EXP-7712-04', 'CTN-EXP-7712-05'],
+    target_godown_bay: 'BAY_3',
+    gross_weight_per_carton_kg: 10.5,
+    status: 'IN_PACKING',
+    notes: 'Ratio 1:1 polybag packing with desiccant gel',
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+  }
+]
+
 
 export const INITIAL_READY_GOODS_WORKERS: ReadyGoodsWorker[] = [
   {
@@ -187,5 +215,32 @@ export const INITIAL_INSPECTION_TASKS: FinishingInspectionTask[] = [
     },
     status: 'IN_CHECKING',
     created_at: new Date(Date.now() - 3600000 * 1).toISOString()
+  },
+  {
+    id: 'task-fin-06',
+    task_code: 'QC-7712-01',
+    order_number: 'PO-7712',
+    buyer: 'H&M Basics',
+    style_name: 'Regular Fit Combed Cotton Tee',
+    color: 'Pure White',
+    size: 'L',
+    pieces_count: 100,
+    origin_stage: 'WASHING_AND_IRON',
+    wash_batch_ref: 'WB-079 (Bio Enzyme Softener)',
+    iron_station_ref: 'Steam Press Board 01',
+    has_printing: false,
+    has_embroidery: false,
+    tech_pack_summary: 'Solid Dyed - Passed 5-Point Quality Check',
+    checklist: {
+      cutting_done_right: true,
+      washing_done_right: true,
+      iron_done_right: true
+    },
+    status: 'PASSED_TO_PACKING',
+    checked_by_worker_id: 'rgw-01',
+    checked_by_worker_name: 'Dinesh Rathod',
+    created_at: new Date(Date.now() - 3600000 * 6).toISOString(),
+    completed_at: new Date(Date.now() - 3600000 * 2).toISOString()
   }
 ]
+

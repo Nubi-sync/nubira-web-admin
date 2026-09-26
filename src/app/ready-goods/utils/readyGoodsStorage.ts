@@ -11,7 +11,9 @@ import {
   ReadyGoodsWorker,
   FinishingInspectionTask,
   InspectionChecklist,
-  InspectionTaskStatus
+  InspectionTaskStatus,
+  PackingAssignment,
+  PackingAssignmentStatus
 } from '../types/readyGoods'
 import {
   INITIAL_CARTONS,
@@ -21,7 +23,8 @@ import {
   INITIAL_PALLETS,
   INITIAL_METRICS,
   INITIAL_READY_GOODS_WORKERS,
-  INITIAL_INSPECTION_TASKS
+  INITIAL_INSPECTION_TASKS,
+  INITIAL_PACKING_ASSIGNMENTS
 } from '../data/initialData'
 
 export const READY_GOODS_UPDATE_EVENT = 'zigza:ready_goods_updated'
@@ -34,7 +37,8 @@ const KEYS = {
   PALLETS: 'zigza_ready_goods_pallets_v2',
   METRICS: 'zigza_ready_goods_metrics_v2',
   WORKERS: 'zigza_ready_goods_workers_v1',
-  INSPECTION_TASKS: 'zigza_ready_goods_inspection_tasks_v1'
+  INSPECTION_TASKS: 'zigza_ready_goods_inspection_tasks_v1',
+  PACKING_ASSIGNMENTS: 'zigza_ready_goods_packing_assignments_v1'
 }
 
 function emitUpdate() {
@@ -449,4 +453,132 @@ export function submitQualityInspectionResult(params: {
 
   emitUpdate()
   return updatedTasks
+}
+
+// -----------------------------------------------------------------------------
+// PACKING ASSIGNMENTS STORAGE
+// -----------------------------------------------------------------------------
+
+export function getPackingAssignments(companyName?: string): PackingAssignment[] {
+  if (typeof window === 'undefined') return INITIAL_PACKING_ASSIGNMENTS
+  try {
+    const raw = localStorage.getItem(KEYS.PACKING_ASSIGNMENTS)
+    if (!raw) {
+      localStorage.setItem(KEYS.PACKING_ASSIGNMENTS, JSON.stringify(INITIAL_PACKING_ASSIGNMENTS))
+      return INITIAL_PACKING_ASSIGNMENTS
+    }
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_PACKING_ASSIGNMENTS
+  } catch (e) {
+    console.error('Failed to parse packing assignments from storage', e)
+    return INITIAL_PACKING_ASSIGNMENTS
+  }
+}
+
+export function savePackingAssignment(assignment: PackingAssignment): PackingAssignment[] {
+  if (typeof window === 'undefined') return [assignment]
+  const current = getPackingAssignments()
+  const idx = current.findIndex(a => a.id === assignment.id || a.assignment_code === assignment.assignment_code)
+  let updated: PackingAssignment[]
+  if (idx >= 0) {
+    updated = [...current]
+    updated[idx] = { ...current[idx], ...assignment }
+  } else {
+    updated = [assignment, ...current]
+  }
+  localStorage.setItem(KEYS.PACKING_ASSIGNMENTS, JSON.stringify(updated))
+
+  // Also auto-generate carton records if newly assigned
+  try {
+    const cartons = getReadyGoodsCartons()
+    const newCartons: ReadyGoodsCarton[] = assignment.carton_numbers.map((cNum, i) => ({
+      id: `ctn-${assignment.id}-${i + 1}`,
+      cartonNumber: cNum,
+      orderId: assignment.order_number,
+      orderNumber: assignment.order_number,
+      buyer: assignment.buyer,
+      styleName: assignment.style_name,
+      color: assignment.color,
+      totalPieces: assignment.pieces_per_carton,
+      sizeBreakdown: { [assignment.size]: assignment.pieces_per_carton },
+      packedBundleIds: [assignment.task_code],
+      measuredGrossWeightKg: assignment.gross_weight_per_carton_kg || 12.0,
+      expectedGrossWeightKg: assignment.gross_weight_per_carton_kg || 12.0,
+      weightVarianceKg: 0,
+      status: 'PACKED',
+      godownBay: assignment.target_godown_bay || 'BAY_3',
+      dimensionsCm: '60x40x40',
+      cbmVolume: 0.096,
+      sealedBy: assignment.packer_worker_name,
+      createdAt: new Date().toISOString()
+    }))
+
+    // Filter out duplicates
+    const nonDuplicates = newCartons.filter(nc => !cartons.some(c => c.cartonNumber === nc.cartonNumber))
+    if (nonDuplicates.length > 0) {
+      const allCartons = [...nonDuplicates, ...cartons]
+      localStorage.setItem(KEYS.CARTONS, JSON.stringify(allCartons))
+    }
+  } catch (err) {
+    console.warn('Auto-carton generation note:', err)
+  }
+
+  // Update inspection task status to PACKED_IN_CARTON if all pieces packed
+  try {
+    updateFinishingInspectionStatus(assignment.inspection_task_id, 'PACKED_IN_CARTON', {
+      packed_carton_id: assignment.assignment_code
+    })
+  } catch (err) {}
+
+  emitUpdate()
+  return updated
+}
+
+export function updatePackingAssignmentStatus(
+  id: string,
+  status: PackingAssignmentStatus,
+  updates?: Partial<PackingAssignment>
+): PackingAssignment[] {
+  if (typeof window === 'undefined') return []
+  const current = getPackingAssignments()
+  const updated = current.map(a => {
+    if (a.id === id || a.assignment_code === id) {
+      return {
+        ...a,
+        status,
+        ...updates,
+        completed_at: status === 'PACKED_SEALED' || status === 'DISPATCHED_TO_GODOWN' ? new Date().toISOString() : a.completed_at
+      }
+    }
+    return a
+  })
+  localStorage.setItem(KEYS.PACKING_ASSIGNMENTS, JSON.stringify(updated))
+
+  // If status is marked PACKED_SEALED, increment the packer's packed_cartons count
+  if (status === 'PACKED_SEALED' || status === 'DISPATCHED_TO_GODOWN') {
+    const assignment = current.find(a => a.id === id || a.assignment_code === id)
+    if (assignment) {
+      const workers = getReadyGoodsWorkers()
+      const workerIdx = workers.findIndex(w => w.id === assignment.packer_worker_id || w.worker_name === assignment.packer_worker_name)
+      if (workerIdx >= 0) {
+        workers[workerIdx] = {
+          ...workers[workerIdx],
+          packed_cartons: (workers[workerIdx].packed_cartons || 0) + assignment.cartons_count
+        }
+        localStorage.setItem(KEYS.WORKERS, JSON.stringify(workers))
+      }
+    }
+  }
+
+  emitUpdate()
+  return updated
+}
+
+export function deletePackingAssignment(id: string): PackingAssignment[] {
+  if (typeof window === 'undefined') return []
+  const current = getPackingAssignments()
+  const filtered = current.filter(a => a.id !== id && a.assignment_code !== id)
+  localStorage.setItem(KEYS.PACKING_ASSIGNMENTS, JSON.stringify(filtered))
+  emitUpdate()
+  return filtered
 }

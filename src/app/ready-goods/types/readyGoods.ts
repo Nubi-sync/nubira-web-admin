@@ -188,3 +188,30 @@ export interface FinishingInspectionTask {
   updated_at?: string
   completed_at?: string
 }
+
+export type PackingAssignmentStatus = 'ASSIGNED' | 'IN_PACKING' | 'PACKED_SEALED' | 'DISPATCHED_TO_GODOWN'
+
+export interface PackingAssignment {
+  id: string
+  assignment_code: string // e.g. "PKG-ASN-7714-01"
+  inspection_task_id: string
+  task_code: string // Ref to FIN-QC lot
+  order_number: string
+  buyer: string
+  style_name: string
+  color: string
+  size: string
+  total_pieces: number
+  cartons_count: number // e.g. 5 cartons
+  pieces_per_carton: number // e.g. 20 pieces per carton
+  packer_worker_id: string
+  packer_worker_name: string
+  carton_prefix: string // e.g. "CTN-EXP-7714"
+  carton_numbers: string[] // e.g. ["CTN-EXP-7714-01", "CTN-EXP-7714-02"]
+  target_godown_bay: 'BAY_3' | 'BAY_4' | 'BAY_5'
+  gross_weight_per_carton_kg?: number
+  status: PackingAssignmentStatus
+  notes?: string
+  created_at: string
+  completed_at?: string
+}
