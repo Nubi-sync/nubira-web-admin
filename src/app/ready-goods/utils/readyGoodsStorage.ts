@@ -329,12 +329,17 @@ export function getReadyGoodsWorkers(companyName?: string): ReadyGoodsWorker[] {
       return INITIAL_READY_GOODS_WORKERS
     }
     const parsed = JSON.parse(raw)
-    const list: ReadyGoodsWorker[] = Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_READY_GOODS_WORKERS
+    const list: ReadyGoodsWorker[] = Array.isArray(parsed) ? parsed : INITIAL_READY_GOODS_WORKERS
+    // Automatically purge legacy hardcoded mock workers if present
+    const cleanList = list.filter(w => !['rgw-01', 'rgw-02', 'rgw-03'].includes(w.id) && !['Dinesh Rathod', 'Sunita Mehra', 'Vikram Solanki'].includes(w.worker_name))
+    if (cleanList.length !== list.length) {
+      localStorage.setItem(KEYS.WORKERS, JSON.stringify(cleanList))
+    }
     if (companyName) {
       const cleanComp = companyName.trim().toLowerCase()
-      return list.filter(w => !w.company_name || w.company_name.trim().toLowerCase() === cleanComp)
+      return cleanList.filter(w => !w.company_name || w.company_name.trim().toLowerCase() === cleanComp)
     }
-    return list
+    return cleanList
   } catch (e) {
     console.error('Failed to parse workers from storage', e)
     return INITIAL_READY_GOODS_WORKERS
@@ -377,7 +382,16 @@ export function getFinishingInspectionTasks(companyName?: string): FinishingInsp
       return INITIAL_INSPECTION_TASKS
     }
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_INSPECTION_TASKS
+    const list: FinishingInspectionTask[] = Array.isArray(parsed) ? parsed : INITIAL_INSPECTION_TASKS
+    // Automatically purge legacy hardcoded mock inspection tasks if present
+    const cleanList = list.filter(t => 
+      !['task-fin-01', 'task-fin-02', 'task-fin-03', 'task-fin-04', 'task-fin-05', 'task-fin-06'].includes(t.id) &&
+      !['QC-7714-01', 'QC-7715-02', 'QC-7716-03', 'QC-7717-04', 'QC-7714-R1', 'QC-7712-01'].includes(t.task_code)
+    )
+    if (cleanList.length !== list.length) {
+      localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify(cleanList))
+    }
+    return cleanList
   } catch (e) {
     console.error('Failed to parse inspection tasks from storage', e)
     return INITIAL_INSPECTION_TASKS
@@ -395,6 +409,15 @@ export function saveFinishingInspectionTask(task: FinishingInspectionTask): Fini
   } else {
     updated = [task, ...current]
   }
+  localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify(updated))
+  emitUpdate()
+  return updated
+}
+
+export function deleteFinishingInspectionTask(id: string): FinishingInspectionTask[] {
+  if (typeof window === 'undefined') return []
+  const current = getFinishingInspectionTasks()
+  const updated = current.filter(t => t.id !== id && t.task_code !== id)
   localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify(updated))
   emitUpdate()
   return updated
@@ -478,11 +501,31 @@ export function getPackingAssignments(companyName?: string): PackingAssignment[]
       return INITIAL_PACKING_ASSIGNMENTS
     }
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_PACKING_ASSIGNMENTS
+    const list: PackingAssignment[] = Array.isArray(parsed) ? parsed : INITIAL_PACKING_ASSIGNMENTS
+    // Automatically purge legacy hardcoded mock packing assignment if present
+    const cleanList = list.filter(a => a.id !== 'pkg-asn-01' && a.assignment_code !== 'PKG-ASN-7714-01')
+    if (cleanList.length !== list.length) {
+      localStorage.setItem(KEYS.PACKING_ASSIGNMENTS, JSON.stringify(cleanList))
+    }
+    return cleanList
   } catch (e) {
     console.error('Failed to parse packing assignments from storage', e)
     return INITIAL_PACKING_ASSIGNMENTS
   }
+}
+
+export function clearAllReadyGoodsData(): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(KEYS.WORKERS, JSON.stringify([]))
+  localStorage.setItem(KEYS.INSPECTION_TASKS, JSON.stringify([]))
+  localStorage.setItem(KEYS.PACKING_ASSIGNMENTS, JSON.stringify([]))
+  localStorage.setItem(KEYS.CARTONS, JSON.stringify([]))
+  localStorage.setItem(KEYS.AQL_AUDITS, JSON.stringify([]))
+  localStorage.setItem(KEYS.HANGTAG_SCANS, JSON.stringify([]))
+  localStorage.setItem(KEYS.SCALE_LOGS, JSON.stringify([]))
+  localStorage.setItem(KEYS.PALLETS, JSON.stringify([]))
+  localStorage.setItem(KEYS.METRICS, JSON.stringify(INITIAL_METRICS))
+  emitUpdate()
 }
 
 export function savePackingAssignment(assignment: PackingAssignment): PackingAssignment[] {
