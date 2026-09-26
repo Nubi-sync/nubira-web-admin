@@ -184,6 +184,7 @@ export interface FinishingInspectionTask {
   defect_category?: string
   alteration_ticket_id?: string
   packed_carton_id?: string
+  company_name?: string
   created_at: string
   updated_at?: string
   completed_at?: string
@@ -212,6 +213,7 @@ export interface PackingAssignment {
   gross_weight_per_carton_kg?: number
   status: PackingAssignmentStatus
   notes?: string
+  company_name?: string
   created_at: string
   completed_at?: string
 }

@@ -25,6 +25,7 @@ interface InwardLotModalProps {
   onClose: () => void
   workers: ReadyGoodsWorker[]
   companyName?: string
+  defaultBuyerName?: string
   onLotCreated: (task: FinishingInspectionTask) => void
 }
 
@@ -88,11 +89,12 @@ export function InwardLotModal({
   onClose,
   workers,
   companyName,
+  defaultBuyerName,
   onLotCreated
 }: InwardLotModalProps) {
   const [lotCode, setLotCode] = useState(() => `QC-${Math.floor(1000 + Math.random() * 9000)}-01`)
   const [poNumber, setPoNumber] = useState(() => `PO-${Math.floor(7000 + Math.random() * 1000)}`)
-  const [buyer, setBuyer] = useState('Urban Outfitters')
+  const [buyer, setBuyer] = useState(() => defaultBuyerName && defaultBuyerName !== 'ALL' ? defaultBuyerName : 'Urban Outfitters')
   const [styleName, setStyleName] = useState('French Terry Relaxed Hoodie')
   const [color, setColor] = useState('Vintage Mineral Wash')
   const [size, setSize] = useState('L')
@@ -103,6 +105,13 @@ export function InwardLotModal({
   const [hasEmbroidery, setHasEmbroidery] = useState(true)
   const [techPackSummary, setTechPackSummary] = useState('Embroidery First, Then Printing')
   const [assignedWorkerId, setAssignedWorkerId] = useState<string>('')
+
+  // Sync default buyer when opened
+  React.useEffect(() => {
+    if (isOpen && defaultBuyerName && defaultBuyerName !== 'ALL') {
+      setBuyer(defaultBuyerName)
+    }
+  }, [isOpen, defaultBuyerName])
 
   if (!isOpen) return null
 

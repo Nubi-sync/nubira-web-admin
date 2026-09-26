@@ -27,7 +27,9 @@ import {
   Box,
   PackagePlus,
   Trash2,
-  RotateCcw
+  RotateCcw,
+  Building2,
+  ChevronDown
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents } from '@/utils/floorRealtime'
@@ -44,6 +46,7 @@ import {
   clearAllReadyGoodsData,
   READY_GOODS_UPDATE_EVENT
 } from '../utils/readyGoodsStorage'
+import { getActiveBuyers, getOrders } from '@/app/merchandising/utils/merchandisingStorage'
 import { AddWorkerModal } from './AddWorkerModal'
 import { WorkerListModal } from './WorkerListModal'
 import { InspectLotModal } from './InspectLotModal'
@@ -55,6 +58,76 @@ interface AlterationQualityClinicClientProps {
   companyName?: string
 }
 
+function mergeBuyersFromAllSources(tasks: FinishingInspectionTask[], companyName?: string): any[] {
+  const buyerMap = new Map<string, any>()
+
+  // 1. Process active buyers from merchandising
+  if (typeof window !== 'undefined') {
+    try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      const localBuyers = getActiveBuyers()
+      localBuyers.forEach(b => {
+        if (b && (b.id || b.buyer_name)) {
+          if (targetCompany && b.company_name && b.company_name.trim().toLowerCase() !== targetCompany) return
+          const key = (b.buyer_name || b.id).trim().toUpperCase()
+          buyerMap.set(key, { ...b })
+        }
+      })
+    } catch {}
+
+    // 2. Process orders from merchandising
+    try {
+      const targetCompany = (companyName || '').trim().toLowerCase()
+      const localOrders = getOrders()
+      localOrders.forEach(ord => {
+        if (ord && (ord.brand_name || ord.po_number)) {
+          if (targetCompany && ord.company_name && ord.company_name.trim().toLowerCase() !== targetCompany) return
+          const buyerName = ord.brand_name || 'Direct Buyer'
+          const key = buyerName.trim().toUpperCase()
+          if (!buyerMap.has(key)) {
+            buyerMap.set(key, {
+              id: `buyer-ord-${key}`,
+              buyer_name: buyerName,
+              contracted_volume: ord.total_quantity || 1000,
+              linked_article_number: ord.po_number || ord.style_ref,
+              linked_article_name: ord.style_name || `${buyerName} Order`
+            })
+          }
+        }
+      })
+    } catch {}
+  }
+
+  // 3. Process buyers from current module tasks
+  tasks.forEach(t => {
+    if (t.buyer) {
+      const key = t.buyer.trim().toUpperCase()
+      const existing = buyerMap.get(key)
+      if (!existing) {
+        buyerMap.set(key, {
+          id: `buyer-task-${key}`,
+          buyer_name: t.buyer,
+          linked_article_number: t.order_number,
+          linked_article_name: t.style_name
+        })
+      }
+    }
+  })
+
+  // 4. Default presets if completely empty (so the user always has suggested buyer tabs to click and test!)
+  if (buyerMap.size === 0) {
+    const DEFAULT_PRESET_BUYERS = [
+      { id: 'b-zara', buyer_name: 'Zara International', linked_article_number: 'PO-7715', linked_article_name: 'Heavyweight Boxy Tee' },
+      { id: 'b-uo', buyer_name: 'Urban Outfitters', linked_article_number: 'PO-7714', linked_article_name: 'French Terry Hoodie' },
+      { id: 'b-tommy', buyer_name: 'Tommy Hilfiger', linked_article_number: 'PO-7717', linked_article_name: 'Pique Heritage Polo' },
+      { id: 'b-levi', buyer_name: 'Levi Strauss Co', linked_article_number: 'PO-7716', linked_article_name: 'Denim Overshirt' }
+    ]
+    DEFAULT_PRESET_BUYERS.forEach(b => buyerMap.set(b.buyer_name.toUpperCase(), b))
+  }
+
+  return Array.from(buyerMap.values())
+}
+
 export function AlterationQualityClinicClient({
   userEmail,
   isSuperAdmin = true,
@@ -64,6 +137,12 @@ export function AlterationQualityClinicClient({
   const [tasks, setTasks] = useState<FinishingInspectionTask[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'ALTERATION' | 'PASSED'>('ALL')
+
+  // Buyer Filtering & Switcher State
+  const [buyers, setBuyers] = useState<any[]>([])
+  const [selectedBuyerId, setSelectedBuyerId] = useState<string>('ALL')
+  const [isBuyerMenuOpen, setIsBuyerMenuOpen] = useState(false)
+  const [buyerSearchQuery, setBuyerSearchQuery] = useState('')
   
   // Modals
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false)
@@ -104,13 +183,73 @@ export function AlterationQualityClinicClient({
     return () => unsub()
   }, [companyName])
 
-  // Metrics (Clean 3-box elements: Title, Icon, Pure Number ONLY)
-  const pendingCount = tasks.filter(t => t.status === 'PENDING_CHECK' || t.status === 'IN_CHECKING').length
-  const alterationCount = tasks.filter(t => t.status === 'REJECTED_TO_ALTERATION').length
-  const passedToPackingCount = tasks.filter(t => t.status === 'PASSED_TO_PACKING').length
+  // Update merged buyers whenever tasks change
+  useEffect(() => {
+    const merged = mergeBuyersFromAllSources(tasks, companyName)
+    setBuyers(merged)
+  }, [tasks, companyName])
 
-  // Filter tasks
-  const filteredTasks = tasks.filter(task => {
+  // Active Selected Buyer Resolution
+  const activeSelectedBuyerId = selectedBuyerId === 'ALL'
+    ? 'ALL'
+    : (selectedBuyerId && (buyers.some(b => b.id === selectedBuyerId || b.buyer_name === selectedBuyerId) || tasks.some(t => t.buyer === selectedBuyerId))
+        ? selectedBuyerId
+        : 'ALL')
+
+  const selectedBuyer = activeSelectedBuyerId === 'ALL'
+    ? null
+    : (buyers.find(b => b.id === activeSelectedBuyerId || b.buyer_name === activeSelectedBuyerId) || {
+        id: activeSelectedBuyerId,
+        buyer_name: activeSelectedBuyerId
+      })
+
+  // Scoped tasks for the selected buyer
+  const buyerTasks = tasks.filter(task => {
+    if (activeSelectedBuyerId === 'ALL' || !selectedBuyer) return true
+    const selectedName = (selectedBuyer.buyer_name || selectedBuyer.brand_name || '').trim().toLowerCase()
+    return (task.buyer || '').trim().toLowerCase() === selectedName
+  })
+
+  // Progress calculations for the active buyer (or overall if 'ALL')
+  const totalBuyerLots = buyerTasks.length
+  const totalBuyerPieces = buyerTasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
+
+  const passedTasks = buyerTasks.filter(t => t.status === 'PASSED_TO_PACKING' || t.status === 'PACKED_IN_CARTON')
+  const passedPcs = passedTasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
+
+  const inCheckingTasks = buyerTasks.filter(t => t.status === 'IN_CHECKING')
+  const inCheckingPcs = inCheckingTasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
+
+  const alterationTasks = buyerTasks.filter(t => t.status === 'REJECTED_TO_ALTERATION')
+  const alterationPcs = alterationTasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
+
+  const pendingTasks = buyerTasks.filter(t => t.status === 'PENDING_CHECK')
+  const pendingPcs = pendingTasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
+
+  const inspectionQueueCount = pendingTasks.length + inCheckingTasks.length
+  const inspectionQueuePcs = pendingPcs + inCheckingPcs
+
+  const clearanceRate = totalBuyerPieces > 0 ? Math.round((passedPcs / totalBuyerPieces) * 100) : 0
+
+  const passedPct = totalBuyerPieces > 0 ? (passedPcs / totalBuyerPieces) * 100 : 0
+  const inCheckingPct = totalBuyerPieces > 0 ? (inCheckingPcs / totalBuyerPieces) * 100 : 0
+  const alterationPct = totalBuyerPieces > 0 ? (alterationPcs / totalBuyerPieces) * 100 : 0
+  const pendingPct = totalBuyerPieces > 0 ? (pendingPcs / totalBuyerPieces) * 100 : 0
+
+  // Buyer selector text
+  const selectedBuyerDisplayText = activeSelectedBuyerId === 'ALL'
+    ? `All Buyers (${tasks.length} Lots • ${tasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)} Pcs)`
+    : (selectedBuyer 
+        ? `${selectedBuyer.buyer_name || selectedBuyer.brand_name} (${totalBuyerLots} Lots • ${totalBuyerPieces} Pcs)`
+        : 'Select Buyer')
+
+  const filteredBuyersList = buyers.filter(b => 
+    (b.buyer_name || b.brand_name || '').toLowerCase().includes(buyerSearchQuery.toLowerCase()) ||
+    (b.linked_article_number || '').toLowerCase().includes(buyerSearchQuery.toLowerCase())
+  )
+
+  // Filter tasks by active status tab and text search
+  const filteredTasks = buyerTasks.filter(task => {
     const q = searchQuery.toLowerCase()
     const matchesSearch =
       task.task_code.toLowerCase().includes(q) ||
@@ -160,7 +299,7 @@ export function AlterationQualityClinicClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
       
       {/* 1. Navigation Breadcrumb */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -193,8 +332,8 @@ export function AlterationQualityClinicClient({
         </div>
       </div>
 
-      {/* 2. Module Title Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+      {/* 2. Module Title Header Card (Clean & Uncluttered) */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div className="flex items-start sm:items-center gap-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Wrench className="w-6 h-6" />
@@ -209,35 +348,8 @@ export function AlterationQualityClinicClient({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-          <button
-            type="button"
-            onClick={() => setIsAddLotOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <PackagePlus className="w-3.5 h-3.5" />
-            <span>+ Inward Lot</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>+ Add Worker</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
-          >
-            <Users className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>Worker List ({workers.length})</span>
-          </button>
-
+        {/* Quick Utilities in Header */}
+        <div className="flex items-center gap-2.5 w-full lg:w-auto justify-end flex-wrap sm:flex-nowrap">
           <Link
             href="/ready-goods/worker"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
@@ -246,16 +358,6 @@ export function AlterationQualityClinicClient({
             <span>Worker Terminal</span>
           </Link>
 
-          <button
-            type="button"
-            onClick={handleResetAllData}
-            title="Reset Floor to Clean State"
-            className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset</span>
-          </button>
-
           <Link
             href="/ready-goods/zigza-ai"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
@@ -263,10 +365,317 @@ export function AlterationQualityClinicClient({
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={handleResetAllData}
+            title="Reset Floor to Clean State"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Reset Floor</span>
+          </button>
         </div>
       </div>
 
-      {/* 3. Summary Metric Boxes (STRICTLY 3 ELEMENTS: Title, Icon, Pure Number) */}
+      {/* 3. Buyer Selection & Floor Control Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        {/* Left: Active Buyer Info Pill */}
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Selected Buyer Contract
+            </div>
+            <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+              <span>{selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers & Contracts'}</span>
+              {selectedBuyer?.linked_article_number && (
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  PO: {selectedBuyer.linked_article_number}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Searchable Buyer Dropdown + Floor Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+          
+          {/* Buyer Selector Dropdown */}
+          <div className="relative min-w-[200px] sm:min-w-[240px]">
+            <button
+              type="button"
+              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <span className="truncate">{selectedBuyerDisplayText}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isBuyerMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={buyerSearchQuery}
+                    onChange={e => setBuyerSearchQuery(e.target.value)}
+                    placeholder="Search buyers..."
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {/* All Buyers Option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBuyerId('ALL')
+                      setIsBuyerMenuOpen(false)
+                    }}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
+                      activeSelectedBuyerId === 'ALL'
+                        ? 'bg-[#3A3564] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold">All Buyers &amp; Contracts</div>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                        Show all {tasks.length} lots ({tasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)} pcs)
+                      </div>
+                    </div>
+                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
+                  </button>
+
+                  {filteredBuyersList.length === 0 ? (
+                    <div className="py-3 px-2 text-center text-xs text-slate-400">
+                      No buyers found
+                    </div>
+                  ) : (
+                    filteredBuyersList.map(b => {
+                      const bName = b.buyer_name || b.brand_name || ''
+                      const bLots = tasks.filter(t => (t.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
+                      const bPcs = bLots.reduce((sum, t) => sum + (t.pieces_count || 0), 0)
+                      const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
+
+                      return (
+                        <button
+                          key={b.id || bName}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBuyerId(b.id || bName)
+                            setIsBuyerMenuOpen(false)
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                            isSelected
+                              ? 'bg-[#3A3564] text-white font-bold'
+                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                          }`}
+                        >
+                          <div className="truncate pr-2">
+                            <div className="font-bold">{bName}</div>
+                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-indigo-200' : 'text-slate-500'}`}>
+                              {bLots.length} Lots • {bPcs} Pcs in QC
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-4 h-4 text-white shrink-0" />}
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Worker List Button */}
+          <button
+            type="button"
+            onClick={() => setIsWorkerListOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+          >
+            <Users className="w-4 h-4 text-[#3A3564]" />
+            <span>Worker List ({workers.length})</span>
+          </button>
+
+          {/* + Add Worker Button */}
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>+ Add Worker</span>
+          </button>
+
+          {/* + Inward Lot Button */}
+          <button
+            type="button"
+            onClick={() => setIsAddLotOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+          >
+            <PackagePlus className="w-4 h-4" />
+            <span>+ Inward Lot</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4. Buyer Quick-Tabs Bar (One-click direct switching) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <button
+          type="button"
+          onClick={() => setSelectedBuyerId('ALL')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
+            activeSelectedBuyerId === 'ALL'
+              ? 'bg-[#3A3564] text-white shadow-xs'
+              : 'bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700'
+          }`}
+        >
+          <span>All Buyers</span>
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeSelectedBuyerId === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}`}>
+            {tasks.length}
+          </span>
+        </button>
+
+        {buyers.map(b => {
+          const bName = b.buyer_name || b.brand_name || ''
+          const bLots = tasks.filter(t => (t.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
+          const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
+
+          return (
+            <button
+              key={b.id || bName}
+              type="button"
+              onClick={() => setSelectedBuyerId(b.id || bName)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
+                isSelected
+                  ? 'bg-[#3A3564] text-white shadow-xs'
+                  : 'bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700'
+              }`}
+            >
+              <span>{bName}</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                {bLots.length}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* 5. Work & Quality Clearance Progress Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>Inspection &amp; Clearance Progress</span>
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                  {selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers Combined'}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {totalBuyerLots > 0
+                  ? `${totalBuyerPieces} pcs across ${totalBuyerLots} lots • Tracking inspection clearance to packing export cartons`
+                  : 'No lots inwarded yet for this selection. Inward lots from finishing to start quality inspection.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Clearance Rate Badge */}
+          <div className="flex items-center gap-2">
+            <div className="text-right hidden sm:block">
+              <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                Clearance Rate
+              </div>
+              <div className="text-lg font-black font-mono text-emerald-700">
+                {clearanceRate}%
+              </div>
+            </div>
+            <div className="px-3.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-mono font-bold">
+              {passedPcs} / {totalBuyerPieces || 0} Pcs Cleared
+            </div>
+          </div>
+        </div>
+
+        {/* Multi-Segment Visual Progress Bar */}
+        <div className="space-y-1.5">
+          <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex border border-black/5">
+            {passedPct > 0 && (
+              <div
+                style={{ width: `${passedPct}%` }}
+                className="bg-emerald-500 hover:bg-emerald-600 transition-all duration-300"
+                title={`Passed to Packing: ${passedPcs} pcs (${Math.round(passedPct)}%)`}
+              />
+            )}
+            {inCheckingPct > 0 && (
+              <div
+                style={{ width: `${inCheckingPct}%` }}
+                className="bg-amber-400 hover:bg-amber-500 transition-all duration-300"
+                title={`In Checking: ${inCheckingPcs} pcs (${Math.round(inCheckingPct)}%)`}
+              />
+            )}
+            {alterationPct > 0 && (
+              <div
+                style={{ width: `${alterationPct}%` }}
+                className="bg-rose-500 hover:bg-rose-600 transition-all duration-300"
+                title={`In Alteration Rework: ${alterationPcs} pcs (${Math.round(alterationPct)}%)`}
+              />
+            )}
+            {pendingPct > 0 && (
+              <div
+                style={{ width: `${pendingPct}%` }}
+                className="bg-slate-300 hover:bg-slate-400 transition-all duration-300"
+                title={`Pending Check: ${pendingPcs} pcs (${Math.round(pendingPct)}%)`}
+              />
+            )}
+          </div>
+
+          {/* Legend & Breakdown Chips */}
+          <div className="flex items-center justify-between flex-wrap gap-2 text-xs pt-1">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="font-semibold text-slate-700">Passed:</span>
+                <span className="font-mono font-bold text-slate-900">{passedPcs} pcs ({passedTasks.length} lots)</span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0" />
+                <span className="font-semibold text-slate-700">In Checking:</span>
+                <span className="font-mono font-bold text-slate-900">{inCheckingPcs} pcs ({inCheckingTasks.length} lots)</span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+                <span className="font-semibold text-slate-700">In Alteration:</span>
+                <span className="font-mono font-bold text-slate-900">{alterationPcs} pcs ({alterationTasks.length} lots)</span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0" />
+                <span className="font-semibold text-slate-700">Pending:</span>
+                <span className="font-mono font-bold text-slate-900">{pendingPcs} pcs ({pendingTasks.length} lots)</span>
+              </div>
+            </div>
+
+            <div className="font-mono text-xs font-bold text-[#3A3564]">
+              Total: {totalBuyerPieces} pcs
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 6. Summary Metric Boxes (Scoped to Active Buyer) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
         
         {/* Box 1: Inspection Queue */}
@@ -279,8 +688,13 @@ export function AlterationQualityClinicClient({
               <Scissors className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
-            {pendingCount}
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {inspectionQueueCount}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {inspectionQueuePcs > 0 ? `${inspectionQueuePcs} garments awaiting inspection` : '0 garments in check queue'}
+            </p>
           </div>
         </div>
 
@@ -294,8 +708,13 @@ export function AlterationQualityClinicClient({
               <Wrench className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
-            {alterationCount}
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {alterationTasks.length}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {alterationPcs > 0 ? `${alterationPcs} garments in mending` : '0 garments in alteration'}
+            </p>
           </div>
         </div>
 
@@ -309,14 +728,19 @@ export function AlterationQualityClinicClient({
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
-            {passedToPackingCount}
+          <div>
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+              {passedTasks.length}
+            </div>
+            <p className="text-xs font-semibold text-slate-500 mt-1">
+              {passedPcs > 0 ? `${passedPcs} garments cleared for packing` : '0 garments cleared'}
+            </p>
           </div>
         </div>
 
       </div>
 
-      {/* 4. Controls & Filter Bar */}
+      {/* 7. Controls & Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
@@ -333,10 +757,10 @@ export function AlterationQualityClinicClient({
         {/* Filter Tabs */}
         <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 overflow-x-auto">
           {[
-            { id: 'ALL', label: 'All Lots', count: tasks.length },
-            { id: 'PENDING', label: 'Pending Check', count: pendingCount },
-            { id: 'ALTERATION', label: 'In Alteration', count: alterationCount },
-            { id: 'PASSED', label: 'Passed to Packing', count: passedToPackingCount }
+            { id: 'ALL', label: 'All Lots', count: buyerTasks.length },
+            { id: 'PENDING', label: 'Pending Check', count: inspectionQueueCount },
+            { id: 'ALTERATION', label: 'In Alteration', count: alterationTasks.length },
+            { id: 'PASSED', label: 'Passed to Packing', count: passedTasks.length }
           ].map(tab => (
             <button
               key={tab.id}
@@ -359,7 +783,7 @@ export function AlterationQualityClinicClient({
         </div>
       </div>
 
-      {/* 5. Incoming Post-Wash & Iron Quality Checking Lots Table */}
+      {/* 8. Incoming Post-Wash & Iron Quality Checking Lots Table */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
         <div className="p-4 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -398,10 +822,12 @@ export function AlterationQualityClinicClient({
                         <Scissors className="w-6 h-6" />
                       </div>
                       <h4 className="text-sm font-bold text-slate-900">
-                        Quality Inspection Queue is Empty
+                        {selectedBuyer ? `No Lots Found for ${selectedBuyer.buyer_name || selectedBuyer.brand_name}` : 'Quality Inspection Queue is Empty'}
                       </h4>
                       <p className="text-xs text-slate-500 leading-relaxed">
-                        No hardcoded mock records. Inward incoming garments from finishing to test your quality checking and worker assignment flow.
+                        {selectedBuyer
+                          ? `Inward incoming garment lots for ${selectedBuyer.buyer_name || selectedBuyer.brand_name} to test quality checking and worker assignment.`
+                          : 'Inward incoming garments from finishing to test your quality checking and worker assignment flow.'}
                       </p>
                       <div className="flex items-center justify-center gap-2 pt-2">
                         <button
@@ -587,6 +1013,7 @@ export function AlterationQualityClinicClient({
         onClose={() => setIsAddLotOpen(false)}
         workers={workers}
         companyName={companyName}
+        defaultBuyerName={selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : undefined}
         onLotCreated={() => reloadData()}
       />
 
