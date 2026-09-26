@@ -371,67 +371,129 @@ export function PackingGoodsClient({
         </div>
       </div>
 
-      {/* 3. Unified Buyer Switcher & Floor Action Bar */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
+      {/* 3. Selected Buyer Contract & Floor Action Bar */}
+      <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
         
-        {/* Left: Direct Buyer Switching Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none flex-1">
-          <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
-            BUYER:
-          </span>
+        {/* Left: Active Buyer Info + Dropdown selector */}
+        <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap sm:flex-nowrap">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setSelectedBuyerId('ALL')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
-              activeSelectedBuyerId === 'ALL'
-                ? 'bg-[#3A3564] text-white shadow-xs'
-                : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
-            }`}
-          >
-            <span>All Buyers</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-              activeSelectedBuyerId === 'ALL' ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
-            }`}>
-              {assignments.length}
-            </span>
-          </button>
-
-          {buyers.map(b => {
-            const bName = b.buyer_name || b.brand_name || ''
-            const bAsns = assignments.filter(a => (a.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
-            const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
-
-            return (
-              <button
-                key={b.id || bName}
-                type="button"
-                onClick={() => setSelectedBuyerId(b.id || bName)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
-                  isSelected
-                    ? 'bg-[#3A3564] text-white shadow-xs'
-                    : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
-                }`}
-              >
-                <span>{bName}</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
-                }`}>
-                  {bAsns.length}
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+              Selected Buyer Contract
+            </div>
+            <div className="text-base sm:text-lg md:text-xl font-black text-slate-900 flex items-center gap-2 flex-wrap">
+              <span>{selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers & Contracts'}</span>
+              {selectedBuyer?.linked_article_number && (
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  {selectedBuyer.linked_article_number}
                 </span>
-              </button>
-            )
-          })}
+              )}
+            </div>
+          </div>
+
+          {/* Buyer Selector Searchable Dropdown */}
+          <div className="relative min-w-[220px] sm:min-w-[260px] sm:ml-2">
+            <button
+              type="button"
+              onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Users className="w-4 h-4 text-[#3A3564]" />
+                <span className="truncate">{selectedBuyerDisplayText}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isBuyerMenuOpen && (
+              <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={buyerSearchQuery}
+                    onChange={e => setBuyerSearchQuery(e.target.value)}
+                    placeholder="Search buyers..."
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                  {/* All Buyers Option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedBuyerId('ALL')
+                      setIsBuyerMenuOpen(false)
+                    }}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
+                      activeSelectedBuyerId === 'ALL'
+                        ? 'bg-[#3A3564] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold">All Buyers &amp; Contracts</div>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                        Show all {assignments.length} assignments
+                      </div>
+                    </div>
+                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
+                  </button>
+
+                  {filteredBuyersList.length === 0 ? (
+                    <div className="py-3 px-2 text-center text-xs text-slate-400">
+                      No buyers found
+                    </div>
+                  ) : (
+                    filteredBuyersList.map(b => {
+                      const bName = b.buyer_name || b.brand_name || ''
+                      const isSelected = activeSelectedBuyerId === b.id || activeSelectedBuyerId === bName
+                      const bAsns = assignments.filter(a => (a.buyer || '').trim().toLowerCase() === bName.trim().toLowerCase())
+                      const vol = Number(b.contracted_volume) || (bAsns.length > 0 ? bAsns.reduce((s, a) => s + (a.total_pieces || 0), 0) : 0)
+
+                      return (
+                        <button
+                          key={b.id || bName}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBuyerId(b.id || bName)
+                            setIsBuyerMenuOpen(false)
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                            isSelected
+                              ? 'bg-[#3A3564] text-white font-bold'
+                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                          }`}
+                        >
+                          <div className="truncate pr-2">
+                            <div className="font-bold">{bName}</div>
+                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-indigo-200' : 'text-slate-500'}`}>
+                              {vol > 0 ? `${vol.toLocaleString('en-IN')} Pcs` : `${bAsns.length} Assignments`} {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-4 h-4 text-white shrink-0" />}
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Right: Floor Actions in Strict Brand Colors */}
-        <div className="flex items-center gap-3 shrink-0 justify-end flex-wrap sm:flex-nowrap">
+        {/* Right: Floor Actions & Refresh Button */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 justify-end flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
-            <Users className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-[#3A3564]" />
             <span>Workers ({workers.length})</span>
           </button>
 
@@ -440,7 +502,7 @@ export function PackingGoodsClient({
             onClick={() => setIsAddWorkerOpen(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
-            <UserPlus className="w-3.5 h-3.5" />
+            <UserPlus className="w-4 h-4" />
             <span>+ Worker</span>
           </button>
 
@@ -452,68 +514,15 @@ export function PackingGoodsClient({
             <Plus className="w-4 h-4" />
             <span>+ Assign Packing</span>
           </button>
-        </div>
-      </div>
 
-      {/* 4. Visual Packing Clearance Strip (Minimalist, Visual with Pure Numbers) */}
-      <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-              Packing Clearance
-            </span>
-            <span className="text-sm font-black font-mono text-[#3A3564] px-3 py-1 rounded-xl bg-[#FAF7F0] border border-black/5">
-              {packingClearanceRate}%
-            </span>
-            {selectedBuyer && (
-              <span className="text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-black/5">
-                {selectedBuyer.buyer_name || selectedBuyer.brand_name}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3.5 sm:gap-5 text-xs font-mono font-bold flex-wrap">
-            <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564]" />
-              <span>{totalPiecesPacked}</span>
-              <span className="text-slate-400 font-normal">Packed</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span>{inPackingPieces}</span>
-              <span className="text-slate-400 font-normal">In Packing</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
-              <span>{totalApprovedPcs}</span>
-              <span className="text-slate-400 font-normal">Awaiting</span>
-            </div>
-            <div className="text-slate-400 pl-3 border-l border-black/10 font-normal">
-              {totalPackingQueuePieces} pcs total
-            </div>
-          </div>
-        </div>
-
-        {/* Minimalist Multi-Segment Progress Track */}
-        <div className="h-3 w-full bg-[#FAF7F0] rounded-full overflow-hidden flex border border-black/5">
-          {totalPackingQueuePieces > 0 && totalPiecesPacked > 0 && (
-            <div
-              style={{ width: `${(totalPiecesPacked / totalPackingQueuePieces) * 100}%` }}
-              className="bg-[#3A3564] transition-all duration-300"
-            />
-          )}
-          {totalPackingQueuePieces > 0 && inPackingPieces > 0 && (
-            <div
-              style={{ width: `${(inPackingPieces / totalPackingQueuePieces) * 100}%` }}
-              className="bg-amber-500 transition-all duration-300"
-            />
-          )}
-          {totalPackingQueuePieces > 0 && totalApprovedPcs > 0 && (
-            <div
-              style={{ width: `${(totalApprovedPcs / totalPackingQueuePieces) * 100}%` }}
-              className="bg-slate-300 transition-all duration-300"
-            />
-          )}
+          <button
+            type="button"
+            onClick={reloadData}
+            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            title="Sync floor data"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
