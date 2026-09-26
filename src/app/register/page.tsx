@@ -62,10 +62,9 @@ const ALL_12_MODULES = [
   { code: '06', name: 'Stitching & Sewing Floor', route: '/stitching-sewing' },
   { code: '07', name: 'Industrial Washing & Dyeing', route: '/washing' },
   { code: '08', name: 'Steam Pressing & Ironing', route: '/iron' },
-  { code: '09', name: 'Ready Goods & Packing', route: '/ready-goods' },
-  { code: '10', name: 'Alteration & Quality Clinic', route: '/alter' },
-  { code: '11', name: 'Central Store Godown', route: '/store' },
-  { code: '12', name: 'Dispatch & Logistics', route: '/dispatch' }
+  { code: '09', name: 'Quality Clinic & Packing', route: '/ready-goods' },
+  { code: '10', name: 'Central Store Godown', route: '/store' },
+  { code: '11', name: 'Dispatch & Logistics', route: '/dispatch' }
 ]
 
 export default function RegisterFreeTrialPage() {
@@ -720,7 +719,7 @@ export default function RegisterFreeTrialPage() {
                   Choose Modules to Try Out
                 </h2>
                 <p className="text-xs text-slate-500 mt-1">
-                  All 12 enterprise units are pre-selected for your trial. Click any to toggle.
+                  All {ALL_12_MODULES.length} enterprise units are pre-selected for your trial. Click any to toggle.
                 </p>
               </div>
 
@@ -746,7 +745,7 @@ export default function RegisterFreeTrialPage() {
 
                 <div className="flex items-center justify-between sm:justify-end gap-3 text-xs shrink-0">
                   <span className="font-mono text-[11px] font-bold text-[#3A3564]">
-                    {selectedDivisions.length} of 12 Active
+                    {selectedDivisions.length} of {ALL_12_MODULES.length} Active
                   </span>
                   <span className="text-slate-300">|</span>
                   <div className="flex items-center gap-2 font-semibold">
@@ -861,7 +860,7 @@ export default function RegisterFreeTrialPage() {
                 </div>
                 <div className="flex items-center justify-between pb-1.5 border-b border-black/5">
                   <span className="text-slate-500 font-medium">Active Divisions</span>
-                  <span className="font-bold text-[#3A3564]">{selectedDivisions.length} of 12 Units Live</span>
+                  <span className="font-bold text-[#3A3564]">{selectedDivisions.length} of {ALL_12_MODULES.length} Units Live</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 font-medium">Trial Validity</span>

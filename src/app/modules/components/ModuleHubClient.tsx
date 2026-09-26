@@ -125,23 +125,13 @@ const MODULES: ModuleCardData[] = [
   },
   {
     id: 'ready-goods',
-    title: 'Ready Goods & Packing',
-    subtitle: 'AQL 2.5 final inspection, barcode hangtags, polybag sealing, and carton packaging.',
-    badge: 'FINAL PACKING',
-    statusText: 'CARTON READY',
+    title: 'Quality Clinic & Export Packing',
+    subtitle: 'Post-wash & iron quality inspection, cutting/print/embroidery verification, alteration mending clinic, and carton export packing.',
+    badge: 'QUALITY & PACKING',
+    statusText: 'FINAL CLEARANCE',
     icon: Boxes,
     href: '/ready-goods',
-    features: ['AQL Final Audit', 'Hangtag & Polybag Packing'],
-  },
-  {
-    id: 'alter',
-    title: 'Alteration & Rework',
-    subtitle: 'Defect categorization, seam rework, broken stitch alterations, and re-inspection logs.',
-    badge: 'REWORK CLINIC',
-    statusText: 'QUALITY RECOVERY',
-    icon: Wrench,
-    href: '/alter',
-    features: ['Defect Root-Cause Tagging', 'Line-Wise Rework Queue'],
+    features: ['Quality Checking (Cut, Print, Emb, Wash, Iron)', 'Alteration Clinic & Carton Packing'],
   },
   {
     id: 'store',
@@ -170,6 +160,9 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
 
   const isModuleAllowed = (modHref: string) => {
     if (!allowedModules || allowedModules.includes('/modules')) return true
+    if (modHref === '/ready-goods' && (allowedModules.includes('/ready-goods') || allowedModules.includes('/alter'))) {
+      return true
+    }
     return allowedModules.some(allowed => {
       const a = allowed.replace(/\/+$/, '')
       const h = modHref.replace(/\/+$/, '')

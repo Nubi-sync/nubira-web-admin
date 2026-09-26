@@ -20,7 +20,10 @@ import {
   Check,
   Eye,
   SlidersHorizontal,
-  X
+  X,
+  Scissors,
+  Wrench,
+  Users
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import {
@@ -260,27 +263,42 @@ export function ReadyGoodsDashboardClient({
       </div>
 
       {/* Quick Action Navigation Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-mono font-bold text-slate-600 uppercase">
-            Operational Quick Routes:
-          </span>
+      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-extrabold text-[#3A3564]">Integrated Finishing Pipeline:</span>
+            <span className="text-slate-500 hidden sm:inline">Wash & Iron Intake ──➔ 5-Point Quality Check ──➔ Alteration (if defect) ──➔ Carton Packing</span>
+          </div>
+          <Link
+            href="/ready-goods/worker"
+            className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+          >
+            <span>Floor Worker Terminal</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
+
         <div className="flex items-center gap-2 flex-wrap">
           <Link
-            href="/ready-goods/aql-inspection"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            href="/ready-goods/checking"
+            className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold border border-amber-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>02. AQL 2.5 Sampling</span>
+            <Scissors className="w-3.5 h-3.5 text-amber-700" />
+            <span>01. Quality Checking (QC)</span>
           </Link>
           <Link
-            href="/ready-goods/tagging-polybag"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            href="/ready-goods/alteration"
+            className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold border border-rose-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Tag className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>03. Hangtag & Polybag</span>
+            <Wrench className="w-3.5 h-3.5 text-rose-700" />
+            <span>02. Alteration Clinic</span>
+          </Link>
+          <Link
+            href="/ready-goods/workers"
+            className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-white text-slate-800 text-xs font-bold border border-slate-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <Users className="w-3.5 h-3.5 text-slate-600" />
+            <span>03. Floor Workers & Roles</span>
           </Link>
           <Link
             href="/ready-goods/carton-packing"
@@ -290,18 +308,32 @@ export function ReadyGoodsDashboardClient({
             <span>04. Carton Packing Manifest</span>
           </Link>
           <Link
+            href="/ready-goods/tagging-polybag"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+          >
+            <Tag className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>05. Hangtag & Polybag</span>
+          </Link>
+          <Link
+            href="/ready-goods/aql-inspection"
+            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>06. AQL 2.5 Sampling</span>
+          </Link>
+          <Link
             href="/ready-goods/carton-weight"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
             <Scale className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>05. Scale Weight & Audit</span>
+            <span>07. Scale Weight & Audit</span>
           </Link>
           <Link
             href="/ready-goods/handover"
             className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
             <Warehouse className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>06. Central Godown Handover</span>
+            <span>08. Central Godown Handover</span>
           </Link>
         </div>
       </div>
