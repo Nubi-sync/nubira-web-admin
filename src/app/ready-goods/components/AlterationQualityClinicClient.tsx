@@ -299,7 +299,7 @@ export function AlterationQualityClinicClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* 1. Navigation Breadcrumb */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -317,25 +317,25 @@ export function AlterationQualityClinicClient({
             </>
           )}
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-            Division 09 • Quality Clinic &amp; Export Packing
+            Division 09 • Ready Goods Clinic
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href="/ready-goods/packing"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 transition-all shadow-2xs cursor-pointer"
           >
-            <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+            <PackageCheck className="w-4 h-4 text-[#3A3564]" />
             <span>Go to Packing Goods &rarr;</span>
           </Link>
         </div>
       </div>
 
-      {/* 2. Module Title Header Card (Clean, Spacious & Brand-Aligned) */}
-      <div className="bg-white p-6 sm:p-7 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* 2. Module Title Header Card (Spacey, Brand-Aligned & Minimal Words) */}
+      <div className="bg-white p-6 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-13 h-13 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
             <Wrench className="w-6 h-6" />
           </div>
           <div>
@@ -343,7 +343,7 @@ export function AlterationQualityClinicClient({
               Alteration &amp; Quality Clinic
             </h1>
             <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-              Post-wash inspection, defect mending, and export packing clearance
+              Post-wash QC inspection, defect clinic &amp; packing clearance
             </p>
           </div>
         </div>
@@ -378,26 +378,26 @@ export function AlterationQualityClinicClient({
         </div>
       </div>
 
-      {/* 3. Unified Buyer Switcher & Floor Action Bar (Spacey, Brand-Styled, No Duplicate Dropdowns) */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      {/* 3. Unified Buyer Switcher & Floor Action Bar */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
         
         {/* Left: Direct Buyer Switching Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none flex-1">
           <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
-            Buyer:
+            BUYER:
           </span>
 
           <button
             type="button"
             onClick={() => setSelectedBuyerId('ALL')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
               activeSelectedBuyerId === 'ALL'
                 ? 'bg-[#3A3564] text-white shadow-xs'
                 : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
             }`}
           >
             <span>All Buyers</span>
-            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ${
               activeSelectedBuyerId === 'ALL' ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
             }`}>
               {tasks.length}
@@ -414,14 +414,14 @@ export function AlterationQualityClinicClient({
                 key={b.id || bName}
                 type="button"
                 onClick={() => setSelectedBuyerId(b.id || bName)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
                   isSelected
                     ? 'bg-[#3A3564] text-white shadow-xs'
                     : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
                 }`}
               >
                 <span>{bName}</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
                   isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
                 }`}>
                   {bLots.length}
@@ -431,12 +431,12 @@ export function AlterationQualityClinicClient({
           })}
         </div>
 
-        {/* Right: Floor Actions Using Brand Colors */}
-        <div className="flex items-center gap-2.5 shrink-0 justify-end flex-wrap sm:flex-nowrap">
+        {/* Right: Floor Actions in Strict Brand Colors */}
+        <div className="flex items-center gap-3 shrink-0 justify-end flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
             <Users className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>Workers ({workers.length})</span>
@@ -445,7 +445,7 @@ export function AlterationQualityClinicClient({
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>+ Worker</span>
@@ -454,61 +454,61 @@ export function AlterationQualityClinicClient({
           <button
             type="button"
             onClick={() => setIsAddLotOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
-            <PackagePlus className="w-3.5 h-3.5" />
+            <PackagePlus className="w-4 h-4" />
             <span>+ Inward Lot</span>
           </button>
         </div>
       </div>
 
-      {/* 4. Visual Quality Clearance Strip (Airy, Minimalist, Visual with Pure Numbers) */}
-      <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3.5">
+      {/* 4. Visual Quality Clearance Strip (Hero Visual Progress & 3-Station Flow) */}
+      <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-5">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
               Floor Clearance
             </span>
-            <span className="text-sm font-black font-mono text-[#3A3564] px-2.5 py-0.5 rounded-lg bg-[#FAF7F0] border border-black/5">
+            <span className="text-sm font-black font-mono text-[#3A3564] px-3 py-1 rounded-xl bg-[#FAF7F0] border border-black/5">
               {clearanceRate}%
             </span>
             {selectedBuyer && (
-              <span className="text-xs font-bold text-slate-700">
+              <span className="text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-black/5">
                 {selectedBuyer.buyer_name || selectedBuyer.brand_name}
               </span>
             )}
           </div>
 
           {/* Clean visual chips - numbers only, zero redundant sentences */}
-          <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono font-bold flex-wrap">
+          <div className="flex items-center gap-3.5 sm:gap-5 text-xs font-mono font-bold flex-wrap">
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564]" />
               <span>{passedPcs}</span>
               <span className="text-slate-400 font-normal">Passed</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               <span>{inCheckingPcs}</span>
               <span className="text-slate-400 font-normal">In QC</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-rose-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
               <span>{alterationPcs}</span>
               <span className="text-slate-400 font-normal">Mending</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-slate-300" />
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
               <span>{pendingPcs}</span>
               <span className="text-slate-400 font-normal">Queue</span>
             </div>
-            <div className="text-slate-400 pl-2 border-l border-black/10 font-normal">
+            <div className="text-slate-400 pl-3 border-l border-black/10 font-normal">
               {totalBuyerPieces} pcs total
             </div>
           </div>
         </div>
 
         {/* Minimalist Multi-Segment Progress Track */}
-        <div className="h-2 w-full bg-[#FAF7F0] rounded-full overflow-hidden flex border border-black/5">
+        <div className="h-3 w-full bg-[#FAF7F0] rounded-full overflow-hidden flex border border-black/5">
           {passedPct > 0 && (
             <div style={{ width: `${passedPct}%` }} className="bg-[#3A3564] transition-all duration-300" />
           )}
@@ -522,52 +522,89 @@ export function AlterationQualityClinicClient({
             <div style={{ width: `${pendingPct}%` }} className="bg-slate-300 transition-all duration-300" />
           )}
         </div>
+
+        {/* Visual 3-Station Flow: Understood at a glance without reading words */}
+        <div className="pt-3 border-t border-black/5 flex items-center justify-between gap-3 text-xs font-mono text-slate-600 overflow-x-auto">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <Scissors className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-bold text-slate-800">1. Quality Check</span>
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+              {inspectionQueueCount}
+            </span>
+          </div>
+
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200/50 flex items-center justify-center text-rose-600 shadow-2xs">
+              <Wrench className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-bold text-slate-800">2. Defect Mending</span>
+            <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">
+              {alterationTasks.length}
+            </span>
+          </div>
+
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-bold text-slate-800">3. Packing Ready</span>
+            <span className="px-2 py-0.5 rounded-full bg-[#FAF7F0] border border-black/10 text-[#3A3564] text-[10px] font-bold">
+              {passedTasks.length}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* 5. Summary Metric Boxes (STRICTLY 3 ELEMENTS: Title, Icon, Pure Number ONLY) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
         
         {/* Box 1: Inspection Queue */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Inspection Queue
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <Scissors className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+          <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
             {inspectionQueueCount}
           </div>
         </div>
 
         {/* Box 2: Alteration Rework */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Alteration Rework
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <Wrench className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+          <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
             {alterationTasks.length}
           </div>
         </div>
 
         {/* Box 3: Passed for Packing */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Passed for Packing
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+          <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
             {passedTasks.length}
           </div>
         </div>
@@ -575,21 +612,21 @@ export function AlterationQualityClinicClient({
       </div>
 
       {/* 6. Controls & Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by lot #, buyer, style, wash batch, or iron station..."
-            className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+            placeholder="Search lot #, buyer, style, wash batch..."
+            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
           />
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 overflow-x-auto">
+        <div className="flex items-center gap-1.5 bg-[#FAF7F0] p-1.5 rounded-xl border border-black/10 overflow-x-auto">
           {[
             { id: 'ALL', label: 'All Lots', count: buyerTasks.length },
             { id: 'PENDING', label: 'Pending Check', count: inspectionQueueCount },
@@ -600,7 +637,7 @@ export function AlterationQualityClinicClient({
               key={tab.id}
               type="button"
               onClick={() => setStatusFilter(tab.id as any)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 statusFilter === tab.id
                   ? 'bg-[#3A3564] text-white shadow-xs'
                   : 'text-slate-600 hover:bg-white'
@@ -618,18 +655,18 @@ export function AlterationQualityClinicClient({
       </div>
 
       {/* 7. Incoming Post-Wash & Iron Quality Checking Lots Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-4 border-b border-black/10 flex items-center justify-between">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs overflow-hidden">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-slate-900">
-              Garments Arriving from Washing &amp; Steam Pressing
+              Quality Inspection Lots
             </h3>
-            <span className="text-xs font-mono text-slate-400">
-              ({filteredTasks.length} lots)
+            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-600 border border-black/5 font-bold">
+              {filteredTasks.length} lots
             </span>
           </div>
-          <span className="text-xs text-slate-500 font-mono">
-            Check &rarr; Approve &rarr; Passes to Packing Goods
+          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+            Check &rarr; Mending &rarr; Pass to Packing
           </span>
         </div>
 
@@ -637,45 +674,45 @@ export function AlterationQualityClinicClient({
           <table className="w-full text-left text-xs">
             <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono font-bold uppercase text-[11px]">
               <tr>
-                <th className="py-3 px-4">Lot # / Order</th>
-                <th className="py-3 px-4">Buyer &amp; Style</th>
-                <th className="py-3 px-4">Pieces &amp; Size</th>
-                <th className="py-3 px-4">Wash &amp; Iron Origin</th>
-                <th className="py-3 px-4">Tech-Pack Criteria</th>
-                <th className="py-3 px-4">Assigned Checker</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-5">Lot # / Order</th>
+                <th className="py-3.5 px-5">Buyer &amp; Style</th>
+                <th className="py-3.5 px-5">Pieces &amp; Size</th>
+                <th className="py-3.5 px-5">Wash &amp; Iron Origin</th>
+                <th className="py-3.5 px-5">Tech-Pack Criteria</th>
+                <th className="py-3.5 px-5">Checker</th>
+                <th className="py-3.5 px-5">Status</th>
+                <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center">
-                    <div className="max-w-md mx-auto space-y-3">
-                      <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
-                        <Scissors className="w-6 h-6" />
+                  <td colSpan={8} className="py-20 text-center">
+                    <div className="max-w-md mx-auto space-y-4">
+                      <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+                        <Scissors className="w-7 h-7" />
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900">
-                        {selectedBuyer ? `No Lots for ${selectedBuyer.buyer_name || selectedBuyer.brand_name}` : 'Inspection Queue Ready'}
+                      <h4 className="text-base font-bold text-slate-900">
+                        {selectedBuyer ? `No Lots for ${selectedBuyer.buyer_name || selectedBuyer.brand_name}` : 'Quality Clinic Clear'}
                       </h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">
-                        Inward incoming garment lots or assign workers to begin inspection.
+                      <p className="text-xs text-slate-500">
+                        Inward incoming garment lots from washing &amp; pressing to begin inspection.
                       </p>
-                      <div className="flex items-center justify-center gap-2 pt-2">
+                      <div className="flex items-center justify-center gap-3 pt-2">
                         <button
                           type="button"
                           onClick={() => setIsAddLotOpen(true)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
                         >
-                          <PackagePlus className="w-3.5 h-3.5" />
+                          <PackagePlus className="w-4 h-4" />
                           <span>+ Inward Lot</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsAddWorkerOpen(true)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
                         >
-                          <UserPlus className="w-3.5 h-3.5" />
+                          <UserPlus className="w-4 h-4" />
                           <span>+ Add Worker</span>
                         </button>
                       </div>

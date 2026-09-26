@@ -295,7 +295,7 @@ export function PackingGoodsClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* 1. Navigation Breadcrumb */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -320,25 +320,25 @@ export function PackingGoodsClient({
           </Link>
           <span className="text-slate-300">/</span>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-            Packing Goods
+            Export Packing
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href="/ready-goods"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 transition-all shadow-2xs cursor-pointer"
           >
-            <Wrench className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Wrench className="w-4 h-4 text-[#3A3564]" />
             <span>&larr; Alteration &amp; Quality Clinic</span>
           </Link>
         </div>
       </div>
 
-      {/* 2. Module Title Header Card (Clean, Spacious & Brand-Aligned) */}
-      <div className="bg-white p-6 sm:p-7 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* 2. Module Title Header Card (Spacey, Brand-Aligned & Minimal Words) */}
+      <div className="bg-white p-6 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-13 h-13 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
             <PackageCheck className="w-6 h-6" />
           </div>
           <div>
@@ -346,7 +346,7 @@ export function PackingGoodsClient({
               Packing Goods &amp; Carton Allocation
             </h1>
             <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-              QC-approved garment packing into export cartons and godown bay dispatch
+              Export carton packing, barcode sealing &amp; godown bay dispatch
             </p>
           </div>
         </div>
@@ -371,26 +371,26 @@ export function PackingGoodsClient({
         </div>
       </div>
 
-      {/* 3. Unified Buyer Switcher & Floor Action Bar (Spacey, Brand-Styled, No Duplicate Dropdowns) */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      {/* 3. Unified Buyer Switcher & Floor Action Bar */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
         
         {/* Left: Direct Buyer Switching Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none flex-1">
           <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
-            Buyer:
+            BUYER:
           </span>
 
           <button
             type="button"
             onClick={() => setSelectedBuyerId('ALL')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
               activeSelectedBuyerId === 'ALL'
                 ? 'bg-[#3A3564] text-white shadow-xs'
                 : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
             }`}
           >
             <span>All Buyers</span>
-            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ${
               activeSelectedBuyerId === 'ALL' ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
             }`}>
               {assignments.length}
@@ -407,14 +407,14 @@ export function PackingGoodsClient({
                 key={b.id || bName}
                 type="button"
                 onClick={() => setSelectedBuyerId(b.id || bName)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
                   isSelected
                     ? 'bg-[#3A3564] text-white shadow-xs'
                     : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
                 }`}
               >
                 <span>{bName}</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
                   isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-700 border border-black/5'
                 }`}>
                   {bAsns.length}
@@ -424,12 +424,12 @@ export function PackingGoodsClient({
           })}
         </div>
 
-        {/* Right: Floor Actions */}
-        <div className="flex items-center gap-2.5 shrink-0 justify-end flex-wrap sm:flex-nowrap">
+        {/* Right: Floor Actions in Strict Brand Colors */}
+        <div className="flex items-center gap-3 shrink-0 justify-end flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
             <Users className="w-3.5 h-3.5 text-[#3A3564]" />
             <span>Workers ({workers.length})</span>
@@ -438,7 +438,7 @@ export function PackingGoodsClient({
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>+ Worker</span>
@@ -447,55 +447,55 @@ export function PackingGoodsClient({
           <button
             type="button"
             onClick={() => setIsAssignModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             <span>+ Assign Packing</span>
           </button>
         </div>
       </div>
 
       {/* 4. Visual Packing Clearance Strip (Minimalist, Visual with Pure Numbers) */}
-      <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3.5">
+      <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
               Packing Clearance
             </span>
-            <span className="text-sm font-black font-mono text-[#3A3564] px-2.5 py-0.5 rounded-lg bg-[#FAF7F0] border border-black/5">
+            <span className="text-sm font-black font-mono text-[#3A3564] px-3 py-1 rounded-xl bg-[#FAF7F0] border border-black/5">
               {packingClearanceRate}%
             </span>
             {selectedBuyer && (
-              <span className="text-xs font-bold text-slate-700">
+              <span className="text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-black/5">
                 {selectedBuyer.buyer_name || selectedBuyer.brand_name}
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono font-bold flex-wrap">
+          <div className="flex items-center gap-3.5 sm:gap-5 text-xs font-mono font-bold flex-wrap">
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564]" />
               <span>{totalPiecesPacked}</span>
               <span className="text-slate-400 font-normal">Packed</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               <span>{inPackingPieces}</span>
               <span className="text-slate-400 font-normal">In Packing</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-slate-300" />
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
               <span>{totalApprovedPcs}</span>
               <span className="text-slate-400 font-normal">Awaiting</span>
             </div>
-            <div className="text-slate-400 pl-2 border-l border-black/10 font-normal">
+            <div className="text-slate-400 pl-3 border-l border-black/10 font-normal">
               {totalPackingQueuePieces} pcs total
             </div>
           </div>
         </div>
 
         {/* Minimalist Multi-Segment Progress Track */}
-        <div className="h-2 w-full bg-[#FAF7F0] rounded-full overflow-hidden flex border border-black/5">
+        <div className="h-3 w-full bg-[#FAF7F0] rounded-full overflow-hidden flex border border-black/5">
           {totalPackingQueuePieces > 0 && totalPiecesPacked > 0 && (
             <div
               style={{ width: `${(totalPiecesPacked / totalPackingQueuePieces) * 100}%` }}
@@ -518,49 +518,49 @@ export function PackingGoodsClient({
       </div>
 
       {/* 5. Summary Metric Boxes (STRICTLY 3 ELEMENTS: Title, Icon, Pure Number ONLY) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
         
         {/* Box 1: Approved for Packing */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Approved for Packing
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+          <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
             {totalApprovedPcs}
           </div>
         </div>
 
         {/* Box 2: Active Packers */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Active Packers
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+          <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
             {activePackersCount}
           </div>
         </div>
 
         {/* Box 3: Cartons Packed */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Cartons Packed
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
               <Boxes className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+          <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
             {totalCartonsPacked}
           </div>
         </div>
@@ -568,21 +568,21 @@ export function PackingGoodsClient({
       </div>
 
       {/* 6. Controls & Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by assignment #, buyer, style, packer, or carton barcode..."
-            className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+            placeholder="Search assignment #, buyer, style, packer..."
+            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
           />
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 overflow-x-auto">
+        <div className="flex items-center gap-1.5 bg-[#FAF7F0] p-1.5 rounded-xl border border-black/10 overflow-x-auto">
           {[
             { id: 'ALL', label: 'All Tasks', count: buyerAssignments.length },
             { id: 'IN_PACKING', label: 'In Packing', count: buyerAssignments.filter(a => a.status === 'ASSIGNED' || a.status === 'IN_PACKING').length },
@@ -593,7 +593,7 @@ export function PackingGoodsClient({
               key={tab.id}
               type="button"
               onClick={() => setStatusFilter(tab.id as any)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 statusFilter === tab.id
                   ? 'bg-[#3A3564] text-white shadow-xs'
                   : 'text-slate-600 hover:bg-white'
@@ -610,15 +610,15 @@ export function PackingGoodsClient({
         </div>
       </div>
 
-      {/* 5. Active Packing Floor Allocations Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-4 border-b border-black/10 flex items-center justify-between">
+      {/* 7. Active Packing Floor Allocations Table */}
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs overflow-hidden">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-slate-900">
-              Floor Packing Assignments &amp; Master Carton Manifest
+              Packing Assignments &amp; Manifest
             </h3>
-            <span className="text-xs font-mono text-slate-400">
-              ({filteredAssignments.length} assignments)
+            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-600 border border-black/5 font-bold">
+              {filteredAssignments.length} assignments
             </span>
           </div>
           <button
@@ -634,21 +634,49 @@ export function PackingGoodsClient({
           <table className="w-full text-left text-xs">
             <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono font-bold uppercase text-[11px]">
               <tr>
-                <th className="py-3 px-4">Assignment #</th>
-                <th className="py-3 px-4">Order &amp; Buyer</th>
-                <th className="py-3 px-4">Style &amp; Spec</th>
-                <th className="py-3 px-4">Assigned Packer</th>
-                <th className="py-3 px-4">Cartons &amp; Pieces</th>
-                <th className="py-3 px-4">Godown Bay</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-5">Assignment #</th>
+                <th className="py-3.5 px-5">Order &amp; Buyer</th>
+                <th className="py-3.5 px-5">Style &amp; Spec</th>
+                <th className="py-3.5 px-5">Assigned Packer</th>
+                <th className="py-3.5 px-5">Cartons &amp; Pieces</th>
+                <th className="py-3.5 px-5">Godown Bay</th>
+                <th className="py-3.5 px-5">Status</th>
+                <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
               {filteredAssignments.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 text-xs">
-                    No packing assignments found. Click "+ Assign Packing Task" above to allocate approved garments.
+                  <td colSpan={8} className="py-20 text-center">
+                    <div className="max-w-md mx-auto space-y-4">
+                      <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+                        <Boxes className="w-7 h-7" />
+                      </div>
+                      <h4 className="text-base font-bold text-slate-900">
+                        No Packing Assignments
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        Allocate QC-approved garment lots to export cartons for bay staging.
+                      </p>
+                      <div className="flex items-center justify-center gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsAssignModalOpen(true)}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>+ Assign Packing</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsAddWorkerOpen(true)}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          <span>+ Add Worker</span>
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
