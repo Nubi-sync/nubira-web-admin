@@ -26,6 +26,7 @@ import {
   sendTenantActivationEmail,
   sendCustomInquiryNotificationEmail,
   sendPaymentReminderEmail,
+  sendCustomerQueryNotificationEmail,
   TenantActivationEmailParams,
   PaymentReminderEmailParams
 } from '@/lib/resend'
@@ -346,6 +347,55 @@ export async function submitDemoRequestAction(payload: {
   } catch (err: any) {
     console.error('[submitDemoRequestAction] Error:', err)
     return { success: false, error: err?.message || 'Failed to submit demo request' }
+  }
+}
+
+export async function submitCustomerQueryAction(payload: {
+  name: string
+  phone: string
+  query: string
+  companyName?: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cleanDigits = payload.phone.replace(/\D/g, '')
+    const formattedPhone = cleanDigits.length === 10
+      ? `+91 ${cleanDigits.slice(0, 5)} ${cleanDigits.slice(5)}`
+      : payload.phone
+
+    // Record in database as a new inbound query lead
+    try {
+      await supabaseAdmin.from('platform_demo_requests').insert([{
+        company_name: payload.companyName?.trim() || 'Direct Website Query',
+        applicant_name: payload.name.trim(),
+        email: 'team.anga9@gmail.com',
+        phone: formattedPhone,
+        preferred_plan: 'MODULAR',
+        city_state: 'Website Contact Window',
+        status: 'NEW_LEAD',
+        notes: `[WEBSITE QUERY]: ${payload.query.trim()}`,
+        submitted_at: new Date().toISOString()
+      }])
+    } catch (dbErr: any) {
+      console.warn('[submitCustomerQueryAction] Supabase record notice:', dbErr?.message)
+    }
+
+    // Dispatch direct email to team.anga9@gmail.com via Resend
+    try {
+      await sendCustomerQueryNotificationEmail({
+        name: payload.name.trim(),
+        phone: formattedPhone,
+        query: payload.query.trim(),
+        companyName: payload.companyName?.trim()
+      })
+    } catch (emailErr: any) {
+      console.warn('[submitCustomerQueryAction] Email notification notice:', emailErr?.message)
+    }
+
+    revalidatePath('/platform-admin')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[submitCustomerQueryAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to submit query' }
   }
 }
 

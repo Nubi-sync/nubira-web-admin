@@ -1876,50 +1876,50 @@ export function ZigzaLandingPageClient({
               "mainEntity": [
                 {
                   "@type": "Question",
-                  "name": "Can we import our existing buyer Excel challans directly into Zigza?",
+                  "name": "Can we try Zigza before paying for a subscription?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes! Zigza includes a 1-Click Excel Template and Bulk Ingestion module. You can download our standard template or upload your existing spreadsheets (.xlsx, .xls, .csv). Zigza automatically maps article numbers, size tiers (L/XXL, 22x26, 28x32), and piece ratios."
+                    "text": "Yes, every factory gets an instant 7-day full-access trial with zero credit card required. You can test all 11 production units with your team before deciding to subscribe."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "Does Zigza require expensive hardware on the factory floor?",
+                  "name": "Is our factory design, buyer pricing, and BOM data safe?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "No. Zigza is designed to run on standard Android smartphones and budget tablets for supervisors and QC stations. The admin control center runs in any standard web browser on PCs and laptops."
+                    "text": "Yes, 100%. Your designs, buyer tech-packs, and supplier rates are protected with encrypted, isolated tenant security. We never share, sell, or expose your factory records to anyone."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "How does Zigza handle lineman piece-rate wage calculation?",
+                  "name": "Do we need expensive machines or new computers to run Zigza?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "You can allot cutting lots to linemen either as full challans or split across color combinations. As garments are completed and inspected, the system automatically credits each lineman at their defined piece rate, producing a clear, transparent wage ledger with zero arguments."
+                    "text": "No special hardware is required. Supervisors and workers can scan QR bundles from standard Android smartphones, and managers can access the dashboard on any laptop or browser."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "What happens if internet connectivity drops on the floor?",
+                  "name": "Can we upload our existing Excel buyer orders and fabric inventory?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "The Zigza Android mobile companion app has offline-resilient local caching. Supervisors and inspectors can continue logging production and bundle scans without disruption. Data synchronizes automatically as soon as internet connection is restored."
+                    "text": "Yes. You can upload existing spreadsheets in one click. Zigza automatically imports your articles, size ratios, fabric rolls, and buyer POs without tedious manual data entry."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "Is data isolated for different brands and job-work buyers?",
+                  "name": "Will our factory floor workers and supervisors find it easy to use?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. Zigza enforces multi-brand partitioning. You can track separate production lines and dispatch challans for Ollypop, First Smile, Lazy Bones, or your own in-house brands with complete data isolation."
+                    "text": "Yes, Zigza was designed specifically for garment shop floors with simple one-tap actions, clear visual badges, and zero confusing forms. Our team also provides direct setup guidance."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "How fast can a garment factory go live with Zigza?",
+                  "name": "Can we export our data or cancel our plan anytime?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Most factories complete master setup (articles, rates, lineman profiles) and go live on their first cutting lot within 24 to 48 hours of onboarding."
+                    "text": "Yes, you are never locked in. You can download all your production manifests, wage ledgers, and inventory reports to Excel at any time, and cancel with a single click."
                   }
                 }
               ]
@@ -1932,35 +1932,35 @@ export function ZigzaLandingPageClient({
             Frequently Asked Questions
           </h2>
           <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-            Everything you need to know about implementing Zigza MES in your garment manufacturing unit.
+            Clear answers to common questions about setting up, trusting, and running Zigza in your factory.
           </p>
         </div>
 
         <div className="space-y-3">
           {[
             {
-              q: 'Can we import our existing buyer Excel challans directly into Zigza?',
-              a: 'Yes! Zigza includes a 1-Click Excel Template and Bulk Ingestion module. You can download our standard template or upload your existing spreadsheets (.xlsx, .xls, .csv). Zigza automatically maps article numbers, size tiers (L/XXL, 22x26, 28x32), and piece ratios.'
+              q: 'Can we try Zigza before paying for a subscription?',
+              a: 'Yes, every factory gets an instant 7-day full-access trial with zero credit card required. You can test all 11 production units with your team before deciding to subscribe.'
             },
             {
-              q: 'Does Zigza require expensive hardware on the factory floor?',
-              a: 'No. Zigza is designed to run on standard Android smartphones and budget tablets for supervisors and QC stations. The admin control center runs in any standard web browser on PCs and laptops.'
+              q: 'Is our factory design, buyer pricing, and BOM data safe?',
+              a: 'Yes, 100%. Your designs, buyer tech-packs, and supplier rates are protected with encrypted, isolated tenant security. We never share, sell, or expose your factory records to anyone.'
             },
             {
-              q: 'How does Zigza handle lineman piece-rate wage calculation?',
-              a: 'You can allot cutting lots to linemen either as full challans or split across color combinations. As garments are completed and inspected, the system automatically credits each lineman at their defined piece rate, producing a clear, transparent wage ledger with zero arguments.'
+              q: 'Do we need expensive machines or new computers to run Zigza?',
+              a: 'No special hardware is required. Supervisors and workers can scan QR bundles from standard Android smartphones, and managers can access the dashboard on any laptop or browser.'
             },
             {
-              q: 'What happens if internet connectivity drops on the floor?',
-              a: 'The Zigza Android mobile companion app has offline-resilient local caching. Supervisors and inspectors can continue logging production and bundle scans without disruption. Data synchronizes automatically as soon as internet connection is restored.'
+              q: 'Can we upload our existing Excel buyer orders and fabric inventory?',
+              a: 'Yes. You can upload existing spreadsheets in one click. Zigza automatically imports your articles, size ratios, fabric rolls, and buyer POs without tedious manual data entry.'
             },
             {
-              q: 'Is data isolated for different brands and job-work buyers?',
-              a: 'Yes. Zigza enforces multi-brand partitioning. You can track separate production lines and dispatch challans for Ollypop, First Smile, Lazy Bones, or your own in-house brands with complete data isolation.'
+              q: 'Will our factory floor workers and supervisors find it easy to use?',
+              a: 'Yes, Zigza was designed specifically for garment shop floors with simple one-tap actions, clear visual badges, and zero confusing forms. Our team also provides direct setup guidance.'
             },
             {
-              q: 'How fast can a garment factory go live with Zigza?',
-              a: 'Most factories complete master setup (articles, rates, lineman profiles) and go live on their first cutting lot within 24 to 48 hours of onboarding.'
+              q: 'Can we export our data or cancel our plan anytime?',
+              a: 'Yes, you are never locked in. You can download all your production manifests, wage ledgers, and inventory reports to Excel at any time, and cancel with a single click.'
             }
           ].map((faq, idx) => {
             const isOpen = expandedFaq === idx

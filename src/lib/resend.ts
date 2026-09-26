@@ -263,6 +263,120 @@ export async function sendCustomInquiryNotificationEmail(params: CustomInquiryNo
   }
 }
 
+export interface CustomerQueryNotificationParams {
+  name: string
+  phone: string
+  query: string
+  companyName?: string
+}
+
+export async function sendCustomerQueryNotificationEmail(params: CustomerQueryNotificationParams) {
+  const client = getResendClient()
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'zigza <noreply@zigza.in>'
+  const targetEmail = 'team.anga9@gmail.com'
+
+  if (!client) {
+    console.warn('[Resend] Simulating customer query notification dispatch to team.anga9@gmail.com:', params)
+    return { success: true, simulated: true }
+  }
+
+  try {
+    const LOGO_URL = 'https://nnhzqvdmkarpwtkzjnra.supabase.co/storage/v1/object/public/public-assets/zigza_logo.png'
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Website Query from ${params.name}</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAF8; margin: 0; padding: 40px 16px; color: #1e293b;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 560px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 4px 24px rgba(0,0,0,0.04); padding: 36px 32px;">
+          <tr>
+            <td>
+              <div style="margin-bottom: 20px;">
+                <img 
+                  src="${LOGO_URL}" 
+                  alt="zigza" 
+                  style="height: 36px; width: auto; border-radius: 8px; display: block;"
+                />
+              </div>
+              <div style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.01em;">
+                New Website Query Received
+              </div>
+              <p style="font-size: 14px; color: #64748b; margin-top: 0; margin-bottom: 20px;">
+                A prospective customer submitted a query on the Zigza website contact window:
+              </p>
+              
+              <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #FAF7F0; border: 1px solid rgba(58, 53, 100, 0.12); border-radius: 12px; font-size: 14px; margin: 16px 0;">
+                <tr>
+                  <td style="padding: 12px 18px; color: #64748b; font-weight: 500;">Customer Name:</td>
+                  <td style="padding: 12px 18px; color: #1e293b; font-weight: 700; text-align: right;">${params.name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 18px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Phone Number:</td>
+                  <td style="padding: 12px 18px; color: #1e293b; font-weight: 700; text-align: right; font-family: monospace; font-size: 15px;">
+                    <a href="tel:${params.phone.replace(/\s+/g, '')}" style="color: #3A3564; text-decoration: none;">${params.phone}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 18px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">WhatsApp Quick Chat:</td>
+                  <td style="padding: 12px 18px; color: #1e293b; font-weight: 700; text-align: right;">
+                    <a href="https://wa.me/91${params.phone.replace(/\D/g, '').slice(-10)}" style="color: #1F9D63; text-decoration: none; font-weight: bold;">Open WhatsApp Chat &rarr;</a>
+                  </td>
+                </tr>
+                ${params.companyName ? `
+                <tr>
+                  <td style="padding: 12px 18px; color: #64748b; font-weight: 500; border-top: 1px solid rgba(58, 53, 100, 0.08);">Factory / Unit:</td>
+                  <td style="padding: 12px 18px; color: #1e293b; font-weight: 600; text-align: right;">${params.companyName}</td>
+                </tr>
+                ` : ''}
+              </table>
+
+              <div style="margin: 20px 0;">
+                <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 6px; letter-spacing: 0.05em;">
+                  Customer Query / Requirement:
+                </div>
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.6; color: #1e293b; white-space: pre-wrap;">
+                  ${params.query}
+                </div>
+              </div>
+
+              <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                <a 
+                  href="tel:${params.phone.replace(/\s+/g, '')}" 
+                  style="display: inline-block; background-color: #3A3564; color: #ffffff !important; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;"
+                >
+                  Call ${params.name} Now
+                </a>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `
+
+    const result = await client.emails.send({
+      from: fromEmail,
+      to: targetEmail,
+      subject: `New Customer Query: ${params.name} (${params.phone})`,
+      html: htmlContent,
+    })
+
+    if (result.error) {
+      console.error('[sendCustomerQueryNotificationEmail] Resend API error:', result.error)
+      return { success: false, error: result.error.message }
+    }
+
+    return { success: true, id: result.data?.id }
+  } catch (error: any) {
+    console.error('[sendCustomerQueryNotificationEmail] Error:', error)
+    return { success: false, error: error?.message || 'Failed to dispatch email' }
+  }
+}
+
+
 export interface PaymentReminderEmailParams {
   to: string
   companyName: string
