@@ -806,10 +806,10 @@ export function SecurityClient() {
       <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 mt-16">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
             
             {/* Brand Column */}
-            <div className="col-span-1 sm:col-span-2 lg:col-span-2 space-y-4">
+            <div className="col-span-1 sm:col-span-2 md:col-span-2 space-y-3.5">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
@@ -818,12 +818,8 @@ export function SecurityClient() {
                 />
               </Link>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
-                Manufacturing Execution System engineered for modern apparel factories. Cloud-native floor synchronization, cutting optimization, piece-rate tracking, and dispatch control.
+                Simple, real-time software for garment manufacturers. Track fabric rolls, cut down wastage, monitor stitching targets, and ship orders on time.
               </p>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/80 text-[11px] font-mono text-slate-500 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                <span>AWS Mumbai (ap-south-1) • Supabase RLS Protected</span>
-              </div>
             </div>
 
             {/* Column 1: Platform */}
@@ -860,36 +856,7 @@ export function SecurityClient() {
               </ul>
             </div>
 
-            {/* Column 2: Trust & Governance */}
-            <div className="space-y-3.5">
-              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Trust &amp; Governance
-              </h5>
-              <ul className="space-y-2.5 text-sm">
-                <li>
-                  <Link href="/privacy" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Privacy Policy (DPDPA)
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/security" className="text-[#3A3564] font-medium hover:underline inline-block">
-                    Security Standards
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/security" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Indian Data Residency
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 3: Access & Support */}
+            {/* Column 2: Access & Support */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Access &amp; Support
