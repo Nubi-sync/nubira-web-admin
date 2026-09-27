@@ -1669,15 +1669,63 @@ export function ZigzaLandingPageClient({
             ))}
           </div>
 
-          {/* Right Column: Clean, Much Larger India Map with NO Green Handwriting */}
+          {/* Right Column: Clean, Much Larger India Map with Friendly Cartoon Line Art */}
           <div className="lg:col-span-7 flex items-center justify-center">
-            <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4">
+            <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4 relative">
+              
+              {/* Top-Left Cartoon: Supervisor with Smartphone & Thumbs Up */}
+              <div className="absolute -top-2 left-0 sm:-top-4 sm:-left-2 lg:-top-6 lg:-left-6 z-10 w-28 sm:w-36 lg:w-44 pointer-events-auto select-none group">
+                <img
+                  src="/illustrations/supervisor_thumbsup.jpg"
+                  alt="Zigza Factory Supervisor"
+                  className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="mt-1 text-center hidden sm:block">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/95 border border-black/15 text-[10px] font-mono font-bold text-slate-800 shadow-2xs">
+                    Supervisor Approved 👍
+                  </span>
+                </div>
+              </div>
+
+              {/* Top-Right Cartoon: Woman Working on Sewing Machine */}
+              <div className="absolute -top-2 right-0 sm:top-0 sm:-right-2 lg:-top-4 lg:-right-4 z-10 w-32 sm:w-44 lg:w-52 pointer-events-auto select-none group">
+                <img
+                  src="/illustrations/woman_sewing.jpg"
+                  alt="Tailor Working on Sewing Machine"
+                  className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="mt-1 text-center hidden sm:block">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/95 border border-black/15 text-[10px] font-mono font-bold text-slate-800 shadow-2xs">
+                    Zero-Defect Stitching 🪡
+                  </span>
+                </div>
+              </div>
+
+              {/* Central Map Graphic */}
               <img
                 src="/india_outline_map.png"
                 alt="India Garment Manufacturing Network"
                 className="w-full h-auto max-h-[580px] object-contain mix-blend-multiply select-none pointer-events-none drop-shadow-xs"
                 loading="lazy"
               />
+
+              {/* Bottom-Right Cartoon (Bay of Bengal): Worker Carrying Cartons */}
+              <div className="absolute bottom-0 right-0 sm:bottom-2 sm:right-2 lg:bottom-4 lg:right-4 z-10 w-28 sm:w-36 lg:w-44 pointer-events-auto select-none group">
+                <img
+                  src="/illustrations/worker_cartons.jpg"
+                  alt="Worker Carrying Shipping Cartons"
+                  className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="mt-1 text-center hidden sm:block">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/95 border border-black/15 text-[10px] font-mono font-bold text-slate-800 shadow-2xs">
+                    Dispatch On-Time 📦
+                  </span>
+                </div>
+              </div>
+
             </div>
           </div>
 
