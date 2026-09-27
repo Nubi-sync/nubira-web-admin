@@ -44,6 +44,7 @@ import {
 import { toast } from 'sonner'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
 import { submitDemoRequestAction, checkContactInUseAction, submitCustomerQueryAction } from '../platform-admin/actions'
+import { MovingTruckIcon, SewingMachineIcon, PhoneZigzaVerifiedIcon } from './MapCartoonIcons'
 
 // Smooth Easing Animated Counter for Live Metrics
 function AnimatedCounter({ 
@@ -1669,38 +1670,18 @@ export function ZigzaLandingPageClient({
             ))}
           </div>
 
-          {/* Right Column: Clean, Much Larger India Map with Friendly Cartoon Line Art */}
+          {/* Right Column: Clean, Much Larger India Map with Friendly Cartoon Line Icons */}
           <div className="lg:col-span-7 flex items-center justify-center">
             <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4 relative">
               
-              {/* Top-Left Cartoon: Supervisor with Smartphone & Thumbs Up */}
-              <div className="absolute -top-2 left-0 sm:-top-4 sm:-left-2 lg:-top-6 lg:-left-6 z-10 w-28 sm:w-36 lg:w-44 pointer-events-auto select-none group">
-                <img
-                  src="/illustrations/supervisor_thumbsup.jpg"
-                  alt="Zigza Factory Supervisor"
-                  className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="mt-1 text-center hidden sm:block">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/95 border border-black/15 text-[10px] font-mono font-bold text-slate-800 shadow-2xs">
-                    Supervisor Approved 👍
-                  </span>
-                </div>
+              {/* Top-Left Cartoon Icon: Smartphone with ZIGZA & Commendable Verified Tick */}
+              <div className="absolute -top-3 left-1 sm:-top-4 sm:left-2 lg:-top-6 lg:left-4 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105 filter drop-shadow-2xs">
+                <PhoneZigzaVerifiedIcon className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" />
               </div>
 
-              {/* Top-Right Cartoon: Woman Working on Sewing Machine */}
-              <div className="absolute -top-2 right-0 sm:top-0 sm:-right-2 lg:-top-4 lg:-right-4 z-10 w-32 sm:w-44 lg:w-52 pointer-events-auto select-none group">
-                <img
-                  src="/illustrations/woman_sewing.jpg"
-                  alt="Tailor Working on Sewing Machine"
-                  className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="mt-1 text-center hidden sm:block">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/95 border border-black/15 text-[10px] font-mono font-bold text-slate-800 shadow-2xs">
-                    Zero-Defect Stitching 🪡
-                  </span>
-                </div>
+              {/* Top-Right Cartoon Icon: Threading & Sewing Machine */}
+              <div className="absolute -top-3 right-1 sm:-top-4 sm:right-2 lg:-top-6 lg:right-4 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105 filter drop-shadow-2xs">
+                <SewingMachineIcon className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" />
               </div>
 
               {/* Central Map Graphic */}
@@ -1711,19 +1692,9 @@ export function ZigzaLandingPageClient({
                 loading="lazy"
               />
 
-              {/* Bottom-Right Cartoon (Bay of Bengal): Worker Carrying Cartons */}
-              <div className="absolute bottom-0 right-0 sm:bottom-2 sm:right-2 lg:bottom-4 lg:right-4 z-10 w-28 sm:w-36 lg:w-44 pointer-events-auto select-none group">
-                <img
-                  src="/illustrations/worker_cartons.jpg"
-                  alt="Worker Carrying Shipping Cartons"
-                  className="w-full h-auto object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="mt-1 text-center hidden sm:block">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/95 border border-black/15 text-[10px] font-mono font-bold text-slate-800 shadow-2xs">
-                    Dispatch On-Time 📦
-                  </span>
-                </div>
+              {/* Bottom-Right Cartoon Icon (Bay of Bengal): Moving Truck with Shipping Containers */}
+              <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 lg:bottom-6 lg:right-6 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105 filter drop-shadow-2xs">
+                <MovingTruckIcon className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" />
               </div>
 
             </div>
