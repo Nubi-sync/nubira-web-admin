@@ -1669,42 +1669,64 @@ export function ZigzaLandingPageClient({
             ))}
           </div>
 
-          {/* Right Column: Clean India Map with Handcrafted Illustrated Cartoon Icons */}
+          {/* Right Column: Clean India Map with Stitching & Packing Handcrafted Accents */}
           <div className="lg:col-span-7 flex items-center justify-center">
-            <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4 relative">
+            <div className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[530px] mx-auto p-2">
               
-              {/* Top-Left Cartoon Illustration: Bigger Smartphone with ZIGZA & Commendable Verified Tick (Snug near Punjab & Rajasthan) */}
-              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 lg:top-6 lg:left-6 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
-                <img
-                  src="/illustrations/phone.png"
-                  alt="Zigza Mobile Floor Companion"
-                  className="w-24 sm:w-32 lg:w-40 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+              {/* Single Dotted SVG Connector Lines linking Map Nodes directly to Tailor and Parcel */}
+              <svg
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
+              >
+                {/* Dotted line 1: Northern Sewing Node (30, 17) -> Tailor Operator (66, 2) */}
+                <line
+                  x1="30"
+                  y1="17"
+                  x2="66"
+                  y2="2"
+                  stroke="#3A3564"
+                  strokeWidth="0.35"
+                  strokeDasharray="1.2 1.2"
+                  strokeOpacity="0.7"
                 />
-              </div>
+                
+                {/* Dotted line 2: Eastern Fabric Node (57, 48) -> Parcel Logistics (84, 70) */}
+                <line
+                  x1="57"
+                  y1="48"
+                  x2="84"
+                  y2="70"
+                  stroke="#3A3564"
+                  strokeWidth="0.35"
+                  strokeDasharray="1.2 1.2"
+                  strokeOpacity="0.7"
+                />
+              </svg>
 
-              {/* Top-Right Cartoon Illustration: Woman Working on Sewing Machine (Snug near Nepal & Gangetic Plains) */}
-              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+              {/* Stitching Floor Operator: Shifted more to the right and above with dotted line connection */}
+              <div className="absolute -top-8 sm:-top-10 lg:-top-12 right-0 sm:right-[2%] lg:right-[4%] z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
                 <img
                   src="/illustrations/tailor.png"
                   alt="Garment Stitching Line"
-                  className="w-28 sm:w-36 lg:w-46 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                  className="w-32 sm:w-40 lg:w-48 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
                 />
               </div>
 
-              {/* Central Map Graphic */}
+              {/* Central Hero: Pan-India Network Map (Prominent, High-Clarity Anchor) */}
               <img
                 src="/india_outline_map.png"
                 alt="India Garment Manufacturing Network"
-                className="w-full h-auto max-h-[580px] object-contain mix-blend-multiply select-none pointer-events-none drop-shadow-xs"
+                className="w-full h-auto object-contain mix-blend-multiply select-none pointer-events-none drop-shadow-xs"
                 loading="lazy"
               />
 
-              {/* Bottom-Right Cartoon Illustration: Warehouse Worker Carrying Parcels (Snug inside Bay of Bengal near East Coast) */}
-              <div className="absolute bottom-6 right-4 sm:bottom-10 sm:right-8 lg:bottom-12 lg:right-12 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+              {/* Dispatch Logistics: Shifted further to the right with dotted line connection */}
+              <div className="absolute -bottom-2 sm:bottom-0 lg:bottom-1 -right-4 sm:-right-8 lg:-right-10 z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
                 <img
                   src="/illustrations/parcel.png"
                   alt="Warehouse Dispatch Logistics"
-                  className="w-24 sm:w-32 lg:w-40 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                  className="w-24 sm:w-30 lg:w-36 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
                 />
               </div>
 
