@@ -42,8 +42,8 @@ import {
   Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
 import { submitDemoRequestAction, checkContactInUseAction, submitCustomerQueryAction } from '../platform-admin/actions'
-import { PhoneZigzaVerifiedIcon, WomanSewingMachineIcon, GuyCarryingParcelIcon } from './MapCartoonIcons'
 
 // Smooth Easing Animated Counter for Live Metrics
 function AnimatedCounter({ 
