@@ -803,13 +803,13 @@ export function SecurityClient() {
       </main>
 
       {/* 5. ENTERPRISE FOOTER (MATCHES HOMEPAGE EXACTLY) */}
-      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
+      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 mt-16">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
             
             {/* Brand Column */}
-            <div className="col-span-2 space-y-4">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-2 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
@@ -818,11 +818,15 @@ export function SecurityClient() {
                 />
               </Link>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
-                Manufacturing Execution System engineered for modern apparel factories. Replacing manual paper registers with real-time floor synchronization.
+                Manufacturing Execution System engineered for modern apparel factories. Cloud-native floor synchronization, cutting optimization, piece-rate tracking, and dispatch control.
               </p>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/80 text-[11px] font-mono text-slate-500 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <span>AWS Mumbai (ap-south-1) • Supabase RLS Protected</span>
+              </div>
             </div>
 
-            {/* Platform Column */}
+            {/* Column 1: Platform */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Platform
@@ -830,76 +834,71 @@ export function SecurityClient() {
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Store &amp; Fabric GRN
+                    Floor Modules
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Cutting Lot Matrix
+                  <Link href="/#workflow" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    8-Step Pipeline
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Bundle Allotments
+                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Role Solutions
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    3-Stage QC Audit
+                  <Link href="/#pricing" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Subscription Plans
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Dispatch Bay
+                  <Link href="/#faq" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Frequently Asked Questions
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Roles Column */}
+            {/* Column 2: Trust & Governance */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Roles
+                Trust &amp; Governance
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Factory Heads &amp; MDs
+                  <Link href="/privacy" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Privacy Policy (DPDPA)
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Cutting Masters
+                  <Link href="/terms" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Store Managers
+                  <Link href="/security" className="text-[#3A3564] font-medium hover:underline inline-block">
+                    Security Standards
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Linemen &amp; Tailors
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    QC Inspectors
+                  <Link href="/security" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Indian Data Residency
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Access & Contact Column */}
+            {/* Column 3: Access & Support */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Access
+                Access &amp; Support
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link 
                     href="/login" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
+                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5 font-medium"
                   >
                     <span>Staff Portal Sign In</span>
                     <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
@@ -907,19 +906,11 @@ export function SecurityClient() {
                 </li>
                 <li>
                   <Link 
-                    href="/#pricing" 
+                    href="/register" 
                     className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
                   >
-                    Subscription Plans
+                    Start 14-Day Free Trial
                   </Link>
-                </li>
-                <li>
-                  <a 
-                    href="mailto:support@zigza.in" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-block font-medium text-[#3A3564] hover:underline"
-                  >
-                    support@zigza.in
-                  </a>
                 </li>
                 <li>
                   <a 
@@ -929,6 +920,14 @@ export function SecurityClient() {
                     className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
                   >
                     WhatsApp Consultation
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="mailto:support@zigza.in" 
+                    className="text-slate-500 hover:text-slate-800 transition-colors inline-block text-xs"
+                  >
+                    support@zigza.in
                   </a>
                 </li>
               </ul>

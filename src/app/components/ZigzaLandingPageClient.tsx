@@ -2344,10 +2344,10 @@ export function ZigzaLandingPageClient({
       <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
             
             {/* Brand Column */}
-            <div className="col-span-2 space-y-4">
+            <div className="col-span-1 sm:col-span-2 md:col-span-2 space-y-3.5">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
@@ -2356,11 +2356,11 @@ export function ZigzaLandingPageClient({
                 />
               </Link>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
-                Manufacturing Execution System engineered for modern apparel factories. Replacing manual paper registers with real-time floor synchronization.
+                Simple, real-time software for garment manufacturers. Track fabric rolls, cut down wastage, monitor stitching targets, and ship orders on time.
               </p>
             </div>
 
-            {/* Platform Column */}
+            {/* Column 1: Platform */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Platform
@@ -2372,112 +2372,58 @@ export function ZigzaLandingPageClient({
                     onClick={(e) => scrollToSection(e, 'modules')}
                     className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
-                    Store & Fabric GRN
+                    Floor Modules
                   </a>
                 </li>
                 <li>
                   <a 
-                    href="#modules" 
-                    onClick={(e) => scrollToSection(e, 'modules')}
+                    href="#workflow" 
+                    onClick={(e) => scrollToSection(e, 'workflow')}
                     className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
-                    Cutting Lot Matrix
+                    8-Step Pipeline
                   </a>
                 </li>
                 <li>
                   <a 
-                    href="#modules" 
-                    onClick={(e) => scrollToSection(e, 'modules')}
+                    href="#roles" 
+                    onClick={(e) => scrollToSection(e, 'roles')}
                     className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
-                    Bundle Allotments
+                    Role Solutions
                   </a>
                 </li>
                 <li>
                   <a 
-                    href="#modules" 
-                    onClick={(e) => scrollToSection(e, 'modules')}
+                    href="#pricing" 
+                    onClick={(e) => scrollToSection(e, 'pricing')}
                     className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
-                    3-Stage QC Audit
+                    Subscription Plans
                   </a>
                 </li>
                 <li>
                   <a 
-                    href="#modules" 
-                    onClick={(e) => scrollToSection(e, 'modules')}
+                    href="#faq" 
+                    onClick={(e) => scrollToSection(e, 'faq')}
                     className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
                   >
-                    Dispatch Bay
+                    Frequently Asked Questions
                   </a>
                 </li>
               </ul>
             </div>
 
-            {/* Roles Column */}
+            {/* Column 2: Access & Support */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Roles
-              </h5>
-              <ul className="space-y-2.5 text-sm">
-                <li>
-                  <a 
-                    href="#roles" 
-                    onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Factory Heads & MDs
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#roles" 
-                    onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Cutting Masters
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#roles" 
-                    onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Store Managers
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#roles" 
-                    onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Linemen & Tailors
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#roles" 
-                    onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    QC Inspectors
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Access & Gateway Column */}
-            <div className="space-y-3.5">
-              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Access
+                Access &amp; Support
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link 
                     href="/login" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
+                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5 font-medium"
                   >
                     <span>Staff Portal Sign In</span>
                     <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
@@ -2493,12 +2439,12 @@ export function ZigzaLandingPageClient({
                   </button>
                 </li>
                 <li>
-                  <a 
-                    href="#pricing" 
+                  <Link 
+                    href="/register" 
                     className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
                   >
-                    Subscription Plans
-                  </a>
+                    Start 14-Day Free Trial
+                  </Link>
                 </li>
                 <li>
                   <a 
@@ -2508,6 +2454,14 @@ export function ZigzaLandingPageClient({
                     className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
                   >
                     WhatsApp Consultation
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="mailto:support@zigza.in" 
+                    className="text-slate-500 hover:text-slate-800 transition-colors inline-block text-xs"
+                  >
+                    support@zigza.in
                   </a>
                 </li>
               </ul>
@@ -2530,6 +2484,7 @@ export function ZigzaLandingPageClient({
               <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
               <Link href="/security" className="hover:text-slate-900 transition-colors">Security Standards</Link>
+              <a href="mailto:support@zigza.in" className="hover:text-slate-900 transition-colors">Contact Support</a>
             </div>
           </div>
 

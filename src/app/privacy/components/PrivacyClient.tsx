@@ -951,13 +951,13 @@ export function PrivacyClient() {
       </main>
 
       {/* 5. ENTERPRISE FOOTER (MATCHES HOMEPAGE EXACTLY) */}
-      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
+      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 mt-16">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
             
             {/* Brand Column */}
-            <div className="col-span-2 space-y-4">
+            <div className="col-span-1 sm:col-span-2 md:col-span-2 space-y-3.5">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
@@ -966,11 +966,11 @@ export function PrivacyClient() {
                 />
               </Link>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
-                Manufacturing Execution System engineered for modern apparel factories. Replacing manual paper registers with real-time floor synchronization.
+                Simple, real-time software for garment manufacturers. Track fabric rolls, cut down wastage, monitor stitching targets, and ship orders on time.
               </p>
             </div>
 
-            {/* Platform Column */}
+            {/* Column 1: Platform */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
                 Platform
@@ -978,76 +978,42 @@ export function PrivacyClient() {
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Store &amp; Fabric GRN
+                    Floor Modules
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Cutting Lot Matrix
+                  <Link href="/#workflow" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    8-Step Pipeline
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Bundle Allotments
+                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Role Solutions
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    3-Stage QC Audit
+                  <Link href="/#pricing" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Subscription Plans
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#modules" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Dispatch Bay
+                  <Link href="/#faq" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
+                    Frequently Asked Questions
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Roles Column */}
+            {/* Column 2: Access & Support */}
             <div className="space-y-3.5">
               <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Roles
-              </h5>
-              <ul className="space-y-2.5 text-sm">
-                <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Factory Heads &amp; MDs
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Cutting Masters
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Store Managers
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    Linemen &amp; Tailors
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#roles" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block">
-                    QC Inspectors
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Access & Contact Column */}
-            <div className="space-y-3.5">
-              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
-                Access
+                Access &amp; Support
               </h5>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link 
                     href="/login" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
+                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5 font-medium"
                   >
                     <span>Staff Portal Sign In</span>
                     <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
@@ -1055,19 +1021,11 @@ export function PrivacyClient() {
                 </li>
                 <li>
                   <Link 
-                    href="/#pricing" 
+                    href="/register" 
                     className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
                   >
-                    Subscription Plans
+                    Start 14-Day Free Trial
                   </Link>
-                </li>
-                <li>
-                  <a 
-                    href="mailto:support@zigza.in" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-block font-medium text-[#3A3564] hover:underline"
-                  >
-                    support@zigza.in
-                  </a>
                 </li>
                 <li>
                   <a 
@@ -1077,6 +1035,14 @@ export function PrivacyClient() {
                     className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
                   >
                     WhatsApp Consultation
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="mailto:support@zigza.in" 
+                    className="text-slate-500 hover:text-slate-800 transition-colors inline-block text-xs"
+                  >
+                    support@zigza.in
                   </a>
                 </li>
               </ul>
