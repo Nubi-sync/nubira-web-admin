@@ -817,7 +817,7 @@ export function SecurityClient() {
                   className="h-10 sm:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
                 />
               </Link>
-              <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
+              <p className="text-[15px] sm:text-base text-slate-600 leading-relaxed max-w-sm font-normal">
                 Simple, real-time software for garment manufacturers. Track fabric rolls, cut down wastage, monitor stitching targets, and ship orders on time.
               </p>
             </div>
@@ -876,7 +876,7 @@ export function SecurityClient() {
                     href="/register" 
                     className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
                   >
-                    Start 14-Day Free Trial
+                    Start 7-Day Free Trial
                   </Link>
                 </li>
                 <li>
@@ -887,14 +887,6 @@ export function SecurityClient() {
                     className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
                   >
                     WhatsApp Consultation
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="mailto:support@zigza.in" 
-                    className="text-slate-500 hover:text-slate-800 transition-colors inline-block text-xs"
-                  >
-                    support@zigza.in
                   </a>
                 </li>
               </ul>
@@ -917,7 +909,6 @@ export function SecurityClient() {
               <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
               <Link href="/security" className="text-[#3A3564] font-medium hover:underline">Security Standards</Link>
-              <a href="mailto:support@zigza.in" className="hover:text-slate-900 transition-colors">Contact Support</a>
             </div>
           </div>
 
