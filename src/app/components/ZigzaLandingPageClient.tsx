@@ -1669,18 +1669,26 @@ export function ZigzaLandingPageClient({
             ))}
           </div>
 
-          {/* Right Column: Clean India Map with Snug Cartoon Line Art Icons */}
+          {/* Right Column: Clean India Map with Handcrafted Illustrated Cartoon Icons */}
           <div className="lg:col-span-7 flex items-center justify-center">
             <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4 relative">
               
-              {/* Top-Left Cartoon Icon: Bigger Smartphone with ZIGZA & Commendable Verified Tick (Snug near Punjab & Rajasthan) */}
-              <div className="absolute top-2 left-4 sm:top-4 sm:left-8 lg:top-6 lg:left-12 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
-                <PhoneZigzaVerifiedIcon className="w-26 h-26 sm:w-32 sm:h-32 lg:w-38 lg:h-38" />
+              {/* Top-Left Cartoon Illustration: Bigger Smartphone with ZIGZA & Commendable Verified Tick (Snug near Punjab & Rajasthan) */}
+              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 lg:top-6 lg:left-6 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+                <img
+                  src="/illustrations/phone.png"
+                  alt="Zigza Mobile Floor Companion"
+                  className="w-24 sm:w-32 lg:w-40 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                />
               </div>
 
-              {/* Top-Right Cartoon Icon: Woman Working on Sewing Machine (Snug near Nepal & East) */}
-              <div className="absolute top-2 right-6 sm:top-4 sm:right-10 lg:top-6 lg:right-16 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
-                <WomanSewingMachineIcon className="w-26 h-26 sm:w-32 sm:h-32 lg:w-36 lg:h-36" />
+              {/* Top-Right Cartoon Illustration: Woman Working on Sewing Machine (Snug near Nepal & Gangetic Plains) */}
+              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+                <img
+                  src="/illustrations/tailor.png"
+                  alt="Garment Stitching Line"
+                  className="w-28 sm:w-36 lg:w-46 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                />
               </div>
 
               {/* Central Map Graphic */}
@@ -1691,9 +1699,13 @@ export function ZigzaLandingPageClient({
                 loading="lazy"
               />
 
-              {/* Bottom-Right Cartoon Icon: Guy Carrying Parcel (Snug inside Bay of Bengal near East Coast) */}
-              <div className="absolute bottom-10 right-8 sm:bottom-14 sm:right-14 lg:bottom-16 lg:right-18 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
-                <GuyCarryingParcelIcon className="w-24 h-24 sm:w-28 sm:h-28 lg:w-34 lg:h-34" />
+              {/* Bottom-Right Cartoon Illustration: Warehouse Worker Carrying Parcels (Snug inside Bay of Bengal near East Coast) */}
+              <div className="absolute bottom-6 right-4 sm:bottom-10 sm:right-8 lg:bottom-12 lg:right-12 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+                <img
+                  src="/illustrations/parcel.png"
+                  alt="Warehouse Dispatch Logistics"
+                  className="w-24 sm:w-32 lg:w-40 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                />
               </div>
 
             </div>
