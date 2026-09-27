@@ -42,9 +42,8 @@ import {
   Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
 import { submitDemoRequestAction, checkContactInUseAction, submitCustomerQueryAction } from '../platform-admin/actions'
-import { MovingTruckIcon, SewingMachineIcon, PhoneZigzaVerifiedIcon } from './MapCartoonIcons'
+import { PhoneZigzaVerifiedIcon, WomanSewingMachineIcon, GuyCarryingParcelIcon } from './MapCartoonIcons'
 
 // Smooth Easing Animated Counter for Live Metrics
 function AnimatedCounter({ 
@@ -1670,18 +1669,18 @@ export function ZigzaLandingPageClient({
             ))}
           </div>
 
-          {/* Right Column: Clean, Much Larger India Map with Friendly Cartoon Line Icons */}
+          {/* Right Column: Clean India Map with Snug Cartoon Line Art Icons */}
           <div className="lg:col-span-7 flex items-center justify-center">
             <div className="w-full max-w-[680px] lg:max-w-[720px] flex items-center justify-center p-2 sm:p-4 relative">
               
-              {/* Top-Left Cartoon Icon: Smartphone with ZIGZA & Commendable Verified Tick */}
-              <div className="absolute -top-3 left-1 sm:-top-4 sm:left-2 lg:-top-6 lg:left-4 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105 filter drop-shadow-2xs">
-                <PhoneZigzaVerifiedIcon className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" />
+              {/* Top-Left Cartoon Icon: Bigger Smartphone with ZIGZA & Commendable Verified Tick (Snug near Punjab & Rajasthan) */}
+              <div className="absolute top-2 left-4 sm:top-4 sm:left-8 lg:top-6 lg:left-12 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+                <PhoneZigzaVerifiedIcon className="w-26 h-26 sm:w-32 sm:h-32 lg:w-38 lg:h-38" />
               </div>
 
-              {/* Top-Right Cartoon Icon: Threading & Sewing Machine */}
-              <div className="absolute -top-3 right-1 sm:-top-4 sm:right-2 lg:-top-6 lg:right-4 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105 filter drop-shadow-2xs">
-                <SewingMachineIcon className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" />
+              {/* Top-Right Cartoon Icon: Woman Working on Sewing Machine (Snug near Nepal & East) */}
+              <div className="absolute top-2 right-6 sm:top-4 sm:right-10 lg:top-6 lg:right-16 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+                <WomanSewingMachineIcon className="w-26 h-26 sm:w-32 sm:h-32 lg:w-36 lg:h-36" />
               </div>
 
               {/* Central Map Graphic */}
@@ -1692,9 +1691,9 @@ export function ZigzaLandingPageClient({
                 loading="lazy"
               />
 
-              {/* Bottom-Right Cartoon Icon (Bay of Bengal): Moving Truck with Shipping Containers */}
-              <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 lg:bottom-6 lg:right-6 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105 filter drop-shadow-2xs">
-                <MovingTruckIcon className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" />
+              {/* Bottom-Right Cartoon Icon: Guy Carrying Parcel (Snug inside Bay of Bengal near East Coast) */}
+              <div className="absolute bottom-10 right-8 sm:bottom-14 sm:right-14 lg:bottom-16 lg:right-18 z-10 pointer-events-auto select-none transition-transform duration-200 hover:scale-105">
+                <GuyCarryingParcelIcon className="w-24 h-24 sm:w-28 sm:h-28 lg:w-34 lg:h-34" />
               </div>
 
             </div>
