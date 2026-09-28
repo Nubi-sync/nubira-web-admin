@@ -178,9 +178,9 @@ export function PlatformAdminSidebar({
                   : 'w-10 h-10 opacity-100 mx-auto duration-500 ease-in-out'
               }`}>
                 <img 
-                  src="/favicon.ico" 
-                  alt="zigza." 
-                  className="w-9 h-9 object-contain rounded-xl shadow-xs"
+                  src="/zigza_icon.png" 
+                  alt="Zigza" 
+                  className="w-9 h-9 object-contain"
                 />
               </div>
 
@@ -298,9 +298,9 @@ export function PlatformAdminSidebar({
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between h-[65px]">
             <Link href="/platform-admin" className="flex items-center gap-2">
               <img 
-                src="/favicon.ico" 
-                alt="zigza." 
-                className="w-7 h-7 object-contain rounded-lg shadow-xs"
+                src="/zigza_icon.png" 
+                alt="Zigza" 
+                className="w-7 h-7 object-contain"
               />
               <img
                 src="/z i g z a (8).png"
