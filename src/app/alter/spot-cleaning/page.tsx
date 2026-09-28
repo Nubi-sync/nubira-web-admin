@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
-import { resolveUserTenant } from '@/utils/tenant'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { SpotCleaningClient } from './components/SpotCleaningClient'
 
 export const dynamic = 'force-dynamic'
