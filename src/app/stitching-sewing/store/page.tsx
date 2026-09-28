@@ -2,6 +2,11 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
 import { StoreDashboardClient } from '@/app/store/components/StoreDashboardClient'
+import { ModuleStoreDashboard } from '@/components/store/ModuleStoreDashboard'
+import {
+  fetchMaterialReceiptsByDivision,
+  fetchMaterialIssuesByDivision
+} from '@/app/store/actions'
 import Link from 'next/link'
 import { Building2 } from 'lucide-react'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
@@ -22,6 +27,47 @@ export default async function StitchingStoreDashboardPage() {
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
   const isLegacy = isLegacyNubiraTenant(tenant)
+
+  const isCustomPlant = (
+    isLegacy ||
+    tenant.subscriptionTier === 'CUSTOM' ||
+    (tenant.companyName && tenant.companyName.toLowerCase().includes('nubira')) ||
+    tenant.userEmail?.toLowerCase() === 'aj@nubiracreation.com' ||
+    tenant.userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
+    tenant.userEmail?.toLowerCase() === 'admin@zigza.in' ||
+    tenant.userEmail?.toLowerCase().includes('nubira')
+  )
+
+  // For Standard Factories: Render base streamlined Module Store Dashboard
+  if (!isCustomPlant) {
+    const companyFilter = tenant.companyName
+    const [receiptsRes, issuesRes, allIssuesRes] = await Promise.all([
+      fetchMaterialReceiptsByDivision('STITCHING', companyFilter),
+      fetchMaterialIssuesByDivision('STITCHING', companyFilter),
+      fetchMaterialIssuesByDivision(undefined, companyFilter),
+    ])
+
+    const initialReceipts = receiptsRes.data || []
+    const initialIssues = (issuesRes.data || []).filter((i: any) => i.from_division === 'STITCHING')
+    const pendingIssuesForMe = (allIssuesRes.data || []).filter(
+      (i: any) => i.to_division === 'STITCHING' && i.status !== 'RECEIVED'
+    )
+
+    return (
+      <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
+        <ModuleStoreDashboard
+          moduleName="Stitching & Sewing Floor"
+          divisionCode="STITCHING"
+          moduleNumber="06"
+          baseRoute="/stitching-sewing"
+          initialReceipts={initialReceipts}
+          initialIssues={initialIssues}
+          pendingIssuesForMe={pendingIssuesForMe}
+          companyName={tenant.companyName}
+        />
+      </AdminShell>
+    )
+  }
 
   // Fetch current user's profile for display & role context
   const { data: profile } = await supabase

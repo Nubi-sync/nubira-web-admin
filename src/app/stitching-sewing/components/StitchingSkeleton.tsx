@@ -5,11 +5,9 @@ import React from 'react'
 export function StitchingSkeleton() {
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto animate-pulse">
-      {/* Breadcrumb Skeleton */}
-      <div className="flex items-center gap-2">
-        <div className="h-4 w-24 bg-slate-200 rounded" />
-        <div className="h-4 w-4 bg-slate-200 rounded" />
-        <div className="h-4 w-32 bg-slate-200 rounded" />
+      {/* Top Welcome Skeleton */}
+      <div className="pt-1">
+        <div className="h-6 w-52 bg-slate-200 rounded-lg" />
       </div>
 
       {/* Header Card Skeleton */}
