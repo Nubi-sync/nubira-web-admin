@@ -330,28 +330,15 @@ export function DesignDashboardClient({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Top Welcome / Company Personality Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-        <div className="flex items-center gap-3 flex-wrap">
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)] flex items-center gap-2.5 flex-wrap">
-            <span className="text-slate-700 font-bold">Welcome,</span>
-            <span className="text-[#3A3564] relative inline-block font-extrabold">
-              {companyName || 'Demo Industries'}
-              <span className="absolute -bottom-1 left-0 right-0 h-1 bg-[#3A3564]/20 rounded-full" />
-            </span>
-          </h2>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Factory Workspace</span>
-          </div>
-        </div>
-
-        <div className="hidden md:flex items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono text-slate-500 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-            <span>Design Studio Desk</span>
-          </div>
-        </div>
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+          </span>
+        </h2>
       </div>
 
       {/* Layer 2: Encapsulated Top Header Card */}
