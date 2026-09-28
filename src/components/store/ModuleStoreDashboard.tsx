@@ -479,8 +479,19 @@ export function ModuleStoreDashboard({
                       <td className="py-3 px-4 text-slate-700">
                         {r.received_by || '-'}
                       </td>
-                      <td className="py-3 px-4 text-right font-mono text-slate-500">
-                        {r.received_at ? new Date(r.received_at).toLocaleDateString() : '-'}
+                      <td className="py-3 px-4 text-right font-mono text-slate-500" suppressHydrationWarning>
+                        {r.received_at ? (() => {
+                          try {
+                            const d = new Date(r.received_at)
+                            if (isNaN(d.getTime())) return r.received_at
+                            const day = String(d.getDate()).padStart(2, '0')
+                            const month = String(d.getMonth() + 1).padStart(2, '0')
+                            const year = d.getFullYear()
+                            return `${day}/${month}/${year}`
+                          } catch {
+                            return r.received_at
+                          }
+                        })() : '-'}
                       </td>
                     </tr>
                   ))

@@ -278,7 +278,7 @@ export function MaterialIssuesClient({
                         <div className="font-mono font-black text-slate-900">
                           {c.issueChallanNo}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-500">
+                        <div className="text-[11px] font-mono text-slate-500" suppressHydrationWarning>
                           {new Date(c.issuedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(c.issuedAt).toLocaleDateString()}
                         </div>
                       </td>
