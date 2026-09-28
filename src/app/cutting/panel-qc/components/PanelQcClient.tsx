@@ -233,7 +233,7 @@ export function PanelQcClient() {
                     <tr key={audit.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                         {audit.audit_number}
-                        <div className="text-[10px] text-slate-400 font-normal">
+                        <div className="text-[10px] text-slate-400 font-normal" suppressHydrationWarning>
                           {new Date(audit.audit_timestamp).toLocaleDateString()}
                         </div>
                       </td>

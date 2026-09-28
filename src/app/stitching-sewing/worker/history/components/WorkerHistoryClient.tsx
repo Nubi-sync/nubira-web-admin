@@ -173,7 +173,7 @@ export function WorkerHistoryClient({
                     <td className="py-3 px-4 font-mono font-bold text-emerald-700">
                       {t.completed_quantity} / {t.target_quantity} pcs
                     </td>
-                    <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                    <td className="py-3 px-4 text-slate-500 font-mono text-[11px]" suppressHydrationWarning>
                       {t.completed_at ? new Date(t.completed_at).toLocaleDateString() : 'Finished'}
                     </td>
                     <td className="py-3 px-4">

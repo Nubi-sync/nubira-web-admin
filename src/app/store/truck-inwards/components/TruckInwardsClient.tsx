@@ -249,7 +249,7 @@ export function TruckInwardsClient() {
                       <div className="font-mono font-black text-slate-900">
                         {t.grnNumber}
                       </div>
-                      <div className="text-[11px] font-mono text-slate-500">
+                      <div className="text-[11px] font-mono text-slate-500" suppressHydrationWarning>
                         {new Date(t.arrivalTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(t.arrivalTimestamp).toLocaleDateString()}
                       </div>
                     </td>

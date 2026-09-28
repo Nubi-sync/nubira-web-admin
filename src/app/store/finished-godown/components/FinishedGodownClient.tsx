@@ -253,7 +253,7 @@ export function FinishedGodownClient() {
                         <div className="font-mono font-black text-slate-900">
                           {p.palletId}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-500">
+                        <div className="text-[11px] font-mono text-slate-500" suppressHydrationWarning>
                           {new Date(p.stagedAt).toLocaleDateString()}
                         </div>
                       </td>

@@ -305,7 +305,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Registered:</span>
-                  <span className="font-bold text-slate-900">
+                  <span className="font-bold text-slate-900" suppressHydrationWarning>
                     {new Date(activePreview.created_at).toLocaleDateString()}
                   </span>
                 </div>

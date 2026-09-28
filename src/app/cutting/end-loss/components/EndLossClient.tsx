@@ -236,7 +236,7 @@ export function EndLossClient() {
                     <tr key={rem.id} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                         <div>{rem.remnant_code}</div>
-                        <div className="text-[10px] text-slate-400 font-normal">
+                        <div className="text-[10px] text-slate-400 font-normal" suppressHydrationWarning>
                           {new Date(rem.logged_at || rem.created_at || Date.now()).toLocaleDateString()}
                         </div>
                       </td>
