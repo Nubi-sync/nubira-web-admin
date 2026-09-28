@@ -130,6 +130,79 @@ function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   )
 }
 
+function InstagramOutlineIcon({ className = "w-4.5 h-4.5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <circle cx="12" cy="12" r="4" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" strokeWidth="2.5" />
+    </svg>
+  )
+}
+
+function LinkedinOutlineIcon({ className = "w-4.5 h-4.5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" rx="0.5" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  )
+}
+
+function TwitterXOutlineIcon({ className = "w-4.5 h-4.5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+      <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+    </svg>
+  )
+}
+
+function FacebookOutlineIcon({ className = "w-4.5 h-4.5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  )
+}
+
 interface ZigzaLandingPageClientProps {
   isAuthenticated?: boolean
   userEmail?: string
@@ -593,10 +666,10 @@ export function ZigzaLandingPageClient({
           </h1>
 
           {/* Subtitle */}
-          <div className="relative max-w-2xl mx-auto">
+          <div className="relative max-w-3xl mx-auto">
             {/* Subtitle: Clean, direct value proposition */}
             <p className="text-[17px] sm:text-xl text-[#3D3C36] leading-relaxed font-normal">
-              Replace messy paper slips and endless phone calls with one simple system. Get live order progress, cut fabric waste, and ship to buyers without last-minute panic.
+              Replace messy paper slips and endless calls with one simple system. Get live order progress, cut fabric waste, and ship to buyers with zero panic.
             </p>
           </div>
 
@@ -621,18 +694,18 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Key Metric Feature Flags: Clear customer benefits */}
-          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-7 text-sm sm:text-[15px] font-medium text-[#3D3C36]">
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
+          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 lg:gap-8 text-sm sm:text-[14.5px] font-medium text-[#3D3C36]">
+            <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
+              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0" />
               <span>Zero missing pieces across lines</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
-              <span>Works on any Android phone — no costly hardware</span>
+            <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
+              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0" />
+              <span>Works on any Android phone</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
-              <span>Instant tailor wages with zero disputes</span>
+            <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
+              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0" />
+              <span>Instant wages with zero disputes</span>
             </div>
           </div>
         </div>
@@ -1055,16 +1128,16 @@ export function ZigzaLandingPageClient({
                         </span>
                       </div>
 
-                      <div className="overflow-x-auto -mx-1">
-                        <table className="w-full table-fixed text-xs sm:text-sm text-left min-w-[620px]">
+                      <div className="overflow-x-auto -mx-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <table className="w-full table-fixed text-xs sm:text-sm text-left min-w-0">
                           <thead>
                             <tr className="border-b border-slate-100 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                              <th className="py-2.5 px-3 w-[18%] transition-colors duration-300">{currentBanner.col1}</th>
-                              <th className="py-2.5 px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
-                              <th className="py-2.5 px-3 w-[22%] transition-colors duration-300">{currentBanner.col3}</th>
-                              <th className="py-2.5 px-3 w-[11%] text-right transition-colors duration-300">{currentBanner.col4}</th>
-                              <th className="py-2.5 px-3 w-[12%] text-right transition-colors duration-300">{currentBanner.col5}</th>
-                              <th className="py-2.5 px-3 w-[13%] text-center transition-colors duration-300">{currentBanner.col6}</th>
+                              <th className="py-2.5 px-2.5 sm:px-3 w-[17%] transition-colors duration-300">{currentBanner.col1}</th>
+                              <th className="py-2.5 px-2.5 sm:px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
+                              <th className="py-2.5 px-2.5 sm:px-3 w-[21%] transition-colors duration-300">{currentBanner.col3}</th>
+                              <th className="py-2.5 px-2.5 sm:px-3 w-[11%] text-right transition-colors duration-300">{currentBanner.col4}</th>
+                              <th className="py-2.5 px-2.5 sm:px-3 w-[12%] text-right transition-colors duration-300">{currentBanner.col5}</th>
+                              <th className="py-2.5 px-2.5 sm:px-3 w-[15%] text-center transition-colors duration-300">{currentBanner.col6}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -1077,18 +1150,18 @@ export function ZigzaLandingPageClient({
                                     : 'hover:bg-[#FAF7F0]/40'
                                 }`}
                               >
-                                <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564] truncate">
+                                <td className="py-2.5 px-2.5 sm:px-3 font-bold font-mono text-[#3A3564] truncate">
                                   <span className="flex items-center gap-1.5">
                                     {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />}
                                     {r.c1}
                                   </span>
                                 </td>
-                                <td className={`py-2.5 px-3 font-semibold truncate ${r.c2Color}`}>{r.c2}</td>
-                                <td className="py-2.5 px-3 font-mono text-slate-600 truncate">{r.c3}</td>
-                                <td className="py-2.5 px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
-                                <td className={`py-2.5 px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
-                                <td className="py-2.5 px-3 text-center">
-                                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
+                                <td className={`py-2.5 px-2.5 sm:px-3 font-semibold truncate ${r.c2Color}`}>{r.c2}</td>
+                                <td className="py-2.5 px-2.5 sm:px-3 font-mono text-slate-600 truncate">{r.c3}</td>
+                                <td className="py-2.5 px-2.5 sm:px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
+                                <td className={`py-2.5 px-2.5 sm:px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
+                                <td className="py-2.5 px-2.5 sm:px-3 text-center">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10.5px] sm:text-[11px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
                                     {r.badge}
                                   </span>
                                 </td>
@@ -2343,10 +2416,10 @@ export function ZigzaLandingPageClient({
       <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 mb-12 sm:mb-16">
             
             {/* Brand Column */}
-            <div className="col-span-1 sm:col-span-2 md:col-span-2 space-y-3.5">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-2 space-y-3.5">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
@@ -2453,6 +2526,71 @@ export function ZigzaLandingPageClient({
                     className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
                   >
                     WhatsApp Consultation
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Social Handles */}
+            <div className="space-y-3.5">
+              <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
+                Social Handles
+              </h5>
+              <ul className="space-y-2.5 text-[14.5px] sm:text-[15px]">
+                <li>
+                  <a 
+                    href="https://instagram.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label="Zigza on Instagram"
+                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
+                  >
+                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
+                      <InstagramOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
+                    </span>
+                    <span className="font-medium group-hover:underline">Instagram</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://linkedin.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label="Zigza on LinkedIn"
+                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
+                  >
+                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
+                      <LinkedinOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
+                    </span>
+                    <span className="font-medium group-hover:underline">LinkedIn</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://x.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label="Zigza on Twitter / X"
+                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
+                  >
+                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
+                      <TwitterXOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
+                    </span>
+                    <span className="font-medium group-hover:underline">Twitter / X</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://facebook.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label="Zigza on Facebook"
+                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
+                  >
+                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
+                      <FacebookOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
+                    </span>
+                    <span className="font-medium group-hover:underline">Facebook</span>
                   </a>
                 </li>
               </ul>
