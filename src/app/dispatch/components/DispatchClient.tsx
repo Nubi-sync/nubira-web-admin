@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useEffect } from 'react'
 import { 
   Truck, 
   Download, 
@@ -102,6 +102,7 @@ interface DispatchClientProps {
   allotments?: Allotment[]
   companyName?: string
   factoryAddress?: string
+  initialTab?: TabKey
 }
 
 type TabKey = 'challans' | 'counting'
@@ -115,20 +116,22 @@ export function DispatchClient({
   allotments = [],
   companyName = 'Enterprise Apparel Factory',
   factoryAddress = 'Industrial Apparel Park, India',
+  initialTab = 'challans',
 }: DispatchClientProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>(() => {
-    if (typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search)
-      if (p.get('tab') === 'counting') return 'counting'
-      if (p.get('tab') === 'challans') return 'challans'
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab)
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab)
     }
-    return 'challans'
-  })
+  }, [initialTab])
+
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<ReconciliationStatus>('ALL')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
   const [isPending, startTransition] = useTransition()
+  const [newChallanNo, setNewChallanNo] = useState('')
 
   // Subtle Dialog State (replaces browser window.alert)
   const [dialogState, setDialogState] = useState<Omit<SubtleDialogProps, 'onClose'>>({
@@ -185,6 +188,17 @@ export function DispatchClient({
       quantity: 0,
     }
   ])
+
+  const handleOpenCreateChallan = () => {
+    setChallanRows([{
+      article_id: articles.length > 0 ? articles[0].id : '',
+      color: '',
+      size: '',
+      quantity: 0,
+    }])
+    setNewChallanNo('CH-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000))
+    setShowCreateChallanModal(true)
+  }
 
   const handleTabChange = (tab: TabKey) => {
     setActiveTab(tab)
@@ -441,15 +455,7 @@ export function DispatchClient({
           
           <button 
             type="button"
-            onClick={() => {
-              setChallanRows([{
-                article_id: articles.length > 0 ? articles[0].id : '',
-                color: '',
-                size: '',
-                quantity: 0,
-              }])
-              setShowCreateChallanModal(true)
-            }}
+            onClick={handleOpenCreateChallan}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -658,15 +664,7 @@ export function DispatchClient({
                 </p>
                 <button
                   type="button"
-                  onClick={() => {
-                    setChallanRows([{
-                      article_id: articles.length > 0 ? articles[0].id : '',
-                      color: '',
-                      size: '',
-                      quantity: 0,
-                    }])
-                    setShowCreateChallanModal(true)
-                  }}
+                  onClick={handleOpenCreateChallan}
                   className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
@@ -1067,7 +1065,9 @@ export function DispatchClient({
                     <input 
                       type="text" 
                       name="challan_no" 
-                      defaultValue={'CH-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000)} 
+                      value={newChallanNo}
+                      onChange={(e) => setNewChallanNo(e.target.value)}
+                      required
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
                     />
                   </div>

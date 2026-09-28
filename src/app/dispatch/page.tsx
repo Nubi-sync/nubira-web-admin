@@ -7,7 +7,14 @@ import { CacheManager } from '@/lib/cache/cache-manager'
 
 export const dynamic = 'force-dynamic'
 
-export default async function DispatchPage() {
+interface DispatchPageProps {
+  searchParams: Promise<{ tab?: string }>
+}
+
+export default async function DispatchPage({ searchParams }: DispatchPageProps) {
+  const resolvedSearchParams = await searchParams
+  const initialTab = resolvedSearchParams?.tab === 'counting' ? 'counting' : 'challans'
+
   const supabase = await createClient()
 
   const {
@@ -161,6 +168,7 @@ export default async function DispatchPage() {
           allotments={(allotments as any) || []}
           companyName={tenant.companyName}
           factoryAddress={tenant.cityState}
+          initialTab={initialTab}
         />
       </div>
     </AdminShell>
