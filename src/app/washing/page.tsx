@@ -42,19 +42,17 @@ export default async function WashingDashboardPage() {
   ])
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
-      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
-        <WashingDashboardClient
-          userEmail={user.email}
-          isSuperAdmin={tenant.isPlatformAdmin || tenant.isSuperAdmin}
-          initialBuyers={buyers || []}
-          initialWorkers={workers || []}
-          initialAllocations={allocations || []}
-          initialCuttingAllocations={cuttingAllocations || []}
-          liveKpis={liveData}
-          companyName={tenant.companyName}
-        />
-      </div>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
+      <WashingDashboardClient
+        userEmail={user.email}
+        isSuperAdmin={tenant.isPlatformAdmin || tenant.isSuperAdmin}
+        initialBuyers={buyers || []}
+        initialWorkers={workers || []}
+        initialAllocations={allocations || []}
+        initialCuttingAllocations={cuttingAllocations || []}
+        liveKpis={liveData}
+        companyName={tenant.companyName}
+      />
     </AdminShell>
   )
 }

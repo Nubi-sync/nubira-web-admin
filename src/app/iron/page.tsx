@@ -45,20 +45,18 @@ export default async function IronDashboardPage() {
   ])
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
-      <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
-        <IronDashboardClient
-          userEmail={user.email}
-          isSuperAdmin={tenant.isPlatformAdmin || tenant.isSuperAdmin}
-          initialBuyers={buyers || []}
-          initialWorkers={workers || []}
-          initialAllocations={allocations || []}
-          initialCuttingAllocations={cuttingAllocations || []}
-          initialWashingAllocations={washingAllocations || []}
-          liveKpis={liveData}
-          companyName={tenant.companyName}
-        />
-      </div>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
+      <IronDashboardClient
+        userEmail={user.email}
+        isSuperAdmin={tenant.isPlatformAdmin || tenant.isSuperAdmin}
+        initialBuyers={buyers || []}
+        initialWorkers={workers || []}
+        initialAllocations={allocations || []}
+        initialCuttingAllocations={cuttingAllocations || []}
+        initialWashingAllocations={washingAllocations || []}
+        liveKpis={liveData}
+        companyName={tenant.companyName}
+      />
     </AdminShell>
   )
 }
