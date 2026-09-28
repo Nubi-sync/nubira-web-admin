@@ -28,7 +28,8 @@ import {
   Calendar,
   FlaskConical,
   Droplets,
-  Bell
+  Bell,
+  Store
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
@@ -449,31 +450,13 @@ export function WashingDashboardClient({
   return (
     <div className="space-y-6 max-w-7xl w-full mx-auto select-none">
       
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          {isSuperAdmin && (
-            <>
-              <Link
-                href="/modules"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Workspace Hub</span>
-              </Link>
-              <span className="text-slate-300">/</span>
-            </>
-          )}
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-            Division 07 • Wet Processing &amp; Laundry
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-2.5">
-          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Tumbler &amp; Hydro Sync Active
-          </span>
+      {/* Top Welcome / Company Identification */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <span className="text-xs font-medium text-slate-400">Welcome,</span>
+          <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] leading-tight">
+            {companyName || 'Industrial Plant'}
+          </h2>
         </div>
       </div>
 
@@ -501,19 +484,37 @@ export function WashingDashboardClient({
         {/* Quick Nav Chips */}
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <Link
+            href="/washing/store"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          >
+            <Store className="w-3.5 h-3.5" />
+            <span>Floor Store</span>
+          </Link>
+          <Link
+            href="/washing/notifications"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>Notifications</span>
+          </Link>
+          <Link
             href="/washing/zigza-ai"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
           </Link>
-          <Link
-            href="/washing/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            title="Sync latest live floor updates"
           >
-            <Users className="w-3.5 h-3.5" />
-            <span>Division Profile</span>
-          </Link>
+            <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Tumbler &amp; Hydro Sync</span>
+          </button>
         </div>
       </div>
 
@@ -827,8 +828,8 @@ export function WashingDashboardClient({
           </div>
         </div>
 
-        {/* Spreadsheet Matrix Table */}
-        <div className="overflow-x-auto">
+        {/* Desktop Spreadsheet Matrix Table (Visible on md+) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-black/10 bg-[#FAF7F0]/80 text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
@@ -933,6 +934,121 @@ export function WashingDashboardClient({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Task Cards (Visible on screens < md) */}
+        <div className="block md:hidden divide-y divide-black/10">
+          {filteredTasks.length === 0 ? (
+            <div className="py-10 px-4 text-center text-slate-400">
+              <Waves className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+              <div className="text-sm font-bold text-slate-600">No washing task allocations found</div>
+              <p className="text-xs text-slate-400 mt-1">
+                Tap &quot;+ Add Task Row&quot; above to allocate garment batches to washing operators.
+              </p>
+            </div>
+          ) : (
+            filteredTasks.map(task => {
+              const progress = Math.min(100, Math.round(((task.completed_pieces || 0) / (task.pieces_to_wash || 1)) * 100))
+              return (
+                <div key={task.id} className="p-4 space-y-3 bg-white hover:bg-[#FAF7F0]/30 transition-colors">
+                  {/* Card Header: Task Ref, Status, Actions */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        #{task.task_ref}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        task.status === 'VERIFIED_COMPLETED'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : task.status === 'WORKER_COMPLETED'
+                          ? 'bg-blue-50 text-blue-800 border-blue-200'
+                          : task.status === 'IN_PROGRESS'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : 'bg-slate-50 text-slate-700 border-slate-200'
+                      }`}>
+                        {task.status.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {task.status === 'WORKER_COMPLETED' && (
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_wash)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-2xs transition-all cursor-pointer"
+                        >
+                          <Check className="w-3 h-3" />
+                          <span>Verify</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setTaskToDelete({
+                          id: task.id,
+                          taskRef: task.task_ref,
+                          workerName: task.worker_name,
+                          buyerName: task.buyer_name,
+                          articleNumber: task.article_number,
+                          pieces: task.pieces_to_wash,
+                          machine: task.table_number || 'Washer 01'
+                        })}
+                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        title="Delete task allocation"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Buyer & Article */}
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <div>
+                      <div className="text-[10px] font-mono text-slate-400 uppercase">Buyer / Contract</div>
+                      <div className="font-bold text-slate-800">{task.buyer_name}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] font-mono text-slate-400 uppercase">Article No</div>
+                      <div className="font-mono font-bold text-[#3A3564]">{task.article_number}</div>
+                    </div>
+                  </div>
+
+                  {/* Operator & Machine */}
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-[#FAF7F0]/60 p-2.5 rounded-xl border border-black/5">
+                    <div>
+                      <div className="text-[10px] font-mono text-slate-400 uppercase">Washer Operator</div>
+                      <div className="font-semibold text-slate-800 truncate">{task.worker_name}</div>
+                      {task.worker_phone && (
+                        <div className="text-[10px] text-slate-400 font-mono">+91 {task.worker_phone}</div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono text-slate-400 uppercase">Machine &amp; Recipe</div>
+                      <div className="font-semibold text-slate-700 truncate">{task.table_number || task.machine_number || 'Washer 01'}</div>
+                      <div className="text-[10px] text-slate-500 truncate">{task.wash_recipe || 'Bio-Enzyme 55°C'}</div>
+                    </div>
+                  </div>
+
+                  {/* Progress & Target */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-500">Progress: {progress}%</span>
+                      <span className="font-bold text-slate-800">
+                        <span className="text-emerald-700 font-bold">{(task.completed_pieces || 0).toLocaleString('en-IN')}</span> / {task.pieces_to_wash.toLocaleString('en-IN')} pcs
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          progress >= 100 ? 'bg-emerald-500' : 'bg-[#3A3564]'
+                        }`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
 
       </div>
