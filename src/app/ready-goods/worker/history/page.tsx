@@ -21,7 +21,7 @@ export default async function ReadyGoodsWorkerHistoryPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <div className="space-y-4 max-w-4xl mx-auto">
         <div className="flex items-center justify-between">
           <Link

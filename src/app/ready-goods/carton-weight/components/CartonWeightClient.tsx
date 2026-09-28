@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Scale,
-  ChevronLeft,
   CheckCircle2,
   AlertTriangle,
   QrCode,

@@ -37,7 +37,7 @@ export default async function ReadyGoodsWorkerPage({
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <WorkerDashboardClient
         userEmail={user.email}
         userName={tenant.adminDisplayName || user.user_metadata?.full_name}

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   PackageCheck,
-  ChevronLeft,
   Boxes,
   Users,
   Search,
