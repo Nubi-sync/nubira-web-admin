@@ -35,6 +35,7 @@ export default async function TechPacksPage() {
           initialTechPacks={initialTechPacks} 
           availableBrands={brands} 
           availableArticles={availableArticles} 
+          companyName={tenant.companyName || 'Nubira Creation'}
         />
       </div>
     </AdminShell>

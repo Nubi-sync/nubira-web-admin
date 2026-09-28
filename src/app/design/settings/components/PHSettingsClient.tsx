@@ -241,14 +241,16 @@ export function PHSettingsClient({
   return (
     <div className="space-y-6">
       {/* Breadcrumb Hierarchy Trail */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
+        <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
+          {companyName || 'Factory Workspace'}
+        </Link>
+        <span>/</span>
         <Link href="/design" className="hover:text-[#3A3564] transition-colors">
           Design Studio
         </Link>
         <span>/</span>
-        <span>Configuration</span>
-        <span>/</span>
-        <span className="font-bold text-slate-900">PH Settings</span>
+        <span className="font-bold text-slate-900">Supervisor Settings</span>
       </div>
 
       {/* Header */}
@@ -260,10 +262,10 @@ export function PHSettingsClient({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Provisional Head Studio Settings
+                Supervisor Studio Settings
               </h1>
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
-                PH Privileged
+                Supervisor Privileged
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1">
@@ -280,7 +282,7 @@ export function PHSettingsClient({
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-black/10 pb-2">
+      <div className="flex items-center gap-2 border-b border-black/10 pb-2 overflow-x-auto whitespace-nowrap">
         <button
           onClick={() => setActiveTab('BODY_PARTS')}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
@@ -679,7 +681,7 @@ export function PHSettingsClient({
                       </span>
                     ) : (
                       <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-[#3A3564] text-[#FAF7F0]">
-                        Custom PH
+                        Custom Supervisor
                       </span>
                     )}
                   </div>

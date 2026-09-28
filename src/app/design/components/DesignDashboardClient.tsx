@@ -66,10 +66,10 @@ interface DesignDashboardClientProps {
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> = {
   ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
-  PH_APPROVED: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
+  PH_APPROVED: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
-  SA_APPROVED: { label: 'SA Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
-  SA_SAVED_FOR_LATER: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
+  SA_APPROVED: { label: 'Super Admin Approved', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
+  SA_SAVED_FOR_LATER: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
 }
 
@@ -272,8 +272,8 @@ export function DesignDashboardClient({
         broadcastFloorEvent({
           eventType: 'BRIEF_REVIEWED',
           sourceModule: 'design',
-          title: nextStatus === 'PH_APPROVED' ? 'Design Concept PH Approved' : 'Design Revision Requested',
-          message: `${selectedBriefForView.garment_type} (Concept #${modalActiveConceptTab}) reviewed by Provisional Head: ${nextStatus === 'PH_APPROVED' ? 'Approved for SA cross-check' : 'Revisions needed'}.`,
+          title: nextStatus === 'PH_APPROVED' ? 'Design Concept Supervisor Approved' : 'Design Revision Requested',
+          message: `${selectedBriefForView.garment_type} (Concept #${modalActiveConceptTab}) reviewed by Supervisor: ${nextStatus === 'PH_APPROVED' ? 'Approved for Super Admin cross-check' : 'Revisions needed'}.`,
           articleNumber: selectedBriefForView.latest_submission?.concepts?.[0]?.art_number,
           workerName: selectedBriefForView.designer_name,
           companyName
@@ -331,14 +331,14 @@ export function DesignDashboardClient({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Layer 1: Breadcrumb Hierarchy Trail */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
-          Design Studio
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
+        <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
+          {companyName || 'Factory Workspace'}
         </Link>
         <span>/</span>
-        <span>Workspaces</span>
+        <span>Design Studio</span>
         <span>/</span>
-        <span className="font-bold text-slate-900">Provisional Head Desk</span>
+        <span className="font-bold text-slate-900">Supervisor Desk</span>
       </div>
 
       {/* Layer 2: Encapsulated Top Header Card */}
@@ -385,7 +385,7 @@ export function DesignDashboardClient({
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5 text-[#3A3564]" />
-            <span>PH Settings</span>
+            <span>Supervisor Settings</span>
           </Link>
 
           <button
@@ -431,7 +431,7 @@ export function DesignDashboardClient({
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Pending PH Review
+              Pending Supervisor Review
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingPHCount}
@@ -450,7 +450,7 @@ export function DesignDashboardClient({
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Forwarded to SA
+              Forwarded to Super Admin
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
               {pendingSACount}
@@ -1074,11 +1074,11 @@ export function DesignDashboardClient({
                   </div>
                 )}
 
-                {/* Provisional Head Feedback Input */}
+                {/* Supervisor Feedback Input */}
                 {brief.latest_submission && (
                   <div className="space-y-1.5 pt-2">
                     <label className="text-xs font-bold text-slate-800 uppercase block">
-                      Provisional Head Review Notes / Feedback:
+                      Supervisor Review Notes / Feedback:
                     </label>
                     <textarea
                       value={phFeedback}
@@ -1132,7 +1132,7 @@ export function DesignDashboardClient({
                         className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                        <span>Approve &amp; Forward to SA</span>
+                        <span>Approve &amp; Forward to Super Admin</span>
                       </button>
                     </>
                   )}

@@ -357,14 +357,16 @@ export function SADesignApprovalsClient({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Layer 1: Breadcrumb Hierarchy Trail */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
-          Executive Hub
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
+        <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
+          {companyName || 'Factory Workspace'}
         </Link>
         <span>/</span>
-        <span>Approvals</span>
+        <Link href="/design" className="hover:text-[#3A3564] transition-colors">
+          Design Studio
+        </Link>
         <span>/</span>
-        <span className="font-bold text-slate-900">Design Approvals</span>
+        <span className="font-bold text-slate-900">Executive Approvals</span>
       </div>
 
       {/* Layer 2: Encapsulated Top Header Card */}
@@ -383,7 +385,7 @@ export function SADesignApprovalsClient({
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1">
-              Review Provisional Head-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive
+              Review Supervisor-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive
             </p>
           </div>
         </div>
@@ -560,7 +562,7 @@ export function SADesignApprovalsClient({
             <EmptyState
               icon={ShieldCheck}
               title="No designs found in this category"
-              description="When Provisional Heads approve designer submissions, each individual design and colorway appears here for Super Admin executive review."
+              description="When Supervisors approve designer submissions, each individual design and colorway appears here for Super Admin executive review."
             />
           </div>
         ) : (
@@ -615,7 +617,7 @@ export function SADesignApprovalsClient({
                             </span>
                           )}
                           <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PH Approved
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Supervisor Approved
                           </span>
                         </td>
 
@@ -784,7 +786,7 @@ export function SADesignApprovalsClient({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-                    {selectedRowItem.isPHApproved ? 'PH Approved' : 'PH Rejected'}
+                    {selectedRowItem.isPHApproved ? 'Supervisor Approved' : 'Supervisor Rejected'}
                   </span>
                   <span className="text-xs font-mono font-extrabold text-slate-900 bg-white px-2.5 py-0.5 rounded-full border border-black/10 shadow-2xs">
                     ART NO: {selectedRowItem.artNumber}
@@ -886,10 +888,10 @@ export function SADesignApprovalsClient({
                 </div>
               )}
 
-              {/* PH Approval Notes */}
+              {/* Supervisor Approval Notes */}
               {selectedRowItem.phFeedback && (
                 <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs">
-                  <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">Provisional Head Notes:</span>
+                  <span className="font-bold text-sky-900 block font-mono uppercase mb-0.5">Supervisor Notes:</span>
                   <p className="text-sky-800 italic">&ldquo;{selectedRowItem.phFeedback}&rdquo;</p>
                 </div>
               )}

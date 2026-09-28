@@ -32,7 +32,7 @@ interface DesignerHistoryClientProps {
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; isGreen?: boolean; isRed?: boolean }> = {
   ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
-  PH_APPROVED: { label: 'Approved by Head', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
+  PH_APPROVED: { label: 'Approved by Supervisor', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-bold', isRed: true },
   SA_APPROVED: { label: 'Approved / Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
   SA_SAVED_FOR_LATER: { label: 'Seasonal Archive', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
@@ -69,7 +69,8 @@ export function DesignerHistoryClient({
   initialBriefs,
   designerName,
   designerPhone,
-  designerEmail
+  designerEmail,
+  companyName
 }: DesignerHistoryClientProps) {
   const router = useRouter()
   const [search, setSearch] = useState('')
@@ -112,9 +113,13 @@ export function DesignerHistoryClient({
     <div className="space-y-5 sm:space-y-6">
       {/* 1. Breadcrumb Trail */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/design/designer" className="hover:text-[#3A3564] transition-colors">
-            Designer Studio
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
+          <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
+            {companyName || 'Factory Workspace'}
+          </Link>
+          <span>/</span>
+          <Link href="/design" className="hover:text-[#3A3564] transition-colors">
+            Design Studio
           </Link>
           <span>/</span>
           <span className="font-bold text-slate-900">Submission History</span>
@@ -145,7 +150,7 @@ export function DesignerHistoryClient({
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1">
-              Track Provisional Head verdicts, view past submitted artwork decks, and address revision notes
+              Track Supervisor verdicts, view past submitted artwork decks, and address revision notes
             </p>
           </div>
         </div>
@@ -447,7 +452,7 @@ export function DesignerHistoryClient({
                 <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1">
                   <div className="flex items-center gap-1.5 font-bold font-mono text-[11px] text-amber-800">
                     <AlertCircle className="w-3.5 h-3.5" />
-                    <span>Provisional Head Feedback:</span>
+                    <span>Supervisor Feedback:</span>
                   </div>
                   <p className="italic font-medium text-xs">&ldquo;{selectedBrief.latest_submission.ph_feedback}&rdquo;</p>
                 </div>

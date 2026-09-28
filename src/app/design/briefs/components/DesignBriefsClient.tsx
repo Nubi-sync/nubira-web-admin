@@ -879,10 +879,10 @@ export function DesignBriefsClient({
                               <button
                                 onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
                                 className="inline-flex items-center gap-1 text-xs font-bold text-[#FAF7F0] bg-[#3A3564] hover:bg-[#2A2649] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
-                                title="Provisional Head Review"
+                                title="Supervisor Review"
                               >
                                 <Eye className="w-3.5 h-3.5" />
-                                <span>PH Review</span>
+                                <span>Supervisor Review</span>
                               </button>
                             )}
 
@@ -1204,10 +1204,10 @@ export function DesignBriefsClient({
                   </div>
                 )}
 
-                {/* Provisional Head Feedback Input */}
+                {/* Supervisor Feedback Input */}
                 <div className="space-y-1.5 pt-2">
                   <label className="text-xs font-bold text-slate-800 uppercase font-mono block">
-                    Provisional Head Review Notes / Feedback:
+                    Supervisor Review Notes / Feedback:
                   </label>
                   <textarea
                     value={phFeedback}
@@ -1472,11 +1472,11 @@ export function DesignBriefsClient({
                   </div>
                 )}
 
-                {/* PH Review Comments */}
+                {/* Supervisor Review Comments */}
                 {sub.ph_feedback && (
                   <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/60">
                     <span className="text-[10px] font-mono uppercase font-bold text-amber-800 block">
-                      Provisional Head Feedback:
+                      Supervisor Feedback:
                     </span>
                     <p className="text-xs text-amber-900 mt-0.5">
                       &ldquo;{sub.ph_feedback}&rdquo;

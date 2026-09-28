@@ -77,7 +77,7 @@ interface DesignerDashboardClientProps {
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; isGreen?: boolean; isRed?: boolean }> = {
   ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
   SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
-  PH_APPROVED: { label: 'Approved by Head', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
+  PH_APPROVED: { label: 'Approved by Supervisor', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-bold', isRed: true },
   SA_APPROVED: { label: 'Approved / Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
   SA_SAVED_FOR_LATER: { label: 'Seasonal Archive', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
@@ -576,7 +576,7 @@ export function DesignerDashboardClient({
       })
 
       if (res.success) {
-        toast.success(`Full design deck (${readySlotsCount}/${totalSlots} mockups) submitted for Provisional Head review!`)
+        toast.success(`Full design deck (${readySlotsCount}/${totalSlots} mockups) submitted for Supervisor review!`)
         setBriefs(prev => prev.map(b => {
           if (b.id === activeBrief.id) {
             return {
@@ -721,7 +721,7 @@ export function DesignerDashboardClient({
 
           {activeBrief.instructions && (
             <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs text-slate-700 space-y-1">
-              <span className="font-mono font-bold uppercase text-[10px] text-slate-500 block">Provisional Head Instructions:</span>
+              <span className="font-mono font-bold uppercase text-[10px] text-slate-500 block">Supervisor Instructions:</span>
               <p className="italic font-medium">&ldquo;{activeBrief.instructions}&rdquo;</p>
             </div>
           )}
@@ -731,7 +731,7 @@ export function DesignerDashboardClient({
             <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 text-xs space-y-1">
               <div className="flex items-center gap-1.5 text-rose-800 font-bold font-mono">
                 <XCircle className="w-4 h-4" />
-                <span>Head Revision Notes (Action Required):</span>
+                <span>Supervisor Revision Notes (Action Required):</span>
               </div>
               <p className="text-rose-900 italic font-medium pt-0.5">&ldquo;{activeBrief.latest_submission.ph_feedback}&rdquo;</p>
               <p className="text-rose-700 pt-1 text-[11px]">Please adjust your artwork below and click &ldquo;Resubmit Work&rdquo;.</p>
@@ -1019,9 +1019,9 @@ export function DesignerDashboardClient({
           onClose={() => setIsConfirmSubmitOpen(false)}
           onConfirm={handleFinalSubmit}
           isLoading={isSubmitting}
-          title="Submit Assignment for Head Review?"
-          description={`You have completed ${readySlotsCount} of ${totalSlots} mockup slots (${completedConceptsCount} of ${targetDesignsCount} design concepts). Submitting now will finalize this assignment and send it to the Provisional Head for technical review.`}
-          confirmText="Yes, Submit to Provisional Head"
+          title="Submit Assignment for Supervisor Review?"
+          description={`You have completed ${readySlotsCount} of ${totalSlots} mockup slots (${completedConceptsCount} of ${targetDesignsCount} design concepts). Submitting now will finalize this assignment and send it to the Supervisor for technical review.`}
+          confirmText="Yes, Submit to Supervisor"
           cancelText="Continue Working"
           variant="primary"
         />
@@ -1058,10 +1058,16 @@ export function DesignerDashboardClient({
     <div className="space-y-5 sm:space-y-6">
       {/* Layer 1: Breadcrumb Hierarchy Trail */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <span>Designer Studio</span>
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
+          <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
+            {companyName || 'Factory Workspace'}
+          </Link>
           <span>/</span>
-          <span className="font-bold text-slate-900">Active Assignments</span>
+          <Link href="/design" className="hover:text-[#3A3564] transition-colors">
+            Design Studio
+          </Link>
+          <span>/</span>
+          <span className="font-bold text-slate-900">Designer Workspace</span>
         </div>
 
         <Link
