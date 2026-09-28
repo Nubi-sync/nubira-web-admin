@@ -111,25 +111,7 @@ export function DesignerHistoryClient({
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      {/* 1. Top Welcome / Company Identification */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="inline-flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 font-medium">Welcome,</span>
-          <span className="font-bold text-slate-900">
-            {companyName || 'Demo Industries'}
-          </span>
-        </div>
-
-        <Link
-          href="/design/designer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-        >
-          <Palette className="w-3.5 h-3.5" />
-          <span>View Active Assignments</span>
-        </Link>
-      </div>
-
-      {/* 2. Top Header Card */}
+      {/* Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
@@ -150,7 +132,14 @@ export function DesignerHistoryClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/design/designer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+          >
+            <Palette className="w-3.5 h-3.5" />
+            <span>Active Assignments</span>
+          </Link>
           <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
             {designerPhone ? `+91 ${designerPhone}` : designerEmail}
           </span>

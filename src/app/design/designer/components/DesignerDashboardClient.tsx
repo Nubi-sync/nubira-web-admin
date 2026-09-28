@@ -1056,25 +1056,7 @@ export function DesignerDashboardClient({
   // =========================================================================
   return (
     <div className="space-y-5 sm:space-y-6">
-      {/* Layer 1: Top Welcome / Company Identification */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="inline-flex items-center gap-1.5 text-xs">
-          <span className="text-slate-500 font-medium">Welcome,</span>
-          <span className="font-bold text-slate-900">
-            {companyName || 'Demo Industries'}
-          </span>
-        </div>
-
-        <Link
-          href="/design/history"
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-800 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
-          <span>View Submission History &rarr;</span>
-        </Link>
-      </div>
-
-      {/* Layer 2: Encapsulated Top Header Card */}
+      {/* Layer 1: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
@@ -1095,7 +1077,14 @@ export function DesignerDashboardClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/design/history"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-slate-800 hover:text-[#3A3564] hover:bg-[#F2ECE1] transition-all shadow-2xs cursor-pointer"
+          >
+            <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Submission History &rarr;</span>
+          </Link>
           <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
             {designerPhone ? `+91 ${designerPhone}` : designerEmail}
           </span>

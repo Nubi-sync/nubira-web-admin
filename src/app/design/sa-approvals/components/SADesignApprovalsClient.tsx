@@ -356,17 +356,7 @@ export function SADesignApprovalsClient({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Top Welcome / Company Identification */}
-      <div className="flex items-center justify-between gap-3 text-xs">
-        <div className="inline-flex items-center gap-1.5">
-          <span className="text-slate-500 font-medium">Welcome,</span>
-          <span className="font-bold text-slate-900">
-            {companyName || 'Demo Industries'}
-          </span>
-        </div>
-      </div>
-
-      {/* Layer 2: Encapsulated Top Header Card */}
+      {/* Layer 1: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">

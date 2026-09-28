@@ -160,16 +160,6 @@ export function TeamManagementClient({
 
   return (
     <div className="space-y-6">
-      {/* Top Welcome / Company Identification */}
-      <div className="flex items-center justify-between gap-3 text-xs">
-        <div className="inline-flex items-center gap-1.5">
-          <span className="text-slate-500 font-medium">Welcome,</span>
-          <span className="font-bold text-slate-900">
-            {companyName || 'Demo Industries'}
-          </span>
-        </div>
-      </div>
-
       {/* Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
