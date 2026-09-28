@@ -174,49 +174,47 @@ export function CuttingReportsClient() {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-      {/* 1. Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/cutting"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Floor Dashboard</span>
-          </Link>
-          <span className="text-slate-400 font-mono text-xs">/</span>
-          <span className="text-xs font-mono font-bold text-slate-900">Cutting Floor Reports & Efficiency</span>
-        </div>
-
-        <button
-          onClick={handleExportCSV}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F0] text-slate-800 border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-        >
-          <Download className="w-3.5 h-3.5 text-[#3A3564]" />
-          <span>Export Analytics CSV</span>
-        </button>
-      </div>
-
-      {/* 2. Header */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <FileBarChart2 className="w-6 h-6" />
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
+      
+      {/* Top Header Card */}
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <FileBarChart2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-                Cutting Floor Reports & Efficiency
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Cutting Floor Reports &amp; Efficiency
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
-                Telemetry & Analytics
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                Telemetry &amp; Analytics
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               End-loss analytics, CAD nesting marker yield benchmarks, table machine throughput, and scrap variance
             </p>
           </div>
+        </div>
+
+        {/* Header Actions */}
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
+          <Link
+            href="/cutting"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>Floor</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F0] text-slate-800 border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5 text-[#3A3564]" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 
