@@ -150,17 +150,18 @@ export function WashingPageSkeleton({
 }) {
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto select-none">
-      {/* Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <SkeletonBlock className="h-7 w-52 rounded-xl" />
-        <SkeletonBlock className="h-7 w-36 rounded-full" />
+      {/* Top Welcome Skeleton */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <SkeletonBlock className="h-3 w-16 rounded" />
+          <SkeletonBlock className="h-5 w-44 rounded" />
+        </div>
       </div>
 
       <SkeletonHeader />
 
-      {/* 4 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SkeletonKpiCard />
+      {/* 3 Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         <SkeletonKpiCard />
         <SkeletonKpiCard />
         <SkeletonKpiCard />

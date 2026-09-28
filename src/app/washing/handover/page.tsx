@@ -26,20 +26,6 @@ export default async function HandoverPage() {
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
         
-        {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/washing"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Washing Dashboard</span>
-          </Link>
-          <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            Downstream Handshake Protocol
-          </span>
-        </div>
-
         {/* Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3.5">
@@ -48,7 +34,7 @@ export default async function HandoverPage() {
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   Outward Finishing Handover
                 </h1>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
@@ -59,6 +45,17 @@ export default async function HandoverPage() {
                 Digital transfer manifests verifying zero residual moisture, zero chemical odor, and piece count to 08 Steam Ironing
               </p>
             </div>
+          </div>
+
+          {/* Header Actions */}
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <Link
+              href="/washing"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all shadow-2xs shrink-0"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Back to Dashboard</span>
+            </Link>
           </div>
         </div>
 
