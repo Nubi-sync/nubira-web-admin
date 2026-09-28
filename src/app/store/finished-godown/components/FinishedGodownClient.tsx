@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   Warehouse, 
-  ChevronLeft, 
   Search, 
   Ship, 
   Boxes, 
@@ -59,22 +58,7 @@ export function FinishedGodownClient() {
   })
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-      
-      {/* Breadcrumb Navigation */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/store"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Store Dashboard</span>
-        </Link>
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-          Finished Goods Warehouse • Export Bays 3, 4 & 5
-        </span>
-      </div>
-
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
