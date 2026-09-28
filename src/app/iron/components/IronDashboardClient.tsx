@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
-  ChevronLeft,
   ShoppingBag,
   Clock,
   Plus,
@@ -20,7 +19,11 @@ import {
   Wind,
   Layers,
   CheckCircle2,
-  Bell
+  Bell,
+  Store,
+  Gauge,
+  Truck,
+  Calculator
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
@@ -464,73 +467,109 @@ export function IronDashboardClient({
   }
 
   return (
-    <div className="space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          {isSuperAdmin && (
-            <>
-              <Link
-                href="/modules"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Workspace Hub</span>
-              </Link>
-              <span className="text-slate-300">/</span>
-            </>
-          )}
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-            Division 08 • Steam Finishing &amp; Ironing
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
           </span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Boiler &amp; Vacuum Sync Active
-          </span>
-        </div>
+        </h2>
       </div>
 
       {/* Module Title Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Wind className="w-6 h-6 text-[#3A3564]" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Wind className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Steam Ironing Floor
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Steam Finishing &amp; Ironing Floor
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                 {workers.length} Pressers Registered
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               Industrial boiler telemetry (4.5 Bar steam), vacuum buck table allocation, thermal shine QC, and finished garment sign-offs
             </p>
           </div>
         </div>
 
         {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
+          <Link
+            href="/iron/tables"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Vacuum Tables</span>
+          </Link>
+          <Link
+            href="/iron/boiler-telemetry"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Gauge className="w-3.5 h-3.5" />
+            <span>Boiler Telemetry</span>
+          </Link>
+          <Link
+            href="/iron/finish-qc"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Finish QC</span>
+          </Link>
+          <Link
+            href="/iron/handover"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Truck className="w-3.5 h-3.5" />
+            <span>Handover</span>
+          </Link>
+          <Link
+            href="/iron/wages"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Calculator className="w-3.5 h-3.5" />
+            <span>Piece Wages</span>
+          </Link>
+          <Link
+            href="/iron/store"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Store className="w-3.5 h-3.5" />
+            <span>Floor Store</span>
+          </Link>
+          <Link
+            href="/iron/notifications"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>Notifications</span>
+          </Link>
           <Link
             href="/iron/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
           </Link>
-          <Link
-            href="/iron/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            title="Sync latest live floor updates"
           >
-            <Users className="w-3.5 h-3.5" />
-            <span>Division Profile</span>
-          </Link>
+            <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Live Sync</span>
+          </button>
         </div>
       </div>
 
