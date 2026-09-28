@@ -491,32 +491,43 @@ export function MerchandisingDashboardClient({
       }))
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+          </span>
+        </h2>
+      </div>
+
       {/* ========================================================= */}
       {/* 1. PAGE HEADER CARD                                       */}
       {/* ========================================================= */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Briefcase className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
               Merchandising &amp; Sourcing Desk
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               Real-time buyer PO contracts and critical path T&amp;A tracking
             </p>
           </div>
         </div>
 
         {/* Quick Action Navigation Buttons */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
 
           <Link
             href="/merchandising/buyers"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <Users className="w-4 h-4 text-[#3A3564]" />
             <span>Active Buyers</span>
@@ -525,7 +536,7 @@ export function MerchandisingDashboardClient({
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs cursor-pointer transition-all"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs cursor-pointer transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Book New PO</span>
@@ -536,7 +547,7 @@ export function MerchandisingDashboardClient({
       {/* ========================================================= */}
       {/* 2. BUYER SELECTION & SYNC CONTROL BAR                     */}
       {/* ========================================================= */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+      <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         
         {/* Left: Active Buyer Info Pill */}
         <div className="flex items-center gap-3">
@@ -559,10 +570,10 @@ export function MerchandisingDashboardClient({
         </div>
 
         {/* Right: Buyer Selector Dropdown (No All Buyer option, auto-selected) & Sync */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap justify-end">
+        <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
           
           {/* Buyer Selector Searchable Dropdown */}
-          <div className="relative min-w-[240px] sm:min-w-[280px]">
+          <div className="relative flex-1 sm:flex-initial sm:min-w-[280px]">
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
@@ -576,7 +587,7 @@ export function MerchandisingDashboardClient({
             </button>
 
             {isBuyerMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+              <div className="absolute right-0 left-0 sm:left-auto top-full mt-1.5 sm:w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -1012,8 +1023,8 @@ export function MerchandisingDashboardClient({
                 } : undefined}
               />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+              <div className="overflow-x-auto -mx-2 sm:mx-0 px-2 sm:px-0">
+                <table className="w-full text-left text-sm min-w-[760px]">
                   <thead>
                     <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                       <th className="py-2.5 px-3">PO Number</th>
