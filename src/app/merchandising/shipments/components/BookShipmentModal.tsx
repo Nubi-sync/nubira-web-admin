@@ -77,28 +77,28 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
+            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
               Form 5 • Export Logistics &amp; Customs
             </span>
-            <h2 className="text-lg font-bold text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
+            <h2 className="text-base sm:text-lg font-bold text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
               Book Container Export Shipment
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
           {error && (
             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -106,7 +106,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1.5">
                 Shipment Reference *
@@ -137,7 +137,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1.5">
                 Freight Forwarder *
@@ -164,7 +164,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1.5">
                 Container Number *
@@ -195,7 +195,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1.5">
                 Port of Loading (POL) *
@@ -222,7 +222,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1.5">
                 ETD Departure Date *
@@ -249,7 +249,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1.5">
                 Bill of Lading (B/L) Number
