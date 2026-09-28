@@ -179,62 +179,49 @@ export function WorkerHistoryClient({
   const activeAssignmentsCount = effectiveTasks.filter(t => t.status !== 'VERIFIED_COMPLETED' && t.status !== 'COMPLETED').length
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 select-none text-[#09090b]">
       
-      {/* Layer 1: Breadcrumb Trail */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <span>Floor Workstation</span>
-          <span>/</span>
-          <span className="font-bold text-slate-900">Completed History</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/printing/worker"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Active Work ({activeAssignmentsCount})</span>
-          </Link>
-          <button
-            type="button"
-            onClick={handleManualSync}
-            disabled={isSyncing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-            title="Refresh history from cloud database"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>Sync Live</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Layer 2: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <History className="w-6 h-6 text-[#3A3564]" />
+      {/* Top Header Card */}
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <History className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Completed &amp; Verified History
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider">
                 {historyTasks.length} Signed Off
               </span>
             </div>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               Garment printing assignments completed by <strong>{displayWorkerName}</strong> and verified by the Head of Department
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
-            {userPhone ? `+91 ${userPhone}` : userEmail}
-          </span>
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
+          <Link
+            href="/printing/worker"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-slate-100 transition-all shadow-2xs"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Active Work ({activeAssignmentsCount})</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            title="Refresh history from cloud database"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>Sync Live</span>
+          </button>
         </div>
       </div>
 

@@ -31,60 +31,46 @@ export function WorkerProfileClient({
   const rolesList: string[] = workerRecord?.roles || (workerRecord?.role ? [workerRecord.role] : ['SCREEN_PRINTER'])
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 select-none text-[#09090b]">
       
-      {/* Layer 1: Breadcrumb Hierarchy Trail */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <span>Floor Workstation</span>
-          <span>/</span>
-          <span className="font-bold text-slate-900">Operator Profile</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/printing/worker"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Active Assignments</span>
-          </Link>
-          <Link
-            href="/printing/worker/history"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Completed History</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Layer 2: Profile Banner Card */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <User className="w-8 h-8 text-[#3A3564]" />
+      {/* Top Profile Banner Card */}
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
+            <User className="w-6 h-6 text-[#3A3564]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {userName || 'Printing Floor Operator'}
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider flex items-center gap-1">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#3A3564]" />
-                Active Floor Operator
+                Active Operator
               </span>
             </div>
-            <p className="text-sm text-slate-600 mt-1 font-mono">
-              Floor ID: {workerRecord?.id || userId ? `OP-${(workerRecord?.id || userId).slice(-6)}` : 'OP-PRN-01'} • Nubira Creation Floor
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-mono">
+              Floor ID: {workerRecord?.id || userId ? `OP-${(workerRecord?.id || userId).slice(-6)}` : 'OP-PRN-01'} • +91 {normPhone || '9876543210'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="px-4 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
-            +91 {normPhone || '9876543210'}
-          </span>
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
+          <Link
+            href="/printing/worker"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-slate-100 transition-all shadow-2xs"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Active Work</span>
+          </Link>
+          <Link
+            href="/printing/worker/history"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>History</span>
+          </Link>
         </div>
       </div>
 
