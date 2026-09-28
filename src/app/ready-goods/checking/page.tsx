@@ -25,7 +25,7 @@ export default async function ReadyGoodsCheckingPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <QualityCheckingClient companyName={tenant.companyName} />
     </AdminShell>
   )

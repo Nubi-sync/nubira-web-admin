@@ -29,27 +29,13 @@ export default async function ReadyGoodsAlterationPage() {
   const liveData = await fetchAlterDashboardDataAction(companyFilter)
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
-      <div className="space-y-4">
-        {/* Unified Module Breadcrumb Banner */}
-        <div className="p-3 bg-[#FAF7F0] border border-black/15 rounded-2xl flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-extrabold text-[#3A3564]">Integrated Module:</span>
-            <span className="text-slate-600">
-              Alteration Clinic is merged into Quality Inspection & Export Packing.
-            </span>
-          </div>
-          <span className="font-mono text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-            Active Finishing Pipeline
-          </span>
-        </div>
-
-        <ClinicDashboardClient
-          userEmail={user.email}
-          initialTickets={liveData.tickets}
-          initialScrapLogs={liveData.scrapLogs}
-        />
-      </div>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
+      <ClinicDashboardClient
+        userEmail={user.email}
+        companyName={tenant.companyName}
+        initialTickets={liveData.tickets}
+        initialScrapLogs={liveData.scrapLogs}
+      />
     </AdminShell>
   )
 }

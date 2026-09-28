@@ -58,7 +58,7 @@ export default async function ReadyGoodsProfilePage() {
   }
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <DivisionProfileView
         divisionName="Ready Goods & Carton Packing"
         divisionSlug="/ready-goods"

@@ -112,11 +112,10 @@ export function ReadyGoodsPageSkeleton({
     | 'handover'
 }) {
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto select-none">
-      {/* Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <SkeletonBlock className="h-7 w-52 rounded-xl" />
-        <SkeletonBlock className="h-7 w-36 rounded-full" />
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl mx-auto select-none">
+      {/* Welcome line skeleton */}
+      <div className="pt-1">
+        <SkeletonBlock className="h-6 w-48 rounded-lg" />
       </div>
 
       <SkeletonHeader />

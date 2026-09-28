@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminShell } from '@/components/layout/AdminShell'
+import { resolveUserTenant } from '@/utils/tenant'
 import { SpotCleaningClient } from './components/SpotCleaningClient'
 
 export const dynamic = 'force-dynamic'
@@ -22,9 +23,11 @@ export default async function SpotCleaningPage() {
     .eq('id', user.id)
     .single()
 
+  const tenant = await resolveUserTenant(user)
+
   return (
-    <AdminShell userEmail={user.email} userRole={profile?.role}>
-      <SpotCleaningClient userEmail={user.email} />
+    <AdminShell userEmail={user.email} userRole={profile?.role} companyName={tenant.companyName}>
+      <SpotCleaningClient userEmail={user.email} companyName={tenant.companyName} />
     </AdminShell>
   )
 }

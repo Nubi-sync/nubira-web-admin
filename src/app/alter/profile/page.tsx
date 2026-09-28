@@ -58,7 +58,7 @@ export default async function AlterProfilePage() {
   }
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <DivisionProfileView
         divisionName="Alteration & Reclamation Clinic"
         divisionSlug="/alter"

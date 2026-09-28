@@ -142,12 +142,13 @@ export function AlterPageSkeleton({
   variant?: 'dashboard' | 'defect-intake' | 'repair-stations' | 'spot-cleaning' | 'secondary-qc' | 'scrap-salvage'
 }) {
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-      {/* Breadcrumb row */}
-      <div className="flex items-center justify-between gap-4">
-        <SkeletonBlock className="h-7 w-32 rounded-xl" />
-        <SkeletonBlock className="h-6 w-44 rounded-full" />
-      </div>
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+      {/* Welcome line skeleton for dashboard */}
+      {variant === 'dashboard' && (
+        <div className="pt-1">
+          <SkeletonBlock className="h-6 w-64 rounded-md" />
+        </div>
+      )}
 
       {/* Header banner */}
       <SkeletonHeader />

@@ -23,9 +23,10 @@ import { EmptyState } from '@/components/ui/EmptyState'
 
 interface SecondaryQcClientProps {
   userEmail?: string
+  companyName?: string
 }
 
-export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
+export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientProps) {
   const [tickets, setTickets] = useState<AlterationTicket[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTicket, setSelectedTicket] = useState<AlterationTicket | null>(null)
@@ -54,30 +55,16 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
   })
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/alter"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Clinic Dashboard</span>
-        </Link>
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-          Secondary AQL Inspection Station • 1000-Lux Verification Gate
-        </span>
-      </div>
-
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
       {/* Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <CheckCircle2 className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Secondary AQL Re-Inspection Station
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
@@ -92,7 +79,7 @@ export function SecondaryQcClient({ userEmail }: SecondaryQcClientProps) {
 
         <Link
           href="/alter/repair-stations"
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <Scissors className="w-4 h-4" />
           <span>View Active Mending</span>
