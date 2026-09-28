@@ -21,7 +21,7 @@ export default async function ReadyGoodsZigzaAiPage() {
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
-      <ZigzaAiClient userEmail={tenant.userEmail} companyName={tenant.companyName} portal="ready-goods" />
+      <ZigzaAiClient userEmail={tenant.userEmail} portal="ready-goods" />
     </AdminShell>
   )
 }
