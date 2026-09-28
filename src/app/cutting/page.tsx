@@ -39,7 +39,7 @@ export default async function CuttingModulePage() {
   ])
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <CuttingDashboardClient 
         userEmail={tenant.userEmail} 
         isSuperAdmin={tenant.isSuperAdmin}
