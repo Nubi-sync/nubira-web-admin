@@ -111,18 +111,13 @@ export function DesignerHistoryClient({
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      {/* 1. Breadcrumb Trail */}
+      {/* 1. Top Welcome / Company Identification */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
-          <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
-            {companyName || 'Factory Workspace'}
-          </Link>
-          <span>/</span>
-          <Link href="/design" className="hover:text-[#3A3564] transition-colors">
-            Design Studio
-          </Link>
-          <span>/</span>
-          <span className="font-bold text-slate-900">Submission History</span>
+        <div className="inline-flex items-center gap-1.5 text-xs">
+          <span className="text-slate-500 font-medium">Welcome,</span>
+          <span className="font-bold text-slate-900">
+            {companyName || 'Demo Industries'}
+          </span>
         </div>
 
         <Link
