@@ -105,7 +105,7 @@ export default async function MaterialIssuesPage() {
   )
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <MaterialIssuesClient 
         activeAllotments={filteredActiveAllotments as any || []}
         truckInwards={filteredTruckInwards as any || []}
