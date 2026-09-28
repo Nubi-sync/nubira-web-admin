@@ -537,17 +537,17 @@ export function CreateOrderModal({
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
         
         {/* Header with Stepper Indicator */}
-        <div className="px-6 py-4.5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
                 Master Buyer PO Booking
               </span>
               <span className="text-xs font-mono font-semibold text-slate-500">
                 Step {step} of 2
               </span>
             </div>
-            <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
               {step === 1 ? '1. Commercial Contract & Specs' : '2. Colorway & Size Distribution'}
             </h2>
           </div>
@@ -561,7 +561,7 @@ export function CreateOrderModal({
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {error && (
             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />

@@ -204,29 +204,17 @@ export function MerchandiseStoreClient({
   })
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
-      {/* Layer 1: Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
-          Modules
-        </Link>
-        <span>/</span>
-        <Link href="/merchandising" className="hover:text-[#3A3564] transition-colors">
-          Merchandising
-        </Link>
-        <span>/</span>
-        <span className="font-bold text-slate-900">Store & Fabric Booking</span>
-      </div>
-
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+      
       {/* Layer 2: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <CentralStoreBespokeIcon className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Merchandise Fabric Store
               </h1>
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
@@ -239,10 +227,10 @@ export function MerchandiseStoreClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
           <Link
             href="/store"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 shadow-2xs transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 shadow-2xs transition-all cursor-pointer"
           >
             <MaterialFlowBespokeIcon className="w-4 h-4" />
             <span>Central Store Hub</span>
@@ -251,7 +239,7 @@ export function MerchandiseStoreClient({
           <button
             type="button"
             onClick={() => handleOpenIssueModal()}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Scissors className="w-4 h-4" />
             <span>Issue to Cutting</span>
@@ -260,7 +248,7 @@ export function MerchandiseStoreClient({
       </div>
 
       {/* Layer 3: Executive KPI Metric Cards (Grid of 4) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Metric 1: Available Fabric */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
@@ -484,7 +472,7 @@ export function MerchandiseStoreClient({
         {/* Tab 2: Dispatches to Cutting */}
         {activeTab === 'DISPATCHES' && (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[750px]">
               <thead>
                 <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                   <th className="py-3 px-4">Challan Ref</th>
