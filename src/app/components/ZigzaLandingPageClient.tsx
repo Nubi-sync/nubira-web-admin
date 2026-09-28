@@ -2321,7 +2321,7 @@ export function ZigzaLandingPageClient({
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Ramesh Patel"
+                      placeholder="Enter your name"
                       value={queryForm.name}
                       onChange={e => setQueryForm({ ...queryForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2356,7 +2356,7 @@ export function ZigzaLandingPageClient({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Apex Apparels, Surat"
+                      placeholder="Enter company / factory name"
                       value={queryForm.companyName}
                       onChange={e => setQueryForm({ ...queryForm, companyName: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
@@ -2371,7 +2371,7 @@ export function ZigzaLandingPageClient({
                     <textarea
                       rows={3}
                       required
-                      placeholder="Describe your question, plant requirements, or anything you'd like to ask..."
+                      placeholder="Enter your query or message..."
                       value={queryForm.query}
                       onChange={e => setQueryForm({ ...queryForm, query: e.target.value })}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
