@@ -41,7 +41,7 @@ export default async function StoreDashboardPage() {
   })
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <CentralStoreHubClient
         userEmail={tenant.userEmail}
         isSuperAdmin={tenant.isSuperAdmin}

@@ -685,6 +685,7 @@ export function AdminSidebar({
         section: '10. Central Store & Godown',
         items: [
           { label: 'Central Hub (Cloth Stock)', href: '/store', icon: Store },
+          { label: 'Notification', href: '/store/notifications', icon: Bell },
           { label: 'Merchandise Store', href: '/store/merchandise', icon: Briefcase },
           { label: 'Cutting Floor Store', href: '/store/cutting', icon: Scissors },
           { label: 'Printing Floor Store', href: '/store/printing', icon: Printer },

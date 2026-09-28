@@ -289,14 +289,16 @@ export function CentralStoreHubClient({
   })
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
-      {/* Layer 1: Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
-          Modules
-        </Link>
-        <span>/</span>
-        <span className="font-bold text-slate-900">Central Store & Warehouse</span>
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+          </span>
+        </h2>
       </div>
 
       {/* Layer 2: Encapsulated Top Header Card */}
