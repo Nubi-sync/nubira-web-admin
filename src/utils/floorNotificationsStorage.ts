@@ -9,6 +9,8 @@ export type FloorModule =
   | 'iron' 
   | 'ready-goods'
   | 'alter'
+  | 'store'
+  | 'dispatch'
   | 'all'
 
 export type FloorEventType = 
