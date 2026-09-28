@@ -430,56 +430,56 @@ export function ZigzaLandingPageClient({
             />
           </Link>
 
-          {/* Desktop Navigation Links — Slate text, Indigo hover/active underline */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-[15px] font-medium text-[#57564E]">
+          {/* Desktop Navigation Links — High contrast slate-charcoal text, Indigo hover underline */}
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2 text-[15.5px] font-semibold text-[#2B2925]">
             <a 
               href="#modules"
               onClick={(e) => scrollToSection(e, 'modules')}
-              className="group relative px-2.5 lg:px-3 py-2 text-[#57564E] hover:text-[#14140F] transition-colors duration-150 cursor-pointer"
+              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Modules</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#workflow"
               onClick={(e) => scrollToSection(e, 'workflow')}
-              className="group relative px-2.5 lg:px-3 py-2 text-[#57564E] hover:text-[#14140F] transition-colors duration-150 cursor-pointer"
+              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Floor Workflow</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#roles"
               onClick={(e) => scrollToSection(e, 'roles')}
-              className="group relative px-2.5 lg:px-3 py-2 text-[#57564E] hover:text-[#14140F] transition-colors duration-150 cursor-pointer"
+              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Solutions</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#pricing"
               onClick={(e) => scrollToSection(e, 'pricing')}
-              className="group relative px-2.5 lg:px-3 py-2 text-[#57564E] hover:text-[#14140F] transition-colors duration-150 cursor-pointer"
+              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Subscription Plans</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#faq"
               onClick={(e) => scrollToSection(e, 'faq')}
-              className="group relative px-2.5 lg:px-3 py-2 text-[#57564E] hover:text-[#14140F] transition-colors duration-150 cursor-pointer"
+              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>FAQ</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
           </nav>
 
-          {/* Desktop Action: Sign In plain text link + Request Demo Deep Indigo button */}
-          <div className="hidden md:flex items-center gap-4 shrink-0">
+          {/* Desktop Action: Distinct Staff Sign In button + Try For Free primary button */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
             {isAuthenticated ? (
               <Link
                 href="/modules"
-                className="px-5 py-2.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
+                className="px-5 py-2.5 rounded-lg text-[15px] font-semibold bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:shadow-sm"
               >
                 <span>Enter Workspace Hub</span>
                 <ArrowRight className="w-4 h-4" />
@@ -488,16 +488,16 @@ export function ZigzaLandingPageClient({
               <>
                 <Link
                   href="/login"
-                  className="text-[15px] font-medium text-[#57564E] hover:text-[#14140F] transition-colors cursor-pointer py-1"
+                  className="px-4 py-2.5 rounded-lg text-[14.5px] font-semibold text-[#14140F] bg-white border border-[#14140F]/30 hover:border-[#14140F] hover:bg-[#14140F]/5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-5 py-2.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors cursor-pointer flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-lg text-[14.5px] font-semibold bg-[#3A3564] text-white hover:bg-[#2F2B52] shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2"
                 >
                   <span>Try For Free</span>
-                  <ArrowRight className="w-4 h-4 text-white/70" />
+                  <ArrowRight className="w-4 h-4 text-white/80" />
                 </Link>
               </>
             )}
@@ -571,10 +571,9 @@ export function ZigzaLandingPageClient({
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center cursor-pointer"
                   >
-                    <Lock className="w-4 h-4 text-[#57564E]" />
-                    <span>Staff Portal Sign In</span>
+                    <span>Sign In</span>
                   </Link>
                 </>
               )}
@@ -589,50 +588,50 @@ export function ZigzaLandingPageClient({
       <section className="relative pt-10 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="text-center max-w-4xl mx-auto space-y-5">
           {/* Main Hero Headline: High-converting, relatable positioning */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-semibold tracking-tight text-[#14140F] leading-[1.08]">
+          <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#14140F] leading-[1.08]">
             The Smarter Way to Run Your <span className="text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">Garment Business</span>
           </h1>
 
           {/* Subtitle */}
           <div className="relative max-w-2xl mx-auto">
             {/* Subtitle: Clean, direct value proposition */}
-            <p className="text-base sm:text-lg text-[#57564E] leading-relaxed font-normal">
+            <p className="text-[17px] sm:text-xl text-[#3D3C36] leading-relaxed font-normal">
               Replace messy paper slips and endless phone calls with one simple system. Get live order progress, cut fabric waste, and ship to buyers without last-minute panic.
             </p>
           </div>
 
-          {/* Hero Action Buttons: Deep Indigo primary + quiet Slate outline secondary */}
+          {/* Hero Action Buttons: Deep Indigo primary + High-contrast crisp border secondary */}
           <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(true)}
-              className="w-full sm:w-auto group px-6 py-3 sm:py-3.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-semibold bg-[#3A3564] text-white hover:bg-[#2F2B52] shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Request a Live Demo</span>
-              <ArrowRight className="w-4 h-4 text-white/70 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="w-4 h-4 text-white/80 transition-transform group-hover:translate-x-0.5" />
             </button>
 
             <Link
               href="/login"
-              className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-md text-[15px] font-medium border border-[#57564E]/30 bg-transparent text-[#14140F] hover:bg-[#14140F]/5 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-900 hover:text-white shadow-2xs hover:shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
             >
-              <Lock className="w-4 h-4 text-[#57564E]" />
+              <Lock className="w-4 h-4 text-[#3A3564] group-hover:text-white transition-colors" />
               <span>Staff Login to Portal</span>
             </Link>
           </div>
 
           {/* Key Metric Feature Flags: Clear customer benefits */}
-          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-xs sm:text-[13px] font-normal text-[#57564E]">
+          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-7 text-sm sm:text-[15px] font-medium text-[#3D3C36]">
             <div className="flex items-center gap-2">
-              <Check className="w-3.5 h-3.5 text-[#57564E]" />
+              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
               <span>Zero missing pieces across lines</span>
             </div>
             <div className="flex items-center gap-2">
-              <Check className="w-3.5 h-3.5 text-[#57564E]" />
+              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
               <span>Works on any Android phone — no costly hardware</span>
             </div>
             <div className="flex items-center gap-2">
-              <Check className="w-3.5 h-3.5 text-[#57564E]" />
+              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
               <span>Instant tailor wages with zero disputes</span>
             </div>
           </div>
@@ -656,7 +655,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="button"
                     onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                       mockupTab === 'cutting'
                         ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
                         : 'text-slate-300 hover:text-white hover:bg-white/10'
@@ -667,7 +666,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="button"
                     onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                       mockupTab === 'sewing'
                         ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
                         : 'text-slate-300 hover:text-white hover:bg-white/10'
@@ -678,7 +677,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="button"
                     onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                       mockupTab === 'qc'
                         ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
                         : 'text-slate-300 hover:text-white hover:bg-white/10'
@@ -690,10 +689,10 @@ export function ZigzaLandingPageClient({
               </div>
 
               {/* Real-Time Sync Indicator & 10s Loop Timer */}
-              <div className="flex items-center gap-2 text-xs font-medium text-slate-300 shrink-0">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-300 shrink-0">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="hidden sm:inline font-medium">Live Floor Sync</span>
-                <span className="text-[11px] font-mono text-slate-400">
+                <span className="text-[11px] sm:text-xs font-mono text-slate-400">
                   {mockupTick === 0 ? '· Synced' : `· +${mockupTick} Events`}
                 </span>
               </div>
@@ -1019,7 +1018,7 @@ export function ZigzaLandingPageClient({
                           key={`metric-${idx}`}
                           className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
                         >
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block truncate">
                             {metric.label}
                           </span>
                           <div className={`text-base sm:text-xl font-black mt-1 font-mono truncate ${metric.color}`}>
@@ -1035,7 +1034,7 @@ export function ZigzaLandingPageClient({
                               <span>{metric.value}</span>
                             )}
                           </div>
-                          <span className="text-[11px] font-medium text-slate-500 block truncate mt-0.5">
+                          <span className="text-xs sm:text-[13px] font-medium text-slate-600 block truncate mt-0.5">
                             {metric.sub}
                           </span>
                         </div>
@@ -1047,19 +1046,19 @@ export function ZigzaLandingPageClient({
                       <div className="flex items-center justify-between mb-3 gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           {currentBanner.icon}
-                          <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                          <span className="text-sm sm:text-base font-bold text-slate-900 truncate">
                             {currentBanner.title}
                           </span>
                         </div>
-                        <span className="text-[11px] font-semibold text-slate-500 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
+                        <span className="text-xs font-semibold text-slate-600 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
                           {currentBanner.badge}
                         </span>
                       </div>
 
                       <div className="overflow-x-auto -mx-1">
-                        <table className="w-full table-fixed text-xs text-left min-w-[620px]">
+                        <table className="w-full table-fixed text-xs sm:text-sm text-left min-w-[620px]">
                           <thead>
-                            <tr className="border-b border-slate-100 text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
+                            <tr className="border-b border-slate-100 text-slate-500 font-semibold text-xs uppercase tracking-wider">
                               <th className="py-2.5 px-3 w-[18%] transition-colors duration-300">{currentBanner.col1}</th>
                               <th className="py-2.5 px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
                               <th className="py-2.5 px-3 w-[22%] transition-colors duration-300">{currentBanner.col3}</th>
@@ -1089,7 +1088,7 @@ export function ZigzaLandingPageClient({
                                 <td className="py-2.5 px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
                                 <td className={`py-2.5 px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
                                 <td className="py-2.5 px-3 text-center">
-                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
                                     {r.badge}
                                   </span>
                                 </td>
@@ -1197,7 +1196,7 @@ export function ZigzaLandingPageClient({
               {/* Card Header */}
               <div className="flex items-center gap-2.5 pb-4 border-b border-rose-200 mb-6">
                 <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">Traditional Paper Friction</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Traditional Paper Friction</h3>
               </div>
 
               {/* 4 Pain Points - Proper Spacing for Readability */}
@@ -1205,8 +1204,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Lost Paper Slips & Fabric Shortages</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Lost Paper Slips & Fabric Shortages</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Misplaced challans cause unrecorded fabric leaks, billing confusion, and supplier arguments.
                     </p>
                   </div>
@@ -1215,8 +1214,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Daily Tailor Wage Disputes</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Daily Tailor Wage Disputes</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Hours wasted arguing over lost paper coupons, unstitched bundles, and disputed piece counts.
                     </p>
                   </div>
@@ -1225,8 +1224,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Defects Caught Late at Packing</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Defects Caught Late at Packing</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Stitching faults discovered right before dispatch, forcing emergency rework and delivery delays.
                     </p>
                   </div>
@@ -1235,8 +1234,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <X className="w-4 h-4 text-rose-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Zero Live Production Visibility</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Zero Live Production Visibility</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Owners find out about floor bottlenecks and delayed orders only after shifts end.
                     </p>
                   </div>
@@ -1249,7 +1248,7 @@ export function ZigzaLandingPageClient({
               {/* Card Header */}
               <div className="flex items-center gap-2.5 pb-4 border-b border-emerald-200 mb-6">
                 <Check className="w-5 h-5 text-emerald-600 shrink-0 stroke-[2.5]" />
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">The Zigza Digital System</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900">The Zigza Digital System</h3>
               </div>
 
               {/* 4 Solutions - Proper Spacing for Readability */}
@@ -1257,8 +1256,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Digital Inward & Instant Roll Logs</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Digital Inward & Instant Roll Logs</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Snap supplier challans on phone to record fabric rolls instantly with zero paper loss.
                     </p>
                   </div>
@@ -1267,8 +1266,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Dispute-Free Piece-Rate Payouts</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Dispute-Free Piece-Rate Payouts</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Bundles credited automatically per tailor with full transparency and zero manual tallying.
                     </p>
                   </div>
@@ -1277,8 +1276,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Live Checkpoint Quality Control</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Live Checkpoint Quality Control</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Catch and flag defects directly on the line so tailors fix them immediately.
                     </p>
                   </div>
@@ -1287,8 +1286,8 @@ export function ZigzaLandingPageClient({
                 <div className="flex items-start gap-3.5">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-1 stroke-[2.5]" />
                   <div>
-                    <h4 className="text-[15px] sm:text-base font-bold text-slate-900">Live Order Progress on Your Phone</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    <h4 className="text-base sm:text-[17px] font-bold text-slate-900">Live Order Progress on Your Phone</h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 mt-1.5 leading-relaxed">
                       Track exact hourly production, line pace, and shipment readiness from anywhere, anytime.
                     </p>
                   </div>
@@ -1397,7 +1396,7 @@ export function ZigzaLandingPageClient({
                   </div>
 
                   {/* Staggered Cascading Audit Checklist (Desktop Exclusive) */}
-                  <ul className="space-y-3 text-sm text-slate-600">
+                  <ul className="space-y-3 text-[14.5px] sm:text-[15.5px] text-slate-700 leading-relaxed">
                     {engine.features.map((feat, fIdx) => (
                       <li
                         key={feat}
@@ -1486,7 +1485,7 @@ export function ZigzaLandingPageClient({
                         <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
                           <span
                             key={isActive ? `active-${idx}` : `idle-${idx}`}
-                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs flex items-center justify-center shrink-0 transition-all ${
+                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
                               isActive 
                                 ? 'bg-[#3A3564] text-white shadow-2xs animate-spin-once' 
                                 : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
@@ -1494,13 +1493,13 @@ export function ZigzaLandingPageClient({
                           >
                             {stage.step}
                           </span>
-                          <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight leading-snug">
+                          <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">
                             {stage.title}
                           </h3>
                         </div>
 
                         {/* Spacious & Readable Micro-Copy */}
-                        <p className="text-xs sm:text-[13.5px] text-slate-600 leading-relaxed font-normal">
+                        <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
                           {stage.desc}
                         </p>
                       </div>
@@ -1573,7 +1572,7 @@ export function ZigzaLandingPageClient({
                         <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
                           <span
                             key={isActive ? `active-${globalIdx}` : `idle-${globalIdx}`}
-                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs flex items-center justify-center shrink-0 transition-all ${
+                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
                               isActive 
                                 ? 'bg-[#3A3564] text-white shadow-2xs animate-spin-once' 
                                 : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
@@ -1581,13 +1580,13 @@ export function ZigzaLandingPageClient({
                           >
                             {stage.step}
                           </span>
-                          <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight leading-snug">
+                          <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">
                             {stage.title}
                           </h3>
                         </div>
 
                         {/* Spacious & Readable Micro-Copy */}
-                        <p className="text-xs sm:text-[13.5px] text-slate-600 leading-relaxed font-normal">
+                        <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
                           {stage.desc}
                         </p>
                       </div>
@@ -1658,10 +1657,10 @@ export function ZigzaLandingPageClient({
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="text-base sm:text-[17px] font-bold text-slate-900 tracking-tight">
+                  <h3 className="text-[17px] sm:text-lg font-bold text-slate-900 tracking-tight">
                     {pillar.title}
                   </h3>
-                  <p className="text-sm sm:text-[14px] text-slate-600 mt-1 leading-relaxed">
+                  <p className="text-[14.5px] sm:text-[15.5px] text-slate-700 mt-1.5 leading-relaxed">
                     {pillar.desc}
                   </p>
                 </div>
@@ -1770,7 +1769,7 @@ export function ZigzaLandingPageClient({
                 <h3 className="text-2xl font-bold text-slate-900">
                   Modular Floor
                 </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                <p className="mt-2.5 text-sm sm:text-[15px] text-slate-700 leading-relaxed">
                   Select 1 to 3 production units tailored to your specific plant workflow.
                 </p>
 
@@ -1780,37 +1779,37 @@ export function ZigzaLandingPageClient({
                     <span className="text-4xl font-extrabold font-mono text-slate-900">
                       ₹1,999
                     </span>
-                    <span className="text-sm font-semibold font-mono text-slate-400 line-through">
+                    <span className="text-[15px] font-semibold font-mono text-slate-400 line-through">
                       ₹3,999
                     </span>
-                    <span className="text-xs font-semibold text-slate-500">
+                    <span className="text-sm font-semibold text-slate-600">
                       / module / mo
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                  <p className="text-[13px] sm:text-sm text-slate-600 mt-1.5 font-medium">
                     Pay only for the divisions you run • Special Discount
                   </p>
                 </div>
 
                 {/* Uncluttered Punchy Features */}
                 <div className="space-y-3.5">
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>1 to 3 production units of your choice</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Operator bundle QR & barcode tracking</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Daily cutting lots & piece-rate wage ledgers</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Mobile floor app with real-time sync</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-400">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-400">
                     <X className="w-4 h-4 text-slate-300 shrink-0" />
                     <span>Zigza AI floor assistant not included</span>
                   </div>
@@ -1825,7 +1824,7 @@ export function ZigzaLandingPageClient({
                     setDemoForm(prev => ({ ...prev, plan: 'MODULAR' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-[15px] font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
                 >
                   <span>Select Modular Units</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1843,7 +1842,7 @@ export function ZigzaLandingPageClient({
                 <h3 className="text-2xl font-bold text-slate-900">
                   Full Access + Zigza AI
                 </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                <p className="mt-2.5 text-sm sm:text-[15px] text-slate-700 leading-relaxed">
                   All 12 divisions unified with real-time floor intelligence to maximize speed.
                 </p>
 
@@ -1853,37 +1852,37 @@ export function ZigzaLandingPageClient({
                     <span className="text-4xl font-extrabold font-mono text-[#3A3564]">
                       ₹4,999
                     </span>
-                    <span className="text-sm font-semibold font-mono text-[#3A3564]/50 line-through">
+                    <span className="text-[15px] font-semibold font-mono text-[#3A3564]/50 line-through">
                       ₹8,999
                     </span>
-                    <span className="text-xs font-semibold text-[#3A3564]/80">
+                    <span className="text-sm font-semibold text-[#3A3564]/90">
                       / plant / mo
                     </span>
                   </div>
-                  <p className="text-xs text-[#3A3564] mt-1 font-medium">
+                  <p className="text-[13px] sm:text-sm text-[#3A3564] mt-1.5 font-semibold">
                     All 12 modules unlocked • Unlimited operators
                   </p>
                 </div>
 
                 {/* Uncluttered Punchy Features */}
                 <div className="space-y-3.5">
-                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                     <span>All 12 production divisions unlocked</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                     <span>In-built Zigza AI floor assistant & audit</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                     <span>Zero Ghost Piece guarantee (100% matched)</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                     <span>Cross-division automatic pipeline sync</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-900 font-medium">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                     <span>Real-time line velocity & bottleneck alerts</span>
                   </div>
@@ -1898,7 +1897,7 @@ export function ZigzaLandingPageClient({
                     setDemoForm(prev => ({ ...prev, plan: 'FULL_PLANT_AI' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white border border-black shadow-xs transition-all cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-[15px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white border border-black shadow-xs transition-all cursor-pointer"
                 >
                   <span>Deploy Full Plant + AI</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1916,7 +1915,7 @@ export function ZigzaLandingPageClient({
                 <h3 className="text-2xl font-bold text-slate-900">
                   Custom Engineering
                 </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                <p className="mt-2.5 text-sm sm:text-[15px] text-slate-700 leading-relaxed">
                   Bespoke modules, custom machinery telemetry, and enterprise software scaling.
                 </p>
 
@@ -1926,34 +1925,34 @@ export function ZigzaLandingPageClient({
                     <span className="text-4xl font-extrabold font-mono text-slate-900">
                       Custom
                     </span>
-                    <span className="text-xs font-semibold text-slate-500">
+                    <span className="text-sm font-semibold text-slate-600">
                       / tailored quote
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">
+                  <p className="text-[13px] sm:text-sm text-slate-600 mt-1.5 font-medium">
                     Dedicated roadmap & hardware link
                   </p>
                 </div>
 
                 {/* Uncluttered Punchy Features */}
                 <div className="space-y-3.5">
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Custom division stages built to spec</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Bi-directional SAP, Oracle & Tally sync</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Weighing scales, auto-cutters & RFID hooks</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Multi-plant executive dashboard</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-700">
+                  <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Dedicated solutions architect & 24/7 SLA</span>
                   </div>
@@ -1968,7 +1967,7 @@ export function ZigzaLandingPageClient({
                     setDemoForm(prev => ({ ...prev, plan: 'CUSTOM' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-sm font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-[15px] font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
                 >
                   <span>Request Custom Build</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2114,7 +2113,7 @@ export function ZigzaLandingPageClient({
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-4 sm:px-5 pb-5 pt-1 text-sm sm:text-base text-slate-600 leading-relaxed border-t border-slate-100">
+                    <div className="px-4 sm:px-5 pb-5 pt-1 text-[15px] sm:text-base text-slate-700 leading-relaxed border-t border-slate-100">
                       {faq.a}
                     </div>
                   </div>
@@ -2143,7 +2142,7 @@ export function ZigzaLandingPageClient({
               </p>
 
               {/* Trust Points */}
-              <div className="space-y-2.5 pt-1 text-xs sm:text-sm font-semibold text-slate-800 text-left">
+              <div className="space-y-2.5 pt-1 text-sm sm:text-[15px] font-semibold text-slate-800 text-left">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                   <span>Direct response from apparel operations specialists</span>
@@ -2159,7 +2158,7 @@ export function ZigzaLandingPageClient({
                   href="https://wa.me/?text=Hi%20Zigza%20Team,%20I%20have%20a%20query%20about%20your%20apparel%20MES%20system."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-sm font-bold transition-all shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-[15px] font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <Phone className="w-4 h-4" />
                   <span>Instant WhatsApp Chat</span>
@@ -2173,7 +2172,7 @@ export function ZigzaLandingPageClient({
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
                   Contact Us
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500">
+                <p className="text-sm text-slate-600">
                   Leave your name, phone number, and query below.
                 </p>
               </div>
@@ -2186,13 +2185,13 @@ export function ZigzaLandingPageClient({
                     </div>
                     <div>
                       <h4 className="text-base sm:text-lg font-bold text-slate-900">Message Received!</h4>
-                      <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                      <p className="text-sm text-slate-700 mt-1 leading-relaxed">
                         Thank you, {queryForm.name}! Our team has received your query and will connect with you shortly.
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-xs space-y-2.5 text-slate-700">
+                  <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-sm space-y-2.5 text-slate-700">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                       <span className="text-slate-500 font-medium">Name</span>
                       <span className="font-semibold text-slate-900">{queryForm.name}</span>
@@ -2209,13 +2208,13 @@ export function ZigzaLandingPageClient({
                     )}
                     <div className="pt-1">
                       <span className="text-slate-500 font-medium block mb-1">Your Query:</span>
-                      <p className="p-2.5 bg-slate-50 rounded-lg text-slate-800 text-xs italic leading-relaxed border border-slate-100">
+                      <p className="p-2.5 bg-slate-50 rounded-lg text-slate-800 text-[13.5px] italic leading-relaxed border border-slate-100">
                         "{queryForm.query}"
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-xs text-slate-700 leading-relaxed">
+                  <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-[13.5px] sm:text-sm text-slate-700 leading-relaxed">
                     <span className="font-bold text-emerald-950">Next: </span>
                     An apparel operations engineer from our team will call or WhatsApp you at <span className="font-mono font-bold text-slate-900">+91 {queryForm.phone}</span> shortly.
                   </div>
@@ -2233,7 +2232,7 @@ export function ZigzaLandingPageClient({
                           query: ''
                         })
                       }}
-                      className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Send Another Query
                     </button>
@@ -2243,7 +2242,7 @@ export function ZigzaLandingPageClient({
                 <form onSubmit={handleQuerySubmit} className="space-y-4">
                   {/* Field 1: Name */}
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    <label className="block text-sm font-bold text-slate-800 mb-1.5">
                       Your Name *
                     </label>
                     <input
@@ -2252,13 +2251,13 @@ export function ZigzaLandingPageClient({
                       placeholder="e.g. Ramesh Patel"
                       value={queryForm.name}
                       onChange={e => setQueryForm({ ...queryForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
                   {/* Field 2: Phone Number */}
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    <label className="block text-sm font-bold text-slate-800 mb-1.5">
                       Phone Number *
                     </label>
                     <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
@@ -2272,14 +2271,14 @@ export function ZigzaLandingPageClient({
                         value={queryForm.phone}
                         onChange={e => handleQueryPhoneChange(e.target.value)}
                         maxLength={11}
-                        className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
+                        className="w-full px-4 py-3 text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                       />
                     </div>
                   </div>
 
                   {/* Field 3: Company / Factory Name (Optional) */}
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    <label className="block text-sm font-bold text-slate-800 mb-1.5">
                       Company / Factory Name <span className="text-slate-400 font-normal">(Optional)</span>
                     </label>
                     <input
@@ -2287,13 +2286,13 @@ export function ZigzaLandingPageClient({
                       placeholder="e.g. Apex Apparels, Surat"
                       value={queryForm.companyName}
                       onChange={e => setQueryForm({ ...queryForm, companyName: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
                   {/* Field 4: Query / Message */}
                   <div>
-                    <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                    <label className="block text-sm font-bold text-slate-800 mb-1.5">
                       Your Query / Message *
                     </label>
                     <textarea
@@ -2302,12 +2301,12 @@ export function ZigzaLandingPageClient({
                       placeholder="Describe your question, plant requirements, or anything you'd like to ask..."
                       value={queryForm.query}
                       onChange={e => setQueryForm({ ...queryForm, query: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
                     />
                   </div>
 
                   {queryError && (
-                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-800">
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-sm text-rose-800">
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <span className="leading-relaxed">{queryError}</span>
                     </div>
@@ -2316,7 +2315,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="submit"
                     disabled={isSubmittingQuery}
-                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
+                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
                   >
                     {isSubmittingQuery ? (
                       <>
@@ -2362,10 +2361,10 @@ export function ZigzaLandingPageClient({
 
             {/* Column 1: Platform */}
             <div className="space-y-3.5">
-              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
+              <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
                 Platform
               </h5>
-              <ul className="space-y-2.5 text-sm">
+              <ul className="space-y-2.5 text-[14.5px] sm:text-[15px]">
                 <li>
                   <a 
                     href="#modules" 
@@ -2416,10 +2415,10 @@ export function ZigzaLandingPageClient({
 
             {/* Column 2: Access & Support */}
             <div className="space-y-3.5">
-              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900">
+              <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
                 Access &amp; Support
               </h5>
-              <ul className="space-y-2.5 text-sm">
+              <ul className="space-y-2.5 text-[14.5px] sm:text-[15px]">
                 <li>
                   <Link 
                     href="/login" 
@@ -2462,17 +2461,17 @@ export function ZigzaLandingPageClient({
           </div>
 
           {/* Bottom Divider & Proudly Made in India Bar */}
-          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
             <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
               <div className="flex items-center gap-2">
-                <span className="text-proudly-india-black">
+                <span className="text-proudly-india-black font-semibold">
                   Proudly Made in India
                 </span>
                 <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
               </div>
-              <p className="text-xs text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
+              <p className="text-sm text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
-            <div className="flex items-center gap-6 text-xs text-slate-500">
+            <div className="flex items-center gap-6 text-[13px] sm:text-sm text-slate-600">
               <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
               <Link href="/security" className="hover:text-slate-900 transition-colors">Security Standards</Link>
@@ -2506,7 +2505,7 @@ export function ZigzaLandingPageClient({
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                 Request a Live Demo
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              <p className="text-sm text-slate-600 mt-1">
                 Schedule a personalized walkthrough of the apparel MES platform.
               </p>
             </div>
@@ -2520,13 +2519,13 @@ export function ZigzaLandingPageClient({
                     </div>
                     <div>
                       <h4 className="text-base font-bold text-slate-900">Inquiry Already Registered</h4>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      <p className="text-sm text-slate-700 mt-1 leading-relaxed">
                         {submitError || 'An active inquiry or account is already registered with this phone number or email address. Our engineering team is currently reviewing your factory specifications.'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-3.5 bg-white border border-amber-200/60 rounded-xl text-xs space-y-2 text-slate-700">
+                  <div className="p-3.5 bg-white border border-amber-200/60 rounded-xl text-sm space-y-2 text-slate-700">
                     <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
                       <span className="text-slate-500 font-medium">Organization</span>
                       <span className="font-semibold text-slate-900">{demoForm.companyName || 'Registered Factory'}</span>
@@ -2537,13 +2536,13 @@ export function ZigzaLandingPageClient({
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500 font-medium">Status</span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
                         In Review by Platform Operations
                       </span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed">
                     No further action is required from your side. Our enterprise deployment team will contact you directly to schedule your walkthrough and dispatch your credentials.
                   </p>
 
@@ -2556,7 +2555,7 @@ export function ZigzaLandingPageClient({
                         setSubmitError(null)
                         setIsDemoModalOpen(false)
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Done / Close
                     </button>
@@ -2570,16 +2569,16 @@ export function ZigzaLandingPageClient({
                     </div>
                     <div>
                       <h4 className="text-base font-bold text-slate-900">Demo Walkthrough Request Received</h4>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      <p className="text-sm text-slate-700 mt-1 leading-relaxed">
                         Your factory walkthrough inquiry has been saved to our enterprise deployment queue.
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-xs space-y-2.5 text-slate-700">
+                  <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-sm space-y-2.5 text-slate-700">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                       <span className="text-slate-500 font-medium">Requested Plan</span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#3A3564]/10 text-[#3A3564]">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#3A3564]/10 text-[#3A3564]">
                         {demoForm.plan === 'FULL_PLANT_AI' ? 'Full Plant + Zigza AI (12 Units)' : demoForm.plan === 'MODULAR' ? 'Modular Units' : 'Custom Enterprise Build'}
                       </span>
                     </div>
@@ -2605,7 +2604,7 @@ export function ZigzaLandingPageClient({
                     </div>
                   </div>
 
-                  <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-xs text-slate-700 leading-relaxed">
+                  <div className="p-3 bg-emerald-50/70 border border-emerald-200/60 rounded-xl text-[13.5px] sm:text-sm text-slate-700 leading-relaxed">
                     <span className="font-bold text-emerald-950">Next step: </span>
                     Our platform team will review your unit specifications and contact you to coordinate the live walkthrough. Following the walkthrough, factory credentials will be dispatched to <span className="font-semibold text-slate-900">{demoForm.email}</span>.
                   </div>
@@ -2619,7 +2618,7 @@ export function ZigzaLandingPageClient({
                         setSubmitError(null)
                         setIsDemoModalOpen(false)
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Done / Close
                     </button>
@@ -2630,13 +2629,13 @@ export function ZigzaLandingPageClient({
               <form onSubmit={handleDemoSubmit} className="space-y-4">
                 {/* Field 1: Type of Plan Desired */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Type of Plan Desired *
                   </label>
                   <select
                     value={demoForm.plan}
                     onChange={e => setDemoForm({ ...demoForm, plan: e.target.value as any })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all font-medium cursor-pointer"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all font-medium cursor-pointer"
                   >
                     <option value="FULL_PLANT_AI">Full Plant + Zigza AI (All 12 Units - ₹4,999/mo)</option>
                     <option value="MODULAR">Modular Units (Selected Units - ₹1,999/mo)</option>
@@ -2646,7 +2645,7 @@ export function ZigzaLandingPageClient({
 
                 {/* Field 2: Company / Factory Name */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Company / Factory Name *
                   </label>
                   <input
@@ -2655,13 +2654,13 @@ export function ZigzaLandingPageClient({
                     placeholder="Enter company / factory name"
                     value={demoForm.companyName}
                     onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                   />
                 </div>
 
                 {/* Field 3: Plant Location (City & State) */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Plant Location / City & State *
                   </label>
                   <input
@@ -2670,13 +2669,13 @@ export function ZigzaLandingPageClient({
                     placeholder="Enter plant location / city & state"
                     value={demoForm.cityState}
                     onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                   />
                 </div>
 
                 {/* Field 4: Owner / Plant Head Name */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Owner / Plant Head Name *
                   </label>
                   <input
@@ -2685,13 +2684,13 @@ export function ZigzaLandingPageClient({
                     placeholder="Enter full name"
                     value={demoForm.ownerName}
                     onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                   />
                 </div>
 
                 {/* Field 5: Phone Number with Live Duplicate Feedback */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Phone Number *
                   </label>
                   <div className={`relative flex rounded-xl border transition-all overflow-hidden bg-white shadow-2xs ${
@@ -2699,7 +2698,7 @@ export function ZigzaLandingPageClient({
                       ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300' 
                       : 'border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent'
                   }`}>
-                    <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
+                    <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm sm:text-[15px] select-none shrink-0">
                       +91
                     </div>
                     <input
@@ -2709,7 +2708,7 @@ export function ZigzaLandingPageClient({
                       value={demoForm.phone}
                       onChange={e => handlePhoneChange(e.target.value)}
                       maxLength={11}
-                      className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
+                      className="w-full px-4 py-3 text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                     />
                     {phoneDuplicate?.inUse && (
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
@@ -2718,7 +2717,7 @@ export function ZigzaLandingPageClient({
                     )}
                   </div>
                   {phoneDuplicate?.inUse && (
-                    <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
+                    <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-sm text-rose-700 transition-all">
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
                         <span>{phoneDuplicate.message}</span>
@@ -2729,7 +2728,7 @@ export function ZigzaLandingPageClient({
 
                 {/* Field 6: Business Email ID with Live Duplicate Feedback */}
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Business Email ID *
                   </label>
                   <div className="relative">
@@ -2739,7 +2738,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter business email ID"
                       value={demoForm.email}
                       onChange={e => handleEmailChange(e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
+                      className={`w-full px-4 py-3 border rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
                         emailDuplicate?.inUse
                           ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300'
                           : 'border-slate-300 focus:ring-2 focus:ring-[#3A3564] focus:border-transparent'
@@ -2752,7 +2751,7 @@ export function ZigzaLandingPageClient({
                     )}
                   </div>
                   {emailDuplicate?.inUse && (
-                    <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-700 transition-all">
+                    <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-sm text-rose-700 transition-all">
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
                         <span>{emailDuplicate.message}</span>
@@ -2764,7 +2763,7 @@ export function ZigzaLandingPageClient({
                 {demoForm.plan === 'CUSTOM' && (
                   <>
                     <div>
-                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      <label className="block text-sm font-bold text-slate-800 mb-1.5">
                         Custom Engineering Requirements & Scope *
                       </label>
                       <textarea
@@ -2773,12 +2772,12 @@ export function ZigzaLandingPageClient({
                         placeholder="Enter custom engineering requirements & scope..."
                         value={demoForm.customRequirements}
                         onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-[13px] font-bold text-slate-800 mb-1.5">
+                      <label className="block text-sm font-bold text-slate-800 mb-1.5">
                         Estimated Machines / Capacity (Optional)
                       </label>
                       <input
@@ -2786,14 +2785,14 @@ export function ZigzaLandingPageClient({
                         placeholder="Enter estimated machines / capacity"
                         value={demoForm.estimatedMachines}
                         onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                       />
                     </div>
                   </>
                 )}
 
                 {submitError && !submitAlreadyExists && (
-                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-800">
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-sm text-rose-800">
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     <span className="leading-relaxed">{submitError}</span>
                   </div>
@@ -2802,7 +2801,7 @@ export function ZigzaLandingPageClient({
                 <button
                   type="submit"
                   disabled={isSubmittingDemo || isCheckingDuplicate}
-                  className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
+                  className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
                 >
                   {isSubmittingDemo ? (
                     <>
