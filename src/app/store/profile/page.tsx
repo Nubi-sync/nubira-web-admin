@@ -59,7 +59,7 @@ export default async function StoreProfilePage() {
   }
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <DivisionProfileView
         divisionName="Central Store & Finished Export Vault"
         divisionSlug="/store"

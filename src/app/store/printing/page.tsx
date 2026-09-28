@@ -37,7 +37,7 @@ export default async function CentralStorePrintingPage() {
   )
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <ModuleStoreDashboard
         moduleName="Printing Division"
         divisionCode="PRINTING"
