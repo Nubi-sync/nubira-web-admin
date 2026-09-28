@@ -37,7 +37,7 @@ export default async function CentralStoreIronPage() {
   )
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <ModuleStoreDashboard
         moduleName="Ironing Operations"
         divisionCode="IRON"
