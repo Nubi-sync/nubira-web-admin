@@ -21,8 +21,8 @@ export default async function GodownHandoverPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <GodownHandoverClient userEmail={tenant.userEmail} />
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
+      <GodownHandoverClient userEmail={tenant.userEmail} companyName={tenant.companyName} />
     </AdminShell>
   )
 }

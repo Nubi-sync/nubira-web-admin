@@ -23,7 +23,10 @@ import {
   Building2,
   ChevronDown,
   Check,
-  RotateCcw
+  RotateCcw,
+  Bell,
+  Truck,
+  Box
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents } from '@/utils/floorRealtime'
@@ -295,75 +298,93 @@ export function PackingGoodsClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-7xl w-full mx-auto select-none text-[#09090b]">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
-      {/* 1. Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          {isSuperAdmin && (
-            <>
-              <Link
-                href="/modules"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Workspace Hub</span>
-              </Link>
-              <span className="text-slate-300">/</span>
-            </>
-          )}
-          <Link
-            href="/ready-goods"
-            className="text-xs font-mono font-bold text-[#3A3564] hover:underline"
-          >
-            Alteration &amp; Quality Clinic
-          </Link>
-          <span className="text-slate-300">/</span>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-            Export Packing
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
           </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/ready-goods"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 transition-all shadow-2xs cursor-pointer"
-          >
-            <Wrench className="w-4 h-4 text-[#3A3564]" />
-            <span>&larr; Alteration &amp; Quality Clinic</span>
-          </Link>
-        </div>
+        </h2>
       </div>
 
-      {/* 2. Module Title Header Card (Spacey, Brand-Aligned & Minimal Words) */}
-      <div className="bg-white p-6 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <PackageCheck className="w-6 h-6" />
+      {/* Module Title Header Card */}
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <PackageCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Packing Goods &amp; Carton Allocation
-            </h1>
-            <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+                Packing Goods &amp; Carton Allocation
+              </h1>
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                {workers.length} Packers Active
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               Export carton packing, barcode sealing &amp; godown bay dispatch
             </p>
           </div>
         </div>
 
         {/* Quick Utilities */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto justify-end flex-wrap sm:flex-nowrap">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
+          <Link
+            href="/ready-goods"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Wrench className="w-3.5 h-3.5" />
+            <span>Quality Clinic</span>
+          </Link>
+
+          <Link
+            href="/ready-goods/carton-packing"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Box className="w-3.5 h-3.5" />
+            <span>Cartons</span>
+          </Link>
+
+          <Link
+            href="/ready-goods/aql-inspection"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>AQL Audit</span>
+          </Link>
+
+          <Link
+            href="/ready-goods/handover"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Truck className="w-3.5 h-3.5" />
+            <span>Handover</span>
+          </Link>
+
+          <Link
+            href="/ready-goods/notifications"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>Notifications</span>
+          </Link>
+
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>Worker Terminal</span>
+            <span>Worker</span>
           </Link>
 
           <Link
             href="/ready-goods/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>

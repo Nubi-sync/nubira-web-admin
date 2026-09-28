@@ -21,8 +21,8 @@ export default async function CartonPackingPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <CartonPackingClient userEmail={tenant.userEmail} />
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
+      <CartonPackingClient userEmail={tenant.userEmail} companyName={tenant.companyName} />
     </AdminShell>
   )
 }

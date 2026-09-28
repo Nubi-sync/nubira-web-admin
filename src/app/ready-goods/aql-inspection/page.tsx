@@ -21,8 +21,8 @@ export default async function AqlInspectionPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <AqlInspectionClient userEmail={tenant.userEmail} />
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
+      <AqlInspectionClient userEmail={tenant.userEmail} companyName={tenant.companyName} />
     </AdminShell>
   )
 }

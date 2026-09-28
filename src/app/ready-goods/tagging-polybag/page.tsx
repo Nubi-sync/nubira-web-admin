@@ -21,8 +21,8 @@ export default async function TaggingPolybagPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <TaggingPolybagClient userEmail={tenant.userEmail} />
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
+      <TaggingPolybagClient userEmail={tenant.userEmail} companyName={tenant.companyName} />
     </AdminShell>
   )
 }

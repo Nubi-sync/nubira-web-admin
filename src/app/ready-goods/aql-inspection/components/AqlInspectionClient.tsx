@@ -21,9 +21,10 @@ import { AqlAuditModal } from './AqlAuditModal'
 
 interface AqlInspectionClientProps {
   userEmail?: string
+  companyName?: string
 }
 
-export function AqlInspectionClient({ userEmail }: AqlInspectionClientProps) {
+export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionClientProps) {
   const [audits, setAudits] = useState<AqlAudit[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -38,7 +39,11 @@ export function AqlInspectionClient({ userEmail }: AqlInspectionClientProps) {
     loadAudits()
     const handleUpdate = () => loadAudits()
     window.addEventListener(READY_GOODS_UPDATE_EVENT, handleUpdate)
-    return () => window.removeEventListener(READY_GOODS_UPDATE_EVENT, handleUpdate)
+    window.addEventListener('storage', handleUpdate)
+    return () => {
+      window.removeEventListener(READY_GOODS_UPDATE_EVENT, handleUpdate)
+      window.removeEventListener('storage', handleUpdate)
+    }
   }, [])
 
   const filteredAudits = audits.filter(audit => {
@@ -59,45 +64,31 @@ export function AqlInspectionClient({ userEmail }: AqlInspectionClientProps) {
   const passRate = audits.length > 0 ? ((passedCount / audits.length) * 100).toFixed(1) : '100.0'
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4">
-        <Link
-          href="/ready-goods"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Ready Goods Dashboard</span>
-        </Link>
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-          Inspection Station • ISO 2859-1 Normal Level II
-        </span>
-      </div>
-
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <ShieldCheck className="w-6 h-6" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 AQL 2.5 Statistical Inspection Station
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                 Normal Level II
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1">
-              Quality gate enforcing international sampling standards: 0 Critical Defects, ≤ 10 Major Defects per 200 pcs sample.
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
+              Quality gate enforcing international sampling standards: 0 Critical Defects, ≤ 10 Major Defects per 200 pcs sample
             </p>
           </div>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Conduct AQL Audit (Form 1)</span>

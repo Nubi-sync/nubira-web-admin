@@ -21,8 +21,8 @@ export default async function CartonWeightPage() {
   const tenant = await resolveUserTenant(user)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
-      <CartonWeightClient userEmail={tenant.userEmail} />
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
+      <CartonWeightClient userEmail={tenant.userEmail} companyName={tenant.companyName} />
     </AdminShell>
   )
 }
