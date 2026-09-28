@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import Link from 'next/link'
 import {
   Bell,
   Check,
@@ -184,46 +183,11 @@ export function ModuleNotificationPageClient({
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
-      {/* 1. Breadcrumbs */}
-      <div className="flex items-center justify-between gap-4 flex-wrap text-xs font-medium text-slate-400">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/modules"
-            className="hover:text-[#3A3564] transition-colors"
-          >
-            Workspace Hub
-          </Link>
-          <span>/</span>
-          <Link
-            href={moduleHref}
-            className="hover:text-[#3A3564] transition-colors"
-          >
-            {moduleName}
-          </Link>
-          <span>/</span>
-          <span className="font-bold text-slate-900">Notification</span>
-        </div>
-
-        {/* WebSocket Status Indicator */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-black/10 bg-white shadow-2xs text-[11px] font-mono">
-          <span
-            className={`w-2 h-2 rounded-full ${
-              connectionStatus === 'connected'
-                ? 'bg-emerald-500 animate-pulse'
-                : 'bg-slate-400'
-            }`}
-          />
-          <span className="font-semibold text-slate-700">
-            {connectionStatus === 'connected' ? 'Live WebSocket Active' : 'Connecting WebSocket...'}
-          </span>
-        </div>
-      </div>
-
-      {/* 2. Top Header Card */}
+      {/* Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Bell className="w-6 h-6" />
+            <CurrentModuleIcon className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -233,6 +197,19 @@ export function ModuleNotificationPageClient({
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
                 {moduleEvents.length} Events Logged
               </span>
+              {/* WebSocket Status Indicator */}
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-black/10 bg-slate-50 text-[10px] font-mono">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    connectionStatus === 'connected'
+                      ? 'bg-emerald-500 animate-pulse'
+                      : 'bg-slate-400'
+                  }`}
+                />
+                <span className="font-semibold text-slate-600">
+                  {connectionStatus === 'connected' ? 'Live WebSocket' : 'Connecting...'}
+                </span>
+              </div>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               Live floor audit trail, operator handovers, and department milestones for {companyName || 'your factory'}

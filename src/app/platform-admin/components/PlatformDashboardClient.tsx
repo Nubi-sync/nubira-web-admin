@@ -455,7 +455,7 @@ export function PlatformDashboardClient() {
                       </td>
 
                       {/* Submitted At */}
-                      <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap" suppressHydrationWarning>
                         {new Date(item.submittedAt).toLocaleDateString()}
                       </td>
 
