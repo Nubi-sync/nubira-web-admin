@@ -27,7 +27,11 @@ import {
   Trash2,
   Calendar,
   GitBranch,
-  Bell
+  Bell,
+  FileCode,
+  Package,
+  ShieldCheck,
+  Receipt
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { subscribeToFloorEvents, broadcastFloorEvent } from '@/utils/floorRealtime'
@@ -598,69 +602,87 @@ export function EmbroideryDashboardClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
-      {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          {isSuperAdmin && (
-            <>
-              <Link
-                href="/modules"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Workspace Hub</span>
-              </Link>
-              <span className="text-slate-300">/</span>
-            </>
-          )}
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-            Division 05 • Embroidery Studio
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
           </span>
-        </div>
-        
-        <div className="flex items-center gap-2.5">
-          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 uppercase tracking-wider flex items-center gap-1.5 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Multi-Head &amp; Punch Sync Active
-          </span>
-        </div>
+        </h2>
       </div>
 
       {/* Module Title Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Sparkles className="w-6 h-6" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Multi-Head Embroidery Studio
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                 {workers.length} Workers Registered
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               Multi-head computerized machines, hooping stations, shift matrix tracking, and stitch sign-offs
             </p>
           </div>
         </div>
 
         {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
+          <Link
+            href="/embroidery/punch-library"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <FileCode className="w-3.5 h-3.5" />
+            <span>Punch Library</span>
+          </Link>
+          <Link
+            href="/embroidery/machine-runs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Cpu className="w-3.5 h-3.5" />
+            <span>Machine Runs</span>
+          </Link>
+          <Link
+            href="/embroidery/thread-store"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>Thread Store</span>
+          </Link>
+          <Link
+            href="/embroidery/embroidery-qc"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Embroidery QC</span>
+          </Link>
+          <Link
+            href="/embroidery/stitch-billing"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+          >
+            <Receipt className="w-3.5 h-3.5" />
+            <span>Stitch Billing</span>
+          </Link>
           <Link
             href="/embroidery/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
           </Link>
           <Link
             href="/embroidery/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
           >
             <Users className="w-3.5 h-3.5" />
             <span>Division Profile</span>
