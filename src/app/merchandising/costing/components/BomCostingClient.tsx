@@ -73,46 +73,34 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
   const avgProfitPct = avgBuyerPrice > 0 ? ((avgProfit / avgBuyerPrice) * 100) : 0
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
-      {/* 1. Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <Link href="/merchandising" className="hover:text-[#3A3564] transition-colors">
-          Merchandising &amp; Sourcing
-        </Link>
-        <span>/</span>
-        <span>Commercial Ops</span>
-        <span>/</span>
-        <span className="font-bold text-slate-900">
-          BOM &amp; Pre/Post-Costing Ledgers
-        </span>
-      </div>
-
-      {/* 2. Top Header Card (6th Box Theme) */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+      
+      {/* Top Header Card */}
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
             <Calculator className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 BOM &amp; Pre/Post-Costing Ledgers
               </h1>
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
                 {costings.length} Costing Sheets
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
               Standard garment costing engine, direct material breakdown, and live factory realization variance
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Create Costing Sheet</span>
@@ -120,8 +108,8 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      {/* Executive KPI Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
@@ -281,7 +269,7 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[850px]">
               <thead>
                 <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
                   <th className="py-3 px-4">PO Number</th>
