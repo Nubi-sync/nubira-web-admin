@@ -72,21 +72,21 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
       <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
                   Buyer PO Specification
                 </span>
                 <span className="text-xs font-bold text-slate-500 font-mono">
                   {order.po_number}
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
                 {order.brand_name} • {order.style_ref}
               </h2>
             </div>
@@ -101,7 +101,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-6 overflow-y-auto space-y-5 text-slate-900 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-slate-900 flex-1">
           
           {/* Top 3 KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -218,7 +218,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[480px]">
                   <thead>
                     <tr className="border-b border-black/10 bg-[#FAF7F0] text-[10.5px] font-mono font-bold uppercase text-slate-600">
                       <th className="py-2 px-3">Component Type</th>
@@ -251,7 +251,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
 
             {order.color_matrix && order.color_matrix.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                   <thead>
                     <tr className="border-b border-black/10 bg-[#FAF7F0] text-[10.5px] font-mono font-bold uppercase text-slate-600">
                       <th className="py-2 px-3">Colorway</th>
@@ -302,7 +302,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end shrink-0">
           <button
             type="button"
             onClick={onClose}
