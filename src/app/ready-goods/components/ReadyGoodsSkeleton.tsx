@@ -113,10 +113,12 @@ export function ReadyGoodsPageSkeleton({
 }) {
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl mx-auto select-none">
-      {/* Welcome line skeleton */}
-      <div className="pt-1">
-        <SkeletonBlock className="h-6 w-48 rounded-lg" />
-      </div>
+      {/* Welcome line skeleton only on dashboard */}
+      {variant === 'dashboard' && (
+        <div className="pt-1">
+          <SkeletonBlock className="h-6 w-48 rounded-lg" />
+        </div>
+      )}
 
       <SkeletonHeader />
 
