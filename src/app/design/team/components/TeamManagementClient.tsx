@@ -160,17 +160,14 @@ export function TeamManagementClient({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb Hierarchy Trail */}
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400 overflow-x-auto whitespace-nowrap">
-        <Link href="/modules" className="hover:text-[#3A3564] transition-colors font-semibold text-slate-700">
-          {companyName || 'Factory Workspace'}
-        </Link>
-        <span>/</span>
-        <Link href="/design" className="hover:text-[#3A3564] transition-colors">
-          Design Studio
-        </Link>
-        <span>/</span>
-        <span className="font-bold text-slate-900">Team Management</span>
+      {/* Top Welcome / Company Identification */}
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <div className="inline-flex items-center gap-1.5">
+          <span className="text-slate-500 font-medium">Welcome,</span>
+          <span className="font-bold text-slate-900">
+            {companyName || 'Demo Industries'}
+          </span>
+        </div>
       </div>
 
       {/* Header */}
