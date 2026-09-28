@@ -401,6 +401,17 @@ export function DispatchClient({
   return (
     <div className="space-y-6">
       
+      {/* Welcome Banner - Uniform across all modules */}
+      <div className="pt-1">
+        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#3A3564] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+          </span>
+        </h2>
+      </div>
+
       {/* 1. Page Header (Zigza Executive Aesthetic) */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
@@ -1482,8 +1493,8 @@ export function DispatchClient({
             </div>
 
             {/* Items Table */}
-            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-              <table className="w-full text-left text-xs border-collapse">
+            <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs">
+              <table className="w-full text-left text-xs border-collapse min-w-[520px]">
                 <thead>
                   <tr className="bg-[#FAF7F0] border-b border-black/10 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
                     <th className="py-2.5 px-3">#</th>
@@ -1546,7 +1557,7 @@ export function DispatchClient({
             )}
 
             {/* Signatures */}
-            <div className="grid grid-cols-3 gap-6 pt-8 text-center text-xs text-slate-500">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 text-center text-xs text-slate-500">
               <div className="border-t border-slate-200 pt-2 font-medium">Prepared By (QC / Dispatch)</div>
               <div className="border-t border-slate-200 pt-2 font-medium">Driver / Transporter</div>
               <div className="border-t border-slate-200 pt-2 font-bold text-slate-900">
@@ -1559,18 +1570,18 @@ export function DispatchClient({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 print:hidden">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-slate-100 print:hidden">
               <button 
                 type="button" 
                 onClick={() => setSelectedChallanForPrint(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer text-center"
               >
                 Close
               </button>
               <button 
                 type="button" 
                 onClick={() => window.print()}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer transition-colors"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer transition-colors"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Official Challan</span>

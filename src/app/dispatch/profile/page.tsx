@@ -59,11 +59,11 @@ export default async function DispatchProfilePage() {
   }
 
   return (
-    <AdminShell userEmail={user.email} userRole={tenant.role}>
+    <AdminShell userEmail={user.email} userRole={tenant.role} companyName={tenant.companyName}>
       <DivisionProfileView
-        divisionName="Dispatch & Logistics Bay"
+        divisionName="Dispatch & Delivery Operations"
         divisionSlug="/dispatch"
-        divisionCode="12"
+        divisionCode="11"
         categoryBadge="OUTWARD LOGISTICS"
         companyName={tenant.companyName}
         userEmail={user.email || ''}

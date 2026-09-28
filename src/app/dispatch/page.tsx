@@ -2,7 +2,6 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { DispatchClient } from './components/DispatchClient'
-import Link from 'next/link'
 import { resolveUserTenant, isLegacyNubiraTenant } from '@/lib/tenant-context'
 import { CacheManager } from '@/lib/cache/cache-manager'
 
@@ -153,23 +152,8 @@ export default async function DispatchPage() {
   )
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={userRole}>
-      <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6">
-        
-        {/* Breadcrumb according to Division 12 Guide */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
-          <Link href="/modules" className="hover:text-[#3A3564] transition-colors">
-            Workspace Hub
-          </Link>
-          <span>/</span>
-          <span className="font-bold text-slate-900">
-            12. Dispatch & Logistics Hub
-          </span>
-          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
-            {tenant.companyName}
-          </span>
-        </div>
-
+    <AdminShell userEmail={tenant.userEmail} userRole={userRole} companyName={tenant.companyName}>
+      <div className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6">
         <DispatchClient 
           articles={(articles as any) || []}
           deliveryChallans={(deliveryChallans as any) || []}
@@ -178,7 +162,6 @@ export default async function DispatchPage() {
           companyName={tenant.companyName}
           factoryAddress={tenant.cityState}
         />
-
       </div>
     </AdminShell>
   )

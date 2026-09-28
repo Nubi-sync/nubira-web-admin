@@ -34,7 +34,9 @@ import {
   Flame,
   Boxes,
   Wrench,
-  Store
+  Store,
+  ClipboardList,
+  FileText
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 
@@ -51,6 +53,7 @@ export type PortalType =
   | 'ready-goods'
   | 'alter'
   | 'store'
+  | 'dispatch'
   | 'factory' 
   | 'brands'
 
@@ -316,6 +319,33 @@ const PORTAL_METADATA: Record<PortalType, {
         title: 'Cutting Challans Issued',
         description: 'Fabric rolls issued to the cutting floor with lot reference.',
         prompt: 'Show all fabric and trim issues dispatched to cutting and production floors today.'
+      }
+    ]
+  },
+  'dispatch': {
+    title: 'Zigza AI • Dispatch & Delivery Logistics',
+    subtitle: 'Container loading, delivery challans, gate pass verification, and pre-loading audits',
+    badge: 'DISPATCH LOGISTICS AI',
+    heroTitle: 'What delivery shipment or container loading would you like to verify?',
+    heroDescription: 'Ask about delivery challans, vehicle gate passes, pre-loading counting audits, buyer shipments, and carton piece reconciliations.',
+    queries: [
+      {
+        icon: Truck,
+        title: 'Delivery Challan Verification',
+        description: 'Verify active delivery challans, buyer destinations, and vehicle numbers.',
+        prompt: 'Show all delivery challans generated for buyer shipments today with vehicle and piece counts.'
+      },
+      {
+        icon: ClipboardList,
+        title: 'Pre-Loading Physical Audit',
+        description: 'Check physical piece counts vs challan manifests before gate-out.',
+        prompt: 'What are the recent pre-loading counting report audits and variance checks?'
+      },
+      {
+        icon: Warehouse,
+        title: 'Ready for Gate-Out Clearance',
+        description: 'Cartons and lots staged in dispatch bay awaiting transport departure.',
+        prompt: 'How many cartons and pieces are currently staged in the dispatch loading bay?'
       }
     ]
   },

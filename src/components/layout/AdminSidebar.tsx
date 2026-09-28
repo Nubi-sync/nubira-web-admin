@@ -705,26 +705,26 @@ export function AdminSidebar({
     ]
   } else if (pathname === '/dispatch' || pathname?.startsWith('/dispatch')) {
     activeNavSections = [
-      ...(isAdmin ? [
-        {
-          section: 'Workspace Hub',
-          items: [
-            { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-          ],
-        },
-      ] : []),
       {
-        section: '12. Dispatch Operations',
+        section: 'Workspace Hub',
+        items: [
+          { label: 'All Modules', href: '/modules', icon: LayoutGrid },
+        ],
+      },
+      {
+        section: '11. Dispatch & Delivery Operations',
         items: [
           { label: 'Dispatch Hub', href: '/dispatch', icon: Truck },
+          { label: 'Notification', href: '/dispatch/notifications', icon: Bell },
           { label: 'Pre-Loading Audits', href: '/dispatch?tab=counting', icon: ClipboardList },
           { label: 'Delivery Challans', href: '/dispatch?tab=challans', icon: FileText },
+          { label: 'Zigza AI Copilot', href: '/dispatch/zigza-ai', icon: Bot },
         ],
       },
       {
         section: 'Account',
         items: [
-          { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
+          { label: 'Division Profile', href: '/dispatch/profile', icon: User },
         ],
       },
     ]
