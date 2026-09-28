@@ -948,8 +948,8 @@ export function CreateOrderModal({
               </div>
 
               {/* Matrix Table */}
-              <div className="border border-black/10 rounded-2xl overflow-hidden shadow-2xs">
-                <table className="w-full text-left">
+              <div className="border border-black/10 rounded-2xl overflow-x-auto shadow-2xs">
+                <table className="w-full text-left min-w-[520px]">
                   <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-semibold uppercase text-[11px] font-mono">
                     <tr>
                       <th className="px-3.5 py-2.5">Colorway</th>
