@@ -134,7 +134,7 @@ export default async function ReportsPage() {
     : (rawWorkerAssignments || [])
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={userRole}>
+    <AdminShell userEmail={tenant.userEmail} userRole={userRole} companyName={tenant.companyName}>
       <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
         
         {/* 1. Breadcrumb */}

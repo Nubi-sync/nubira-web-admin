@@ -2,6 +2,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { ZigzaAiClient } from './components/ZigzaAiClient'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,20 +17,16 @@ export default async function ZigzaAiPage() {
     redirect('/login')
   }
 
-  // Restrict Store Supervisors from admin AI copilot
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const tenant = await resolveUserTenant(user)
 
-  const userRole = (userProfile?.role || '').toUpperCase()
+  // Restrict Store Supervisors from admin AI copilot
+  const userRole = (tenant.role || '').toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
   return (
-    <AdminShell userEmail={user.email}>
+    <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <ZigzaAiClient userEmail={user.email} />
     </AdminShell>
   )
