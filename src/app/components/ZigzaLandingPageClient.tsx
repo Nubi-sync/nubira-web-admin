@@ -1231,21 +1231,25 @@ export function ZigzaLandingPageClient({
                       </div>
                     </div>
 
-                    {/* Android 3-Button Navigation Bar */}
-                    <div className="pt-2 pb-0.5 flex items-center justify-around w-44 mx-auto text-slate-600">
-                      {/* Back button (Triangle pointing left) */}
-                      <div className="w-8 h-5 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-slate-600 stroke-[2.2] stroke-linejoin-round">
-                          <polygon points="17,19 7,12 17,5" />
+                    {/* Modern Android 3-Button Navigation Bar */}
+                    <div className="pt-3.5 pb-1.5 px-6 flex items-center justify-between max-w-[260px] mx-auto text-slate-700">
+                      {/* Back button (Modern Android Chevron <) */}
+                      <div className="w-9 h-6 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3] stroke-linecap-round stroke-linejoin-round">
+                          <path d="M14.5 17.5L9 12L14.5 6.5" />
                         </svg>
                       </div>
-                      {/* Home button (Circle) */}
-                      <div className="w-8 h-5 flex items-center justify-center">
-                        <div className="w-3.5 h-3.5 rounded-full border-[2px] border-slate-600" />
+                      {/* Home button (Modern Android Circle ○) */}
+                      <div className="w-9 h-6 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3]">
+                          <circle cx="12" cy="12" r="7" />
+                        </svg>
                       </div>
-                      {/* Recent Apps / Overview button (Rounded Square) */}
-                      <div className="w-8 h-5 flex items-center justify-center">
-                        <div className="w-3.5 h-3.5 rounded-[2.5px] border-[2px] border-slate-600" />
+                      {/* Recent Apps / Overview button (Modern Android Rounded Square □) */}
+                      <div className="w-9 h-6 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3] stroke-linejoin-round">
+                          <rect x="5" y="5" width="14" height="14" rx="3.5" />
+                        </svg>
                       </div>
                     </div>
                   </div>
