@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition, useEffect } from 'react'
+import { useState, useMemo, useTransition, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   Warehouse, 
@@ -239,7 +239,9 @@ export function StoreDashboardClient({
   const [expandedBOMKeys, setExpandedBOMKeys] = useState<Set<string>>(new Set())
   const [expandedGrnId, setExpandedGrnId] = useState<string | null>(null)
 
-  // Modal Triggers
+  // Modal Triggers & Create Dropdown
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const createRef = useRef<HTMLDivElement>(null)
   const [isGrnModalOpen, setIsGrnModalOpen] = useState(false)
   const [isBomModalOpen, setIsBomModalOpen] = useState(false)
   const [isReissueModalOpen, setIsReissueModalOpen] = useState(false)
@@ -248,6 +250,17 @@ export function StoreDashboardClient({
   const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
   const [attachPhotoTarget, setAttachPhotoTarget] = useState<TruckInward | null>(null)
   const [prefilledLotForInward, setPrefilledLotForInward] = useState<ReadyQcAllotment | null>(null)
+
+  // Close Create dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (createRef.current && !createRef.current.contains(e.target as Node)) {
+        setIsCreateOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Delete Target State
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -596,6 +609,93 @@ export function StoreDashboardClient({
 
         {/* Live Sync, TV View & Actions */}
         <div className="flex items-center gap-2.5 self-stretch sm:self-auto w-full sm:w-auto justify-end">
+          {/* + Create Dropdown */}
+          <div className="relative" ref={createRef}>
+            <button
+              type="button"
+              onClick={() => setIsCreateOpen(prev => !prev)}
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#3A3564] hover:bg-[#2F2B52] text-white shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-95"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Create</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-white/80 transition-transform duration-150 ${isCreateOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isCreateOpen && (
+              <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-[#14140F]/15 py-2 z-50 text-[#14140F] text-xs animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-4 py-1.5 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                  Store Quick Actions
+                </div>
+                
+                {/* 1. Accessory Inward (GRN) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreateOpen(false)
+                    setIsGrnModalOpen(true)
+                  }}
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[#FAF7F0] transition-colors text-left group cursor-pointer"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                    <Receipt className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors">
+                      Accessory Inward (GRN)
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                      Record supplier delivery slip, trims, fabrics &amp; due items
+                    </div>
+                  </div>
+                </button>
+
+                {/* 2. BOM Material Handover */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreateOpen(false)
+                    setIsBomModalOpen(true)
+                  }}
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[#FAF7F0] transition-colors text-left group cursor-pointer border-t border-slate-100"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                    <Boxes className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors">
+                      BOM Material Handover
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                      Inspect raw materials &amp; issue BOM lots to Linemen
+                    </div>
+                  </div>
+                </button>
+
+                {/* 3. Floor Loss / Re-Issue */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreateOpen(false)
+                    setIsReissueModalOpen(true)
+                  }}
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-amber-50/50 transition-colors text-left group cursor-pointer border-t border-slate-100"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 group-hover:bg-amber-600 text-amber-700 group-hover:text-white border border-amber-200/80 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                    <RotateCw className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-amber-800 transition-colors">
+                      Floor Loss / Re-Issue
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                      Log replacement accessories given to tailors for lost or damaged trims
+                    </div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={handleRefresh}
@@ -801,82 +901,7 @@ export function StoreDashboardClient({
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* 4. STORE QUICK ACTIONS (5-CARD GRID)                         */}
-      {/* ============================================================ */}
-      <div className="space-y-3">
-        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
-          Store Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          
-          {/* Action 1: Accessory Challan Inward (GRN) */}
-          <button
-            type="button"
-            onClick={() => setIsGrnModalOpen(true)}
-            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
-                <Receipt className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
-                Accessory Inward (GRN)
-              </h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
-                Record supplier delivery slip, trims, fabrics & due items
-              </p>
-            </div>
-          </button>
 
-          {/* Action 2: Lineman BOM Handover */}
-          <button
-            type="button"
-            onClick={() => setIsBomModalOpen(true)}
-            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
-                <Boxes className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
-                BOM Material Handover
-              </h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
-                Inspect raw materials & issue BOM lots to Linemen
-              </p>
-            </div>
-          </button>
-
-          {/* Action 3: Floor Re-Issue / Loss Entry */}
-          <button
-            type="button"
-            onClick={() => setIsReissueModalOpen(true)}
-            className="p-5 text-left bg-white hover:bg-amber-50/40 border border-black/10 hover:border-amber-400/60 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-xl bg-amber-50 group-hover:bg-amber-600 text-amber-700 group-hover:text-white border border-amber-200/80 flex items-center justify-center transition-colors shadow-2xs">
-                <RotateCw className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-700 transition-colors" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-amber-800 transition-colors">
-                Floor Loss / Re-Issue
-              </h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
-                Log replacement accessories given to tailors for lost or damaged trims
-              </p>
-            </div>
-          </button>
-        </div>
-      </div>
 
       {/* ============================================================ */}
       {/* 4.5 LIVE ARTICLE MATERIAL CONSUMPTION LEDGER                  */}
