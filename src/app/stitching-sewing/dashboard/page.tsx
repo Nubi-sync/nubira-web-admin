@@ -330,32 +330,64 @@ export default async function StitchingSewingDashboardPage() {
     })
   })
 
-  // Allotments & Floor Handovers
+  // Allotments & Floor Handovers (Consolidated by Challan / Batch to avoid 8x duplicate spam)
+  const allotmentActivitiesMap = new Map<string, {
+    id: string
+    type: 'ALLOTMENT'
+    title: string
+    totalQty: number
+    artNo: string
+    challanNo: string
+    lineman: string
+    location: string
+    timestamp: string
+    isMending: boolean
+    mendingDetails?: string
+  }>()
+
   ;(allotmentsData || []).forEach(al => {
     const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
     const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+    const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
 
-    if (al.handed_to_mending_at || al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING') {
-      activities.push({
-        id: 'mending-' + al.id,
+    const isMending = !!(al.handed_to_mending_at || al.mending_status === 'PENDING_MENDING' || al.mending_status === 'IN_MENDING')
+    const key = isMending ? `mending-${al.challan_id || al.id}` : `allot-${al.challan_id || al.id}-${al.lineman_id}`
+    const chNo = (ch?.challan_no || '').trim()
+    const cleanChNo = chNo ? (chNo.toUpperCase().startsWith('CHALLAN') ? chNo : `Challan ${chNo}`) : ''
+
+    if (!allotmentActivitiesMap.has(key)) {
+      allotmentActivitiesMap.set(key, {
+        id: (isMending ? 'mending-' : 'allot-') + al.id,
         type: 'ALLOTMENT',
-        title: 'Handover to Mending Floor',
-        details: `${al.target_qty} pcs • Art ${art?.art_no || 'Article'} (${al.handed_to_mending_by || 'Lineman'} -> ${al.mending_supervisor_name || 'Mending Floor'})`,
-        location: 'Mending Dept',
-        timestamp: al.handed_to_mending_at || al.created_at,
-        relativeTime: formatRelativeTime(al.handed_to_mending_at || al.created_at)
-      })
-    } else {
-      activities.push({
-        id: 'allot-' + al.id,
-        type: 'ALLOTMENT',
-        title: 'Target Allotted',
-        details: al.target_qty + ' pcs of ' + (art?.art_no || 'Article') + ' to ' + (lm?.username || 'Lineman'),
-        location: 'Floor Line',
-        timestamp: al.created_at,
-        relativeTime: formatRelativeTime(al.created_at)
+        title: isMending ? 'Handover to Mending Floor' : 'Target Allotted',
+        totalQty: 0,
+        artNo: art?.art_no || 'Article',
+        challanNo: cleanChNo,
+        lineman: lm?.username || 'Lineman',
+        location: isMending ? 'Mending Dept' : 'Floor Line',
+        timestamp: (isMending ? al.handed_to_mending_at : al.created_at) || al.created_at,
+        isMending,
+        mendingDetails: isMending ? `(${al.handed_to_mending_by || 'Lineman'} -> ${al.mending_supervisor_name || 'Mending Floor'})` : undefined
       })
     }
+
+    const entry = allotmentActivitiesMap.get(key)!
+    entry.totalQty += (Number(al.target_qty) || 0)
+  })
+
+  allotmentActivitiesMap.forEach(act => {
+    const challanSuffix = act.challanNo ? ` • ${act.challanNo}` : ''
+    activities.push({
+      id: act.id,
+      type: 'ALLOTMENT',
+      title: act.title,
+      details: act.isMending
+        ? `${act.totalQty.toLocaleString()} pcs • Art ${act.artNo}${challanSuffix} ${act.mendingDetails || ''}`
+        : `${act.totalQty.toLocaleString()} pcs of Art ${act.artNo}${challanSuffix} to ${act.lineman}`,
+      location: act.location,
+      timestamp: act.timestamp,
+      relativeTime: formatRelativeTime(act.timestamp)
+    })
   })
 
   // Dispatches

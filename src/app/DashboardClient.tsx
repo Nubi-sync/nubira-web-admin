@@ -33,7 +33,10 @@ import {
   ExternalLink,
   User,
   Tag,
-  Plus
+  Plus,
+  FileText,
+  Zap,
+  UserCheck
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { WorkerAssignmentsTable, type WorkerAssignmentItem } from '@/app/components/WorkerAssignmentsTable'
@@ -614,6 +617,93 @@ export default function DashboardClient({
     }
   }, [metrics])
 
+  // Consolidated Active Orders / Challans Grouped (Deduplicates slices and showcases all active factory styles)
+  const groupedActiveOrders = useMemo(() => {
+    const map = new Map<string, {
+      key: string
+      challanId?: string
+      challanNo: string
+      brand: string
+      fabricType: string
+      uniqueArtNos: string[]
+      masterDescriptions: string[]
+      linemen: string[]
+      totalTargetQty: number
+      totalCompletedQty: number
+      status: string
+      mendingStatus?: string | null
+      createdAt: string
+      allotmentDate: string
+      sliceCount: number
+    }>()
+
+    filteredData.allotments.forEach(al => {
+      if (al.status === 'CANCELLED') return
+
+      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+
+      const chNo = (ch?.challan_no || '').trim()
+      const groupKey = ch?.id ? `challan-${ch.id}` : `art-${al.article_id || al.id}`
+      const cleanChallanDisplay = chNo ? (chNo.toUpperCase().startsWith('CHALLAN') ? chNo : `Challan ${chNo}`) : 'Direct Floor'
+      const linemanName = formatLinemanName(lm)
+      const targetQty = Number(al.target_qty) || 0
+
+      // Calculate produced/completed pcs from worker assignments
+      const allotAssignedWorkers = workerAssignments.filter(w => w.allotment_id === al.id)
+      const completedFromWorkers = allotAssignedWorkers.reduce(
+        (sum, w) => sum + (Number(w.completed_qty) || (w.status === 'DONE' ? Number(w.assigned_qty) : 0)),
+        0
+      )
+
+      if (!map.has(groupKey)) {
+        map.set(groupKey, {
+          key: groupKey,
+          challanId: ch?.id,
+          challanNo: cleanChallanDisplay,
+          brand: ch?.brand || '',
+          fabricType: ch?.fabric_type || '',
+          uniqueArtNos: [],
+          masterDescriptions: [],
+          linemen: [],
+          totalTargetQty: 0,
+          totalCompletedQty: 0,
+          status: al.status || 'IN_PROGRESS',
+          mendingStatus: al.mending_status,
+          createdAt: al.created_at || '',
+          allotmentDate: al.allotment_date || al.created_at || '',
+          sliceCount: 0
+        })
+      }
+
+      const entry = map.get(groupKey)!
+      entry.totalTargetQty += targetQty
+      entry.totalCompletedQty += completedFromWorkers
+      entry.sliceCount += 1
+
+      const artNo = (art?.art_no || '').trim()
+      if (artNo && !entry.uniqueArtNos.includes(artNo)) {
+        entry.uniqueArtNos.push(artNo)
+      }
+
+      const desc = cleanDescription(art?.description || '')
+      if (desc && !entry.masterDescriptions.includes(desc)) {
+        entry.masterDescriptions.push(desc)
+      }
+
+      if (linemanName && linemanName !== 'Unassigned' && !entry.linemen.includes(linemanName)) {
+        entry.linemen.push(linemanName)
+      }
+    })
+
+    return Array.from(map.values()).sort((a, b) => {
+      const timeA = new Date(a.allotmentDate || a.createdAt).getTime()
+      const timeB = new Date(b.allotmentDate || b.createdAt).getTime()
+      return timeB - timeA
+    })
+  }, [filteredData.allotments, workerAssignments])
+
   return (
     <div className="space-y-6">
 
@@ -1191,11 +1281,11 @@ export default function DashboardClient({
         <div className="lg:col-span-2 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-base font-bold text-slate-800">
+              <h3 className="text-base font-bold text-slate-900">
                 Active Production Orders & Floor Allotments
               </h3>
               <p className="text-sm text-slate-400 mt-0.5">
-                Live status of multi-article challans and assigned linemen
+                Live status of distinct delivery challans and assigned sewing lines
               </p>
             </div>
             <Link 
@@ -1210,57 +1300,82 @@ export default function DashboardClient({
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                  <th className="py-2.5 px-3">Article Style</th>
                   <th className="py-2.5 px-3">Challan / Order</th>
-                  <th className="py-2.5 px-3">Lineman</th>
+                  <th className="py-2.5 px-3">Article Style</th>
+                  <th className="py-2.5 px-3">Assigned Lineman</th>
                   <th className="py-2.5 px-3 text-right">Target Pcs</th>
                   <th className="py-2.5 px-3 text-center">Floor Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredData.allotments.slice(0, 8).map(al => {
-                  const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-                  const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-                  const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                {groupedActiveOrders.slice(0, 8).map(order => {
+                  const artDisplay = order.uniqueArtNos.length > 0 ? `Art: ${order.uniqueArtNos.join(', ')}` : 'Garment Style'
+                  const descDisplay = order.masterDescriptions.length > 0 ? order.masterDescriptions.join(' • ') : ''
+                  const linemanDisplay = order.linemen.length > 0 ? order.linemen.join(', ') : 'Unassigned'
+                  const progressPct = order.totalTargetQty > 0 ? Math.min(100, Math.round((order.totalCompletedQty / order.totalTargetQty) * 100)) : 0
 
                   return (
-                    <tr key={al.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-slate-800">
-                        {art?.art_no || 'Style'}
-                        {art?.description && (
-                          <span className="block text-[10.5px] font-normal text-slate-400 truncate max-w-[180px]">
-                            {cleanDescription(art.description)}
+                    <tr key={order.key} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-1.5">
+                          <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="font-bold text-slate-900 font-mono text-xs sm:text-sm">
+                            {order.challanNo}
+                          </span>
+                        </div>
+                        {order.brand && (
+                          <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 font-mono">
+                            {order.brand}
                           </span>
                         )}
                       </td>
-                      <td className="py-2.5 px-3">
-                        <span className="font-semibold text-slate-700">
-                          {ch?.challan_no ? `JOB-${ch.challan_no}` : 'Direct Floor'}
+                      <td className="py-3 px-3">
+                        <div className="font-extrabold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{artDisplay}</span>
+                        </div>
+                        {descDisplay && (
+                          <span className="block text-[11px] font-medium text-slate-500 truncate max-w-[200px] mt-0.5">
+                            {descDisplay}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-1.5">
+                          <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="text-slate-800 font-semibold text-xs sm:text-sm">
+                            {linemanDisplay}
+                          </span>
+                        </div>
+                        {order.sliceCount > 1 && (
+                          <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                            {order.sliceCount} Color/Size Cuts
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <span className="font-extrabold text-slate-900 font-mono text-xs sm:text-sm block">
+                          {order.totalTargetQty.toLocaleString()} pcs
                         </span>
-                        {ch?.brand && (
-                          <span className="block text-[10px] font-bold text-indigo-600">
-                            {ch.brand}
+                        {order.totalCompletedQty > 0 && (
+                          <span className="text-[10.5px] font-mono text-emerald-600 font-bold block mt-0.5">
+                            {order.totalCompletedQty.toLocaleString()} done ({progressPct}%)
                           </span>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 text-slate-600 font-medium">
-                        {formatLinemanName(lm)}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-800">
-                        {al.target_qty?.toLocaleString()} pcs
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {al.status || 'IN PROGRESS'}
+                      <td className="py-3 px-3 text-center">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs font-mono">
+                          <Zap className="w-3 h-3 text-emerald-600" />
+                          <span>{order.mendingStatus === 'PENDING_MENDING' ? 'Mending Queue' : 'In Production'}</span>
                         </span>
                       </td>
                     </tr>
                   )
                 })}
-                {filteredData.allotments.length === 0 && (
+                {groupedActiveOrders.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-xs text-slate-400">
-                      No active allotments found for the selected filter.
+                    <td colSpan={5} className="py-10 text-center text-xs text-slate-400">
+                      No active production orders found for the selected filter.
                     </td>
                   </tr>
                 )}
