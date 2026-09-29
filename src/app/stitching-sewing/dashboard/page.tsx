@@ -377,7 +377,7 @@ export default async function StitchingSewingDashboardPage() {
     .slice(0, 6)
 
   return (
-    <AdminShell userEmail={user.email} userRole={userRole}>
+    <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto">
         
         {/* Page Header Card */}
