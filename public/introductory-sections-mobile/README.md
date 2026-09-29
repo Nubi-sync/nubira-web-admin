@@ -36,15 +36,15 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
     * Secondary: White with `#14140F]/30` border and subtle hover tint ("Staff Login to Portal")
   * **3 Key Benefit Pointers**: Vertically stacked with `#3A3564` checkmarks (`text-sm font-medium text-[#3D3C36]`).
   * **Live Floor MES Table**: 
-    * Horizontally scrollable if needed with hidden scrollbars (`[scrollbar-width:none]`).
-    * Full visibility of live cutting lots, operator wages, and piece counters.
+    * Horizontally swipeable container with smooth mobile scroll hinting (`Live Telemetry · Swipe table →`) and right edge gradient fade.
+    * 4 Executive Metric Cards optimized for mobile screens without awkward text truncation or clipped numbers.
 
 ---
 
 ### 02. Traditional Chaos vs. Zigza Digital Solution (Mobile)
 * **File**: `02_problem_vs_solution_section.png`
 * **Layout & Typography**:
-  * **Single Column Vertical Flow**: Traditional Challenges card stacked above Zigza Digital Solution card.
+  * **Single Column Vertical Flow with Visual Connector**: Traditional Challenges card connected to Zigza Digital Solution card via a sleek `Manual Paper → Zigza Digital` transition badge.
   * **Traditional Paper Friction Card**: 2px solid `#FB7185` (Rose-400) border with 4 pain points (`text-base font-bold text-slate-900` + `text-sm text-slate-700`).
   * **Zigza Digital System Card**: 2px solid `#10B981` (Emerald-500) border with 4 solutions (`text-base font-bold text-slate-900` + `text-sm text-slate-700`).
   * Note: Handwritten pencil sticky notes automatically hidden on mobile screens (`hidden xl:flex`) to prevent mobile viewport overflow.
@@ -55,10 +55,10 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
 * **File**: `03_operating_modules_section.png`
 * **Layout & Typography**:
   * **Section Heading**: `text-3xl font-extrabold text-slate-900 tracking-tight`.
-  * **6 Vertically Stacked Module Cards**:
-    * Clean white card backgrounds with `border-slate-200` borders and 24px padding.
-    * Card Titles: `text-lg font-bold text-slate-900`.
-    * Seam Accent: Full-width `#3A3564` 2.5px seam line indicator.
+  * **Swipeable Mobile Carousel**:
+    * Clean card snap slider (`w-[85vw] max-w-[340px] flex-shrink-0 snap-center`) replacing the vertical 6-card stack, saving ~1200px of mobile vertical scroll fatigue.
+    * Interactive dot pagination indicators with real-time scroll sync and touch navigation arrows.
+    * Seam Accent: Full-width `#3A3564` 2.5px seam line indicator on each card.
     * Audit Checklist: `text-[14.5px] text-slate-700 leading-relaxed` with `#3A3564` check icons.
 
 ---
@@ -67,11 +67,10 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
 * **File**: `04_floor_workflow_section.png`
 * **Layout & Typography**:
   * **Section Heading**: `text-3xl font-extrabold text-slate-900`.
-  * **8 Interactive Step Cards (Vertical Sequence 01 to 08)**:
-    * Number Badges: `w-8 h-8 rounded-full font-mono font-bold text-xs` (`bg-[#FAF7F0] text-[#3A3564]` / active: `bg-[#3A3564] text-white`).
-    * Step Titles: `text-[16.5px] font-bold text-slate-900`.
-    * Step Descriptions: `text-sm text-slate-700 leading-relaxed font-normal`.
-    * Tap to activate with smooth active card highlight and 360-degree spin badge animation.
+  * **Compact Vertical Timeline**:
+    * Thin continuous vertical timeline track (`left-[15px] w-[2px] bg-slate-200`) with circular step node badges (`01` to `08`).
+    * Sequential auto-advancing active node animation (`bg-[#3A3564] ring-2 ring-[#3A3564]/30 scale-110`) syncing with desktop pipeline logic.
+    * Cuts section height by ~50% while reinforcing the factory flow narrative.
 
 ---
 
@@ -84,7 +83,7 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
     * Titles: `text-[17px] font-bold text-slate-900`.
     * Descriptions: `text-[14.5px] text-slate-700 leading-relaxed`.
   * **Central Map Graphic**:
-    * Responsive Pan-India outline vector map centered with tailor and dispatch parcel illustrations.
+    * Responsive Pan-India outline vector map scaled cleanly (`max-w-[340px]`) with vertical padding preventing illustration cutoff.
 
 ---
 
@@ -94,7 +93,7 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
   * **Section Heading**: `text-3xl font-extrabold text-slate-900`.
   * **3 Vertically Stacked Pricing Tiers**:
     1. **Modular Floor**: `₹1,999/mo` (`text-4xl font-extrabold font-mono text-slate-900`).
-    2. **Full Access + Zigza AI** *(Highlighted Tier)*: `₹4,999/mo` (`text-4xl font-extrabold font-mono text-[#3A3564]`, `#FAF7F0` bg with 2px solid `#3A3564` border).
+    2. **Full Access + Zigza AI** *(Recommended Tier)*: `₹4,999/mo` (`text-4xl font-extrabold font-mono text-[#3A3564]`, `#FAF7F0` bg with 2px solid `#3A3564` border and "Most Popular" floating pill badge).
     3. **Custom Engineering**: `Custom` (`text-4xl font-extrabold font-mono text-slate-900`).
   * **Punchy Feature Checklist**: `text-[14.5px] text-slate-800` with high-contrast emerald checkmarks.
   * **Full-Width Action Buttons**: Easy touch targets for quick mobile demo scheduling.
@@ -119,21 +118,23 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
     * Generic clean placeholders: `placeholder="Enter your name"`, `placeholder="Enter company / factory name"`, `placeholder="Enter your query or message..."`.
     * Phone Input: Dedicated `+91` prefix badge with 10-digit mobile number validation.
     * Send Query Button: Full-width `#3A3564` action button.
+    * Section Anchor: `id="contact"` with `scroll-mt-24` and tightened mobile edge padding.
 
 ---
 
 ### 09. Enterprise Footer with Social Handles (Mobile)
 * **File**: `09_footer_section.png`
 * **Layout & Typography**:
-  * **Mobile Flow**: Brand information stacked cleanly above Navigation columns.
-  * **Platform & Access Lists**: Touch-friendly line heights with `text-[14.5px]` typography.
-  * **Social Handles Column**:
-    * **Instagram**: Pure black outline camera icon
-    * **LinkedIn**: Clean standalone `i` and `n` outline icon
-    * **Twitter / X**: Pure black outline X icon
-    * **Facebook**: Pure black outline lowercase `f` icon
-    * Encased in `w-8 h-8 rounded-lg border border-black/35 bg-transparent` outline badges.
+  * **Mobile Grid**: 2-column grid (`grid-cols-2`) for Platform and Access & Support columns, preventing excessive vertical stacking.
+  * **Social Handles**: Compact horizontal icon-only row on mobile (`w-10 h-10` touch targets) for Instagram, LinkedIn, Twitter/X, and Facebook.
+  * **Legal Links**: Responsive flex-wrap row with comfortable touch targets.
   * **Bottom Bar**: Proudly Made in India badge with Indian flag SVG + copyright & legal links.
+
+---
+
+### 10. Global Mobile Ergonomics & Navigational Features
+* **Floating Back to Top FAB**: Dynamic floating circular action button (`bg-[#3A3564] text-white shadow-lg`) appearing when scrolled past 600px, enabling one-tap return to top.
+* **Sticky Navbar Headroom**: Extended `scroll-mt-24` (96px) across all section anchors (`#comparison`, `#modules`, `#workflow`, `#roles`, `#pricing`, `#faq`, `#contact`) preventing sticky header overlap.
 
 ---
 

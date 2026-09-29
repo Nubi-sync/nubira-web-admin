@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useId } from 'react'
+import { useState, useEffect, useId, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Layers,
@@ -39,7 +39,9 @@ import {
   Settings,
   Zap,
   Building2,
-  Loader2
+  Loader2,
+  ArrowUp,
+  ChevronLeft
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
@@ -219,14 +221,41 @@ export function ZigzaLandingPageClient({
   const [activeRoleTab, setActiveRoleTab] = useState<'MD' | 'CUTTING' | 'STORE' | 'LINEMAN' | 'QC'>('MD')
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0)
 
-  // Scroll listener for logo morph transition
+  // Mobile-specific states
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [activeModuleSlide, setActiveModuleSlide] = useState(0)
+  const moduleCarouselRef = useRef<HTMLDivElement>(null)
+
+  // Scroll listener for logo morph transition + back-to-top visibility
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 25)
+      setShowBackToTop(window.scrollY > 600)
     }
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Module carousel scroll handler for dot indicator sync
+  useEffect(() => {
+    const container = moduleCarouselRef.current
+    if (!container) return
+    const handleCarouselScroll = () => {
+      const scrollLeft = container.scrollLeft
+      const slideWidth = container.offsetWidth
+      const idx = Math.round(scrollLeft / slideWidth)
+      setActiveModuleSlide(idx)
+    }
+    container.addEventListener('scroll', handleCarouselScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleCarouselScroll)
+  }, [])
+
+  const scrollToModuleSlide = useCallback((idx: number) => {
+    const container = moduleCarouselRef.current
+    if (!container) return
+    container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' })
+    setActiveModuleSlide(idx)
   }, [])
 
   // Sequential 8-Step Factory Pipeline Animation (1.4s per box)
@@ -1085,13 +1114,13 @@ export function ZigzaLandingPageClient({
                 return (
                   <>
                     {/* 4 Executive Metric Cards (Unified DOM structure to prevent reflow / blinking) */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
                       {departmentMetrics[mockupTab].map((metric, idx) => (
                         <div
                           key={`metric-${idx}`}
-                          className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
+                          className="p-3 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
                         >
-                          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block truncate">
+                          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block truncate">
                             {metric.label}
                           </span>
                           <div className={`text-base sm:text-xl font-black mt-1 font-mono truncate ${metric.color}`}>
@@ -1107,7 +1136,7 @@ export function ZigzaLandingPageClient({
                               <span>{metric.value}</span>
                             )}
                           </div>
-                          <span className="text-xs sm:text-[13px] font-medium text-slate-600 block truncate mt-0.5">
+                          <span className="text-[11px] sm:text-[13px] font-medium text-slate-600 block line-clamp-1 sm:line-clamp-none mt-0.5 leading-tight">
                             {metric.sub}
                           </span>
                         </div>
@@ -1128,8 +1157,19 @@ export function ZigzaLandingPageClient({
                         </span>
                       </div>
 
-                      <div className="overflow-x-auto -mx-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                        <table className="w-full table-fixed text-xs sm:text-sm text-left min-w-0">
+                      <div className="relative">
+                        {/* Mobile swipe hint */}
+                        <div className="sm:hidden flex items-center justify-between text-[11px] text-slate-500 font-medium px-0.5 mb-2">
+                          <span className="flex items-center gap-1.5 font-bold text-slate-700">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                            Live Telemetry
+                          </span>
+                          <span className="flex items-center gap-1 text-[#3A3564] font-semibold text-[11px]">
+                            Swipe table <span className="font-bold">→</span>
+                          </span>
+                        </div>
+                        <div className="overflow-x-auto -mx-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                          <table className="w-full table-fixed text-xs sm:text-sm text-left min-w-[520px] sm:min-w-0">
                           <thead>
                             <tr className="border-b border-slate-100 text-slate-500 font-semibold text-xs uppercase tracking-wider">
                               <th className="py-2.5 px-2.5 sm:px-3 w-[17%] transition-colors duration-300">{currentBanner.col1}</th>
@@ -1168,7 +1208,10 @@ export function ZigzaLandingPageClient({
                               </tr>
                             ))}
                           </tbody>
-                        </table>
+                          </table>
+                        </div>
+                        {/* Mobile scroll hint gradient */}
+                        <div className="sm:hidden absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none rounded-r-xl" />
                       </div>
                     </div>
                   </>
@@ -1184,7 +1227,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 3. PROBLEM VS. SOLUTION SECTION (TRADITIONAL VS. ZIGZA)            */}
       {/* =================================================================== */}
-      <section className="py-14 sm:py-20 bg-white border-y border-slate-200/80 relative overflow-hidden xl:overflow-visible">
+      <section id="comparison" className="py-14 sm:py-20 bg-white border-y border-slate-200/80 relative overflow-hidden xl:overflow-visible scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
@@ -1316,6 +1359,15 @@ export function ZigzaLandingPageClient({
               </div>
             </div>
 
+            {/* Mobile Visual Bridge between Problem & Solution */}
+            <div className="md:hidden flex items-center justify-center -my-2 relative z-10">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 bg-[#FAF7F0] border border-slate-300 rounded-full shadow-2xs text-xs font-mono font-bold text-slate-700">
+                <span className="text-rose-600">Manual Paper</span>
+                <span className="text-slate-400">→</span>
+                <span className="text-emerald-700 font-bold">Zigza Digital</span>
+              </div>
+            </div>
+
             {/* Zigza Digital Solution Card: Darker Emerald Outline with Generous Spacing */}
             <div className="bg-white rounded-2xl border-2 border-emerald-500 p-6 sm:p-8">
               {/* Card Header */}
@@ -1376,7 +1428,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 4. 6 CORE MODULAR ENGINES                                           */}
       {/* =================================================================== */}
-      <section id="modules" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section id="modules" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
             Everything You Need to Run Your Garment Factory
@@ -1386,8 +1438,8 @@ export function ZigzaLandingPageClient({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
-          {[
+        {(() => {
+          const engines = [
             {
               title: 'Fabric Inward & Trims Store',
               icon: Truck,
@@ -1442,16 +1494,19 @@ export function ZigzaLandingPageClient({
                 'Verified gate pass and truck exit confirmation on your phone',
               ],
             },
-          ].map((engine) => {
-            const Icon = engine.icon
+          ]
 
+          const renderModuleCard = (engine: typeof engines[0], isMobileSlide = false) => {
+            const Icon = engine.icon
             return (
               <div
                 key={engine.title}
-                className="group relative bg-white rounded-2xl border border-slate-200 hover:border-black/70 p-6 sm:p-7 transition-all duration-300 hover:shadow-md md:hover:-translate-y-1 flex flex-col justify-between h-full overflow-hidden cursor-default"
+                className={`group relative bg-white rounded-2xl border border-slate-200 hover:border-black/70 p-6 sm:p-7 transition-all duration-300 hover:shadow-md md:hover:-translate-y-1 flex flex-col justify-between overflow-hidden cursor-default ${
+                  isMobileSlide ? 'w-full flex-shrink-0 snap-center h-full' : 'h-full'
+                }`}
               >
                 <div>
-                  {/* Header with Expanding Seam Accent (Desktop Exclusive) */}
+                  {/* Header with Expanding Seam Accent */}
                   <div className="relative pb-3 mb-5 overflow-hidden">
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
@@ -1462,13 +1517,13 @@ export function ZigzaLandingPageClient({
                       </div>
                     </div>
 
-                    {/* Expanding Seam Line: w-full on mobile, starts at 36px on desktop and expands to 100% on hover in 420ms */}
+                    {/* Expanding Seam Line */}
                     <div className="w-full h-[2.5px] bg-slate-200 rounded-full overflow-hidden relative">
                       <div className="h-full bg-[#3A3564] w-full md:w-9 md:group-hover:w-full transition-all duration-420 ease-out rounded-full" />
                     </div>
                   </div>
 
-                  {/* Staggered Cascading Audit Checklist (Desktop Exclusive) */}
+                  {/* Checklist */}
                   <ul className="space-y-3 text-[14.5px] sm:text-[15.5px] text-slate-700 leading-relaxed">
                     {engine.features.map((feat, fIdx) => (
                       <li
@@ -1485,8 +1540,71 @@ export function ZigzaLandingPageClient({
                 </div>
               </div>
             )
-          })}
-        </div>
+          }
+
+          return (
+            <>
+              {/* Mobile Swipe Carousel (hidden on md+) */}
+              <div className="md:hidden">
+                <div
+                  ref={moduleCarouselRef}
+                  className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                  style={{ scrollSnapType: 'x mandatory' }}
+                >
+                  {engines.map((engine) => (
+                    <div key={engine.title} className="w-[85vw] max-w-[340px] flex-shrink-0 snap-center">
+                      {renderModuleCard(engine, true)}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Carousel Controls: Dots + Arrows */}
+                <div className="flex items-center justify-center gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => scrollToModuleSlide(Math.max(0, activeModuleSlide - 1))}
+                    className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-30"
+                    disabled={activeModuleSlide === 0}
+                    aria-label="Previous module"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    {engines.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => scrollToModuleSlide(idx)}
+                        className={`rounded-full transition-all cursor-pointer ${
+                          activeModuleSlide === idx
+                            ? 'w-6 h-2.5 bg-[#3A3564]'
+                            : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
+                        }`}
+                        aria-label={`Go to module ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollToModuleSlide(Math.min(engines.length - 1, activeModuleSlide + 1))}
+                    className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-30"
+                    disabled={activeModuleSlide === engines.length - 1}
+                    aria-label="Next module"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Desktop Grid (hidden on mobile) */}
+              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+                {engines.map((engine) => renderModuleCard(engine))}
+              </div>
+            </>
+          )
+        })()}
       </section>
 
       {/* =================================================================== */}
@@ -1498,7 +1616,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 5. 10-STEP FACTORY FLOW PIPELINE (END-TO-END APPAREL WORKFLOW)     */}
       {/* =================================================================== */}
-      <section id="workflow" className="py-16 sm:py-24 bg-white border-y border-slate-200">
+      <section id="workflow" className="py-16 sm:py-24 bg-white border-y border-slate-200 scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
@@ -1510,166 +1628,141 @@ export function ZigzaLandingPageClient({
             </p>
           </div>
 
-          {/* 8 Connected Process Boxes with Continuous Connecting Flow Lines */}
-          <div className="flex flex-col">
-            
-            {/* ROW 1: Stages 01 to 04 (Pre-Production & Cutting) */}
-            <div className="relative mb-6 lg:mb-0">
-              {/* Continuous Horizontal Connecting Line (Running across gaps between cards at badge height) */}
-              <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
+          {(() => {
+            const allStages = [
+              { step: '01', title: 'Design & Sampling', desc: 'CAD tech packs, digital pattern specs, and instant sample revisions.' },
+              { step: '02', title: 'Merchandising & PO', desc: 'Buyer purchase orders, fabric consumption, and target margin costing.' },
+              { step: '03', title: 'Central Fabric Store', desc: 'Digital roll inwarding, trim inventory, and lot-wise issue slips.' },
+              { step: '04', title: 'Cutting & Lay Matrix', desc: '1-Click Excel lay ratios and automated bundle tag generation.' },
+              { step: '05', title: 'Printing & Embroidery', desc: 'Job-work challans, machine allocation, and gate pass dispatch.' },
+              { step: '06', title: 'Stitching Lines', desc: 'Smooth line loading, mobile bundle logging, and piece-rate wages.' },
+              { step: '07', title: 'Washing & Finishing', desc: 'Wash formulas, shrinkage control, steam ironing, and hangtags.' },
+              { step: '08', title: 'Packing & Dispatch', desc: 'Carton piece-count audits, buyer packing lists, and verified truck exit.' },
+            ]
 
-              {/* 4 Cards in Row 1 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
-                {[
-                  {
-                    step: '01',
-                    title: 'Design & Sampling',
-                    desc: 'CAD tech packs, digital pattern specs, and instant sample revisions.'
-                  },
-                  {
-                    step: '02',
-                    title: 'Merchandising & PO',
-                    desc: 'Buyer purchase orders, fabric consumption, and target margin costing.'
-                  },
-                  {
-                    step: '03',
-                    title: 'Central Fabric Store',
-                    desc: 'Digital roll inwarding, trim inventory, and lot-wise issue slips.'
-                  },
-                  {
-                    step: '04',
-                    title: 'Cutting & Lay Matrix',
-                    desc: '1-Click Excel lay ratios and automated bundle tag generation.'
-                  }
-                ].map((stage, idx) => {
-                  const isActive = activePipelineStep === idx;
-                  return (
-                    <div
-                      key={stage.step}
-                      onClick={() => setActivePipelineStep(idx)}
-                      className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
-                        isActive
-                          ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
-                          : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
-                      }`}
-                    >
-                      <div>
-                        {/* Number Badge + Step Title */}
-                        <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
-                          <span
-                            key={isActive ? `active-${idx}` : `idle-${idx}`}
-                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                              isActive 
-                                ? 'bg-[#3A3564] text-white shadow-2xs animate-spin-once' 
-                                : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+            return (
+              <>
+                {/* ===== MOBILE: Compact Vertical Timeline (hidden on sm+) ===== */}
+                <div className="sm:hidden relative pl-8">
+                  {/* Vertical connecting line */}
+                  <div className="absolute left-[15px] top-4 bottom-4 w-[2px] bg-slate-200 rounded-full" />
+
+                  <div className="space-y-1">
+                    {allStages.map((stage, idx) => {
+                      const isActive = activePipelineStep === idx
+                      return (
+                        <div
+                          key={stage.step}
+                          onClick={() => setActivePipelineStep(idx)}
+                          className="relative cursor-pointer group"
+                        >
+                          {/* Timeline node (circle) */}
+                          <div className={`absolute -left-8 top-3 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
+                            isActive
+                              ? 'bg-[#3A3564] text-white shadow-sm ring-2 ring-[#3A3564]/30 scale-110'
+                              : 'bg-white text-[#3A3564] border-2 border-slate-300 group-hover:border-[#3A3564]/50'
+                          }`}>
+                            {stage.step}
+                          </div>
+
+                          {/* Content */}
+                          <div className={`py-3 pl-3 pr-2 rounded-xl transition-all duration-300 ${
+                            isActive ? 'bg-[#FAF7F0]/60' : ''
+                          }`}>
+                            <h3 className={`text-[15px] font-bold tracking-tight leading-snug transition-colors ${
+                              isActive ? 'text-[#3A3564]' : 'text-slate-900'
+                            }`}>
+                              {stage.title}
+                            </h3>
+                            <p className="text-[13px] text-slate-600 leading-relaxed mt-0.5">
+                              {stage.desc}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* ===== DESKTOP: Original 2-Row Grid (hidden on mobile) ===== */}
+                <div className="hidden sm:flex flex-col">
+                  {/* ROW 1: Stages 01 to 04 */}
+                  <div className="relative mb-6 lg:mb-0">
+                    <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
+                      {allStages.slice(0, 4).map((stage, idx) => {
+                        const isActive = activePipelineStep === idx
+                        return (
+                          <div
+                            key={stage.step}
+                            onClick={() => setActivePipelineStep(idx)}
+                            className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
+                              isActive
+                                ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
+                                : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
                             }`}
                           >
-                            {stage.step}
-                          </span>
-                          <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">
-                            {stage.title}
-                          </h3>
-                        </div>
-
-                        {/* Spacious & Readable Micro-Copy */}
-                        <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
-                          {stage.desc}
-                        </p>
-                      </div>
+                            <div>
+                              <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
+                                <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
+                                  isActive ? 'bg-[#3A3564] text-white shadow-2xs' : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                                }`}>
+                                  {stage.step}
+                                </span>
+                                <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">{stage.title}</h3>
+                              </div>
+                              <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">{stage.desc}</p>
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
 
-            {/* Elegant Vector Connecting Line from Stage 04 (Row 1) to Stage 05 (Row 2) */}
-            <div className="hidden lg:block relative w-full h-9 pointer-events-none z-0">
-              <svg 
-                className="w-full h-full overflow-visible" 
-                viewBox="0 0 1000 36" 
-                preserveAspectRatio="none"
-              >
-                <path
-                  d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36"
-                  fill="none"
-                  stroke="rgba(15, 23, 42, 0.6)"
-                  strokeWidth="2"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            </div>
+                  {/* Connecting Line Row 1 → Row 2 */}
+                  <div className="hidden lg:block relative w-full h-9 pointer-events-none z-0">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 36" preserveAspectRatio="none">
+                      <path d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36" fill="none" stroke="rgba(15, 23, 42, 0.6)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                    </svg>
+                  </div>
 
-            {/* ROW 2: Stages 05 to 08 (Floor Production & Logistics) */}
-            <div className="relative">
-              {/* Continuous Horizontal Connecting Line (Running across gaps between cards at badge height) */}
-              <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
-
-              {/* 4 Cards in Row 2 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
-                {[
-                  {
-                    step: '05',
-                    title: 'Printing & Embroidery',
-                    desc: 'Job-work challans, machine allocation, and gate pass dispatch.'
-                  },
-                  {
-                    step: '06',
-                    title: 'Stitching Lines',
-                    desc: 'Smooth line loading, mobile bundle logging, and piece-rate wages.'
-                  },
-                  {
-                    step: '07',
-                    title: 'Washing & Finishing',
-                    desc: 'Wash formulas, shrinkage control, steam ironing, and hangtags.'
-                  },
-                  {
-                    step: '08',
-                    title: 'Packing & Dispatch',
-                    desc: 'Carton piece-count audits, buyer packing lists, and verified truck exit.'
-                  }
-                ].map((stage, idx) => {
-                  const globalIdx = idx + 4;
-                  const isActive = activePipelineStep === globalIdx;
-                  return (
-                    <div
-                      key={stage.step}
-                      onClick={() => setActivePipelineStep(globalIdx)}
-                      className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
-                        isActive
-                          ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
-                          : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
-                      }`}
-                    >
-                      <div>
-                        {/* Number Badge + Step Title */}
-                        <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
-                          <span
-                            key={isActive ? `active-${globalIdx}` : `idle-${globalIdx}`}
-                            className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                              isActive 
-                                ? 'bg-[#3A3564] text-white shadow-2xs animate-spin-once' 
-                                : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                  {/* ROW 2: Stages 05 to 08 */}
+                  <div className="relative">
+                    <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
+                      {allStages.slice(4).map((stage, idx) => {
+                        const globalIdx = idx + 4
+                        const isActive = activePipelineStep === globalIdx
+                        return (
+                          <div
+                            key={stage.step}
+                            onClick={() => setActivePipelineStep(globalIdx)}
+                            className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
+                              isActive
+                                ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
+                                : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
                             }`}
                           >
-                            {stage.step}
-                          </span>
-                          <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">
-                            {stage.title}
-                          </h3>
-                        </div>
-
-                        {/* Spacious & Readable Micro-Copy */}
-                        <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">
-                          {stage.desc}
-                        </p>
-                      </div>
+                            <div>
+                              <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
+                                <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
+                                  isActive ? 'bg-[#3A3564] text-white shadow-2xs' : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                                }`}>
+                                  {stage.step}
+                                </span>
+                                <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">{stage.title}</h3>
+                              </div>
+                              <p className="text-sm sm:text-[15px] text-slate-700 leading-relaxed font-normal">{stage.desc}</p>
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-          </div>
+                  </div>
+                </div>
+              </>
+            )
+          })()}
 
         </div>
       </section>
@@ -1678,7 +1771,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 6. TRUSTED ACROSS APPAREL MANUFACTURING HUBS (NATIONWIDE MAP)       */}
       {/* =================================================================== */}
-      <section id="roles" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-20">
+      <section id="roles" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
         
         {/* Centered Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
@@ -1743,7 +1836,7 @@ export function ZigzaLandingPageClient({
 
           {/* Right Column: Clean India Map with Stitching & Packing Handcrafted Accents */}
           <div className="lg:col-span-7 flex items-center justify-center">
-            <div className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[530px] mx-auto p-2">
+            <div className="relative w-full max-w-[340px] sm:max-w-[500px] lg:max-w-[530px] mx-auto pt-6 pb-4 px-2 sm:p-2">
               
               {/* Single Dotted SVG Connector Lines linking Map Nodes directly to Tailor and Parcel */}
               <svg
@@ -1777,11 +1870,11 @@ export function ZigzaLandingPageClient({
               </svg>
 
               {/* Stitching Floor Operator: Shifted more to the right and above with dotted line connection */}
-              <div className="absolute -top-8 sm:-top-10 lg:-top-12 right-0 sm:right-[2%] lg:right-[4%] z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
+              <div className="absolute -top-7 sm:-top-10 lg:-top-12 right-0 sm:right-[2%] lg:right-[4%] z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
                 <img
                   src="/illustrations/tailor.png"
                   alt="Garment Stitching Line"
-                  className="w-32 sm:w-40 lg:w-48 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                  className="w-28 sm:w-40 lg:w-48 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
                 />
               </div>
 
@@ -1794,11 +1887,11 @@ export function ZigzaLandingPageClient({
               />
 
               {/* Dispatch Logistics: Shifted further to the right with dotted line connection */}
-              <div className="absolute -bottom-2 sm:bottom-0 lg:bottom-1 -right-4 sm:-right-8 lg:-right-10 z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
+              <div className="absolute -bottom-1 sm:bottom-0 lg:bottom-1 right-0 sm:-right-8 lg:-right-10 z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
                 <img
                   src="/illustrations/parcel.png"
                   alt="Warehouse Dispatch Logistics"
-                  className="w-24 sm:w-30 lg:w-36 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
+                  className="w-20 sm:w-30 lg:w-36 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
                 />
               </div>
 
@@ -1814,7 +1907,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 7. SUBSCRIPTION PLANS & PRODUCTION DEPLOYMENT PRICING               */}
       {/* =================================================================== */}
-      <section id="pricing" className="py-16 sm:py-24 bg-white border-y border-[#57564E]/15 scroll-mt-20">
+      <section id="pricing" className="py-16 sm:py-24 bg-white border-y border-[#57564E]/15 scroll-mt-24">
         <div id="roi" className="sr-only" /> {/* Legacy anchor fallback */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -1906,7 +1999,13 @@ export function ZigzaLandingPageClient({
             </div>
 
             {/* TIER 2: ALL-ACCESS + ZIGZA AI */}
-            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-[#FAF7F0] border-2 border-[#3A3564] shadow-sm transition-all duration-200">
+            <div className="relative flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-[#FAF7F0] border-2 border-[#3A3564] shadow-sm transition-all duration-200">
+              {/* Most Popular Badge */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                <span className="px-4 py-1 bg-[#3A3564] text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-sm whitespace-nowrap">
+                  Most Popular
+                </span>
+              </div>
               <div>
                 <div className="w-12 h-12 rounded-xl bg-[#3A3564] text-white flex items-center justify-center mb-6 shadow-2xs">
                   <Zap className="w-6 h-6 stroke-[2]" />
@@ -2056,7 +2155,7 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 8. FREQUENTLY ASKED QUESTIONS (ACCORDION FAQ)                       */}
       {/* =================================================================== */}
-      <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto scroll-mt-24">
         {/* Google FAQPage Structured Data Schema */}
         <script
           type="application/ld+json"
@@ -2200,8 +2299,8 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 9. BOTTOM DIRECT QUERY & CONTACT US WINDOW                          */}
       {/* =================================================================== */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80">
-        <div className="relative max-w-5xl mx-auto bg-[#FAF7F0] border border-black md:hover:border-[#3A3564]/60 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm md:hover:shadow-md transition-all duration-300 overflow-hidden">
+      <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80 scroll-mt-24">
+        <div className="relative max-w-5xl mx-auto bg-[#FAF7F0] border border-black md:hover:border-[#3A3564]/60 rounded-2xl sm:rounded-3xl p-5 sm:p-10 lg:p-12 shadow-sm md:hover:shadow-md transition-all duration-300 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
             {/* Left Column: Direct Assistance & Contact */}
@@ -2416,10 +2515,10 @@ export function ZigzaLandingPageClient({
       <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 mb-12 sm:mb-16">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 mb-12 sm:mb-16">
             
             {/* Brand Column */}
-            <div className="col-span-1 sm:col-span-2 lg:col-span-2 space-y-3.5">
+            <div className="col-span-2 lg:col-span-2 space-y-3.5">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
@@ -2532,19 +2631,28 @@ export function ZigzaLandingPageClient({
             </div>
 
             {/* Column 3: Social Handles */}
-            <div className="space-y-3.5">
+            <div className="col-span-2 sm:col-span-1 space-y-3.5">
               <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
                 Social Handles
               </h5>
-              <ul className="space-y-2.5 text-[14.5px] sm:text-[15px]">
+              {/* Mobile: Horizontal icon row | Desktop: Vertical list with labels */}
+              <div className="flex items-center gap-3 sm:hidden">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Instagram" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
+                  <InstagramOutlineIcon className="w-5 h-5 text-black" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on LinkedIn" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
+                  <LinkedinOutlineIcon className="w-5 h-5 text-black" />
+                </a>
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Twitter / X" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
+                  <TwitterXOutlineIcon className="w-5 h-5 text-black" />
+                </a>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Facebook" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
+                  <FacebookOutlineIcon className="w-5 h-5 text-black" />
+                </a>
+              </div>
+              <ul className="hidden sm:block space-y-2.5 text-[14.5px] sm:text-[15px]">
                 <li>
-                  <a 
-                    href="https://instagram.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    aria-label="Zigza on Instagram"
-                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
-                  >
+                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Instagram" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
                     <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
                       <InstagramOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
                     </span>
@@ -2552,13 +2660,7 @@ export function ZigzaLandingPageClient({
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="https://linkedin.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    aria-label="Zigza on LinkedIn"
-                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
-                  >
+                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on LinkedIn" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
                     <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
                       <LinkedinOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
                     </span>
@@ -2566,13 +2668,7 @@ export function ZigzaLandingPageClient({
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="https://x.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    aria-label="Zigza on Twitter / X"
-                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
-                  >
+                  <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Twitter / X" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
                     <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
                       <TwitterXOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
                     </span>
@@ -2580,13 +2676,7 @@ export function ZigzaLandingPageClient({
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="https://facebook.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    aria-label="Zigza on Facebook"
-                    className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer"
-                  >
+                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Facebook" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
                     <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
                       <FacebookOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
                     </span>
@@ -2609,7 +2699,7 @@ export function ZigzaLandingPageClient({
               </div>
               <p className="text-sm text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
-            <div className="flex items-center gap-6 text-[13px] sm:text-sm text-slate-600">
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2 text-[13px] sm:text-sm text-slate-600">
               <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
               <Link href="/security" className="hover:text-slate-900 transition-colors">Security Standards</Link>
@@ -2618,6 +2708,18 @@ export function ZigzaLandingPageClient({
 
         </div>
       </footer>
+
+      {/* Floating Back to Top Button */}
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Back to top"
+        className={`fixed bottom-6 right-5 sm:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#3A3564] text-white shadow-lg hover:shadow-xl hover:bg-[#2A2649] flex items-center justify-center transition-all duration-300 cursor-pointer border border-white/20 active:scale-95 ${
+          showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+      >
+        <ArrowUp className="w-5 h-5 stroke-[2.2]" />
+      </button>
 
       {/* =================================================================== */}
       {/* 11. INTERACTIVE REQUEST DEMO MODAL                                  */}
