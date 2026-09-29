@@ -17,6 +17,128 @@ export interface FreeTrialPayload {
   selectedDivisions?: string[]
 }
 
+// ----------------------------------------------------------------------
+// REAL-TIME EMAIL AVAILABILITY CHECK
+// ----------------------------------------------------------------------
+export async function checkEmailAvailabilityAction(rawEmail: string): Promise<{
+  available: boolean
+  error?: string
+}> {
+  try {
+    const cleanEmail = (rawEmail || '').trim().toLowerCase()
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      return { available: false, error: 'Enter a valid email address.' }
+    }
+
+    // 1. Check Supabase Auth Users
+    const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+    if (!listErr && userList?.users) {
+      const matchedAuth = userList.users.find(u => u.email?.toLowerCase() === cleanEmail)
+      if (matchedAuth) {
+        return { available: false, error: 'Email already registered. Please sign in.' }
+      }
+    }
+
+    // 2. Check company_profile
+    const { data: cp } = await supabaseAdmin
+      .from('company_profile')
+      .select('id')
+      .ilike('contact_email', cleanEmail)
+      .limit(1)
+    if (cp && cp.length > 0) {
+      return { available: false, error: 'Email already registered. Please sign in.' }
+    }
+
+    // 3. Check platform_tenant_factories
+    const { data: ptf } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('id')
+      .ilike('admin_email', cleanEmail)
+      .limit(1)
+    if (ptf && ptf.length > 0) {
+      return { available: false, error: 'Email already registered. Please sign in.' }
+    }
+
+    // 4. Check cutting_workers
+    const { data: cw } = await supabaseAdmin
+      .from('cutting_workers')
+      .select('id')
+      .ilike('worker_email', cleanEmail)
+      .limit(1)
+    if (cw && cw.length > 0) {
+      return { available: false, error: 'Email already registered. Please sign in.' }
+    }
+
+    return { available: true }
+  } catch (err) {
+    console.error('[checkEmailAvailabilityAction] Notice:', err)
+    return { available: true }
+  }
+}
+
+// ----------------------------------------------------------------------
+// REAL-TIME PHONE NUMBER AVAILABILITY CHECK
+// ----------------------------------------------------------------------
+export async function checkPhoneAvailabilityAction(rawPhone: string): Promise<{
+  available: boolean
+  error?: string
+}> {
+  try {
+    const digits = (rawPhone || '').replace(/\D/g, '')
+    const phone10 = digits.slice(-10)
+    if (!phone10 || phone10.length !== 10) {
+      return { available: false, error: 'Enter a valid 10-digit mobile number.' }
+    }
+
+    // 1. Check Supabase Auth Users metadata
+    const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+    if (!listErr && userList?.users) {
+      const matchedAuth = userList.users.find(u => {
+        const p = (u.user_metadata?.phone || '').replace(/\D/g, '')
+        return p.endsWith(phone10)
+      })
+      if (matchedAuth) {
+        return { available: false, error: 'Mobile number already registered. Please sign in.' }
+      }
+    }
+
+    // 2. Check cutting_workers
+    const { data: cw } = await supabaseAdmin
+      .from('cutting_workers')
+      .select('id')
+      .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
+      .limit(1)
+    if (cw && cw.length > 0) {
+      return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    }
+
+    // 3. Check company_profile
+    const { data: cp } = await supabaseAdmin
+      .from('company_profile')
+      .select('id')
+      .ilike('contact_phone', `%${phone10}%`)
+      .limit(1)
+    if (cp && cp.length > 0) {
+      return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    }
+
+    // 4. Check platform_tenant_factories
+    const { data: ptf } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('id')
+      .ilike('phone', `%${phone10}%`)
+      .limit(1)
+    if (ptf && ptf.length > 0) {
+      return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    }
+
+    return { available: true }
+  } catch (err) {
+    console.error('[checkPhoneAvailabilityAction] Notice:', err)
+    return { available: true }
+  }
+}
+
 export async function registerFreeTrialAction(payload: FreeTrialPayload): Promise<{
   success: boolean
   error?: string
@@ -70,7 +192,18 @@ export async function registerFreeTrialAction(payload: FreeTrialPayload): Promis
       return { success: false, error: 'Passwords do not match. Please verify.' }
     }
 
-    // 2. Compute Industry / Factory Name from First Name
+    // 2. Strict Uniqueness Check (Email & Phone)
+    const emailCheck = await checkEmailAvailabilityAction(cleanEmail)
+    if (!emailCheck.available) {
+      return { success: false, error: emailCheck.error || 'This email is already registered. Please sign in.' }
+    }
+
+    const phoneCheck = await checkPhoneAvailabilityAction(phone10)
+    if (!phoneCheck.available) {
+      return { success: false, error: phoneCheck.error || 'This mobile number is already registered. Please sign in.' }
+    }
+
+    // 3. Compute Industry / Factory Name from First Name
     const rawFirst = rawName.split(/\s+/)[0] || 'Apparel'
     const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase()
     const companyName = `${firstName} Industries`
@@ -81,7 +214,7 @@ export async function registerFreeTrialAction(payload: FreeTrialPayload): Promis
     // 7-Day Trial Expiration Date
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
-    // 3. Supabase Auth Provisioning via Service Role
+    // 4. Supabase Auth Provisioning via Service Role
     let authUserId: string | undefined
     try {
       const { data: userData, error: userErr } = await supabaseAdmin.auth.admin.createUser({
@@ -99,26 +232,11 @@ export async function registerFreeTrialAction(payload: FreeTrialPayload): Promis
 
       if (!userErr && userData?.user) {
         authUserId = userData.user.id
-      } else if (userErr && userErr.message.toLowerCase().includes('already')) {
-        // If user already exists in Auth, fetch user id and update password & company
-        const { data: listData } = await supabaseAdmin.auth.admin.listUsers()
-        const existing = listData?.users?.find(u => u.email?.toLowerCase() === cleanEmail)
-        if (existing) {
-          authUserId = existing.id
-          await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-            password,
-            user_metadata: {
-              role: 'SUPERADMIN',
-              displayName: rawName,
-              company: companyName,
-              phone: formattedPhone,
-              username: customUsername
-            }
-          })
-        }
+      } else if (userErr) {
+        return { success: false, error: userErr.message || 'Failed to create user account. Please try again.' }
       }
-    } catch (authErr) {
-      console.warn('[registerFreeTrialAction] Auth setup notice:', authErr)
+    } catch (authErr: any) {
+      return { success: false, error: authErr?.message || 'Authentication error. Please try again.' }
     }
 
     // 4. Upsert Profiles Table

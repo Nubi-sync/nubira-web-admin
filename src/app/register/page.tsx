@@ -17,10 +17,11 @@ import {
   KeyRound,
   Building2,
   Loader2,
-  Check
+  Check,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { registerFreeTrialAction } from './actions'
+import { registerFreeTrialAction, checkEmailAvailabilityAction, checkPhoneAvailabilityAction } from './actions'
 import { PLATFORM_UPDATE_EVENT } from '../platform-admin/utils/platformStorage'
 
 function IndiaFlag({ className = 'w-5 h-3.5' }: { className?: string }) {
@@ -81,6 +82,13 @@ export default function RegisterFreeTrialPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Real-time Availability States for Email & Phone
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'error'>('idle')
+  const [emailErrorMsg, setEmailErrorMsg] = useState<string | null>(null)
+
+  const [phoneStatus, setPhoneStatus] = useState<'idle' | 'checking' | 'available' | 'error'>('idle')
+  const [phoneErrorMsg, setPhoneErrorMsg] = useState<string | null>(null)
   
   // Step 2 Fields: Pre-select all 12 modules
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>(
@@ -99,10 +107,75 @@ export default function RegisterFreeTrialPage() {
   const computedFirstName = cleanFirst.charAt(0).toUpperCase() + cleanFirst.slice(1).toLowerCase()
   const derivedIndustryName = `${computedFirstName} Industries`
 
-  // Format 10-digit mobile number input
+  // Format 10-digit mobile number input & trigger check immediately on 10th digit
   const handlePhoneChange = (val: string) => {
-    const raw = val.replace(/\D/g, '')
-    setPhone(raw.slice(0, 10))
+    const raw = val.replace(/\D/g, '').slice(0, 10)
+    setPhone(raw)
+    setErrorMsg(null)
+
+    if (raw.length < 10) {
+      setPhoneStatus('idle')
+      setPhoneErrorMsg(null)
+    } else if (raw.length === 10) {
+      triggerPhoneCheck(raw)
+    }
+  }
+
+  const triggerPhoneCheck = async (digits: string) => {
+    setPhoneStatus('checking')
+    setPhoneErrorMsg(null)
+    try {
+      const res = await checkPhoneAvailabilityAction(digits)
+      if (res.available) {
+        setPhoneStatus('available')
+        setPhoneErrorMsg(null)
+      } else {
+        setPhoneStatus('error')
+        setPhoneErrorMsg(res.error || 'Mobile number already registered. Please sign in.')
+      }
+    } catch (_) {
+      setPhoneStatus('available')
+    }
+  }
+
+  // Check email availability on blur (when clicked outside or switching fields)
+  const handleEmailBlur = async () => {
+    const cleanEmail = email.trim().toLowerCase()
+    if (!cleanEmail) {
+      setEmailStatus('idle')
+      setEmailErrorMsg(null)
+      return
+    }
+
+    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      setEmailStatus('error')
+      setEmailErrorMsg('Enter a valid email address.')
+      return
+    }
+
+    setEmailStatus('checking')
+    setEmailErrorMsg(null)
+    try {
+      const res = await checkEmailAvailabilityAction(cleanEmail)
+      if (res.available) {
+        setEmailStatus('available')
+        setEmailErrorMsg(null)
+      } else {
+        setEmailStatus('error')
+        setEmailErrorMsg(res.error || 'Email already registered. Please sign in.')
+      }
+    } catch (_) {
+      setEmailStatus('available')
+    }
+  }
+
+  const handleEmailChange = (val: string) => {
+    setEmail(val)
+    setErrorMsg(null)
+    if (emailStatus !== 'idle') {
+      setEmailStatus('idle')
+      setEmailErrorMsg(null)
+    }
   }
 
   // Live Password Evaluation & 5-Word Recommendations
@@ -235,7 +308,7 @@ export default function RegisterFreeTrialPage() {
   }, [fullName, email, phone, password, confirmPassword, currentStep, userNavigatedBack])
 
   // Handle Step 1 Validation -> Proceed to Step 2
-  const handleStep1Next = (e: React.FormEvent) => {
+  const handleStep1Next = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
 
@@ -263,6 +336,42 @@ export default function RegisterFreeTrialPage() {
     if (password !== confirmPassword) {
       setErrorMsg('Passwords do not match. Please re-enter to confirm.')
       return
+    }
+
+    // Check if marked with error
+    if (emailStatus === 'error') {
+      setErrorMsg(emailErrorMsg || 'Please use a different work email.')
+      return
+    }
+
+    if (phoneStatus === 'error') {
+      setErrorMsg(phoneErrorMsg || 'Please use a different mobile number.')
+      return
+    }
+
+    // Perform live check if not yet checked
+    if (emailStatus !== 'available') {
+      setEmailStatus('checking')
+      const emailRes = await checkEmailAvailabilityAction(cleanEmail)
+      if (!emailRes.available) {
+        setEmailStatus('error')
+        setEmailErrorMsg(emailRes.error || 'Email already registered. Please sign in.')
+        setErrorMsg(emailRes.error || 'Email already registered. Please sign in.')
+        return
+      }
+      setEmailStatus('available')
+    }
+
+    if (phoneStatus !== 'available') {
+      setPhoneStatus('checking')
+      const phoneRes = await checkPhoneAvailabilityAction(phone)
+      if (!phoneRes.available) {
+        setPhoneStatus('error')
+        setPhoneErrorMsg(phoneRes.error || 'Mobile number already registered. Please sign in.')
+        setErrorMsg(phoneRes.error || 'Mobile number already registered. Please sign in.')
+        return
+      }
+      setPhoneStatus('available')
     }
 
     setUserNavigatedBack(false)
@@ -405,102 +514,126 @@ export default function RegisterFreeTrialPage() {
             <img 
               src="/z i g z a (8) 1.png" 
               alt="Zigza" 
-              className="h-10 sm:h-12 w-auto object-contain transition-opacity group-hover:opacity-85"
+              className="h-10 sm:h-12 w-auto object-contain transition-opacity group-hover:opacity-85 mix-blend-multiply"
             />
           </Link>
-          <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">
+          <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black/10 bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] shadow-2xs">
             7-DAY FREE TRIAL
           </span>
         </div>
 
         <Link 
           href="/" 
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-black bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs transition-all cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to zigza.in</span>
+          <span>Back<span className="hidden sm:inline"> to zigza.in</span></span>
         </Link>
       </header>
 
-      {/* Centered Modal Card with Slim Black Outline & Vertical Layout */}
-      <main className="z-10 w-full max-w-xl my-auto py-4 sm:py-6 flex items-center justify-center">
-        <div className="w-full bg-white rounded-3xl border border-black shadow-none overflow-hidden p-6 sm:p-9 relative">
+      {/* Centered Modal Card with Vertical Single-Card Layout */}
+      <main className="z-10 w-full max-w-xl my-auto py-3 sm:py-6 flex items-center justify-center">
+        <div className="w-full bg-white rounded-3xl border border-black/10 shadow-xl overflow-hidden p-4 sm:p-8 relative">
           
           {/* Multi-Step Stepper Header */}
-          <div className="mb-6 pb-5 border-b border-slate-100">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] mb-3">
-              STEP {currentStep} OF 3
+          <div className="mb-4 sm:mb-6 pb-3 sm:pb-5 border-b border-slate-100">
+            {/* Desktop / Tablet Stepper with Step Circles */}
+            <div className="hidden sm:block">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] mb-3">
+                STEP {currentStep} OF 3
+              </div>
+              <div className="flex items-center justify-between relative px-2">
+                {/* Stepper Connecting Line */}
+                <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200 -z-0" />
+                <div 
+                  className="absolute top-4 left-6 h-0.5 bg-[#3A3564] transition-all duration-500 -z-0"
+                  style={{
+                    width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%'
+                  }}
+                />
+
+                {/* Step 1 Pill */}
+                <div className="flex flex-col items-center gap-1.5 z-10">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
+                    currentStep >= 1 ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    1
+                  </div>
+                  <span className={`text-[11px] font-bold ${currentStep === 1 ? 'text-[#3A3564]' : 'text-slate-500'}`}>
+                    Account Setup
+                  </span>
+                </div>
+
+                {/* Step 2 Pill */}
+                <div className="flex flex-col items-center gap-1.5 z-10">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
+                    currentStep >= 2 ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    2
+                  </div>
+                  <span className={`text-[11px] font-bold ${currentStep === 2 ? 'text-[#3A3564]' : 'text-slate-500'}`}>
+                    Choose Modules
+                  </span>
+                </div>
+
+                {/* Step 3 Pill */}
+                <div className="flex flex-col items-center gap-1.5 z-10">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
+                    currentStep === 3 ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {currentStep === 3 ? <Check className="w-4 h-4 stroke-[3]" /> : '3'}
+                  </div>
+                  <span className={`text-[11px] font-bold ${currentStep === 3 ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    Trial Ready
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between relative">
-              {/* Stepper Connecting Line */}
-              <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200 -z-0" />
-              <div 
-                className="absolute top-4 left-6 h-0.5 bg-[#3A3564] transition-all duration-500 -z-0"
-                style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
-              />
-
-              {/* Step 1 Pill */}
-              <div className="flex flex-col items-center gap-1.5 z-10">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                  currentStep >= 1 ? 'bg-[#3A3564] text-white' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  1
-                </div>
-                <span className={`text-[11px] font-bold ${currentStep === 1 ? 'text-[#3A3564]' : 'text-slate-500'}`}>
-                  Account Setup
+            {/* Mobile View Stepper: Compact 1-Line Progress Bar */}
+            <div className="sm:hidden">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564]">
+                  STEP {currentStep} OF 3
+                </span>
+                <span className="text-xs font-bold text-slate-800">
+                  {currentStep === 1 && 'Account Setup'}
+                  {currentStep === 2 && 'Choose Modules'}
+                  {currentStep === 3 && 'Trial Ready'}
                 </span>
               </div>
 
-              {/* Step 2 Pill */}
-              <div className="flex flex-col items-center gap-1.5 z-10">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                  currentStep >= 2 ? 'bg-[#3A3564] text-white' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  2
-                </div>
-                <span className={`text-[11px] font-bold ${currentStep === 2 ? 'text-[#3A3564]' : 'text-slate-500'}`}>
-                  Choose Modules
-                </span>
-              </div>
-
-              {/* Step 3 Pill */}
-              <div className="flex flex-col items-center gap-1.5 z-10">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                  currentStep === 3 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  {currentStep === 3 ? <Check className="w-4 h-4 stroke-[3]" /> : '3'}
-                </div>
-                <span className={`text-[11px] font-bold ${currentStep === 3 ? 'text-emerald-700' : 'text-slate-500'}`}>
-                  Trial Ready
-                </span>
+              {/* Sleek Stepper Progress Bar */}
+              <div className="relative h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-[#3A3564] rounded-full transition-all duration-500"
+                  style={{ width: currentStep === 1 ? '33.33%' : currentStep === 2 ? '66.66%' : '100%' }}
+                />
               </div>
             </div>
           </div>
 
-          {/* ============================================================== */}
-          {/* STEP 1: ACCOUNT SETUP                                          */}
-          {/* ============================================================== */}
+          {/* STEP 1: ACCOUNT SETUP */}
           {currentStep === 1 && (
-            <form onSubmit={handleStep1Next} className="space-y-4 animate-in fade-in duration-300">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                  Account Setup
+            <form onSubmit={handleStep1Next} className="space-y-3 sm:space-y-3.5 animate-in fade-in duration-300">
+              <div className="mb-2 sm:mb-3">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-tight">
+                  Create Factory Account
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Enter your contact details to begin your 7-day free trial.
+                <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
+                  Enter your details to begin your 7-day free trial.
                 </p>
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-700">
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-700">
                   {errorMsg}
                 </div>
               )}
 
-              {/* Field 1: Contact Person Name */}
+              {/* Contact Person Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider font-mono mb-1">
                   Contact Person Name *
                 </label>
                 <div className="relative">
@@ -511,40 +644,32 @@ export default function RegisterFreeTrialPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all font-medium"
+                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              {/* Field 2: Work Email */}
+              {/* Mobile Number */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
-                  Work Email *
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your work email"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all font-medium"
-                  />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider font-mono">
+                    Mobile Number *
+                  </label>
+                  {phoneStatus === 'checking' && (
+                    <span className="text-[10.5px] text-[#3A3564] font-medium flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                    </span>
+                  )}
                 </div>
-                <span className="text-[11px] text-slate-400 block mt-1">
-                  This will be your Super Admin credential to sign in.
-                </span>
-              </div>
-
-              {/* Field 3: Mobile Phone Number with +91 prefilled */}
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
-                  Mobile Phone Number *
-                </label>
-                <div className="flex rounded-xl border border-slate-300 overflow-hidden focus-within:border-[#3A3564] focus-within:ring-1 focus-within:ring-[#3A3564] transition-all bg-white">
-                  <div className="flex items-center gap-1.5 px-3.5 bg-slate-50 border-r border-slate-300 text-slate-700 font-mono font-bold text-xs sm:text-sm select-none shrink-0">
-                    <IndiaFlag className="w-4 h-3" />
+                <div className={`flex rounded-xl border bg-slate-50/70 focus-within:bg-white transition-all shadow-2xs overflow-hidden ${
+                  phoneStatus === 'error'
+                    ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-500/10'
+                    : phoneStatus === 'available'
+                    ? 'border-emerald-400 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/10'
+                    : 'border-slate-200 focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10'
+                }`}>
+                  <div className="flex items-center gap-1.5 px-3 bg-[#FAF7F0] border-r border-slate-200 text-[#3A3564] font-mono font-bold text-xs select-none shrink-0">
+                    <IndiaFlag className="w-4 h-3 rounded-xs shrink-0" />
                     <span>+91</span>
                   </div>
                   <input
@@ -552,26 +677,93 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder="Enter your mobile number"
+                    placeholder="Enter 10-digit number"
                     maxLength={10}
-                    className="w-full px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono font-medium"
+                    className="w-full px-3 py-2.5 sm:py-3 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                   />
+                  <div className="flex items-center pr-3 shrink-0">
+                    {phoneStatus === 'checking' && (
+                      <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+                    )}
+                    {phoneStatus === 'available' && (
+                      <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
+                    )}
+                    {phoneStatus === 'error' && (
+                      <X className="w-4 h-4 text-rose-500 stroke-[3]" />
+                    )}
+                  </div>
                 </div>
+                {phoneStatus === 'error' && phoneErrorMsg && (
+                  <p className="text-[11px] text-rose-600 font-medium mt-1 flex items-center gap-1 animate-in fade-in duration-200">
+                    <X className="w-3 h-3 text-rose-500 shrink-0" />
+                    <span>{phoneErrorMsg}</span>
+                  </p>
+                )}
               </div>
 
-              {/* Field 4: Set Password */}
+              {/* Work Email Field */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider font-mono">
+                    Work Email *
+                  </label>
+                  {emailStatus === 'checking' ? (
+                    <span className="text-[10.5px] text-[#3A3564] font-medium flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                    </span>
+                  ) : (
+                    <span className="text-[10.5px] text-slate-400 font-medium hidden sm:inline">
+                      Will be your Super Admin sign-in
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    onBlur={handleEmailBlur}
+                    placeholder="Enter your work email"
+                    className={`w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none shadow-2xs transition-all ${
+                      emailStatus === 'error'
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
+                        : emailStatus === 'available'
+                        ? 'border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10'
+                        : 'border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10'
+                    }`}
+                  />
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
+                    {emailStatus === 'checking' && (
+                      <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+                    )}
+                    {emailStatus === 'available' && (
+                      <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
+                    )}
+                    {emailStatus === 'error' && (
+                      <X className="w-4 h-4 text-rose-500 stroke-[3]" />
+                    )}
+                  </div>
+                </div>
+                {emailStatus === 'error' && emailErrorMsg && (
+                  <p className="text-[11px] text-rose-600 font-medium mt-1 flex items-center gap-1 animate-in fade-in duration-200">
+                    <X className="w-3 h-3 text-rose-500 shrink-0" />
+                    <span>{emailErrorMsg}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Set Password */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider font-mono">
                     Set Password *
                   </label>
                   {password.length > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-semibold text-slate-400">Strength:</span>
-                      <span className={`text-[11px] font-extrabold ${strengthTextColor}`}>
-                        {strengthLabel}
-                      </span>
-                    </div>
+                    <span className={`text-[10.5px] font-extrabold ${strengthTextColor}`}>
+                      {strengthLabel}
+                    </span>
                   )}
                 </div>
                 <div className="relative">
@@ -581,83 +773,29 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium ${
-                      password.length > 0 && !hasMinLength
-                        ? 'border-rose-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-                        : 'border-slate-300 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]'
-                    }`}
+                    placeholder="Min 6 characters"
+                    className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-
-                {/* Live Password Strength Meter & 5-Word Recommendation */}
-                {password.length > 0 && (
-                  <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
-                    {/* Segmented Strength Bar */}
-                    <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
-                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 1 ? strengthBarColor : 'bg-slate-200'}`} />
-                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 2 ? strengthBarColor : 'bg-slate-200'}`} />
-                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 3 ? strengthBarColor : 'bg-slate-200'}`} />
-                      <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 4 ? strengthBarColor : 'bg-slate-200'}`} />
-                    </div>
-
-                    {/* 5-Word Dynamic Recommendation */}
-                    <div className="flex items-center justify-between text-[11px] pt-0.5">
-                      <span className="text-slate-600 font-medium">
-                        {recommendationTip}
-                      </span>
-                      <span className={`font-mono text-[10.5px] ${hasMinLength ? 'text-emerald-600 font-semibold' : 'text-slate-400'}`}>
-                        {password.length} chars (min 6)
-                      </span>
-                    </div>
-
-                    {/* 5 Recommendation Criteria Badges */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      {passwordCriteria.map((c) => (
-                        <span
-                          key={c.id}
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold transition-all ${
-                            c.met
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
-                              : 'bg-slate-100 text-slate-500 border border-slate-200'
-                          }`}
-                        >
-                          {c.met ? '✓' : '•'} {c.label}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Field 5: Confirm Password (Live Matching) */}
+              {/* Confirm Password */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider font-mono">
                     Confirm Password *
                   </label>
                   {confirmPassword.length > 0 && (
-                    <span className={`text-[11px] font-bold flex items-center gap-1 animate-in fade-in duration-200 ${
-                      passwordsMatch ? 'text-emerald-600' : 'text-rose-600'
-                    }`}>
-                      {passwordsMatch ? (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Passwords match</span>
-                        </>
-                      ) : (
-                        <>
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          <span>Passwords do not match</span>
-                        </>
-                      )}
+                    <span className={`text-[10.5px] font-bold ${passwordsMatch ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {passwordsMatch ? '✓ Match' : '✗ No match'}
                     </span>
                   )}
                 </div>
@@ -668,37 +806,48 @@ export default function RegisterFreeTrialPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter your password"
-                    className={`w-full pl-10 pr-10 py-3 rounded-xl border bg-slate-50/50 focus:bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all font-medium ${
-                      confirmPassword.length === 0
-                        ? 'border-slate-300 focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]'
-                        : passwordsMatch
-                          ? 'border-emerald-500 bg-emerald-50/15 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500'
-                          : 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-                    }`}
+                    placeholder="Re-enter password"
+                    className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
+              {/* Compact Password Strength Meter */}
+              {password.length > 0 && (
+                <div className="space-y-1 animate-in fade-in duration-200">
+                  <div className="grid grid-cols-4 gap-1.5 h-1 w-full">
+                    <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 1 ? strengthBarColor : 'bg-slate-200'}`} />
+                    <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 2 ? strengthBarColor : 'bg-slate-200'}`} />
+                    <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 3 ? strengthBarColor : 'bg-slate-200'}`} />
+                    <div className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 4 ? strengthBarColor : 'bg-slate-200'}`} />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500">
+                    <span>{recommendationTip}</span>
+                    <span className="font-mono text-[10px]">{password.length} chars (min 6)</span>
+                  </div>
+                </div>
+              )}
+
               {/* Next Button */}
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                  className="w-full py-3 sm:py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
                 >
                   <span>Next: Choose Modules</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
 
-              <div className="text-center pt-2">
+              <div className="text-center pt-1.5">
                 <span className="text-xs text-slate-500">
                   Already have an account?{' '}
                   <Link href="/login" className="font-bold text-[#3A3564] hover:underline cursor-pointer">
@@ -892,22 +1041,22 @@ export default function RegisterFreeTrialPage() {
       </main>
 
       {/* Minimal Footer Signature Bar (matching login page exactly) */}
-      <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <footer className="w-full max-w-5xl py-4 border-t border-slate-300/90 z-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 sm:text-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-proudly-india-black">
+            <span className="text-proudly-india-black font-bold">
               Proudly Made in India
             </span>
             <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-slate-500">
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/security" className="hover:text-slate-900 transition-colors">Security</Link>
+          <div className="flex items-center gap-6 text-xs text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">
+            <Link href="/privacy" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Security</Link>
           </div>
 
-          <p suppressHydrationWarning>© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
+          <p suppressHydrationWarning className="text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
         </div>
       </footer>
 

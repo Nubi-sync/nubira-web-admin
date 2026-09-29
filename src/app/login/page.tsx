@@ -4,17 +4,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { login, sendPasswordResetOtp, verifyRecoveryOtp, setNewPassword } from './actions'
-import { 
-  ArrowRight, 
-  ArrowLeft, 
-  X, 
-  KeyRound, 
-  CheckCircle2, 
-  AlertCircle, 
-  ShieldCheck, 
-  Lock, 
-  Mail, 
-  Eye, 
+import {
+  ArrowRight,
+  ArrowLeft,
+  X,
+  KeyRound,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Lock,
+  Mail,
+  Eye,
   EyeOff,
   Sparkles,
   Loader2
@@ -23,8 +23,8 @@ import { toast } from 'sonner'
 
 function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
-    <svg 
-      viewBox="0 0 225 150" 
+    <svg
+      viewBox="0 0 225 150"
       className={`${className} inline-block rounded-xs shadow-xs shrink-0 align-middle`}
       aria-label="Flag of India"
     >
@@ -94,9 +94,9 @@ export default function LoginPage() {
         setIsSuccess(true)
         return
       }
-      const isActionMismatch = 
-        err?.message?.includes('Server Action') || 
-        err?.message?.includes('failed-to-find-server-action') || 
+      const isActionMismatch =
+        err?.message?.includes('Server Action') ||
+        err?.message?.includes('failed-to-find-server-action') ||
         err?.message?.includes('not found on the server')
 
       if (isActionMismatch) {
@@ -220,9 +220,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-4 sm:p-6 lg:p-8 font-sans selection:bg-[#3A3564] selection:text-white">
-      
+
       {/* Background Layer: Indian Factory Floor Line-Art Sketch with subtle watercolor tints (Web Login exclusive) */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none z-0 opacity-60 mix-blend-multiply bg-center bg-cover"
         style={{ backgroundImage: "url('/factory_bg_tinted_sketch.jpg')" }}
       />
@@ -231,10 +231,10 @@ export default function LoginPage() {
       <header className="w-full max-w-5xl flex items-center justify-between py-2 sm:py-3 z-10">
         <div className="flex items-center gap-3">
           <Link href="/" className="inline-block group">
-            <img 
-              src="/z i g z a (8) 1.png" 
-              alt="Zigza" 
-              className="h-11 sm:h-13 w-auto object-contain transition-opacity group-hover:opacity-85"
+            <img
+              src="/z i g z a (8) 1.png"
+              alt="Zigza"
+              className="h-11 sm:h-13 w-auto object-contain transition-opacity group-hover:opacity-85 mix-blend-multiply"
             />
           </Link>
           <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black/10 bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] shadow-2xs">
@@ -242,51 +242,52 @@ export default function LoginPage() {
           </span>
         </div>
 
-        <Link 
-          href="/" 
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs transition-all cursor-pointer"
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs transition-all cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to zigza.in</span>
+          <span>Back<span className="hidden sm:inline"> to zigza.in</span></span>
         </Link>
       </header>
 
       {/* Centered Login Card: Crisp Refined Border, Compact Layout */}
-      <main className="z-10 w-full max-w-5xl my-auto py-4 sm:py-6 flex items-center justify-center">
-        <div className="w-full bg-white rounded-3xl border border-black/10 shadow-xl overflow-hidden p-5 sm:p-7 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-          
+      <main className="z-10 w-full max-w-5xl my-auto py-3 sm:py-6 flex items-center justify-center">
+        <div className="w-full bg-white rounded-3xl border border-black/10 shadow-xl overflow-hidden p-4 sm:p-7 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center">
+
           {/* Left Column: Vintage Indian Factory Newspaper / Editorial Handshake Artwork */}
           <div className="lg:col-span-6 w-full flex flex-col justify-center">
-            <div className="relative w-full h-[260px] sm:h-[340px] lg:h-[450px] rounded-2xl overflow-hidden border border-black/10 bg-[#FAF7F0] shadow-2xs group">
-              <img 
-                src="/factory_handshake_art.jpg" 
-                alt="Indian Garment Manufacturing Floor Partnership" 
-                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.01]"
+            <div className="relative w-full h-[165px] sm:h-[240px] lg:h-[450px] rounded-2xl overflow-hidden border border-black/10 bg-[#FAF7F0] shadow-2xs group">
+              <img
+                src="/factory_handshake_art.jpg"
+                alt="Indian Garment Manufacturing Floor Partnership"
+                className="w-full h-full object-cover object-[center_36%] lg:object-center transition-transform duration-500 group-hover:scale-[1.01]"
               />
             </div>
           </div>
 
           {/* Right Column: High-Contrast Email & Password Form */}
           <div className="lg:col-span-6 w-full flex flex-col justify-center">
-            <div className="mb-5 sm:mb-6">
-              <h1 className="text-2xl sm:text-[32px] font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-tight">
+            <div className="mb-3.5 sm:mb-6">
+              <h1 className="text-xl sm:text-[32px] font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-tight">
                 Staff Portal
               </h1>
-              <p className="text-xs sm:text-[13.5px] text-slate-500 mt-1 leading-normal">
-                Sign in with your registered work email and password to manage factory floor allotments.
+              <p className="text-xs sm:text-[13.5px] text-slate-500 mt-1 leading-snug sm:leading-normal">
+                <span className="sm:hidden">Access your factory floor allotments and live logs.</span>
+                <span className="hidden sm:inline">Sign in with your work email or mobile to access production logs, job cards, and floor allotments.</span>
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
-              
+
               {/* Mobile Number (with unedited +91 badge) or Work Email Field */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label 
-                    htmlFor={loginMode === 'PHONE' ? 'phone' : 'email'} 
+                  <label
+                    htmlFor={loginMode === 'PHONE' ? 'phone' : 'email'}
                     className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-mono"
                   >
-                    {loginMode === 'PHONE' ? '10-Digit Mobile Number' : 'Work Email / Username'}
+                    {loginMode === 'PHONE' ? '10-Digit Mobile' : 'Work Email'}
                   </label>
                   <button
                     type="button"
@@ -294,9 +295,19 @@ export default function LoginPage() {
                       setLoginMode(loginMode === 'PHONE' ? 'EMAIL' : 'PHONE')
                       setError(null)
                     }}
-                    className="text-[11px] font-semibold text-[#3A3564] hover:underline cursor-pointer"
+                    className="text-[11.5px] sm:text-xs font-semibold text-[#3A3564] hover:text-[#2A2649] underline underline-offset-3 cursor-pointer transition-colors inline-flex items-center gap-1.5"
                   >
-                    {loginMode === 'PHONE' ? 'Use Work Email / Username' : 'Use Mobile (+91)'}
+                    {loginMode === 'PHONE' ? (
+                      <>
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Use Email</span>
+                      </>
+                    ) : (
+                      <>
+                        <IndiaFlag className="w-3.5 h-2.5 rounded-2xs" />
+                        <span>Use Mobile (+91)</span>
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -315,7 +326,7 @@ export default function LoginPage() {
                       maxLength={10}
                       value={phoneInput ?? ''}
                       onChange={e => setPhoneInput(e.target.value.replace(/\D/g, ''))}
-                      placeholder="Enter your mobile number"
+                      placeholder="Enter 10-digit mobile number"
                       className="w-full px-3.5 py-2.5 sm:py-3 bg-transparent text-sm font-semibold font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     />
                   </div>
@@ -332,7 +343,7 @@ export default function LoginPage() {
                       required
                       value={emailInput ?? ''}
                       onChange={e => setEmailInput(e.target.value)}
-                      placeholder="Enter your work email or username"
+                      placeholder="Enter your email"
                       className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
                     />
                   </div>
@@ -341,8 +352,8 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div>
-                <label 
-                  htmlFor="password" 
+                <label
+                  htmlFor="password"
                   className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-mono mb-1.5"
                 >
                   Password
@@ -375,9 +386,9 @@ export default function LoginPage() {
               {/* Remember Me & Forgot Password Row */}
               <div className="flex items-center justify-between pt-0.5">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input 
-                    type="checkbox" 
-                    id="remember" 
+                  <input
+                    type="checkbox"
+                    id="remember"
                     name="remember"
                     checked={rememberMe}
                     onChange={e => setRememberMe(e.target.checked)}
@@ -388,7 +399,7 @@ export default function LoginPage() {
                   </span>
                 </label>
 
-                <button 
+                <button
                   type="button"
                   onClick={() => {
                     setForgotError(null)
@@ -436,12 +447,18 @@ export default function LoginPage() {
               </button>
 
               {/* Bottom Onboarding Note */}
-              <p className="text-center text-xs sm:text-[13px] text-slate-500 pt-1">
-                Need enterprise factory access?{' '}
-                <Link href="/#contact" className="text-[#3A3564] font-bold hover:text-[#2A2649] hover:underline transition-colors">
-                  Request a live demo
-                </Link>
-              </p>
+              <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-1">
+                <p className="text-center text-xs sm:text-[13.5px] text-slate-600">
+                  New to Zigza?{' '}
+                  <Link
+                    href="/register"
+                    className="text-[#3A3564] font-bold hover:text-[#2A2649] hover:underline transition-colors inline-flex items-center gap-1 group/trial"
+                  >
+                    <span>Start 7-Day Free Trial</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover/trial:translate-x-0.5 transition-transform" />
+                  </Link>
+                </p>
+              </div>
 
             </form>
           </div>
@@ -453,9 +470,9 @@ export default function LoginPage() {
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-[420px] bg-white rounded-2xl p-6 sm:p-7 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200">
-            
+
             {/* Close Button */}
-            <button 
+            <button
               onClick={resetModalState}
               className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
@@ -602,22 +619,22 @@ export default function LoginPage() {
       )}
 
       {/* Minimal Footer Signature Bar */}
-      <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <footer className="w-full max-w-5xl py-4 border-t border-slate-300/90 z-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 sm:text-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-proudly-india-black">
+            <span className="text-proudly-india-black font-bold">
               Proudly Made in India
             </span>
             <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-slate-500">
-            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/security" className="hover:text-slate-900 transition-colors">Security</Link>
+          <div className="flex items-center gap-6 text-xs text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">
+            <Link href="/privacy" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Security</Link>
           </div>
 
-          <p suppressHydrationWarning>© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
+          <p suppressHydrationWarning className="text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
         </div>
       </footer>
 
