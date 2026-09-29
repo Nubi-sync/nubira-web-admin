@@ -808,7 +808,7 @@ export function StoreDashboardClient({
         <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
           Store Quick Actions
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           
           {/* Action 1: Accessory Challan Inward (GRN) */}
           <button
@@ -872,53 +872,6 @@ export function StoreDashboardClient({
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                 Log replacement accessories given to tailors for lost or damaged trims
-              </p>
-            </div>
-          </button>
-
-          {/* Action 4: Production Inward */}
-          <button
-            type="button"
-            onClick={() => {
-              setPrefilledLotForInward(null)
-              setIsInwardModalOpen(true)
-            }}
-            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
-                <Download className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
-                Production Inward
-              </h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
-                Receive finished garments from QC / Stitching Floor
-              </p>
-            </div>
-          </button>
-
-          {/* Action 5: Finished Goods Outward */}
-          <button
-            type="button"
-            onClick={() => setIsOutwardModalOpen(true)}
-            className="p-5 text-left bg-white hover:bg-[#FAF7F0]/60 border border-black/10 hover:border-[#3A3564]/40 rounded-2xl shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center transition-colors shadow-2xs">
-                <Send className="w-5 h-5" />
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#3A3564] transition-colors" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-[#3A3564] transition-colors">
-                Finished Goods Outward
-              </h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
-                Issue & dispatch garments from warehouse with challan
               </p>
             </div>
           </button>
