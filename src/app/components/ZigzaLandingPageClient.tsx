@@ -709,18 +709,21 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 2. HERO SECTION WITH PRODUCT EXECUTION SCREENSHOT PREVIEW           */}
       {/* =================================================================== */}
-      <section className="relative pt-10 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
-        <div className="text-center max-w-4xl mx-auto space-y-5">
+      <section className="relative pt-8 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+        <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-5">
           {/* Main Hero Headline: High-converting, relatable positioning */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#14140F] leading-[1.08]">
-            The Smarter Way to Run Your <span className="text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">Garment Business</span>
+          <h1 className="text-[30px] sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#14140F] leading-[1.2] sm:leading-[1.08]">
+            The Smarter Way to Run Your{' '}
+            <span className="inline-block whitespace-nowrap text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">
+              Garment Business
+            </span>
           </h1>
 
           {/* Subtitle */}
-          <div className="relative max-w-3xl mx-auto">
+          <div className="relative max-w-2xl mx-auto px-1 sm:px-0">
             {/* Subtitle: Clean, direct value proposition */}
-            <p className="text-[17px] sm:text-xl text-[#3D3C36] leading-relaxed font-normal">
-              Replace messy paper slips and endless calls with one simple system. Get live order progress, cut fabric waste, and ship to buyers with zero panic.
+            <p className="text-[15px] sm:text-xl text-[#3D3C36] leading-relaxed font-normal">
+              Replace paper slips and endless calls with one simple system. Track live orders, cut fabric waste, and ship to buyers with zero panic.
             </p>
           </div>
 
