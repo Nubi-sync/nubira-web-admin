@@ -372,6 +372,7 @@ export default function DashboardClient({
   const [customToDate, setCustomToDate] = useState<string>(todayStr)
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
   const [selectedArticleId, setSelectedArticleId] = useState<string>('ALL')
+  const [selectedProductionMonth, setSelectedProductionMonth] = useState<string>('ALL')
   const [isArticleMenuOpen, setIsArticleMenuOpen] = useState(false)
   const [articleSearchQuery, setArticleSearchQuery] = useState('')
 
@@ -542,6 +543,31 @@ export default function DashboardClient({
     return ['ALL', ...Array.from(brandsSet), 'DIRECT']
   }, [challans, allotments])
 
+  // Available Months for Total Production & Trend Filtering (Strictly from real DB data)
+  const availableMonths = useMemo(() => {
+    const monthsSet = new Set<string>()
+    const addDateStr = (dateStr?: string) => {
+      if (!dateStr) return
+      const d = new Date(dateStr)
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        monthsSet.add(`${y}-${m}`)
+      }
+    }
+
+    allotments.forEach(a => addDateStr(a.allotment_date || a.created_at))
+    challans.forEach(c => addDateStr(c.created_at))
+    rawProduction.forEach(p => addDateStr(p.entry_date || p.created_at))
+
+    return Array.from(monthsSet).sort().reverse().map(ym => {
+      const [y, m] = ym.split('-').map(Number)
+      const dateObj = new Date(y, m - 1, 1)
+      const label = dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+      return { value: ym, label }
+    })
+  }, [allotments, challans, rawProduction])
+
   // 2. Filter allotments, production, QC, store, and dispatch based on Brand, Article & Date
   const filteredData = useMemo(() => {
     const matchesArticle = (artId?: string) => {
@@ -558,9 +584,19 @@ export default function DashboardClient({
     }
 
     const matchesDate = (dateStr?: string) => {
-      if (!dateStr || dateFilter === 'all') return true
+      if (!dateStr) return true
       const d = new Date(dateStr)
       if (isNaN(d.getTime())) return true
+
+      // If specific month is chosen
+      if (selectedProductionMonth !== 'ALL') {
+        const [y, m] = selectedProductionMonth.split('-').map(Number)
+        if (d.getFullYear() !== y || (d.getMonth() + 1) !== m) {
+          return false
+        }
+      }
+
+      if (dateFilter === 'all') return true
 
       const now = new Date()
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -587,6 +623,7 @@ export default function DashboardClient({
     }
 
     return {
+      challans: challans.filter(c => matchesBrand(c.id, c.brand) && matchesDate(c.created_at || (c as any).challan_date || (c as any).date)),
       allotments: allotments.filter(a => matchesArticle(a.article_id) && matchesBrand(a.challan_id, a.challans?.brand) && matchesDate(a.allotment_date || a.created_at)),
       production: rawProduction.filter(p => matchesArticle(p.article_id) && matchesDate(p.entry_date || p.created_at)),
       qc: rawQC.filter(q => matchesArticle(q.article_id) && matchesDate(q.entry_date || q.created_at)),
@@ -594,22 +631,17 @@ export default function DashboardClient({
       dispatch: rawDispatch.filter(d => matchesDate(d.created_at)),
       activities: recentActivities.filter(ac => matchesDate(ac.timestamp))
     }
-  }, [allotments, rawProduction, rawQC, rawStore, rawDispatch, recentActivities, selectedArticleId, selectedBrand, dateFilter, customFromDate, customToDate, challans])
+  }, [allotments, rawProduction, rawQC, rawStore, rawDispatch, recentActivities, selectedArticleId, selectedBrand, dateFilter, customFromDate, customToDate, selectedProductionMonth, challans])
 
   // 3. Compute the 6 Core Factory Lifecycle Numbers
   const metrics = useMemo(() => {
-    // 1. Total Stocks (Total Target Pieces in Pipeline)
-    const relevantChallans = challans.filter(c => {
-      if (selectedBrand === 'ALL') return true
-      if (selectedBrand === 'DIRECT') return false
-      return c.brand?.trim().toUpperCase() === selectedBrand
-    })
-    const challanTotalPcs = relevantChallans.reduce((sum, c) => sum + (c.total_pcs || 0), 0)
+    // 1. Total Target Pieces in Pipeline (Challans / Orders for selected filters)
+    const challanTotalPcs = filteredData.challans.reduce((sum, c) => sum + (c.total_pcs || 0), 0)
     const totalAllotmentPcs = filteredData.allotments
       .filter(al => al.status !== 'CANCELLED')
       .reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
     
-    const totalStocks = Math.max(challanTotalPcs, totalAllotmentPcs)
+    const totalOrderPipeline = Math.max(challanTotalPcs, totalAllotmentPcs)
 
     // 2. Production / Sewing Counts
     const totalProduced = filteredData.production.reduce((sum, p) => sum + (p.quantity || 0), 0)
@@ -635,10 +667,7 @@ export default function DashboardClient({
     // 5. Dispatch Delivery
     const totalDispatched = filteredData.dispatch.reduce((sum, d) => sum + (d.total_pieces || 0), 0)
 
-    // 6-Stage Specific Allocations
-    const stage1_totalStocks = Math.max(totalStocks, totalProduced + totalDispatched)
-
-    // Stage 2: Goods In Line
+    // Stage 2: Goods In Line (Active floor sewing allotments)
     const floorSewingAllotments = filteredData.allotments.filter(al =>
       al.status !== 'CANCELLED' &&
       (!al.mending_status || al.mending_status === 'PENDING_STITCHING') &&
@@ -649,6 +678,10 @@ export default function DashboardClient({
     const stage2_goodsInLine = activeLinemanAllotmentPcs > 0
       ? Math.max(0, activeLinemanAllotmentPcs - totalQCPassed - totalDispatched - totalQCRejected)
       : 0
+
+    // Stage 1: Unallotted Stocks (Pending Pipeline)
+    // As items move to Goods In Line, Stage 01 unallotted balance reduces dynamically!
+    const stage1_unallottedStocks = Math.max(0, totalOrderPipeline - activeLinemanAllotmentPcs)
 
     // Stage 3: Goods in Mending & Checking
     const mendingFloorAllotments = filteredData.allotments.filter(al =>
@@ -674,7 +707,9 @@ export default function DashboardClient({
     const alterationRate = totalChecked > 0 ? ((totalQCRejected / totalChecked) * 100) : 0
 
     return {
-      totalStocks: stage1_totalStocks,
+      totalStocks: stage1_unallottedStocks,
+      unallottedStocks: stage1_unallottedStocks,
+      totalOrderPipeline,
       goodsInLine: stage2_goodsInLine,
       mendingChecking: stage3_mendingChecking,
       mendingFloorPcs,
@@ -692,7 +727,7 @@ export default function DashboardClient({
 
   // Pipeline Stepper Percentages (Conversion from Total Target)
   const pipelineFlow = useMemo(() => {
-    const base = metrics.totalStocks > 0 ? metrics.totalStocks : 1
+    const base = (metrics.totalOrderPipeline || metrics.totalStocks) > 0 ? (metrics.totalOrderPipeline || metrics.totalStocks) : 1
     return {
       inLinePct: Math.min(100, Math.round((metrics.goodsInLine / base) * 100)),
       mendingPct: Math.min(100, Math.round((metrics.mendingChecking / base) * 100)),
@@ -788,105 +823,136 @@ export default function DashboardClient({
     })
   }, [filteredData.allotments, workerAssignments])
 
-  // 4. Production Trend Data (Planned vs Production vs Delivered)
+  // 4. Pure Live Production Trend Data (Strictly from real DB records)
   const productionTrendData = useMemo(() => {
-    const now = new Date()
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    
     if (trendMode === 'monthly') {
-      const result: { label: string; planned: number; production: number; delivered: number }[] = []
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-        const monthIndex = d.getMonth()
-        const year = d.getFullYear()
-        const monthLabel = `${months[monthIndex]} ${year !== now.getFullYear() ? `'${String(year).slice(-2)}` : ''}`
+      const monthsMap = new Map<string, { label: string; planned: number; production: number; delivered: number; dateVal: number }>()
+      
+      const getMonthKey = (dStr: string) => {
+        const d = new Date(dStr)
+        if (isNaN(d.getTime())) return null
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        return { key: `${y}-${m}`, label, dateVal: new Date(y, d.getMonth(), 1).getTime() }
+      }
 
-        const plannedInMonth = challans.filter(c => {
-          if (!c.created_at) return false
-          const cd = new Date(c.created_at)
-          return cd.getMonth() === monthIndex && cd.getFullYear() === year
-        }).reduce((sum, c) => sum + (c.total_pcs || 0), 0)
+      challans.forEach(c => {
+        if (!c.created_at) return
+        const mk = getMonthKey(c.created_at)
+        if (!mk) return
+        if (!monthsMap.has(mk.key)) {
+          monthsMap.set(mk.key, { label: mk.label, planned: 0, production: 0, delivered: 0, dateVal: mk.dateVal })
+        }
+        monthsMap.get(mk.key)!.planned += (c.total_pcs || 0)
+      })
 
-        const prodInMonth = rawProduction.filter(p => {
-          const dateStr = p.entry_date || p.created_at
-          if (!dateStr) return false
-          const pd = new Date(dateStr)
-          return pd.getMonth() === monthIndex && pd.getFullYear() === year
-        }).reduce((sum, p) => sum + (p.quantity || 0), 0)
+      rawProduction.forEach(p => {
+        const dStr = p.entry_date || p.created_at
+        if (!dStr) return
+        const mk = getMonthKey(dStr)
+        if (!mk) return
+        if (!monthsMap.has(mk.key)) {
+          monthsMap.set(mk.key, { label: mk.label, planned: 0, production: 0, delivered: 0, dateVal: mk.dateVal })
+        }
+        monthsMap.get(mk.key)!.production += (p.quantity || 0)
+      })
 
-        const dispInMonth = rawDispatch.filter(dp => {
-          if (!dp.created_at) return false
-          const dd = new Date(dp.created_at)
-          return dd.getMonth() === monthIndex && dd.getFullYear() === year
-        }).reduce((sum, dp) => sum + (dp.total_pieces || 0), 0)
+      rawDispatch.forEach(dp => {
+        if (!dp.created_at) return
+        const mk = getMonthKey(dp.created_at)
+        if (!mk) return
+        if (!monthsMap.has(mk.key)) {
+          monthsMap.set(mk.key, { label: mk.label, planned: 0, production: 0, delivered: 0, dateVal: mk.dateVal })
+        }
+        monthsMap.get(mk.key)!.delivered += (dp.total_pieces || 0)
+      })
 
-        result.push({
-          label: monthLabel,
-          planned: plannedInMonth,
-          production: prodInMonth,
-          delivered: dispInMonth
+      // If no past months logged, use current active month
+      if (monthsMap.size === 0) {
+        const now = new Date()
+        const currentLabel = now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+        monthsMap.set(currentKey, {
+          label: currentLabel,
+          planned: metrics.totalOrderPipeline,
+          production: metrics.totalProduced,
+          delivered: metrics.readyDelivery,
+          dateVal: now.getTime()
         })
       }
 
-      const totalPlanned = result.reduce((s, r) => s + r.planned, 0)
-      const totalProd = result.reduce((s, r) => s + r.production, 0)
-      const totalDisp = result.reduce((s, r) => s + r.delivered, 0)
-
-      if (totalPlanned === 0 && totalProd === 0 && totalDisp === 0 && metrics.totalStocks > 0) {
-        const curr = result[result.length - 1]
-        curr.planned = metrics.totalStocks
-        curr.production = metrics.goodsInLine + metrics.readyDelivery
-        curr.delivered = metrics.readyDelivery
-      }
+      const result = Array.from(monthsMap.values())
+        .sort((a, b) => a.dateVal - b.dateVal)
+        .slice(-6)
 
       const maxValue = Math.max(1, ...result.map(r => Math.max(r.planned, r.production, r.delivered)))
       return { items: result, maxValue }
     } else {
-      const result: { label: string; planned: number; production: number; delivered: number }[] = []
-      for (let i = 5; i >= 0; i--) {
-        const endOfWeek = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000)
-        const startOfWeek = new Date(endOfWeek.getTime() - 7 * 24 * 60 * 60 * 1000)
-        const label = `Wk ${6 - i}`
+      // Weekly Mode strictly from real DB records
+      const weeksMap = new Map<string, { label: string; planned: number; production: number; delivered: number; dateVal: number }>()
+      const getWeekKey = (dStr: string) => {
+        const d = new Date(dStr)
+        if (isNaN(d.getTime())) return null
+        const startOfWeek = new Date(d)
+        startOfWeek.setDate(d.getDate() - d.getDay())
+        startOfWeek.setHours(0, 0, 0, 0)
+        const label = `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+        return { key: startOfWeek.toISOString().split('T')[0], label: `Wk of ${label}`, dateVal: startOfWeek.getTime() }
+      }
 
-        const plannedInWk = challans.filter(c => {
-          if (!c.created_at) return false
-          const cd = new Date(c.created_at)
-          return cd >= startOfWeek && cd <= endOfWeek
-        }).reduce((sum, c) => sum + (c.total_pcs || 0), 0)
+      challans.forEach(c => {
+        if (!c.created_at) return
+        const wk = getWeekKey(c.created_at)
+        if (!wk) return
+        if (!weeksMap.has(wk.key)) {
+          weeksMap.set(wk.key, { label: wk.label, planned: 0, production: 0, delivered: 0, dateVal: wk.dateVal })
+        }
+        weeksMap.get(wk.key)!.planned += (c.total_pcs || 0)
+      })
 
-        const prodInWk = rawProduction.filter(p => {
-          const dateStr = p.entry_date || p.created_at
-          if (!dateStr) return false
-          const pd = new Date(dateStr)
-          return pd >= startOfWeek && pd <= endOfWeek
-        }).reduce((sum, p) => sum + (p.quantity || 0), 0)
+      rawProduction.forEach(p => {
+        const dStr = p.entry_date || p.created_at
+        if (!dStr) return
+        const wk = getWeekKey(dStr)
+        if (!wk) return
+        if (!weeksMap.has(wk.key)) {
+          weeksMap.set(wk.key, { label: wk.label, planned: 0, production: 0, delivered: 0, dateVal: wk.dateVal })
+        }
+        weeksMap.get(wk.key)!.production += (p.quantity || 0)
+      })
 
-        const dispInWk = rawDispatch.filter(dp => {
-          if (!dp.created_at) return false
-          const dd = new Date(dp.created_at)
-          return dd >= startOfWeek && dd <= endOfWeek
-        }).reduce((sum, dp) => sum + (dp.total_pieces || 0), 0)
+      rawDispatch.forEach(dp => {
+        if (!dp.created_at) return
+        const wk = getWeekKey(dp.created_at)
+        if (!wk) return
+        if (!weeksMap.has(wk.key)) {
+          weeksMap.set(wk.key, { label: wk.label, planned: 0, production: 0, delivered: 0, dateVal: wk.dateVal })
+        }
+        weeksMap.get(wk.key)!.delivered += (dp.total_pieces || 0)
+      })
 
-        result.push({
-          label,
-          planned: plannedInWk,
-          production: prodInWk,
-          delivered: dispInWk
+      if (weeksMap.size === 0) {
+        const now = new Date()
+        const currentLabel = `This Week`
+        const currentKey = now.toISOString().split('T')[0]
+        weeksMap.set(currentKey, {
+          label: currentLabel,
+          planned: metrics.totalOrderPipeline,
+          production: metrics.totalProduced,
+          delivered: metrics.readyDelivery,
+          dateVal: now.getTime()
         })
       }
 
-      const totalPlanned = result.reduce((s, r) => s + r.planned, 0)
-      if (totalPlanned === 0 && metrics.totalStocks > 0) {
-        const curr = result[result.length - 1]
-        curr.planned = metrics.totalStocks
-        curr.production = metrics.goodsInLine + metrics.readyDelivery
-        curr.delivered = metrics.readyDelivery
-      }
+      const result = Array.from(weeksMap.values())
+        .sort((a, b) => a.dateVal - b.dateVal)
+        .slice(-6)
 
       const maxValue = Math.max(1, ...result.map(r => Math.max(r.planned, r.production, r.delivered)))
       return { items: result, maxValue }
     }
-  }, [challans, rawProduction, rawDispatch, trendMode, metrics.totalStocks, metrics.goodsInLine, metrics.readyDelivery])
+  }, [challans, rawProduction, rawDispatch, trendMode, metrics.totalOrderPipeline, metrics.totalProduced, metrics.readyDelivery])
 
   // 5. Order Status Breakdown (Donut Chart Computation)
   const orderStatusData = useMemo(() => {
@@ -1232,8 +1298,29 @@ export default function DashboardClient({
             )}
           </div>
 
-          {/* Date Filter Pills & Sync Button */}
-          <div className="flex items-center gap-2">
+          {/* Month Selector & Date Filter Pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Month Filter Dropdown */}
+            <div className="relative">
+              <select
+                value={selectedProductionMonth}
+                onChange={e => {
+                  setSelectedProductionMonth(e.target.value)
+                  if (e.target.value !== 'ALL') {
+                    setDateFilter('all')
+                  }
+                }}
+                className="px-3 py-1.5 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] text-xs font-bold rounded-xl border border-black/10 shadow-2xs focus:outline-none cursor-pointer pr-7"
+              >
+                <option value="ALL">All-Time Period</option>
+                {availableMonths.map(m => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 shadow-2xs">
               {[
                 { id: 'today', label: 'Today' },
@@ -1244,9 +1331,14 @@ export default function DashboardClient({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setDateFilter(tab.id as DateFilter)}
+                  onClick={() => {
+                    setDateFilter(tab.id as DateFilter)
+                    if (tab.id !== 'all') {
+                      setSelectedProductionMonth('ALL')
+                    }
+                  }}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    dateFilter === tab.id
+                    dateFilter === tab.id && selectedProductionMonth === 'ALL'
                       ? 'bg-white text-[#3A3564] shadow-2xs font-extrabold'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
@@ -1275,7 +1367,7 @@ export default function DashboardClient({
       {/* ========================================================= */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
         
-        {/* STAGE 1: TOTAL STOCKS */}
+        {/* STAGE 1: TOTAL STOCKS (PENDING / UNALLOTTED PIPELINE) */}
         <div 
           onClick={() => setActiveDrilldownStage('TOTAL_STOCKS')}
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -1294,13 +1386,13 @@ export default function DashboardClient({
               </div>
             </div>
 
-            {/* Stage Title and Subtitle - Has full card width without colliding! */}
+            {/* Stage Title and Subtitle */}
             <div className="mt-3.5">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
                 1. Total Stocks
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Order Pipeline Target
+                Pending Allotment Balance
               </p>
             </div>
           </div>
@@ -1308,11 +1400,14 @@ export default function DashboardClient({
           {/* Metric Number and Bottom Pill */}
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {metrics.totalStocks.toLocaleString()}
+              {metrics.unallottedStocks.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
-                Total Pieces
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
+                Unallotted
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 font-medium">
+                {metrics.totalOrderPipeline.toLocaleString()} total
               </span>
             </div>
           </div>
@@ -1756,8 +1851,10 @@ export default function DashboardClient({
           </div>
 
           <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
-            <span>Peak Month Target</span>
-            <span className="font-mono font-bold text-slate-900">{productionTrendData.maxValue.toLocaleString()} pcs</span>
+            <span>Period Production Output</span>
+            <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              {metrics.totalProduced.toLocaleString()} pcs produced
+            </span>
           </div>
         </div>
 
