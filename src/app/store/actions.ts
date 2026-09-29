@@ -14,7 +14,12 @@ export type TruckInwardItemInput = {
   quantity: number
   challan_qty?: number
   unit: string
+  size?: string
+  color?: string
   size_label?: string
+  unit_price?: number
+  total_price?: number
+  vendor_name?: string
   status: 'RECEIVED' | 'SHORTAGE' | 'DUE' | 'DEFECTIVE'
   shortage_qty?: number
   remarks?: string
@@ -41,8 +46,10 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     const currentUserName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Store Supervisor'
     const currentUserId = user?.id
 
-    if (!payload.party_name?.trim()) {
-      return { error: 'Please enter Supplier / Brand Name.' }
+    const effectivePartyName = payload.party_name?.trim() || payload.items?.find(i => i.vendor_name?.trim())?.vendor_name?.trim() || 'Multi-Vendor Inward'
+    
+    if (!payload.challan_no?.trim()) {
+      return { error: 'Please enter Challan / Bill Number.' }
     }
     if (!payload.items || payload.items.length === 0) {
       return { error: 'Please add at least 1 item from the challan.' }
@@ -57,9 +64,22 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     // Map line items JSON
     const lineItemsJson = payload.items.map(i => {
       const cQty = i.challan_qty ?? (i.quantity + (i.shortage_qty || 0))
+      const rawSize = (i.size || '').trim()
+      const rawColor = (i.color || '').trim()
+      const composite = rawSize && rawColor ? `${rawSize} / ${rawColor}` : (rawSize || rawColor || i.size_label?.trim() || '')
+      const uRate = typeof i.unit_price === 'number' ? i.unit_price : parseFloat(String(i.unit_price || '0')) || 0
+      const tPrice = i.total_price ?? (uRate * i.quantity)
+      const vName = (i.vendor_name || '').trim() || effectivePartyName
+
       return {
         item_name: i.item_name.trim(),
-        size_color: i.size_label?.trim() || '',
+        vendor_name: vName,
+        unit_price: uRate,
+        total_price: tPrice,
+        size: rawSize || null,
+        color: rawColor || null,
+        size_color: composite || '',
+        size_label: composite || '',
         challan_qty: cQty,
         received_qty: i.quantity,
         unit: i.unit || 'pcs',
@@ -89,7 +109,7 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     // 1. Insert into truck_inwards with fallback resilience for garment_type and received_by
     const insertPayload: any = {
       grn_no: grnNo,
-      party_name: payload.party_name.trim(),
+      party_name: effectivePartyName,
       article_no: payload.article_no?.trim() || null,
       garment_type: payload.garment_type?.trim() || null,
       challan_no: payload.challan_no?.trim() || null,
@@ -151,14 +171,26 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     // 2. Insert child items into truck_inward_items
     const childItemRows = payload.items.map(it => {
       const cQty = it.challan_qty ?? (it.quantity + (it.shortage_qty || 0))
+      const rawSize = (it.size || '').trim()
+      const rawColor = (it.color || '').trim()
+      const composite = rawSize && rawColor ? `${rawSize} / ${rawColor}` : (rawSize || rawColor || it.size_label?.trim() || '')
+      const uRate = typeof it.unit_price === 'number' ? it.unit_price : parseFloat(String(it.unit_price || '0')) || 0
+      const tPrice = it.total_price ?? (uRate * it.quantity)
+      const vName = (it.vendor_name || '').trim() || payload.party_name.trim()
+
       return {
         truck_inward_id: truckInwardId,
         item_name: it.item_name.trim(),
+        vendor_name: vName,
+        unit_price: uRate,
+        total_price: tPrice,
         quantity: it.quantity, // Physical received count
         challan_qty: cQty,     // Billed challan count
         unit: it.unit || 'pcs',
-        size_label: it.size_label?.trim() || null,
-        size_color: it.size_label?.trim() || null,
+        size: rawSize || null,
+        color: rawColor || null,
+        size_label: composite || null,
+        size_color: composite || null,
         status: it.status,
         shortage_qty: it.shortage_qty || 0,
         remarks: it.remarks?.trim() || null
@@ -174,16 +206,22 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     const accessoryRows = payload.items
       .filter(it => it.quantity > 0)
       .map(it => {
-        const sizeSuffix = it.size_label?.trim() ? ` (${it.size_label.trim()})` : ''
+        const rawSize = (it.size || '').trim()
+        const rawColor = (it.color || '').trim()
+        const composite = rawSize && rawColor ? `${rawSize} / ${rawColor}` : (rawSize || rawColor || it.size_label?.trim() || '')
+        const sizeSuffix = composite ? ` (${composite})` : ''
+        const uRate = typeof it.unit_price === 'number' ? it.unit_price : parseFloat(String(it.unit_price || '0')) || 0
+        const rateNote = uRate > 0 ? ` • Rate: ₹${uRate.toFixed(2)}` : ''
         const issueNote = (it.shortage_qty && it.shortage_qty > 0) ? ` • ${it.status}: ${it.shortage_qty} ${it.unit}` : ''
+        const vName = (it.vendor_name || '').trim() || payload.party_name.trim()
         return {
           item_name: it.item_name.trim() + sizeSuffix,
           action: 'IN',
           quantity: it.quantity, // Only what is physically received enters godown stock
           unit: it.unit || 'pcs',
-          party_name: payload.party_name.trim(),
+          party_name: vName,
           entry_date: payload.inward_date || new Date().toISOString().split('T')[0],
-          notes: `Challan #${payload.challan_no?.trim() || '-'} • Art ${payload.article_no?.trim() || '-'} • ${grnNo}${issueNote}`,
+          notes: `Challan #${payload.challan_no?.trim() || '-'} • Art ${payload.article_no?.trim() || '-'}${rateNote} • ${grnNo}${issueNote}`,
         }
       })
 
