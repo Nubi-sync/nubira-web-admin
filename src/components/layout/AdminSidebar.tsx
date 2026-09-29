@@ -91,7 +91,6 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
       { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
-      { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
     ],
   },
   {
@@ -560,7 +559,6 @@ export function AdminSidebar({
           items: [
             { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
             { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
-            { label: 'Dispatch & Challans', href: '/dispatch', icon: Truck },
           ],
         },
         {
