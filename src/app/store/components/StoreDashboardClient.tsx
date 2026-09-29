@@ -108,6 +108,11 @@ export type Accessory = {
 export type TruckInwardItem = {
   id: string
   item_name: string
+  vendor_name?: string | null
+  unit_price?: number | null
+  total_price?: number | null
+  size?: string | null
+  color?: string | null
   size_label?: string | null
   size_color?: string | null
   quantity: number
@@ -1968,9 +1973,14 @@ function GrnInwardModal({
       if (currentItems.length === 0) {
         setItems(matches.map(t => ({
           item_name: t.item_name,
+          vendor_name: '',
+          unit_price: 0,
+          total_price: 0,
           quantity: 0,
           challan_qty: 0,
           unit: t.unit || 'pcs',
+          size: '',
+          color: '',
           size_label: '',
           status: 'RECEIVED',
           shortage_qty: 0,
@@ -2012,9 +2022,14 @@ function GrnInwardModal({
     if (suggestedTrims.length === 0) return
     setItems(suggestedTrims.map(t => ({
       item_name: t.item_name,
+      vendor_name: '',
+      unit_price: 0,
+      total_price: 0,
       quantity: 0,
       challan_qty: 0,
       unit: t.unit || 'pcs',
+      size: '',
+      color: '',
       size_label: '',
       status: 'RECEIVED',
       shortage_qty: 0,
@@ -2034,7 +2049,7 @@ function GrnInwardModal({
   const addPreset = (name: string, unit: string = 'pcs') => {
     setItems(prev => [
       ...prev,
-      { item_name: name, quantity: 0, challan_qty: 0, unit, size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+      { item_name: name, vendor_name: '', unit_price: 0, total_price: 0, quantity: 0, challan_qty: 0, unit, size: '', color: '', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
     ])
   }
 
@@ -2051,8 +2066,8 @@ function GrnInwardModal({
   }
 
   const handleSubmit = async () => {
-    if (!partyName.trim()) {
-      setError('Please enter Supplier / Brand Name.')
+    if (!challanNo.trim()) {
+      setError('Please enter Challan / Bill Number.')
       return
     }
     if (items.length === 0) {
@@ -2120,11 +2135,11 @@ function GrnInwardModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Supplier / Brand Name *
+                Consolidated Supplier / Consignor (Optional)
               </label>
               <input
                 type="text"
-                placeholder="e.g. Vardhman Threads, YKK Zippers..."
+                placeholder="e.g. Multi-Vendor / Sourced / Transporter (or leave blank)"
                 value={partyName}
                 onChange={e => setPartyName(e.target.value)}
                 className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
@@ -2147,7 +2162,7 @@ function GrnInwardModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             <div>
               <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Supplier Challan #
+                Challan / Bill # *
               </label>
               <input
                 type="text"
@@ -2250,7 +2265,7 @@ function GrnInwardModal({
                   type="button"
                   onClick={() => setItems(prev => [
                     ...prev,
-                    { item_name: '', quantity: 0, challan_qty: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                    { item_name: '', vendor_name: '', unit_price: 0, total_price: 0, quantity: 0, challan_qty: 0, unit: 'pcs', size: '', color: '', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
                   ])}
                   className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
                 >
@@ -2288,7 +2303,7 @@ function GrnInwardModal({
                 <button
                   type="button"
                   onClick={() => setItems([
-                    { item_name: '', quantity: 0, challan_qty: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                    { item_name: '', vendor_name: '', unit_price: 0, total_price: 0, quantity: 0, challan_qty: 0, unit: 'pcs', size: '', color: '', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
                   ])}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#3A3564] bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all cursor-pointer shadow-2xs"
                 >
@@ -2299,7 +2314,7 @@ function GrnInwardModal({
               <div className="space-y-3">
                 {items.map((it, idx) => (
                   <div key={idx} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-3">
-                    <div className="flex items-center justify-between gap-2.5">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
                       <input
                         type="text"
                         placeholder="Item description (e.g. Antique Brass Zipper)"
@@ -2309,18 +2324,31 @@ function GrnInwardModal({
                           copy[idx].item_name = e.target.value
                           setItems(copy)
                         }}
-                        className="flex-1 px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                        className="flex-1 min-w-[200px] px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Item Vendor (e.g. YKK / Vardhman)"
+                        value={it.vendor_name || ''}
+                        onChange={e => {
+                          const copy = [...items]
+                          copy[idx].vendor_name = e.target.value
+                          setItems(copy)
+                        }}
+                        title="Leave blank to use challan supplier"
+                        className="w-full sm:w-56 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                       />
                       <button
                         type="button"
                         onClick={() => setItems(items.filter((_, i) => i !== idx))}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                        title="Remove item"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+                    <div className="grid grid-cols-2 sm:grid-cols-7 gap-2.5 text-xs">
                       <div>
                         <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
                           Challan Qty *
@@ -2342,6 +2370,7 @@ function GrnInwardModal({
                               const diff = Math.max(0, cQty - (copy[idx].quantity || 0))
                               copy[idx].shortage_qty = diff
                             }
+                            copy[idx].total_price = Number(((copy[idx].quantity || 0) * (copy[idx].unit_price || 0)).toFixed(2))
                             setItems(copy)
                           }}
                           className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
@@ -2349,8 +2378,8 @@ function GrnInwardModal({
                       </div>
                       <div>
                         <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-700 mb-1 flex items-center justify-between">
-                          <span>Received Qty *</span>
-                          <span className="text-[10px] text-slate-400 font-normal">In Godown</span>
+                          <span>Received *</span>
+                          <span className="text-[10px] text-slate-400 font-normal">Godown</span>
                         </label>
                         <input
                           type="number"
@@ -2374,6 +2403,7 @@ function GrnInwardModal({
                               copy[idx].shortage_qty = 0
                               copy[idx].status = 'RECEIVED'
                             }
+                            copy[idx].total_price = Number((rQty * (copy[idx].unit_price || 0)).toFixed(2))
                             setItems(copy)
                           }}
                           className="w-full px-3 py-2 font-mono font-bold text-emerald-700 bg-emerald-50/40 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
@@ -2396,17 +2426,55 @@ function GrnInwardModal({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Size / Color</label>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Size / Width</label>
                         <input
                           type="text"
-                          placeholder="e.g. M / Black"
-                          value={it.size_label || ''}
+                          placeholder="e.g. M / 7&quot; / 25mm"
+                          value={it.size ?? (it.size_label && it.size_label.includes('/') ? it.size_label.split('/')[0].trim() : (it.size_label || ''))}
                           onChange={e => {
                             const copy = [...items]
-                            copy[idx].size_label = e.target.value
+                            const newSize = e.target.value
+                            copy[idx].size = newSize
+                            const curColor = (copy[idx].color || '').trim()
+                            copy[idx].size_label = newSize.trim() && curColor ? `${newSize.trim()} / ${curColor}` : (newSize.trim() || curColor)
                             setItems(copy)
                           }}
                           className="w-full px-3 py-2 font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Color / Shade</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Black / #402"
+                          value={it.color ?? (it.size_label && it.size_label.includes('/') ? it.size_label.split('/')[1].trim() : '')}
+                          onChange={e => {
+                            const copy = [...items]
+                            const newColor = e.target.value
+                            copy[idx].color = newColor
+                            const curSize = (copy[idx].size || '').trim()
+                            copy[idx].size_label = curSize && newColor.trim() ? `${curSize} / ${newColor.trim()}` : (curSize || newColor.trim())
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-2 font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">Rate (₹/unit)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={it.unit_price === 0 ? '' : it.unit_price ?? ''}
+                          onChange={e => {
+                            const val = e.target.value
+                            const rate = val === '' ? 0 : Number(val)
+                            const copy = [...items]
+                            copy[idx].unit_price = rate
+                            copy[idx].total_price = Number(((copy[idx].quantity || 0) * rate).toFixed(2))
+                            setItems(copy)
+                          }}
+                          className="w-full px-3 py-2 font-mono font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
                         />
                       </div>
                       <div>
@@ -2425,6 +2493,7 @@ function GrnInwardModal({
                               const rQty = copy[idx].quantity
                               copy[idx].shortage_qty = Math.max(0, cQty - rQty) || 1
                             }
+                            copy[idx].total_price = Number(((copy[idx].quantity || 0) * (copy[idx].unit_price || 0)).toFixed(2))
                             setItems(copy)
                           }}
                           className={`w-full px-3 py-2 font-bold bg-white border rounded-xl focus:outline-none focus:ring-2 ${
@@ -2432,8 +2501,8 @@ function GrnInwardModal({
                               ? 'text-emerald-700 border-emerald-300' 
                               : it.status === 'SHORTAGE' 
                                 ? 'text-amber-700 border-amber-300' 
-                                : it.status === 'DEFECTIVE'
-                                  ? 'text-rose-700 border-rose-300'
+                                : it.status === 'DEFECTIVE' 
+                                  ? 'text-rose-700 border-rose-300' 
                                   : 'text-indigo-700 border-indigo-300'
                           }`}
                         >
@@ -2444,6 +2513,25 @@ function GrnInwardModal({
                         </select>
                       </div>
                     </div>
+
+                    {/* Price & Vendor Info pill */}
+                    {((it.unit_price || 0) > 0 || it.vendor_name) && (
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 px-3 py-1 bg-white border border-slate-200/80 rounded-lg">
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-slate-400">Supplier:</span>
+                          <span className="font-bold text-slate-800">{it.vendor_name || partyName || 'Primary Supplier'}</span>
+                        </span>
+                        {(it.unit_price || 0) > 0 && (
+                          <span className="flex items-center gap-1.5 font-mono">
+                            <span className="text-slate-400">Valuation:</span>
+                            <span className="font-bold text-emerald-700">
+                              ₹{((it.quantity || 0) * (it.unit_price || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-normal">({it.quantity || 0} {it.unit} @ ₹{it.unit_price}/unit)</span>
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {Boolean(it.status !== 'RECEIVED' || ((it.shortage_qty || 0) > 0)) && (
                       <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs">
@@ -2484,6 +2572,7 @@ function GrnInwardModal({
                                 const cQty = copy[idx].challan_qty ?? (copy[idx].quantity + sQty)
                                 copy[idx].challan_qty = cQty
                                 copy[idx].quantity = Math.max(0, cQty - sQty)
+                                copy[idx].total_price = Number((copy[idx].quantity * (copy[idx].unit_price || 0)).toFixed(2))
                                 setItems(copy)
                               }}
                               className="w-20 px-2 py-1 text-xs font-mono font-bold bg-white border border-amber-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20"
@@ -2511,7 +2600,7 @@ function GrnInwardModal({
                     type="button"
                     onClick={() => setItems(prev => [
                       ...prev,
-                      { item_name: '', quantity: 0, unit: 'pcs', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
+                      { item_name: '', vendor_name: '', unit_price: 0, total_price: 0, quantity: 0, challan_qty: 0, unit: 'pcs', size: '', color: '', size_label: '', status: 'RECEIVED', shortage_qty: 0, remarks: '' }
                     ])}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#3A3564] bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer"
                   >
@@ -2567,23 +2656,32 @@ function GrnInwardModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-end gap-2.5">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2"
-          >
-            {isSubmitting ? 'Saving GRN...' : 'Confirm Inward'}
-          </button>
+        <div className="p-4 sm:p-5 border-t border-black/10 bg-[#FAF7F0] flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
+          <div className="flex items-center gap-4 text-xs font-mono text-slate-600">
+            <span>Items: <strong className="text-slate-900">{items.length}</strong></span>
+            <span>Received: <strong className="text-emerald-700">{items.reduce((s, i) => s + (Number(i.quantity) || 0), 0)} units</strong></span>
+            {items.some(i => (i.unit_price || 0) > 0) && (
+              <span>Value: <strong className="text-[#3A3564] font-bold">₹{items.reduce((s, i) => s + ((Number(i.quantity) || 0) * (Number(i.unit_price) || 0)), 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
+            )}
+          </div>
+          <div className="flex items-center gap-2.5 ml-auto">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+            >
+              {isSubmitting ? 'Saving GRN...' : 'Confirm Inward'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
