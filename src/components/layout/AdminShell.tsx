@@ -79,6 +79,8 @@ function AdminShellContent({
     pathname?.startsWith('/all-designs') ||
     pathname === '/store' ||
     pathname === '/fabric-store' ||
+    pathname === '/zigza-ai' ||
+    pathname?.startsWith('/zigza-ai') ||
     pathname === '/reports' ||
     pathname?.startsWith('/reports') ||
     pathname === '/profile' ||

@@ -106,8 +106,9 @@ export function CompanyOwnerHeader({
       id: 'dashboard',
       label: 'Dashboard',
       lines: ['Dashboard'],
+      href: '/dashboard',
       icon: LayoutDashboard,
-      isActive: false
+      isActive: pathname === '/dashboard' || pathname?.startsWith('/dashboard') || pathname === '/stitching-sewing/dashboard'
     },
     {
       id: 'all-modules',
@@ -115,37 +116,39 @@ export function CompanyOwnerHeader({
       lines: ['All Modules'],
       href: '/modules',
       icon: LayoutGrid,
-      isActive: pathname === '/modules'
+      isActive: pathname === '/modules' || pathname === '/modules/'
     },
     {
       id: 'buyers-vendors',
       label: 'Buyers & Vendors',
       lines: ['Buyers &', 'Vendors'],
+      href: '/vendors',
       icon: Building2,
-      isActive: false
+      isActive: pathname === '/vendors' || pathname?.startsWith('/vendors') || pathname === '/buyers-vendors'
     },
     {
       id: 'supervisor-workers',
       label: 'Supervisor & Workers',
       lines: ['Supervisor &', 'Workers'],
-      href: '/modules/access-control',
+      href: '/access-control',
       icon: Users,
-      isActive: pathname === '/modules/access-control' || pathname?.startsWith('/modules/access-control') || pathname === '/access-control'
+      isActive: pathname === '/access-control' || pathname?.startsWith('/access-control') || pathname === '/modules/access-control' || pathname === '/supervisor-workers'
     },
     {
       id: 'all-designs',
       label: 'All Designs',
       lines: ['All Designs'],
-      href: '/design/sa-approvals',
+      href: '/design',
       icon: Palette,
-      isActive: pathname === '/design/sa-approvals' || pathname?.startsWith('/design/sa-approvals')
+      isActive: pathname === '/design' || pathname?.startsWith('/design') || pathname === '/all-designs'
     },
     {
       id: 'fabric-store',
       label: 'Fabric & Store',
       lines: ['Fabric &', 'Store'],
+      href: '/store',
       icon: Warehouse,
-      isActive: false
+      isActive: pathname === '/store' || pathname?.startsWith('/store') || pathname === '/fabric-store'
     },
     {
       id: 'zigza-ai',
@@ -159,16 +162,17 @@ export function CompanyOwnerHeader({
       id: 'reports',
       label: 'Reports',
       lines: ['Reports'],
+      href: '/reports',
       icon: FileText,
-      isActive: false
+      isActive: pathname === '/reports' || pathname?.startsWith('/reports')
     },
     {
       id: 'company-profile',
       label: 'Company Profile',
       lines: ['Company', 'Profile'],
-      href: '/modules/profile',
+      href: '/profile',
       icon: User,
-      isActive: pathname === '/modules/profile' || pathname?.startsWith('/modules/profile') || pathname === '/profile'
+      isActive: pathname === '/profile' || pathname?.startsWith('/profile') || pathname === '/modules/profile' || pathname === '/company-profile'
     }
   ]
 
@@ -215,7 +219,7 @@ export function CompanyOwnerHeader({
                   Quick Actions
                 </div>
                 <Link
-                  href="/modules/access-control"
+                  href="/access-control"
                   className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors font-semibold text-slate-800 hover:text-[#3A3564]"
                 >
                   <Users className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
@@ -244,7 +248,7 @@ export function CompanyOwnerHeader({
                 </Link>
                 <div className="border-t border-slate-100 my-1" />
                 <Link
-                  href="/modules/profile"
+                  href="/profile"
                   className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F]"
                 >
                   <Building2 className="w-4.5 h-4.5 text-slate-500 shrink-0" />
@@ -291,14 +295,14 @@ export function CompanyOwnerHeader({
 
                 <div className="py-1.5">
                   <Link
-                    href="/modules/profile"
+                    href="/profile"
                     className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F] font-medium"
                   >
                     <Building2 className="w-4 h-4 text-slate-500" />
                     <span>Company Profile &amp; Settings</span>
                   </Link>
                   <Link
-                    href="/modules/access-control"
+                    href="/access-control"
                     className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F] font-medium"
                   >
                     <Users className="w-4 h-4 text-slate-500" />
