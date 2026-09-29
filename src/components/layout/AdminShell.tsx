@@ -60,14 +60,33 @@ function AdminShellContent({
   // Workspace Hub / Admin Level pages (Horizontal Navbar displayed instead of vertical sidebar)
   const isWorkspaceHubPage = (
     pathname === '/modules' ||
+    pathname === '/dashboard' ||
+    pathname?.startsWith('/dashboard') ||
+    pathname === '/vendors' ||
+    pathname?.startsWith('/vendors') ||
+    pathname === '/buyers-vendors' ||
+    pathname?.startsWith('/buyers-vendors') ||
+    pathname === '/access-control' ||
+    pathname?.startsWith('/access-control') ||
+    pathname === '/supervisor-workers' ||
+    pathname?.startsWith('/supervisor-workers') ||
     pathname === '/modules/access-control' ||
     pathname?.startsWith('/modules/access-control') ||
+    pathname === '/design' ||
     pathname === '/design/sa-approvals' ||
     pathname?.startsWith('/design/sa-approvals') ||
+    pathname === '/all-designs' ||
+    pathname?.startsWith('/all-designs') ||
+    pathname === '/store' ||
+    pathname === '/fabric-store' ||
+    pathname === '/reports' ||
+    pathname?.startsWith('/reports') ||
+    pathname === '/profile' ||
+    pathname?.startsWith('/profile') ||
+    pathname === '/company-profile' ||
+    pathname?.startsWith('/company-profile') ||
     pathname === '/modules/profile' ||
-    pathname?.startsWith('/modules/profile') ||
-    pathname === '/access-control' ||
-    pathname?.startsWith('/access-control')
+    pathname?.startsWith('/modules/profile')
   )
 
   const isStoreUser = (

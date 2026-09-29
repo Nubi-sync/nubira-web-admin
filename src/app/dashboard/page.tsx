@@ -1,7 +1,5 @@
-import { redirect } from 'next/navigation'
+import StitchingSewingDashboardPage from '@/app/stitching-sewing/dashboard/page'
 
 export const dynamic = 'force-dynamic'
 
-export default function LegacyDashboardPage() {
-  redirect('/stitching-sewing/dashboard')
-}
+export default StitchingSewingDashboardPage
