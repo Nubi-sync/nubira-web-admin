@@ -232,7 +232,7 @@ export default function LoginPage() {
         <div className="flex items-center gap-3">
           <Link href="/" className="inline-block group">
             <img 
-              src="/z i g z a (8).png" 
+              src="/z i g z a (8) 1.png" 
               alt="Zigza" 
               className="h-11 sm:h-13 w-auto object-contain transition-opacity group-hover:opacity-85"
             />

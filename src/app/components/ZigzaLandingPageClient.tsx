@@ -1834,7 +1834,7 @@ export function ZigzaLandingPageClient({
                   {/* Vertical connecting line */}
                   <div className="absolute left-[15px] top-4 bottom-4 w-[2px] bg-slate-200 rounded-full" />
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     {allStages.map((stage, idx) => {
                       const isActive = activePipelineStep === idx
                       return (
@@ -1844,20 +1844,22 @@ export function ZigzaLandingPageClient({
                           className="relative cursor-pointer group"
                         >
                           {/* Timeline node (circle) */}
-                          <div className={`absolute -left-8 top-3 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
+                          <div className={`absolute -left-8 top-2.5 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
                             isActive
                               ? 'bg-[#3A3564] text-white shadow-sm ring-2 ring-[#3A3564]/30 scale-110'
-                              : 'bg-white text-[#3A3564] border-2 border-slate-300 group-hover:border-[#3A3564]/50'
+                              : 'bg-white text-[#3A3564] border-2 border-slate-300 group-hover:border-black group-hover:scale-105'
                           }`}>
                             {stage.step}
                           </div>
 
-                          {/* Content */}
-                          <div className={`py-3 pl-3 pr-2 rounded-xl transition-all duration-300 ${
-                            isActive ? 'bg-[#FAF7F0]/60' : ''
+                          {/* Content Card Box with animated black outline on hover */}
+                          <div className={`py-2.5 px-3.5 rounded-xl border-2 transition-all duration-300 ease-out ${
+                            isActive 
+                              ? 'border-black bg-[#FAF7F0] shadow-2xs' 
+                              : 'border-transparent bg-transparent hover:border-black hover:bg-[#FAF7F0]/40 hover:shadow-2xs'
                           }`}>
                             <h3 className={`text-[15px] font-bold tracking-tight leading-snug transition-colors ${
-                              isActive ? 'text-[#3A3564]' : 'text-slate-900'
+                              isActive ? 'text-slate-900' : 'text-slate-900 group-hover:text-black'
                             }`}>
                               {stage.title}
                             </h3>
@@ -2072,6 +2074,15 @@ export function ZigzaLandingPageClient({
                 className="w-full h-auto object-contain mix-blend-multiply select-none pointer-events-none drop-shadow-xs"
                 loading="lazy"
               />
+
+              {/* Central Zigza Brand Icon In Between Madhya Pradesh on the India Map with subtle minimal shadow */}
+              <div className="absolute top-[51.5%] left-[37.5%] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none select-none">
+                <img
+                  src="/zigza_icon.png"
+                  alt="Zigza"
+                  className="w-12 sm:w-16 lg:w-18 h-auto object-contain select-none pointer-events-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
+                />
+              </div>
 
               {/* Dispatch Logistics: Shifted further to the right with dotted line connection */}
               <div className="absolute -bottom-1 sm:bottom-0 lg:bottom-1 right-0 sm:-right-8 lg:-right-10 z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
@@ -2486,22 +2497,22 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 9. BOTTOM DIRECT QUERY & CONTACT US WINDOW                          */}
       {/* =================================================================== */}
-      <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80 scroll-mt-24">
-        <div className="relative max-w-5xl mx-auto bg-[#FAF7F0] border border-black md:hover:border-[#3A3564]/60 rounded-2xl sm:rounded-3xl p-5 sm:p-10 lg:p-12 shadow-sm md:hover:shadow-md transition-all duration-300 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      <section id="contact" className="py-14 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80 scroll-mt-24">
+        <div className="relative max-w-5xl mx-auto bg-transparent sm:bg-[#FAF7F0] border-0 sm:border sm:border-black md:hover:border-[#3A3564]/60 rounded-none sm:rounded-3xl p-0 sm:p-10 lg:p-12 shadow-none sm:shadow-sm md:hover:shadow-md transition-all duration-300">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* Left Column: Direct Assistance & Contact */}
-            <div className="lg:col-span-6 space-y-4 text-center lg:text-left">
+            <div className="lg:col-span-6 space-y-4 text-center lg:text-left px-1 sm:px-0">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Have a Question? <br className="hidden sm:inline" />Talk With Our Team
               </h2>
 
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
                 Whether you want to understand how a module fits your factory floor or discuss custom plans, drop your message and we'll reach out directly.
               </p>
 
               {/* Trust Points */}
-              <div className="space-y-2.5 pt-1 text-sm sm:text-[15px] font-semibold text-slate-800 text-left">
+              <div className="space-y-2.5 pt-1 text-sm sm:text-[15px] font-semibold text-slate-800 text-left max-w-md mx-auto lg:mx-0">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
                   <span>Direct response from apparel operations specialists</span>
@@ -2512,12 +2523,12 @@ export function ZigzaLandingPageClient({
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-center lg:justify-start">
+              <div className="pt-2 sm:pt-3 flex items-center justify-center lg:justify-start">
                 <a
                   href="https://wa.me/?text=Hi%20Zigza%20Team,%20I%20have%20a%20query%20about%20your%20apparel%20MES%20system."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-[15px] font-bold transition-all shadow-xs cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-[15px] font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <Phone className="w-4 h-4" />
                   <span>Instant WhatsApp Chat</span>
@@ -2525,9 +2536,9 @@ export function ZigzaLandingPageClient({
               </div>
             </div>
 
-            {/* Right Simple Contact Us Form Card */}
-            <div className="lg:col-span-6 bg-white text-slate-900 p-7 sm:p-9 rounded-2xl border border-black shadow-sm">
-              <div className="mb-6">
+            {/* Right Single Contact Us Form Card */}
+            <div className="lg:col-span-6 bg-white text-slate-900 p-5 sm:p-8 lg:p-9 rounded-2xl border border-black shadow-sm">
+              <div className="mb-5 sm:mb-6">
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
                   Contact Us
                 </h3>
@@ -2537,7 +2548,7 @@ export function ZigzaLandingPageClient({
               </div>
 
               {querySubmitted ? (
-                <div className="p-6 sm:p-7 bg-[#FAFAF8] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
+                <div className="p-5 sm:p-7 bg-[#FAFAF8] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
                   <div className="flex items-start gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/80">
                       <CheckCircle2 className="w-5 h-5 stroke-[2.4]" />
@@ -2591,14 +2602,14 @@ export function ZigzaLandingPageClient({
                           query: ''
                         })
                       }}
-                      className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Send Another Query
                     </button>
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleQuerySubmit} className="space-y-4">
+                <form onSubmit={handleQuerySubmit} className="space-y-3.5 sm:space-y-4">
                   {/* Field 1: Name */}
                   <div>
                     <label className="block text-sm font-bold text-slate-800 mb-1.5">
@@ -2610,7 +2621,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter your name"
                       value={queryForm.name}
                       onChange={e => setQueryForm({ ...queryForm, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -2620,7 +2631,7 @@ export function ZigzaLandingPageClient({
                       Phone Number *
                     </label>
                     <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
-                      <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
+                      <div className="flex items-center justify-center px-3 sm:px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
                         +91
                       </div>
                       <input
@@ -2630,7 +2641,7 @@ export function ZigzaLandingPageClient({
                         value={queryForm.phone}
                         onChange={e => handleQueryPhoneChange(e.target.value)}
                         maxLength={11}
-                        className="w-full px-4 py-3 text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
+                        className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
                       />
                     </div>
                   </div>
@@ -2645,7 +2656,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter company / factory name"
                       value={queryForm.companyName}
                       onChange={e => setQueryForm({ ...queryForm, companyName: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -2660,7 +2671,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter your query or message..."
                       value={queryForm.query}
                       onChange={e => setQueryForm({ ...queryForm, query: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
                     />
                   </div>
 

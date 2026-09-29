@@ -403,7 +403,7 @@ export default function RegisterFreeTrialPage() {
         <div className="flex items-center gap-3">
           <Link href="/" className="inline-block group">
             <img 
-              src="/z i g z a (8).png" 
+              src="/z i g z a (8) 1.png" 
               alt="Zigza" 
               className="h-10 sm:h-12 w-auto object-contain transition-opacity group-hover:opacity-85"
             />
