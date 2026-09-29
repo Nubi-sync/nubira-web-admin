@@ -602,28 +602,46 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
         if (qcName) uniqueQc.add(qcName)
         if (mendingName) uniqueMending.add(mendingName)
 
-        articleLines.push({
-          art_no: artNo || '',
-          sub_art_no: subArtNo,
-          pattern_no: product,
-          category: category,
-          product: product,
-          description: category && product ? `${category} - ${product}` : (category || product || (artNo ? `${artNo} Style` : '')),
-          color_pattern: colorPattern || '',
-          size_range: sizeRange || '',
-          order_qty: orderQtyVal !== '' ? orderQtyVal : (calcTotal || ''),
-          sets: numericSets,
-          pcs_per_set: numericPcsPerSet,
-          total_pcs: calcTotal !== '' ? calcTotal : 0,
-          assigned_lineman_id: '',
-          lineman_name: linemanName || undefined,
-          qc_name: qcName || undefined,
-          mending_name: mendingName || undefined,
-          vendor_name: vendorName || undefined,
-          stage_status: stageStatus || undefined,
-          status: rowStatus || 'RUNNING',
-          stitching_rate: typeof rateVal === 'number' && rateVal > 0 ? rateVal : undefined
-        })
+        const lineKey = `${(artNo || '').toUpperCase()}__${(subArtNo || '').toUpperCase()}__${(colorPattern || '').toUpperCase()}__${(sizeRange || '').toUpperCase()}`
+        const existingLine = articleLines.find(al => 
+          `${(al.art_no || '').toUpperCase()}__${(al.sub_art_no || '').toUpperCase()}__${(al.color_pattern || '').toUpperCase()}__${(al.size_range || '').toUpperCase()}` === lineKey
+        )
+
+        if (existingLine) {
+          if (product && !existingLine.product.toUpperCase().includes(product.toUpperCase())) {
+            existingLine.product = `${existingLine.product} + ${product}`
+            existingLine.pattern_no = `${existingLine.pattern_no} + ${product}`
+            existingLine.description = existingLine.category 
+              ? `${existingLine.category} - ${existingLine.product}` 
+              : existingLine.product
+          }
+          if (typeof rateVal === 'number' && rateVal > 0) {
+            existingLine.stitching_rate = rateVal
+          }
+        } else {
+          articleLines.push({
+            art_no: artNo || '',
+            sub_art_no: subArtNo,
+            pattern_no: product || 'Standard',
+            category: category,
+            product: product || 'Standard',
+            description: category && product ? `${category} - ${product}` : (category || product || (artNo ? `${artNo} Style` : '')),
+            color_pattern: colorPattern || '',
+            size_range: sizeRange || '',
+            order_qty: orderQtyVal !== '' ? orderQtyVal : (calcTotal || ''),
+            sets: numericSets,
+            pcs_per_set: numericPcsPerSet,
+            total_pcs: calcTotal !== '' ? calcTotal : 0,
+            assigned_lineman_id: '',
+            lineman_name: linemanName || undefined,
+            qc_name: qcName || undefined,
+            mending_name: mendingName || undefined,
+            vendor_name: vendorName || undefined,
+            stage_status: stageStatus || undefined,
+            status: rowStatus || 'RUNNING',
+            stitching_rate: typeof rateVal === 'number' && rateVal > 0 ? rateVal : undefined
+          })
+        }
       }
 
       // BOM Material Item

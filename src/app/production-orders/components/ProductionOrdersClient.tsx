@@ -1210,16 +1210,36 @@ export function ProductionOrdersClient({
         colorMap[cName].totalPcs += pcsPerColor
         colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
         const assignedColors: string[] = (art as any).assigned_colors || []
-        const isColorMatch = assignedColors.length === 0
-          ? (art.color_pattern && (art.color_pattern.toUpperCase() === cName.toUpperCase() || cName.toUpperCase().includes(art.color_pattern.toUpperCase())))
-          : assignedColors.some((ac: string) => ac === cName.toUpperCase() || cName.toUpperCase().includes(ac) || ac.includes(cName.toUpperCase()))
+        const artCol = (art.color_pattern || '').trim().toUpperCase()
+        const cUpper = cName.toUpperCase()
+        const isColorMatch = assignedColors.length > 0
+          ? assignedColors.some((ac: string) => ac === cUpper || cUpper.includes(ac) || ac.includes(cUpper))
+          : (!artCol || artCol === cUpper || cUpper.includes(artCol) || artCol.includes(cUpper) || artCol === 'STANDARD' || artCol === 'ALL')
 
-        if (art.assigned_lineman_id && art.assigned_lineman_id !== '' && isColorMatch) {
-          colorMap[cName].assignedLinemanId = art.assigned_lineman_id
-          colorMap[cName].assignedLinemanName = art.assigned_lineman_name
+        if (art.assigned_lineman_id && art.assigned_lineman_id !== '' && art.assigned_lineman_name !== 'Unassigned (Floor Order)' && art.assigned_lineman_name !== 'Unassigned') {
+          if (isColorMatch || !colorMap[cName].assignedLinemanName) {
+            colorMap[cName].assignedLinemanId = art.assigned_lineman_id
+            colorMap[cName].assignedLinemanName = art.assigned_lineman_name
+          }
         }
       })
     })
+
+    // Fallback: If challan is allotted to a lineman, ensure all active color lines inherit that lineman
+    const anyAssigned = challan.articles.find(a => 
+      a.assigned_lineman_id && 
+      a.assigned_lineman_name && 
+      a.assigned_lineman_name !== 'Unassigned (Floor Order)' && 
+      a.assigned_lineman_name !== 'Unassigned'
+    )
+    if (anyAssigned) {
+      Object.values(colorMap).forEach(c => {
+        if (!c.assignedLinemanName) {
+          c.assignedLinemanId = anyAssigned.assigned_lineman_id
+          c.assignedLinemanName = anyAssigned.assigned_lineman_name
+        }
+      })
+    }
 
     return Object.values(colorMap).filter(c => c.totalPcs > 0)
   }

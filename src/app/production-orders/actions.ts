@@ -273,18 +273,18 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
 
         const chAllotments = (allotments || []).filter((a: any) => {
           if (a.challan_id === ch.id) return true
-          const mat = materials?.find((m: any) => m.allotment_id === a.id)
+          const mat = materials?.filter((m: any) => m.allotment_id === a.id) || []
           let meta: any = {}
-          if (mat?.notes) {
-            try { meta = JSON.parse(mat.notes) } catch (_) {}
+          for (const m of mat) {
+            if (m.notes) {
+              try { meta = { ...meta, ...JSON.parse(m.notes) } } catch (_) {}
+            }
           }
-          const alChNo = (meta.client_challan_no || meta.challan_no || a.client_challan_no || (a.challans as any)?.challan_no || '').trim().toUpperCase()
-          if (chNo && alChNo && (chNo === alChNo || alChNo.includes(chNo) || chNo.includes(alChNo))) return true
+          const alChNo = (meta.client_challan_no || meta.challan_no || a.client_challan_no || (a.challans as any)?.challan_no || a.production_order_no || '').trim().toUpperCase()
+          const normChNo = chNo.replace(/^JOB-?/i, '').trim()
+          const normAlChNo = alChNo.replace(/^JOB-?/i, '').trim()
 
-          // Match by article number (e.g. 5225)
-          const art = (Array.isArray(a.articles) ? a.articles[0] : a.articles) || {}
-          const alArtNo = (art.art_no || meta.art_no || '').trim().toUpperCase()
-          if (alArtNo && chArtNos.has(alArtNo)) return true
+          if (normChNo && normAlChNo && (normChNo === normAlChNo || chNo === alChNo)) return true
 
           return false
         })
@@ -293,8 +293,35 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
         if (ch.notes) {
           try {
             const parsedNotes = JSON.parse(ch.notes)
-            const rawLines = parsedNotes.article_lines || parsedNotes
-            if (Array.isArray(rawLines) && rawLines.length > 0) {
+            const rawLinesInput = parsedNotes.article_lines || parsedNotes
+            if (Array.isArray(rawLinesInput) && rawLinesInput.length > 0) {
+              const consolidatedMap = new Map<string, any>()
+              rawLinesInput.forEach((line: any) => {
+                const cleanArt = (line.art_no || '').trim().toUpperCase()
+                const cleanSub = (line.sub_art_no || '').trim().toUpperCase()
+                const color = (line.color_pattern || 'Standard').trim().toUpperCase()
+                const size = (line.size_range || 'Free Size').trim().toUpperCase()
+                const key = `${cleanArt}__${cleanSub}__${color}__${size}`
+                const prod = (line.pattern_no || line.product || '').trim()
+
+                if (consolidatedMap.has(key)) {
+                  const existing = consolidatedMap.get(key)
+                  if (prod && !existing.pattern_no.toUpperCase().includes(prod.toUpperCase())) {
+                    existing.pattern_no = `${existing.pattern_no} + ${prod}`
+                  }
+                  const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+                  const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+                  existing.total_pcs = Math.max(Number(existing.total_pcs) || 0, linePcs)
+                  existing.sets = Math.max(Number(existing.sets) || 0, lineSets)
+                  if (!existing.stitching_rate && line.stitching_rate) {
+                    existing.stitching_rate = line.stitching_rate
+                  }
+                } else {
+                  consolidatedMap.set(key, { ...line, pattern_no: prod || 'Standard' })
+                }
+              })
+              const rawLines = Array.from(consolidatedMap.values())
+
               rawLines.forEach((line: any, idx: number) => {
                 const cleanArtNo = (line.art_no || '').trim().toUpperCase()
                 const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
@@ -353,8 +380,11 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                                     (baseArtNo && alArtNo.includes(baseArtNo)) || (cleanArtNo && alArtNo.includes(cleanArtNo)) ||
                                     (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
 
-                  return isArtMatch
-                })
+                  if (isArtMatch) return true
+                  if (chAllotments.length === 1 && al.lineman_id) return true
+
+                  return false
+                }) || (chAllotments.length === 1 ? chAllotments[0] : undefined)
 
                 let linemanId = ''
                 let linemanName = 'Unassigned (Floor Order)'
