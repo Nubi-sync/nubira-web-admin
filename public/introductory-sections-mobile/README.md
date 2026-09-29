@@ -35,16 +35,20 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
     * Primary: Deep Indigo `#3A3564` ("Request a Live Demo")
     * Secondary: White with `#14140F]/30` border and subtle hover tint ("Staff Login to Portal")
   * **3 Key Benefit Pointers**: Vertically stacked with `#3A3564` checkmarks (`text-sm font-medium text-[#3D3C36]`).
-  * **Live Floor MES Table**: 
-    * Horizontally swipeable container with smooth mobile scroll hinting (`Live Telemetry · Swipe table →`) and right edge gradient fade.
-    * 4 Executive Metric Cards optimized for mobile screens without awkward text truncation or clipped numbers.
+  * **Mobile-Native MES Companion Card**: 
+    * Replaced the wide desktop web dashboard illustration with a **dedicated phone-first factory app widget** (`sm:hidden`).
+    * App Status Header: `Zigza MES Mobile | Shift A · Live Telemetry` with pulsing `● Live` status badge.
+    * 3 Segmented Station Touch Tabs: `Cutting`, `Sewing`, and `QC & Pack`.
+    * 2 High-Impact KPI Cards: Active batch / lot and live pieces cut with dynamic animated count-up.
+    * Real-Time Vertical Activity Feed: 3 vertical cards with zero horizontal overflow, showing bundle tags, piece wages, and carton audit checkpoints.
+    * Cloud Synced status bar with 0.1s latency indicator.
 
 ---
 
 ### 02. Traditional Chaos vs. Zigza Digital Solution (Mobile)
 * **File**: `02_problem_vs_solution_section.png`
 * **Layout & Typography**:
-  * **Single Column Vertical Flow with Visual Connector**: Traditional Challenges card connected to Zigza Digital Solution card via a sleek `Manual Paper → Zigza Digital` transition badge.
+  * **Direct Clean Comparison Flow**: Seamless transition between Traditional Challenges and Zigza Digital Solution with the intermediate bridge pill removed for a clutter-free vertical layout.
   * **Traditional Paper Friction Card**: 2px solid `#FB7185` (Rose-400) border with 4 pain points (`text-base font-bold text-slate-900` + `text-sm text-slate-700`).
   * **Zigza Digital System Card**: 2px solid `#10B981` (Emerald-500) border with 4 solutions (`text-base font-bold text-slate-900` + `text-sm text-slate-700`).
   * Note: Handwritten pencil sticky notes automatically hidden on mobile screens (`hidden xl:flex`) to prevent mobile viewport overflow.
@@ -55,9 +59,10 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
 * **File**: `03_operating_modules_section.png`
 * **Layout & Typography**:
   * **Section Heading**: `text-3xl font-extrabold text-slate-900 tracking-tight`.
-  * **Swipeable Mobile Carousel**:
-    * Clean card snap slider (`w-[85vw] max-w-[340px] flex-shrink-0 snap-center`) replacing the vertical 6-card stack, saving ~1200px of mobile vertical scroll fatigue.
-    * Interactive dot pagination indicators with real-time scroll sync and touch navigation arrows.
+  * **Smooth Sliding Mobile Carousel**:
+    * Silky-smooth CSS scroll transitions with `scroll-smooth`, accurate card center alignment on button click, and active slide scaling (`scale-100 opacity-100` vs `scale-[0.98] opacity-80`).
+    * Interactive dot pagination indicators with real-time scroll sync and expanded active pill indicators (`w-7 bg-[#3A3564]`).
+    * Tactile left/right chevron navigation buttons with subtle hover feedback and active tap animations.
     * Seam Accent: Full-width `#3A3564` 2.5px seam line indicator on each card.
     * Audit Checklist: `text-[14.5px] text-slate-700 leading-relaxed` with `#3A3564` check icons.
 
@@ -125,10 +130,10 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
 ### 09. Enterprise Footer with Social Handles (Mobile)
 * **File**: `09_footer_section.png`
 * **Layout & Typography**:
-  * **Mobile Grid**: 2-column grid (`grid-cols-2`) for Platform and Access & Support columns, preventing excessive vertical stacking.
-  * **Social Handles**: Compact horizontal icon-only row on mobile (`w-10 h-10` touch targets) for Instagram, LinkedIn, Twitter/X, and Facebook.
-  * **Legal Links**: Responsive flex-wrap row with comfortable touch targets.
-  * **Bottom Bar**: Proudly Made in India badge with Indian flag SVG + copyright & legal links.
+  * **Brand Block & Social Row**: Zigza logo and concise manufacturing mission statement followed immediately by a clean 4-icon horizontal social bar (Instagram, LinkedIn, Twitter/X, Facebook) with `w-9 h-9` outline action tiles.
+  * **Balanced 2-Column Grid**: Two-column layout (`grid-cols-2 gap-6`) for **Platform** and **Access & Support** with uppercase mono headers (`text-[12px] font-mono font-bold tracking-wider text-slate-900`).
+  * **Zero Multiline Wrapping**: Streamlined labels (`Staff Sign In →`, `WhatsApp Support` with phone icon) preventing awkward text breaks on 390px screens.
+  * **Centering & FAB Clearance**: Extended bottom padding (`pb-20 sm:pb-14`) ensuring the floating Back-to-Top FAB never overlaps the centered legal links (`Privacy Policy • Terms of Service • Security Standards`) or "Proudly Made in India" badge.
 
 ---
 

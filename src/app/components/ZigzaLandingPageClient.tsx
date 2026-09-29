@@ -237,25 +237,46 @@ export function ZigzaLandingPageClient({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Module carousel scroll handler for dot indicator sync
+  // Module carousel scroll handler for dot indicator sync with smooth slide centering
   useEffect(() => {
     const container = moduleCarouselRef.current
     if (!container) return
+    let timeoutId: NodeJS.Timeout
     const handleCarouselScroll = () => {
-      const scrollLeft = container.scrollLeft
-      const slideWidth = container.offsetWidth
-      const idx = Math.round(scrollLeft / slideWidth)
-      setActiveModuleSlide(idx)
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        const containerCenter = container.scrollLeft + container.clientWidth / 2
+        const children = Array.from(container.children) as HTMLElement[]
+        let closestIdx = 0
+        let minDiff = Infinity
+        children.forEach((child, i) => {
+          const childCenter = child.offsetLeft + child.clientWidth / 2
+          const diff = Math.abs(containerCenter - childCenter)
+          if (diff < minDiff) {
+            minDiff = diff
+            closestIdx = i
+          }
+        })
+        setActiveModuleSlide(closestIdx)
+      }, 50)
     }
     container.addEventListener('scroll', handleCarouselScroll, { passive: true })
-    return () => container.removeEventListener('scroll', handleCarouselScroll)
+    return () => {
+      container.removeEventListener('scroll', handleCarouselScroll)
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   const scrollToModuleSlide = useCallback((idx: number) => {
     const container = moduleCarouselRef.current
     if (!container) return
-    container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' })
-    setActiveModuleSlide(idx)
+    const children = Array.from(container.children) as HTMLElement[]
+    if (children && children[idx]) {
+      const targetCard = children[idx]
+      const scrollTarget = targetCard.offsetLeft - (container.clientWidth - targetCard.clientWidth) / 2
+      container.scrollTo({ left: scrollTarget, behavior: 'smooth' })
+      setActiveModuleSlide(idx)
+    }
   }, [])
 
   // Sequential 8-Step Factory Pipeline Animation (1.4s per box)
@@ -741,389 +762,540 @@ export function ZigzaLandingPageClient({
 
         {/* Live MES Interactive Visual Dashboard Mockup */}
         <div className="mt-8 sm:mt-12 max-w-5xl mx-auto">
-          <div className="bg-white border border-[#3A3564]/15 rounded-2xl sm:rounded-3xl shadow-xl shadow-[#3A3564]/5 overflow-hidden transition-all duration-300">
-            
-            {/* macOS Dark Blue Window Header Bar */}
-            <div className="bg-[#1B2A4A] px-4 sm:px-6 py-3 border-b border-slate-700/80 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* macOS Colored Window Control Dots */}
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/60 inline-block shadow-2xs" />
-                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/60 inline-block shadow-2xs" />
-                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/60 inline-block shadow-2xs" />
+          {(() => {
+            interface MetricItem {
+              label: string
+              value: string | number
+              sub: string
+              color: string
+              isNumeric: boolean
+              prefix?: string
+              suffix?: string
+              decimals?: number
+            }
+
+            const departmentMetrics: Record<'cutting' | 'sewing' | 'qc', MetricItem[]> = {
+              cutting: [
+                {
+                  label: 'Active Cutting Lot',
+                  value: 'LOT-2024-C8',
+                  sub: 'Polo T-Shirt · 220 GSM Pique',
+                  color: 'text-slate-900',
+                  isNumeric: false
+                },
+                {
+                  label: 'Total Pieces Cut',
+                  value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0),
+                  sub: '98.8% Fabric Utilization',
+                  suffix: ' Pcs',
+                  color: 'text-[#3A3564]',
+                  isNumeric: true
+                },
+                {
+                  label: 'Fabric Rolls Laid',
+                  value: 24 + (mockupTick >= 2 ? 1 : 0),
+                  sub: 'ASTM 4-Pt: Zero Defects',
+                  suffix: ' Rolls',
+                  color: 'text-[#D97706]',
+                  isNumeric: true
+                },
+                {
+                  label: 'Panel QC Pass',
+                  value: 99.4 + (mockupTick >= 2 ? 0.2 : 0),
+                  sub: '4,820 Panels Inspected',
+                  decimals: 1,
+                  suffix: '%',
+                  color: 'text-emerald-600',
+                  isNumeric: true
+                }
+              ],
+              sewing: [
+                {
+                  label: 'Active Sewing Lines',
+                  value: 'Line 01 & Line 02',
+                  sub: '32 Stations Active',
+                  color: 'text-slate-900',
+                  isNumeric: false
+                },
+                {
+                  label: 'Pieces Stitched Today',
+                  value: 3420 + (mockupTick > 0 ? mockupTick * 35 : 0),
+                  sub: 'Target: 3,800 Pcs · 90%',
+                  suffix: ' Pcs',
+                  color: 'text-[#3A3564]',
+                  isNumeric: true
+                },
+                {
+                  label: 'Line Pace & Speed',
+                  value: 385 + (mockupTick > 0 ? mockupTick * 4 : 0),
+                  sub: 'Overlock & Flatlock',
+                  suffix: ' Pcs/Hr',
+                  color: 'text-[#D97706]',
+                  isNumeric: true
+                },
+                {
+                  label: 'Piece Wages Earned',
+                  value: 18450 + (mockupTick > 0 ? mockupTick * 180 : 0),
+                  sub: 'Instant Tailor Ledger',
+                  prefix: '₹',
+                  color: 'text-emerald-600',
+                  isNumeric: true
+                }
+              ],
+              qc: [
+                {
+                  label: 'Inspection Audited',
+                  value: 4210 + (mockupTick > 0 ? mockupTick * 30 : 0),
+                  sub: 'Inline & End-Line Audit',
+                  suffix: ' Pcs',
+                  color: 'text-slate-900',
+                  isNumeric: true
+                },
+                {
+                  label: 'AQL 2.5 Pass Rate',
+                  value: 99.2 + (mockupTick >= 2 ? 0.1 : 0),
+                  sub: 'Zero Critical Defects',
+                  decimals: 1,
+                  suffix: '%',
+                  color: 'text-emerald-600',
+                  isNumeric: true
+                },
+                {
+                  label: 'Master Cartons Packed',
+                  value: 142 + (mockupTick >= 1 ? mockupTick : 0),
+                  sub: 'Gross Weight Verified',
+                  suffix: ' Cartons',
+                  color: 'text-[#D97706]',
+                  isNumeric: true
+                },
+                {
+                  label: 'Ready for Dispatch',
+                  value: 4260 + (mockupTick > 0 ? mockupTick * 36 : 0),
+                  sub: 'Gate Pass Cleared',
+                  suffix: ' Pcs',
+                  color: 'text-[#3A3564]',
+                  isNumeric: true
+                }
+              ]
+            }
+
+            const departmentBanners = {
+              cutting: {
+                icon: <FileSpreadsheet className="w-4 h-4 text-[#3A3564] shrink-0" />,
+                title: 'Fabric Lay Sheet & Marker Breakdown',
+                badge: 'Marker Ratio 1:2:2:1 (S-XL)',
+                col1: 'Lay Sheet',
+                col2: 'Fabric Lot & Color',
+                col3: 'Marker Ratio',
+                col4: 'Plies',
+                col5: 'Cut Pcs',
+                col6: 'Panel QC'
+              },
+              sewing: {
+                icon: <Scissors className="w-4 h-4 text-[#3A3564] shrink-0" />,
+                title: 'Tailor Piece-Rate Ledger & Operation Sync',
+                badge: '32 Stations Real-Time Ledger',
+                col1: 'Sewing Line',
+                col2: 'Tailor / Operator',
+                col3: 'Garment Operation',
+                col4: 'Bundle Lot',
+                col5: 'Done',
+                col6: 'Piece Wage'
+              },
+              qc: {
+                icon: <PackageCheck className="w-4 h-4 text-[#3A3564] shrink-0" />,
+                title: 'End-Line QC & Master Carton Packing Stream',
+                badge: 'AQL 2.5 & Weight-Check Verified',
+                col1: 'Carton #',
+                col2: 'Style & Color',
+                col3: 'Pack Size Breakdown',
+                col4: 'Pcs / Ctn',
+                col5: 'Gross Weight',
+                col6: 'AQL Audit'
+              }
+            }
+
+            const departmentRows = {
+              cutting: [
+                {
+                  id: 'cut-row-1',
+                  c1: mockupTick === 1 ? 'LAY-104-05' : 'LAY-104-04',
+                  c2: mockupTick === 1 ? 'Heather Grey · Lot 5A' : 'Navy Blue · Lot 4A',
+                  c2Color: 'text-slate-800',
+                  c3: '1 : 2 : 2 : 1 (S-XL)',
+                  c4: mockupTick === 1 ? '50 Plies' : '60 Plies',
+                  c5: mockupTick === 1 ? '+300 Pcs' : '360 Pcs',
+                  badge: mockupTick === 1 ? 'Lay Cut Verified' : 'Bundled & Cleared',
+                  badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 1
+                },
+                {
+                  id: 'cut-row-2',
+                  c1: 'LAY-104-03',
+                  c2: 'Olive Green · Lot 2B',
+                  c2Color: 'text-emerald-700',
+                  c3: '1 : 2 : 2 : 1 (S-XL)',
+                  c4: '60 Plies',
+                  c5: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
+                  badge: mockupTick === 2 ? 'Panel QC Cleared' : 'Bundled & Cleared',
+                  badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 2
+                },
+                {
+                  id: 'cut-row-3',
+                  c1: 'LAY-104-02',
+                  c2: 'Mustard · Lot 1C',
+                  c2Color: 'text-amber-700',
+                  c3: '2 : 2 : 1 : 1 (S-XL)',
+                  c4: '55 Plies',
+                  c5: mockupTick === 3 ? '+330 Pcs' : '330 Pcs',
+                  badge: mockupTick === 3 ? 'Plies Verified' : 'Bundled & Cleared',
+                  badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 3
+                },
+                {
+                  id: 'cut-row-4',
+                  c1: 'LAY-104-01',
+                  c2: 'Charcoal · Lot 3D',
+                  c2Color: 'text-slate-800',
+                  c3: '1 : 2 : 2 : 1 (S-XL)',
+                  c4: '60 Plies',
+                  c5: '360 Pcs',
+                  badge: 'Bundled & Cleared',
+                  badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: false
+                }
+              ],
+              sewing: [
+                {
+                  id: 'sew-row-1',
+                  c1: 'Line 01',
+                  c2: 'Aslam Khan (Tailor #12)',
+                  c2Color: 'text-slate-900',
+                  c3: 'Collar Rib & Neckband',
+                  c4: 'BDL-104-09',
+                  c5: mockupTick === 1 ? '+30 Pcs' : '30 Pcs',
+                  badge: mockupTick === 1 ? '+₹165 Synced' : '₹165 Synced',
+                  badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 1
+                },
+                {
+                  id: 'sew-row-2',
+                  c1: 'Line 01',
+                  c2: 'Ramesh Dev (Tailor #08)',
+                  c2Color: 'text-slate-900',
+                  c3: 'Shoulder Join & Topstitch',
+                  c4: 'BDL-104-08',
+                  c5: mockupTick === 2 ? '+30 Pcs' : '30 Pcs',
+                  badge: mockupTick === 2 ? '+₹120 Synced' : '₹120 Synced',
+                  badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 2
+                },
+                {
+                  id: 'sew-row-3',
+                  c1: 'Line 02',
+                  c2: 'Sunita Roy (Tailor #15)',
+                  c2Color: 'text-slate-900',
+                  c3: 'Sleeve Hemming & Attach',
+                  c4: 'BDL-104-07',
+                  c5: mockupTick === 3 ? '+30 Pcs' : '30 Pcs',
+                  badge: mockupTick === 3 ? '+₹150 Synced' : '₹150 Synced',
+                  badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 3
+                },
+                {
+                  id: 'sew-row-4',
+                  c1: 'Line 02',
+                  c2: 'Md. Parvez (Tailor #04)',
+                  c2Color: 'text-slate-900',
+                  c3: 'Side Seam & Bottom Hem',
+                  c4: 'BDL-104-06',
+                  c5: '30 Pcs',
+                  badge: '₹180 Synced',
+                  badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: false
+                }
+              ],
+              qc: [
+                {
+                  id: 'qc-row-1',
+                  c1: mockupTick === 1 ? 'CTN-0143' : 'CTN-0142',
+                  c2: mockupTick === 1 ? 'Style 408 · Heather Grey' : 'Style 408 · Navy Blue',
+                  c2Color: mockupTick === 1 ? 'text-slate-700' : 'text-blue-700',
+                  c3: 'S:6 · M:12 · L:12 · XL:6',
+                  c4: mockupTick === 1 ? '+36 Pcs' : '36 Pcs',
+                  c5: mockupTick === 1 ? '11.42 kg' : '11.40 kg',
+                  badge: mockupTick === 1 ? 'Weight Verified' : 'Carton Sealed',
+                  badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 1
+                },
+                {
+                  id: 'qc-row-2',
+                  c1: 'CTN-0141',
+                  c2: 'Style 408 · Olive Green',
+                  c2Color: 'text-emerald-700',
+                  c3: 'S:6 · M:12 · L:12 · XL:6',
+                  c4: '36 Pcs',
+                  c5: '11.40 kg',
+                  badge: mockupTick === 2 ? 'AQL 2.5 Pass' : 'Carton Sealed',
+                  badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 2
+                },
+                {
+                  id: 'qc-row-3',
+                  c1: 'CTN-0140',
+                  c2: 'Style 408 · Mustard',
+                  c2Color: 'text-amber-700',
+                  c3: 'S:6 · M:12 · L:12 · XL:6',
+                  c4: '36 Pcs',
+                  c5: '11.45 kg',
+                  badge: mockupTick === 3 ? 'Weight Checked' : 'AQL Passed',
+                  badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  isActive: mockupTick === 3
+                },
+                {
+                  id: 'qc-row-4',
+                  c1: 'CTN-0139',
+                  c2: 'Style 408 · Charcoal',
+                  c2Color: 'text-slate-800',
+                  c3: 'S:6 · M:12 · L:12 · XL:6',
+                  c4: '36 Pcs',
+                  c5: '11.38 kg',
+                  badge: 'Dispatch Bay',
+                  badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60',
+                  isActive: false
+                }
+              ]
+            }
+
+            const currentBanner = departmentBanners[mockupTab]
+            const currentRows = departmentRows[mockupTab]
+
+            return (
+              <>
+                {/* ========================================================= */}
+                {/* 1. MOBILE PHONE MES COMPANION CARD (sm:hidden)            */}
+                {/* ========================================================= */}
+                <div className="sm:hidden bg-white border border-[#3A3564]/15 rounded-2xl shadow-lg overflow-hidden">
+                  {/* Phone Header Bar */}
+                  <div className="bg-[#1B2A4A] px-3.5 py-3 border-b border-slate-700/80 flex items-center justify-between text-white">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-[#3A3564] border border-white/20 flex items-center justify-center text-white shrink-0">
+                        <Smartphone className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <div className="text-[13px] font-bold leading-tight">Zigza MES Mobile</div>
+                        <div className="text-[10px] text-slate-300 font-mono">Shift A · Live Telemetry</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[11px] font-semibold text-emerald-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>Live</span>
+                    </div>
+                  </div>
+
+                  {/* Segmented Department Selector */}
+                  <div className="p-3 bg-[#FAF7F0] border-b border-slate-200/80">
+                    <div className="grid grid-cols-3 gap-1.5 p-1 bg-white border border-slate-200 rounded-xl shadow-2xs">
+                      <button
+                        type="button"
+                        onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
+                        className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
+                          mockupTab === 'cutting'
+                            ? 'bg-[#3A3564] text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Cutting
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
+                        className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
+                          mockupTab === 'sewing'
+                            ? 'bg-[#3A3564] text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        Sewing
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
+                        className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
+                          mockupTab === 'qc'
+                            ? 'bg-[#3A3564] text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        QC &amp; Pack
+                      </button>
+                    </div>
+
+                    {/* Top 2 Primary Mobile Metric Cards */}
+                    <div className="grid grid-cols-2 gap-2 mt-2.5">
+                      <div className="p-2.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+                          {departmentMetrics[mockupTab][0].label}
+                        </span>
+                        <div className={`text-[15px] font-extrabold mt-0.5 truncate font-mono ${departmentMetrics[mockupTab][0].color}`}>
+                          {departmentMetrics[mockupTab][0].value}
+                        </div>
+                        <span className="text-[10.5px] text-slate-600 block truncate mt-0.5">
+                          {departmentMetrics[mockupTab][0].sub}
+                        </span>
+                      </div>
+
+                      <div className="p-2.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+                          {departmentMetrics[mockupTab][1].label}
+                        </span>
+                        <div className={`text-[15px] font-extrabold mt-0.5 truncate font-mono ${departmentMetrics[mockupTab][1].color}`}>
+                          {departmentMetrics[mockupTab][1].isNumeric ? (
+                            <AnimatedCounter
+                              value={departmentMetrics[mockupTab][1].value as number}
+                              prefix={departmentMetrics[mockupTab][1].prefix}
+                              suffix={departmentMetrics[mockupTab][1].suffix}
+                              decimals={departmentMetrics[mockupTab][1].decimals}
+                              duration={800}
+                            />
+                          ) : (
+                            <span>{departmentMetrics[mockupTab][1].value}</span>
+                          )}
+                        </div>
+                        <span className="text-[10.5px] text-slate-600 block truncate mt-0.5">
+                          {departmentMetrics[mockupTab][1].sub}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Activity Feed (Clean vertical cards - zero overflow) */}
+                  <div className="p-3 space-y-2 bg-white">
+                    <div className="flex items-center justify-between text-xs text-slate-700 font-semibold px-0.5">
+                      <span className="flex items-center gap-1.5 font-bold text-slate-900">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        Live Station Activity
+                      </span>
+                      <span className="text-[10.5px] text-slate-500 font-mono">
+                        {currentBanner.badge}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {currentRows.slice(0, 3).map((r) => (
+                        <div
+                          key={r.id}
+                          className={`p-2.5 rounded-xl border transition-all duration-500 ${
+                            r.isActive
+                              ? 'bg-emerald-50/70 border-emerald-300 shadow-2xs'
+                              : 'bg-[#FAF7F0]/40 border-slate-200/80'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
+                              <span className="text-xs font-bold font-mono text-[#3A3564] truncate">{r.c1}</span>
+                              <span className="text-slate-300">•</span>
+                              <span className={`text-xs font-semibold truncate ${r.c2Color}`}>{r.c2}</span>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] border font-medium shrink-0 ${r.badgeCls}`}>
+                              {r.badge}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1.5 pt-1.5 border-t border-slate-100 font-mono">
+                            <span className="truncate">{r.c3}</span>
+                            <span className="font-bold text-slate-900 shrink-0 ml-2">{r.c4} · {r.c5}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Mobile Bottom Status Bar */}
+                    <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-100 font-medium">
+                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        Cloud Synced
+                      </span>
+                      <span className="font-mono text-[10px] text-slate-400">Latency: 0.1s</span>
+                    </div>
+                  </div>
                 </div>
-                {/* Interactive Station Tabs (Linked to JOB-457 · OLLYPOP Kids 2-Pc) */}
-                <div className="flex items-center gap-1 sm:gap-1.5 ml-1 sm:ml-3">
-                  <button
-                    type="button"
-                    onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                      mockupTab === 'cutting'
-                        ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
-                        : 'text-slate-300 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Cutting & Inward
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                      mockupTab === 'sewing'
-                        ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
-                        : 'text-slate-300 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Sewing Lines
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
-                    className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                      mockupTab === 'qc'
-                        ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
-                        : 'text-slate-300 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    QC & Packing
-                  </button>
-                </div>
-              </div>
 
-              {/* Real-Time Sync Indicator & 10s Loop Timer */}
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-300 shrink-0">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="hidden sm:inline font-medium">Live Floor Sync</span>
-                <span className="text-[11px] sm:text-xs font-mono text-slate-400">
-                  {mockupTick === 0 ? '· Synced' : `· +${mockupTick} Events`}
-                </span>
-              </div>
-            </div>
+                {/* ========================================================= */}
+                {/* 2. DESKTOP macOS MES DASHBOARD (hidden sm:block)          */}
+                {/* ========================================================= */}
+                <div className="hidden sm:block bg-white border border-[#3A3564]/15 rounded-3xl shadow-xl shadow-[#3A3564]/5 overflow-hidden transition-all duration-300">
+                  {/* macOS Dark Blue Window Header Bar */}
+                  <div className="bg-[#1B2A4A] px-6 py-3 border-b border-slate-700/80 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      {/* macOS Colored Window Control Dots */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/60 inline-block shadow-2xs" />
+                        <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/60 inline-block shadow-2xs" />
+                        <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/60 inline-block shadow-2xs" />
+                      </div>
+                      {/* Interactive Station Tabs (Linked to JOB-457 · OLLYPOP Kids 2-Pc) */}
+                      <div className="flex items-center gap-1.5 ml-3">
+                        <button
+                          type="button"
+                          onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
+                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                            mockupTab === 'cutting'
+                              ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                              : 'text-slate-300 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          Cutting &amp; Inward
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
+                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                            mockupTab === 'sewing'
+                              ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                              : 'text-slate-300 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          Sewing Lines
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
+                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                            mockupTab === 'qc'
+                              ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                              : 'text-slate-300 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          QC &amp; Packing
+                        </button>
+                      </div>
+                    </div>
 
-            {/* Mockup Body Content */}
-            <div className="p-4 sm:p-6 bg-[#FAFAF8] space-y-4 sm:space-y-5">
-              {(() => {
-                interface MetricItem {
-                  label: string
-                  value: string | number
-                  sub: string
-                  color: string
-                  isNumeric: boolean
-                  prefix?: string
-                  suffix?: string
-                  decimals?: number
-                }
+                    {/* Real-Time Sync Indicator & 10s Loop Timer */}
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-300 shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="font-medium">Live Floor Sync</span>
+                      <span className="text-xs font-mono text-slate-400">
+                        {mockupTick === 0 ? '· Synced' : `· +${mockupTick} Events`}
+                      </span>
+                    </div>
+                  </div>
 
-                const departmentMetrics: Record<'cutting' | 'sewing' | 'qc', MetricItem[]> = {
-                  cutting: [
-                    {
-                      label: 'Active Cutting Lot',
-                      value: 'LOT-2024-C8',
-                      sub: 'Polo T-Shirt · 220 GSM Pique',
-                      color: 'text-slate-900',
-                      isNumeric: false
-                    },
-                    {
-                      label: 'Total Pieces Cut',
-                      value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0),
-                      sub: '98.8% Fabric Utilization',
-                      suffix: ' Pcs',
-                      color: 'text-[#3A3564]',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'Fabric Rolls Laid',
-                      value: 24 + (mockupTick >= 2 ? 1 : 0),
-                      sub: 'ASTM 4-Pt: Zero Defects',
-                      suffix: ' Rolls',
-                      color: 'text-[#D97706]',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'Panel QC Pass',
-                      value: 99.4 + (mockupTick >= 2 ? 0.2 : 0),
-                      sub: '4,820 Panels Inspected',
-                      decimals: 1,
-                      suffix: '%',
-                      color: 'text-emerald-600',
-                      isNumeric: true
-                    }
-                  ],
-                  sewing: [
-                    {
-                      label: 'Active Sewing Lines',
-                      value: 'Line 01 & Line 02',
-                      sub: '32 Stations Active',
-                      color: 'text-slate-900',
-                      isNumeric: false
-                    },
-                    {
-                      label: 'Pieces Stitched Today',
-                      value: 3420 + (mockupTick > 0 ? mockupTick * 35 : 0),
-                      sub: 'Target: 3,800 Pcs · 90%',
-                      suffix: ' Pcs',
-                      color: 'text-[#3A3564]',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'Line Pace & Speed',
-                      value: 385 + (mockupTick > 0 ? mockupTick * 4 : 0),
-                      sub: 'Overlock & Flatlock',
-                      suffix: ' Pcs/Hr',
-                      color: 'text-[#D97706]',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'Piece Wages Earned',
-                      value: 18450 + (mockupTick > 0 ? mockupTick * 180 : 0),
-                      sub: 'Instant Tailor Ledger',
-                      prefix: '₹',
-                      color: 'text-emerald-600',
-                      isNumeric: true
-                    }
-                  ],
-                  qc: [
-                    {
-                      label: 'Inspection Audited',
-                      value: 4210 + (mockupTick > 0 ? mockupTick * 30 : 0),
-                      sub: 'Inline & End-Line Audit',
-                      suffix: ' Pcs',
-                      color: 'text-slate-900',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'AQL 2.5 Pass Rate',
-                      value: 99.2 + (mockupTick >= 2 ? 0.1 : 0),
-                      sub: 'Zero Critical Defects',
-                      decimals: 1,
-                      suffix: '%',
-                      color: 'text-emerald-600',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'Master Cartons Packed',
-                      value: 142 + (mockupTick >= 1 ? mockupTick : 0),
-                      sub: 'Gross Weight Verified',
-                      suffix: ' Cartons',
-                      color: 'text-[#D97706]',
-                      isNumeric: true
-                    },
-                    {
-                      label: 'Ready for Dispatch',
-                      value: 4260 + (mockupTick > 0 ? mockupTick * 36 : 0),
-                      sub: 'Gate Pass Cleared',
-                      suffix: ' Pcs',
-                      color: 'text-[#3A3564]',
-                      isNumeric: true
-                    }
-                  ]
-                }
-
-                const departmentBanners = {
-                  cutting: {
-                    icon: <FileSpreadsheet className="w-4 h-4 text-[#3A3564] shrink-0" />,
-                    title: 'Fabric Lay Sheet & Marker Breakdown',
-                    badge: 'Marker Ratio 1:2:2:1 (S-XL)',
-                    col1: 'Lay Sheet',
-                    col2: 'Fabric Lot & Color',
-                    col3: 'Marker Ratio',
-                    col4: 'Plies',
-                    col5: 'Cut Pcs',
-                    col6: 'Panel QC'
-                  },
-                  sewing: {
-                    icon: <Scissors className="w-4 h-4 text-[#3A3564] shrink-0" />,
-                    title: 'Tailor Piece-Rate Ledger & Operation Sync',
-                    badge: '32 Stations Real-Time Ledger',
-                    col1: 'Sewing Line',
-                    col2: 'Tailor / Operator',
-                    col3: 'Garment Operation',
-                    col4: 'Bundle Lot',
-                    col5: 'Done',
-                    col6: 'Piece Wage'
-                  },
-                  qc: {
-                    icon: <PackageCheck className="w-4 h-4 text-[#3A3564] shrink-0" />,
-                    title: 'End-Line QC & Master Carton Packing Stream',
-                    badge: 'AQL 2.5 & Weight-Check Verified',
-                    col1: 'Carton #',
-                    col2: 'Style & Color',
-                    col3: 'Pack Size Breakdown',
-                    col4: 'Pcs / Ctn',
-                    col5: 'Gross Weight',
-                    col6: 'AQL Audit'
-                  }
-                }
-
-                const departmentRows = {
-                  cutting: [
-                    {
-                      id: 'cut-row-1',
-                      c1: mockupTick === 1 ? 'LAY-104-05' : 'LAY-104-04',
-                      c2: mockupTick === 1 ? 'Heather Grey · Lot 5A' : 'Navy Blue · Lot 4A',
-                      c2Color: 'text-slate-800',
-                      c3: '1 : 2 : 2 : 1 (S-XL)',
-                      c4: mockupTick === 1 ? '50 Plies' : '60 Plies',
-                      c5: mockupTick === 1 ? '+300 Pcs' : '360 Pcs',
-                      badge: mockupTick === 1 ? 'Lay Cut Verified' : 'Bundled & Cleared',
-                      badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 1
-                    },
-                    {
-                      id: 'cut-row-2',
-                      c1: 'LAY-104-03',
-                      c2: 'Olive Green · Lot 2B',
-                      c2Color: 'text-emerald-700',
-                      c3: '1 : 2 : 2 : 1 (S-XL)',
-                      c4: '60 Plies',
-                      c5: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
-                      badge: mockupTick === 2 ? 'Panel QC Cleared' : 'Bundled & Cleared',
-                      badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 2
-                    },
-                    {
-                      id: 'cut-row-3',
-                      c1: 'LAY-104-02',
-                      c2: 'Mustard · Lot 1C',
-                      c2Color: 'text-amber-700',
-                      c3: '2 : 2 : 1 : 1 (S-XL)',
-                      c4: '55 Plies',
-                      c5: mockupTick === 3 ? '+330 Pcs' : '330 Pcs',
-                      badge: mockupTick === 3 ? 'Plies Verified' : 'Bundled & Cleared',
-                      badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 3
-                    },
-                    {
-                      id: 'cut-row-4',
-                      c1: 'LAY-104-01',
-                      c2: 'Charcoal · Lot 3D',
-                      c2Color: 'text-slate-800',
-                      c3: '1 : 2 : 2 : 1 (S-XL)',
-                      c4: '60 Plies',
-                      c5: '360 Pcs',
-                      badge: 'Bundled & Cleared',
-                      badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: false
-                    }
-                  ],
-                  sewing: [
-                    {
-                      id: 'sew-row-1',
-                      c1: 'Line 01',
-                      c2: 'Aslam Khan (Tailor #12)',
-                      c2Color: 'text-slate-900',
-                      c3: 'Collar Rib & Neckband',
-                      c4: 'BDL-104-09',
-                      c5: mockupTick === 1 ? '+30 Pcs' : '30 Pcs',
-                      badge: mockupTick === 1 ? '+₹165 Synced' : '₹165 Synced',
-                      badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 1
-                    },
-                    {
-                      id: 'sew-row-2',
-                      c1: 'Line 01',
-                      c2: 'Ramesh Dev (Tailor #08)',
-                      c2Color: 'text-slate-900',
-                      c3: 'Shoulder Join & Topstitch',
-                      c4: 'BDL-104-08',
-                      c5: mockupTick === 2 ? '+30 Pcs' : '30 Pcs',
-                      badge: mockupTick === 2 ? '+₹120 Synced' : '₹120 Synced',
-                      badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 2
-                    },
-                    {
-                      id: 'sew-row-3',
-                      c1: 'Line 02',
-                      c2: 'Sunita Roy (Tailor #15)',
-                      c2Color: 'text-slate-900',
-                      c3: 'Sleeve Hemming & Attach',
-                      c4: 'BDL-104-07',
-                      c5: mockupTick === 3 ? '+30 Pcs' : '30 Pcs',
-                      badge: mockupTick === 3 ? '+₹150 Synced' : '₹150 Synced',
-                      badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 3
-                    },
-                    {
-                      id: 'sew-row-4',
-                      c1: 'Line 02',
-                      c2: 'Md. Parvez (Tailor #04)',
-                      c2Color: 'text-slate-900',
-                      c3: 'Side Seam & Bottom Hem',
-                      c4: 'BDL-104-06',
-                      c5: '30 Pcs',
-                      badge: '₹180 Synced',
-                      badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: false
-                    }
-                  ],
-                  qc: [
-                    {
-                      id: 'qc-row-1',
-                      c1: mockupTick === 1 ? 'CTN-0143' : 'CTN-0142',
-                      c2: mockupTick === 1 ? 'Style 408 · Heather Grey' : 'Style 408 · Navy Blue',
-                      c2Color: mockupTick === 1 ? 'text-slate-700' : 'text-blue-700',
-                      c3: 'S:6 · M:12 · L:12 · XL:6',
-                      c4: mockupTick === 1 ? '+36 Pcs' : '36 Pcs',
-                      c5: mockupTick === 1 ? '11.42 kg' : '11.40 kg',
-                      badge: mockupTick === 1 ? 'Weight Verified' : 'Carton Sealed',
-                      badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 1
-                    },
-                    {
-                      id: 'qc-row-2',
-                      c1: 'CTN-0141',
-                      c2: 'Style 408 · Olive Green',
-                      c2Color: 'text-emerald-700',
-                      c3: 'S:6 · M:12 · L:12 · XL:6',
-                      c4: '36 Pcs',
-                      c5: '11.40 kg',
-                      badge: mockupTick === 2 ? 'AQL 2.5 Pass' : 'Carton Sealed',
-                      badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 2
-                    },
-                    {
-                      id: 'qc-row-3',
-                      c1: 'CTN-0140',
-                      c2: 'Style 408 · Mustard',
-                      c2Color: 'text-amber-700',
-                      c3: 'S:6 · M:12 · L:12 · XL:6',
-                      c4: '36 Pcs',
-                      c5: '11.45 kg',
-                      badge: mockupTick === 3 ? 'Weight Checked' : 'AQL Passed',
-                      badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-                      isActive: mockupTick === 3
-                    },
-                    {
-                      id: 'qc-row-4',
-                      c1: 'CTN-0139',
-                      c2: 'Style 408 · Charcoal',
-                      c2Color: 'text-slate-800',
-                      c3: 'S:6 · M:12 · L:12 · XL:6',
-                      c4: '36 Pcs',
-                      c5: '11.38 kg',
-                      badge: 'Dispatch Bay',
-                      badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60',
-                      isActive: false
-                    }
-                  ]
-                }
-
-                const currentBanner = departmentBanners[mockupTab]
-                const currentRows = departmentRows[mockupTab]
-
-                return (
-                  <>
-                    {/* 4 Executive Metric Cards (Unified DOM structure to prevent reflow / blinking) */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+                  {/* Mockup Body Content */}
+                  <div className="p-6 bg-[#FAFAF8] space-y-5">
+                    {/* 4 Executive Metric Cards */}
+                    <div className="grid grid-cols-4 gap-4">
                       {departmentMetrics[mockupTab].map((metric, idx) => (
                         <div
                           key={`metric-${idx}`}
-                          className="p-3 sm:p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
+                          className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
                         >
-                          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block truncate">
+                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block truncate">
                             {metric.label}
                           </span>
-                          <div className={`text-base sm:text-xl font-black mt-1 font-mono truncate ${metric.color}`}>
+                          <div className={`text-xl font-black mt-1 font-mono truncate ${metric.color}`}>
                             {metric.isNumeric ? (
                               <AnimatedCounter
                                 value={metric.value as number}
@@ -1136,19 +1308,19 @@ export function ZigzaLandingPageClient({
                               <span>{metric.value}</span>
                             )}
                           </div>
-                          <span className="text-[11px] sm:text-[13px] font-medium text-slate-600 block line-clamp-1 sm:line-clamp-none mt-0.5 leading-tight">
+                          <span className="text-[13px] font-medium text-slate-600 block mt-0.5 leading-tight truncate">
                             {metric.sub}
                           </span>
                         </div>
                       ))}
                     </div>
 
-                    {/* Dynamic Live Table (Fixed column widths prevent any horizontal layout shifts; stable keys prevent DOM thrashing) */}
-                    <div className="bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-2xs">
+                    {/* Dynamic Live Table */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs">
                       <div className="flex items-center justify-between mb-3 gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           {currentBanner.icon}
-                          <span className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                          <span className="text-base font-bold text-slate-900 truncate">
                             {currentBanner.title}
                           </span>
                         </div>
@@ -1157,27 +1329,16 @@ export function ZigzaLandingPageClient({
                         </span>
                       </div>
 
-                      <div className="relative">
-                        {/* Mobile swipe hint */}
-                        <div className="sm:hidden flex items-center justify-between text-[11px] text-slate-500 font-medium px-0.5 mb-2">
-                          <span className="flex items-center gap-1.5 font-bold text-slate-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-                            Live Telemetry
-                          </span>
-                          <span className="flex items-center gap-1 text-[#3A3564] font-semibold text-[11px]">
-                            Swipe table <span className="font-bold">→</span>
-                          </span>
-                        </div>
-                        <div className="overflow-x-auto -mx-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                          <table className="w-full table-fixed text-xs sm:text-sm text-left min-w-[520px] sm:min-w-0">
+                      <div className="relative overflow-x-auto">
+                        <table className="w-full table-fixed text-sm text-left">
                           <thead>
                             <tr className="border-b border-slate-100 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                              <th className="py-2.5 px-2.5 sm:px-3 w-[17%] transition-colors duration-300">{currentBanner.col1}</th>
-                              <th className="py-2.5 px-2.5 sm:px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
-                              <th className="py-2.5 px-2.5 sm:px-3 w-[21%] transition-colors duration-300">{currentBanner.col3}</th>
-                              <th className="py-2.5 px-2.5 sm:px-3 w-[11%] text-right transition-colors duration-300">{currentBanner.col4}</th>
-                              <th className="py-2.5 px-2.5 sm:px-3 w-[12%] text-right transition-colors duration-300">{currentBanner.col5}</th>
-                              <th className="py-2.5 px-2.5 sm:px-3 w-[15%] text-center transition-colors duration-300">{currentBanner.col6}</th>
+                              <th className="py-2.5 px-3 w-[17%] transition-colors duration-300">{currentBanner.col1}</th>
+                              <th className="py-2.5 px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
+                              <th className="py-2.5 px-3 w-[21%] transition-colors duration-300">{currentBanner.col3}</th>
+                              <th className="py-2.5 px-3 w-[11%] text-right transition-colors duration-300">{currentBanner.col4}</th>
+                              <th className="py-2.5 px-3 w-[12%] text-right transition-colors duration-300">{currentBanner.col5}</th>
+                              <th className="py-2.5 px-3 w-[15%] text-center transition-colors duration-300">{currentBanner.col6}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -1190,36 +1351,32 @@ export function ZigzaLandingPageClient({
                                     : 'hover:bg-[#FAF7F0]/40'
                                 }`}
                               >
-                                <td className="py-2.5 px-2.5 sm:px-3 font-bold font-mono text-[#3A3564] truncate">
+                                <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564] truncate">
                                   <span className="flex items-center gap-1.5">
                                     {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />}
                                     {r.c1}
                                   </span>
                                 </td>
-                                <td className={`py-2.5 px-2.5 sm:px-3 font-semibold truncate ${r.c2Color}`}>{r.c2}</td>
-                                <td className="py-2.5 px-2.5 sm:px-3 font-mono text-slate-600 truncate">{r.c3}</td>
-                                <td className="py-2.5 px-2.5 sm:px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
-                                <td className={`py-2.5 px-2.5 sm:px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
-                                <td className="py-2.5 px-2.5 sm:px-3 text-center">
-                                  <span className={`px-2 py-0.5 rounded-full text-[10.5px] sm:text-[11px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
+                                <td className={`py-2.5 px-3 font-semibold truncate ${r.c2Color}`}>{r.c2}</td>
+                                <td className="py-2.5 px-3 font-mono text-slate-600 truncate">{r.c3}</td>
+                                <td className="py-2.5 px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
+                                <td className={`py-2.5 px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
+                                <td className="py-2.5 px-3 text-center">
+                                  <span className={`px-2 py-0.5 rounded-full text-[11px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
                                     {r.badge}
                                   </span>
                                 </td>
                               </tr>
                             ))}
                           </tbody>
-                          </table>
-                        </div>
-                        {/* Mobile scroll hint gradient */}
-                        <div className="sm:hidden absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none rounded-r-xl" />
+                        </table>
                       </div>
                     </div>
-                  </>
-                )
-              })()}
-
-            </div>
-          </div>
+                  </div>
+                </div>
+              </>
+            )
+          })()}
         </div>
 
       </section>
@@ -1359,14 +1516,6 @@ export function ZigzaLandingPageClient({
               </div>
             </div>
 
-            {/* Mobile Visual Bridge between Problem & Solution */}
-            <div className="md:hidden flex items-center justify-center -my-2 relative z-10">
-              <div className="flex items-center gap-2 px-3.5 py-1.5 bg-[#FAF7F0] border border-slate-300 rounded-full shadow-2xs text-xs font-mono font-bold text-slate-700">
-                <span className="text-rose-600">Manual Paper</span>
-                <span className="text-slate-400">→</span>
-                <span className="text-emerald-700 font-bold">Zigza Digital</span>
-              </div>
-            </div>
 
             {/* Zigza Digital Solution Card: Darker Emerald Outline with Generous Spacing */}
             <div className="bg-white rounded-2xl border-2 border-emerald-500 p-6 sm:p-8">
@@ -1548,22 +1697,27 @@ export function ZigzaLandingPageClient({
               <div className="md:hidden">
                 <div
                   ref={moduleCarouselRef}
-                  className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                  className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-2 px-2 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                   style={{ scrollSnapType: 'x mandatory' }}
                 >
-                  {engines.map((engine) => (
-                    <div key={engine.title} className="w-[85vw] max-w-[340px] flex-shrink-0 snap-center">
+                  {engines.map((engine, idx) => (
+                    <div 
+                      key={engine.title} 
+                      className={`w-[85vw] max-w-[340px] flex-shrink-0 snap-center transition-all duration-300 ease-out transform ${
+                        activeModuleSlide === idx ? 'scale-100 opacity-100' : 'scale-[0.98] opacity-80'
+                      }`}
+                    >
                       {renderModuleCard(engine, true)}
                     </div>
                   ))}
                 </div>
 
-                {/* Carousel Controls: Dots + Arrows */}
+                {/* Carousel Controls: Dots + Arrows with smooth sliding trigger */}
                 <div className="flex items-center justify-center gap-4 pt-4">
                   <button
                     type="button"
                     onClick={() => scrollToModuleSlide(Math.max(0, activeModuleSlide - 1))}
-                    className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-30"
+                    className="w-9 h-9 rounded-full border border-slate-300 flex items-center justify-center text-slate-700 bg-white hover:bg-slate-100 transition-all duration-200 cursor-pointer disabled:opacity-30 active:scale-95 shadow-2xs"
                     disabled={activeModuleSlide === 0}
                     aria-label="Previous module"
                   >
@@ -1576,9 +1730,9 @@ export function ZigzaLandingPageClient({
                         key={idx}
                         type="button"
                         onClick={() => scrollToModuleSlide(idx)}
-                        className={`rounded-full transition-all cursor-pointer ${
+                        className={`rounded-full transition-all duration-300 cursor-pointer ${
                           activeModuleSlide === idx
-                            ? 'w-6 h-2.5 bg-[#3A3564]'
+                            ? 'w-7 h-2.5 bg-[#3A3564] shadow-2xs'
                             : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
                         }`}
                         aria-label={`Go to module ${idx + 1}`}
@@ -1589,7 +1743,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="button"
                     onClick={() => scrollToModuleSlide(Math.min(engines.length - 1, activeModuleSlide + 1))}
-                    className="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-30"
+                    className="w-9 h-9 rounded-full border border-slate-300 flex items-center justify-center text-slate-700 bg-white hover:bg-slate-100 transition-all duration-200 cursor-pointer disabled:opacity-30 active:scale-95 shadow-2xs"
                     disabled={activeModuleSlide === engines.length - 1}
                     aria-label="Next module"
                   >
