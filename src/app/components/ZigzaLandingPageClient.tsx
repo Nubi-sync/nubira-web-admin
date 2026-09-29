@@ -686,9 +686,9 @@ export function ZigzaLandingPageClient({
 
             <Link
               href="/login"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-900 hover:text-white shadow-2xs hover:shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-[#14140F] bg-white border-2 border-[#14140F]/30 hover:border-[#14140F] hover:bg-[#14140F]/5 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
             >
-              <Lock className="w-4 h-4 text-[#3A3564] group-hover:text-white transition-colors" />
+              <Lock className="w-4 h-4 text-[#3A3564]" />
               <span>Staff Login to Portal</span>
             </Link>
           </div>
