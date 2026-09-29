@@ -491,7 +491,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-extrabold text-slate-900 font-mono">
-                            {al.production_order_no || al.client_challan_no || (al as any).art_no || al.articles?.art_no || (al.challans?.challan_no ? `Challan #${al.challans.challan_no}` : 'Job Allotment')}
+                            {al.articles?.art_no || (al as any).art_no || (al.challans?.challan_no ? `Article #${al.challans.challan_no}` : (al.production_order_no || al.client_challan_no || 'Job Allotment'))}
                           </span>
                           {al.priority === 'CRITICAL' && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
@@ -507,10 +507,10 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           )}
                         </div>
                         <div className="text-[11px] text-slate-500 font-medium truncate max-w-[200px]">
-                          {al.client_challan_no ? (
-                            <span>Challan #{al.client_challan_no} {al.brand ? `• ${al.brand}` : ''}</span>
+                          {(al.client_challan_no || al.production_order_no || al.challans?.challan_no) ? (
+                            <span>Challan #{al.client_challan_no || al.production_order_no || al.challans?.challan_no} {al.brand || al.challans?.brand ? `• ${al.brand || al.challans?.brand}` : ''}</span>
                           ) : (
-                            cleanDescription((al as any).description || al.articles?.description) || (al.challans?.brand ? `${al.challans.brand} • ${al.challans.fabric_type || 'Garment'}` : (al.production_order_no ? `Order Ref: ${al.production_order_no}` : 'Garment Batch'))
+                            cleanDescription((al as any).description || al.articles?.description) || (al.challans?.brand ? `${al.challans.brand} • ${al.challans.fabric_type || 'Garment'}` : 'Garment Batch')
                           )}
                         </div>
                       </td>

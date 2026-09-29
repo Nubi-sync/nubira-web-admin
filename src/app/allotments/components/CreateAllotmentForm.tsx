@@ -454,8 +454,8 @@ export function CreateAllotmentForm({
     setAutoLoadedOrder(null)
     setSelectedTargetBomDetails(smartOpt.bomDetails || [])
 
-    const challanRef = smartOpt.challanNo.startsWith('JOB-') ? smartOpt.challanNo : `JOB-${smartOpt.challanNo}`
-    setProductionOrderNo(smartOpt.colorName ? `${challanRef}-${smartOpt.colorName}` : challanRef)
+    const challanRef = smartOpt.challanNo || ''
+    setProductionOrderNo(smartOpt.colorName ? `${challanRef} (${smartOpt.colorName})` : challanRef)
     setClientChallanNo(challanRef)
 
     if (smartOpt.deliveryDate) setDueDate(smartOpt.deliveryDate)

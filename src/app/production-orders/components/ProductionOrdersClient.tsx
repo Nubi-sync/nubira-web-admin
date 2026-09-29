@@ -171,11 +171,7 @@ export function ProductionOrdersClient({
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [orders, setOrders] = useState<ChallanGroupedOrder[]>(initialOrders || [])
-  const [expandedChallans, setExpandedChallans] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {}
-    initialOrders.forEach(o => { initial[o.id] = true })
-    return initial
-  })
+  const [expandedChallans, setExpandedChallans] = useState<Record<string, boolean>>({})
 
   // Synchronize live orders whenever server component revalidates (revalidatePath / router.refresh)
   useEffect(() => {
@@ -2208,7 +2204,6 @@ export function ProductionOrdersClient({
                               <th className="py-3.5 px-4 w-28">Size Tier</th>
                               <th className="py-3.5 px-4 w-28 text-right">Rate / Pc</th>
                               <th className="py-3.5 px-4 w-24 text-right">Sets</th>
-                              <th className="py-3.5 px-4 w-24 text-right">Pcs/Set</th>
                               <th className="py-3.5 px-4 w-28 text-right">Total Pcs</th>
                               <th className="py-3.5 px-4 w-28 text-right">Amount (₹)</th>
                               <th className="py-3.5 px-4 w-48">Assigned Line</th>
@@ -2285,11 +2280,6 @@ export function ProductionOrdersClient({
                                 {/* Sets */}
                                 <td className="py-3.5 px-4 text-right font-bold text-slate-900 font-mono text-sm">
                                   {line.sets}
-                                </td>
-
-                                {/* Ratio */}
-                                <td className="py-3.5 px-4 text-right text-slate-600 font-mono text-xs">
-                                  {line.pcs_per_set} pcs/set
                                 </td>
 
                                 {/* Total Pcs */}

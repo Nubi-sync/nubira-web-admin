@@ -157,11 +157,18 @@ export default async function AllotmentsPage() {
       lineman_id: al.lineman_id,
       lineman_name: (al.profiles as any)?.username || 'Unassigned',
       article_id: al.article_id,
-      art_no: poNo || clientChallanNo || (al.articles as any)?.art_no || 'Standard Article',
-      description: (al.articles as any)?.description || '',
+      art_no: (al.articles as any)?.art_no || (al as any).art_no || poNo || clientChallanNo || 'Standard Article',
+      description: (al.articles as any)?.description || (al as any).description || '',
       stitching_rate: (al.articles as any)?.stitching_rate || 0,
       profiles: al.profiles || { username: (al.profiles as any)?.username || 'Lineman' },
-      articles: al.articles || { art_no: poNo || clientChallanNo || (al.articles as any)?.art_no || 'Job Allotment', description: (al.articles as any)?.description || '' },
+      articles: al.articles ? {
+        ...(al.articles as any),
+        art_no: (al.articles as any)?.art_no || (al as any).art_no || poNo || clientChallanNo || 'Standard Article',
+        description: (al.articles as any)?.description || (al as any).description || ''
+      } : {
+        art_no: (al as any).art_no || poNo || clientChallanNo || 'Job Allotment',
+        description: (al as any).description || ''
+      },
       challans: al.challans || null,
       target_qty: al.target_qty,
       status: al.status,
@@ -199,10 +206,12 @@ export default async function AllotmentsPage() {
             Sewing Dashboard
           </Link>
           <span>/</span>
-          <span>Production</span>
+          <Link href="/stitching-sewing/production-orders" className="hover:text-[#3A3564] transition-colors">
+            Production Chart
+          </Link>
           <span>/</span>
           <span className="font-bold text-slate-900">
-            Target Allotments
+            Line Allotment & Handover
           </span>
           <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
             {tenant.companyName}
