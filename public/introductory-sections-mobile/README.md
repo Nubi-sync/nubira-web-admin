@@ -35,13 +35,13 @@ This folder contains high-resolution (2x Retina scale) visual captures of every 
     * Primary: Deep Indigo `#3A3564` ("Request a Live Demo")
     * Secondary: White with `#14140F]/30` border and subtle hover tint ("Staff Login to Portal")
   * **3 Key Benefit Pointers**: Vertically stacked with `#3A3564` checkmarks (`text-sm font-medium text-[#3D3C36]`).
-  * **Mobile-Native MES Companion Card**: 
-    * Replaced the wide desktop web dashboard illustration with a **dedicated phone-first factory app widget** (`sm:hidden`).
-    * App Status Header: `Zigza MES Mobile | Shift A · Live Telemetry` with pulsing `● Live` status badge.
+  * **Pure Black Outline Smartphone Mockup**: 
+    * Replaced the blue header bar with a **sleek black outline phone chassis** (`border-[3px] border-slate-900 rounded-[36px] bg-white p-2.5 shadow-xl`) and top camera notch pill.
+    * Native Phone Status Row: `09:41` clock, battery icon, and pulsing emerald `● Live` status badge.
     * 3 Segmented Station Touch Tabs: `Cutting`, `Sewing`, and `QC & Pack`.
     * 2 High-Impact KPI Cards: Active batch / lot and live pieces cut with dynamic animated count-up.
     * Real-Time Vertical Activity Feed: 3 vertical cards with zero horizontal overflow, showing bundle tags, piece wages, and carton audit checkpoints.
-    * Cloud Synced status bar with 0.1s latency indicator.
+    * Cloud Synced status bar (`0.1s Latency`) + bottom smartphone swipe home indicator bar.
 
 ---
 

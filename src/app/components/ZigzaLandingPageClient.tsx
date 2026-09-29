@@ -1075,27 +1075,32 @@ export function ZigzaLandingPageClient({
               <>
                 {/* ========================================================= */}
                 {/* 1. MOBILE PHONE MES COMPANION CARD (sm:hidden)            */}
+                {/* Pure Black Outline Phone Illustration Mockup             */}
                 {/* ========================================================= */}
-                <div className="sm:hidden bg-white border border-[#3A3564]/15 rounded-2xl shadow-lg overflow-hidden">
-                  {/* Phone Header Bar */}
-                  <div className="bg-[#1B2A4A] px-3.5 py-3 border-b border-slate-700/80 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-[#3A3564] border border-white/20 flex items-center justify-center text-white shrink-0">
-                        <Smartphone className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <div className="text-[13px] font-bold leading-tight">Zigza MES Mobile</div>
-                        <div className="text-[10px] text-slate-300 font-mono">Shift A · Live Telemetry</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[11px] font-semibold text-emerald-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>Live</span>
-                    </div>
+                <div className="sm:hidden max-w-[340px] mx-auto rounded-[36px] border-[3px] border-slate-900 bg-white p-2.5 shadow-xl shadow-slate-900/10">
+                  {/* Phone Top Dynamic Island / Camera Notch */}
+                  <div className="w-20 h-3.5 bg-slate-900 rounded-full mx-auto mb-2 flex items-center justify-end px-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
                   </div>
 
-                  {/* Segmented Department Selector */}
-                  <div className="p-3 bg-[#FAF7F0] border-b border-slate-200/80">
+                  {/* Inner Phone Screen Display */}
+                  <div className="rounded-[26px] bg-[#FAF7F0] border border-slate-200/90 overflow-hidden p-3 space-y-2.5">
+                    {/* Native Phone Status Bar */}
+                    <div className="flex items-center justify-between px-1 text-slate-800">
+                      <span className="text-xs font-mono font-bold">09:41</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10.5px] font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Live</span>
+                        </div>
+                        {/* Phone Battery Icon */}
+                        <div className="w-5 h-2.5 rounded-xs border border-slate-800 p-0.5 flex items-center">
+                          <div className="h-full w-3 bg-slate-800 rounded-2xs" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Segmented Department Selector */}
                     <div className="grid grid-cols-3 gap-1.5 p-1 bg-white border border-slate-200 rounded-xl shadow-2xs">
                       <button
                         type="button"
@@ -1133,7 +1138,7 @@ export function ZigzaLandingPageClient({
                     </div>
 
                     {/* Top 2 Primary Mobile Metric Cards */}
-                    <div className="grid grid-cols-2 gap-2 mt-2.5">
+                    <div className="grid grid-cols-2 gap-2">
                       <div className="p-2.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
                         <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
                           {departmentMetrics[mockupTab][0].label}
@@ -1168,56 +1173,60 @@ export function ZigzaLandingPageClient({
                         </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Mobile Activity Feed (Clean vertical cards - zero overflow) */}
-                  <div className="p-3 space-y-2 bg-white">
-                    <div className="flex items-center justify-between text-xs text-slate-700 font-semibold px-0.5">
-                      <span className="flex items-center gap-1.5 font-bold text-slate-900">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        Live Station Activity
-                      </span>
-                      <span className="text-[10.5px] text-slate-500 font-mono">
-                        {currentBanner.badge}
-                      </span>
-                    </div>
+                    {/* Mobile Activity Feed (Clean vertical cards - zero overflow) */}
+                    <div className="space-y-1.5 pt-0.5">
+                      <div className="flex items-center justify-between text-xs text-slate-700 font-semibold px-0.5">
+                        <span className="flex items-center gap-1.5 font-bold text-slate-900">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Live Station Feed
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {currentBanner.badge}
+                        </span>
+                      </div>
 
-                    <div className="space-y-2">
-                      {currentRows.slice(0, 3).map((r) => (
-                        <div
-                          key={r.id}
-                          className={`p-2.5 rounded-xl border transition-all duration-500 ${
-                            r.isActive
-                              ? 'bg-emerald-50/70 border-emerald-300 shadow-2xs'
-                              : 'bg-[#FAF7F0]/40 border-slate-200/80'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
-                              <span className="text-xs font-bold font-mono text-[#3A3564] truncate">{r.c1}</span>
-                              <span className="text-slate-300">•</span>
-                              <span className={`text-xs font-semibold truncate ${r.c2Color}`}>{r.c2}</span>
+                      <div className="space-y-1.5">
+                        {currentRows.slice(0, 3).map((r) => (
+                          <div
+                            key={r.id}
+                            className={`p-2.5 rounded-xl border transition-all duration-500 bg-white ${
+                              r.isActive
+                                ? 'border-emerald-400 bg-emerald-50/40 shadow-2xs'
+                                : 'border-slate-200/80'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
+                                <span className="text-xs font-bold font-mono text-[#3A3564] truncate">{r.c1}</span>
+                                <span className="text-slate-300">•</span>
+                                <span className={`text-xs font-semibold truncate ${r.c2Color}`}>{r.c2}</span>
+                              </div>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] border font-medium shrink-0 ${r.badgeCls}`}>
+                                {r.badge}
+                              </span>
                             </div>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] border font-medium shrink-0 ${r.badgeCls}`}>
-                              {r.badge}
-                            </span>
+                            <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1.5 pt-1.5 border-t border-slate-100 font-mono">
+                              <span className="truncate">{r.c3}</span>
+                              <span className="font-bold text-slate-900 shrink-0 ml-2">{r.c4} · {r.c5}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1.5 pt-1.5 border-t border-slate-100 font-mono">
-                            <span className="truncate">{r.c3}</span>
-                            <span className="font-bold text-slate-900 shrink-0 ml-2">{r.c4} · {r.c5}</span>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
 
-                    {/* Mobile Bottom Status Bar */}
-                    <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-100 font-medium">
-                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                        Cloud Synced
-                      </span>
-                      <span className="font-mono text-[10px] text-slate-400">Latency: 0.1s</span>
+                    {/* Mobile Bottom Status Bar & Home Indicator Bar */}
+                    <div className="pt-2 border-t border-slate-200/80">
+                      <div className="flex items-center justify-between text-[10.5px] text-slate-500 font-medium px-1">
+                        <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                          Cloud Synced
+                        </span>
+                        <span className="font-mono text-[10px] text-slate-400">0.1s Latency</span>
+                      </div>
+                      {/* Modern Smartphone Home Indicator Swipe Bar */}
+                      <div className="w-24 h-1 bg-slate-400/80 rounded-full mx-auto mt-2.5" />
                     </div>
                   </div>
                 </div>
