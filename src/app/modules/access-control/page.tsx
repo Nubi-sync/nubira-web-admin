@@ -41,7 +41,7 @@ export default async function AccessControlPage() {
   const res = await fetchCompanyDepartmentHeadsAction()
 
   return (
-    <AdminShell userEmail={user.email} userRole={userRole}>
+    <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <DepartmentHeadsClient
         initialDivisions={res.divisions}
         allowedDivisions={res.allowedDivisions || tenant.allowedDivisions}

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Menu } from 'lucide-react'
 import { AdminSidebar } from './AdminSidebar'
+import { CompanyOwnerHeader } from './CompanyOwnerHeader'
 import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
@@ -55,6 +56,20 @@ function AdminShellContent({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const isAiPage = pathname === '/zigza-ai' || pathname?.includes('/zigza-ai')
+  
+  // Workspace Hub / Admin Level pages (Horizontal Navbar displayed instead of vertical sidebar)
+  const isWorkspaceHubPage = (
+    pathname === '/modules' ||
+    pathname === '/modules/access-control' ||
+    pathname?.startsWith('/modules/access-control') ||
+    pathname === '/design/sa-approvals' ||
+    pathname?.startsWith('/design/sa-approvals') ||
+    pathname === '/modules/profile' ||
+    pathname?.startsWith('/modules/profile') ||
+    pathname === '/access-control' ||
+    pathname?.startsWith('/access-control')
+  )
+
   const isStoreUser = (
     userRole?.toUpperCase() === 'STORE' ||
     userRole?.toUpperCase() === 'STORE_SUPERVISOR' ||
@@ -104,9 +119,9 @@ function AdminShellContent({
   }, [isMobileMenuOpen])
 
   return (
-    <div className={`min-h-screen w-full flex flex-col lg:flex-row bg-[#FAFAF8] text-slate-900 font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
-      {/* Sidebar — Desktop: Always icon rail, hover-to-slide open; Mobile: drawer */}
-      {!isTvMode && (
+    <div className={`min-h-screen w-full flex flex-col ${!isWorkspaceHubPage ? 'lg:flex-row' : ''} bg-[#FAFAF8] text-slate-900 font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
+      {/* Sidebar — ONLY rendered when NOT in TV mode and NOT on Workspace Hub pages */}
+      {!isTvMode && !isWorkspaceHubPage && (
         <AdminSidebar 
           userEmail={userEmail} 
           userRole={userRole}
@@ -116,17 +131,26 @@ function AdminShellContent({
         />
       )}
 
-      {/* Main Content Area — offset by 72px on desktop for the permanent icon rail */}
-      <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${!isTvMode ? 'lg:pl-[72px]' : ''} ${
+      {/* Main Content Area */}
+      <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${!isTvMode && !isWorkspaceHubPage ? 'lg:pl-[72px]' : ''} ${
         isAiPage 
           ? 'h-dvh overflow-hidden' 
           : 'min-h-screen overflow-y-auto'
       }`}>
-        {/* TV Mode Top Bar */}
+        {/* 1. TV Mode Top Bar */}
         {isTvMode && <TvTopBar />}
 
-        {/* Mobile Top Bar — visible <lg, hidden in TV mode, and hidden on /zigza-ai to prevent double navbar */}
-        {!isTvMode && !isAiPage && (
+        {/* 2. Company Owner Horizontal Navbar (Shown only on Workspace Hub pages) */}
+        {!isTvMode && isWorkspaceHubPage && (
+          <CompanyOwnerHeader 
+            userEmail={userEmail} 
+            userRole={userRole} 
+            companyName={companyName} 
+          />
+        )}
+
+        {/* 3. Mobile Top Bar — visible <lg on inside-module pages, hidden on Workspace Hub & TV mode & AI page */}
+        {!isTvMode && !isWorkspaceHubPage && !isAiPage && (
           <MobileTopBar onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} logoHref={homeHref} />
         )}
 

@@ -37,7 +37,7 @@ export default async function ModulesHubPage() {
   }
 
   return (
-    <AdminShell userEmail={user.email} userRole={userRole}>
+    <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <ModuleHubClient
         userEmail={tenant.userEmail}
         userName={tenant.adminDisplayName || tenant.customUsername || 'Administrator'}
