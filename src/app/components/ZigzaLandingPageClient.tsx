@@ -770,7 +770,6 @@ export function ZigzaLandingPageClient({
             interface MetricItem {
               label: string
               value: string | number
-              sub: string
               color: string
               isNumeric: boolean
               prefix?: string
@@ -781,32 +780,28 @@ export function ZigzaLandingPageClient({
             const departmentMetrics: Record<'cutting' | 'sewing' | 'qc', MetricItem[]> = {
               cutting: [
                 {
-                  label: 'Active Cutting Lot',
+                  label: 'Active Lot',
                   value: 'LOT-2024-C8',
-                  sub: 'Polo T-Shirt · 220 GSM Pique',
                   color: 'text-slate-900',
                   isNumeric: false
                 },
                 {
-                  label: 'Total Pieces Cut',
+                  label: 'Total Cut',
                   value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0),
-                  sub: '98.8% Fabric Utilization',
                   suffix: ' Pcs',
-                  color: 'text-[#3A3564]',
+                  color: 'text-[#1B2A4A]',
                   isNumeric: true
                 },
                 {
-                  label: 'Fabric Rolls Laid',
+                  label: 'Rolls Used',
                   value: 24 + (mockupTick >= 2 ? 1 : 0),
-                  sub: 'ASTM 4-Pt: Zero Defects',
                   suffix: ' Rolls',
-                  color: 'text-[#D97706]',
+                  color: 'text-slate-900',
                   isNumeric: true
                 },
                 {
-                  label: 'Panel QC Pass',
+                  label: 'QC Pass',
                   value: 99.4 + (mockupTick >= 2 ? 0.2 : 0),
-                  sub: '4,820 Panels Inspected',
                   decimals: 1,
                   suffix: '%',
                   color: 'text-emerald-600',
@@ -815,69 +810,60 @@ export function ZigzaLandingPageClient({
               ],
               sewing: [
                 {
-                  label: 'Active Sewing Lines',
-                  value: 'Line 01 & Line 02',
-                  sub: '32 Stations Active',
+                  label: 'Active Line',
+                  value: 'Line 3',
                   color: 'text-slate-900',
                   isNumeric: false
                 },
                 {
-                  label: 'Pieces Stitched Today',
-                  value: 3420 + (mockupTick > 0 ? mockupTick * 35 : 0),
-                  sub: 'Target: 3,800 Pcs · 90%',
+                  label: 'Today Output',
+                  value: 1240 + (mockupTick > 0 ? mockupTick * 35 : 0),
                   suffix: ' Pcs',
-                  color: 'text-[#3A3564]',
+                  color: 'text-[#1B2A4A]',
                   isNumeric: true
                 },
                 {
-                  label: 'Line Pace & Speed',
-                  value: 385 + (mockupTick > 0 ? mockupTick * 4 : 0),
-                  sub: 'Overlock & Flatlock',
-                  suffix: ' Pcs/Hr',
-                  color: 'text-[#D97706]',
-                  isNumeric: true
+                  label: 'Workers',
+                  value: '38 Present',
+                  color: 'text-slate-900',
+                  isNumeric: false
                 },
                 {
-                  label: 'Piece Wages Earned',
-                  value: 18450 + (mockupTick > 0 ? mockupTick * 180 : 0),
-                  sub: 'Instant Tailor Ledger',
-                  prefix: '₹',
+                  label: 'Efficiency',
+                  value: 72 + (mockupTick >= 2 ? 2 : 0),
+                  suffix: '%',
                   color: 'text-emerald-600',
                   isNumeric: true
                 }
               ],
               qc: [
                 {
-                  label: 'Inspection Audited',
-                  value: 4210 + (mockupTick > 0 ? mockupTick * 30 : 0),
-                  sub: 'Inline & End-Line Audit',
+                  label: 'Inspected',
+                  value: 4200 + (mockupTick > 0 ? mockupTick * 30 : 0),
+                  suffix: ' Pcs',
+                  color: 'text-[#1B2A4A]',
+                  isNumeric: true
+                },
+                {
+                  label: 'Passed',
+                  value: 4074 + (mockupTick > 0 ? mockupTick * 28 : 0),
+                  suffix: ' Pcs',
+                  color: 'text-emerald-600',
+                  isNumeric: true
+                },
+                {
+                  label: 'Defects',
+                  value: 126,
                   suffix: ' Pcs',
                   color: 'text-slate-900',
                   isNumeric: true
                 },
                 {
-                  label: 'AQL 2.5 Pass Rate',
-                  value: 99.2 + (mockupTick >= 2 ? 0.1 : 0),
-                  sub: 'Zero Critical Defects',
-                  decimals: 1,
+                  label: 'Pass Rate',
+                  value: 97 + (mockupTick >= 2 ? 0.4 : 0),
                   suffix: '%',
+                  decimals: 1,
                   color: 'text-emerald-600',
-                  isNumeric: true
-                },
-                {
-                  label: 'Master Cartons Packed',
-                  value: 142 + (mockupTick >= 1 ? mockupTick : 0),
-                  sub: 'Gross Weight Verified',
-                  suffix: ' Cartons',
-                  color: 'text-[#D97706]',
-                  isNumeric: true
-                },
-                {
-                  label: 'Ready for Dispatch',
-                  value: 4260 + (mockupTick > 0 ? mockupTick * 36 : 0),
-                  sub: 'Gate Pass Cleared',
-                  suffix: ' Pcs',
-                  color: 'text-[#3A3564]',
                   isNumeric: true
                 }
               ]
@@ -885,188 +871,207 @@ export function ZigzaLandingPageClient({
 
             const departmentBanners = {
               cutting: {
-                icon: <FileSpreadsheet className="w-4 h-4 text-[#3A3564] shrink-0" />,
-                title: 'Fabric Lay Sheet & Marker Breakdown',
-                badge: 'Marker Ratio 1:2:2:1 (S-XL)',
+                icon: <FileSpreadsheet className="w-4 h-4 text-[#1B2A4A] shrink-0" />,
+                title: 'Lay Sheets',
+                badge: 'Real-Time Floor Sync',
                 col1: 'Lay Sheet',
-                col2: 'Fabric Lot & Color',
-                col3: 'Marker Ratio',
-                col4: 'Plies',
-                col5: 'Cut Pcs',
-                col6: 'Panel QC'
+                col2: 'Fabric Color',
+                col3: 'Plies',
+                col4: 'Cut Pcs',
+                col5: 'Status'
               },
               sewing: {
-                icon: <Scissors className="w-4 h-4 text-[#3A3564] shrink-0" />,
-                title: 'Tailor Piece-Rate Ledger & Operation Sync',
-                badge: '32 Stations Real-Time Ledger',
-                col1: 'Sewing Line',
-                col2: 'Tailor / Operator',
-                col3: 'Garment Operation',
-                col4: 'Bundle Lot',
-                col5: 'Done',
-                col6: 'Piece Wage'
+                icon: <Scissors className="w-4 h-4 text-[#1B2A4A] shrink-0" />,
+                title: 'Workers on Line',
+                badge: 'Line 3 Live Output',
+                col1: 'Worker Name',
+                col2: 'Operation',
+                col3: 'Pcs Done',
+                col4: 'Target',
+                col5: 'Status'
               },
               qc: {
-                icon: <PackageCheck className="w-4 h-4 text-[#3A3564] shrink-0" />,
-                title: 'End-Line QC & Master Carton Packing Stream',
-                badge: 'AQL 2.5 & Weight-Check Verified',
-                col1: 'Carton #',
-                col2: 'Style & Color',
-                col3: 'Pack Size Breakdown',
-                col4: 'Pcs / Ctn',
-                col5: 'Gross Weight',
-                col6: 'AQL Audit'
+                icon: <PackageCheck className="w-4 h-4 text-[#1B2A4A] shrink-0" />,
+                title: 'Inspection Log',
+                badge: 'End-Line Audit',
+                col1: 'Inspector',
+                col2: 'Pcs Checked',
+                col3: 'Passed',
+                col4: 'Defects',
+                col5: 'Status'
               }
             }
 
-            const departmentRows = {
+            interface DashboardRowItem {
+              id: string
+              c1: string
+              c2: string
+              c3: string
+              c4: string
+              status: string
+              statusDot: string
+              mobileSubtitle: string
+              isActive?: boolean
+            }
+
+            const departmentRows: Record<'cutting' | 'sewing' | 'qc', DashboardRowItem[]> = {
               cutting: [
                 {
                   id: 'cut-row-1',
                   c1: mockupTick === 1 ? 'LAY-104-05' : 'LAY-104-04',
-                  c2: mockupTick === 1 ? 'Heather Grey · Lot 5A' : 'Navy Blue · Lot 4A',
-                  c2Color: 'text-slate-800',
-                  c3: '1 : 2 : 2 : 1 (S-XL)',
-                  c4: mockupTick === 1 ? '50 Plies' : '60 Plies',
-                  c5: mockupTick === 1 ? '+300 Pcs' : '360 Pcs',
-                  badge: mockupTick === 1 ? 'Lay Cut Verified' : 'Bundled & Cleared',
-                  badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c2: mockupTick === 1 ? 'Heather Grey' : 'Navy Blue',
+                  c3: mockupTick === 1 ? '50' : '60',
+                  c4: mockupTick === 1 ? '+300 Pcs' : '300 Pcs',
+                  status: 'Done',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: 'Heather Grey · 50 Plies · 300 Pcs',
                   isActive: mockupTick === 1
                 },
                 {
                   id: 'cut-row-2',
                   c1: 'LAY-104-03',
-                  c2: 'Olive Green · Lot 2B',
-                  c2Color: 'text-emerald-700',
-                  c3: '1 : 2 : 2 : 1 (S-XL)',
-                  c4: '60 Plies',
-                  c5: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
-                  badge: mockupTick === 2 ? 'Panel QC Cleared' : 'Bundled & Cleared',
-                  badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c2: 'Olive Green',
+                  c3: '60',
+                  c4: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
+                  status: 'Done',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: 'Olive Green · 60 Plies · 360 Pcs',
                   isActive: mockupTick === 2
                 },
                 {
                   id: 'cut-row-3',
                   c1: 'LAY-104-02',
-                  c2: 'Mustard · Lot 1C',
-                  c2Color: 'text-amber-700',
-                  c3: '2 : 2 : 1 : 1 (S-XL)',
-                  c4: '55 Plies',
-                  c5: mockupTick === 3 ? '+330 Pcs' : '330 Pcs',
-                  badge: mockupTick === 3 ? 'Plies Verified' : 'Bundled & Cleared',
-                  badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c2: 'Mustard',
+                  c3: '55',
+                  c4: mockupTick === 3 ? '+330 Pcs' : '330 Pcs',
+                  status: 'Done',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: 'Mustard · 55 Plies · 330 Pcs',
                   isActive: mockupTick === 3
                 },
                 {
                   id: 'cut-row-4',
                   c1: 'LAY-104-01',
-                  c2: 'Charcoal · Lot 3D',
-                  c2Color: 'text-slate-800',
-                  c3: '1 : 2 : 2 : 1 (S-XL)',
-                  c4: '60 Plies',
-                  c5: '360 Pcs',
-                  badge: 'Bundled & Cleared',
-                  badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c2: 'Charcoal',
+                  c3: '60',
+                  c4: '360 Pcs',
+                  status: 'In Progress',
+                  statusDot: 'bg-amber-500',
+                  mobileSubtitle: 'Charcoal · 60 Plies · 360 Pcs',
                   isActive: false
                 }
               ],
               sewing: [
                 {
                   id: 'sew-row-1',
-                  c1: 'Line 01',
-                  c2: 'Aslam Khan (Tailor #12)',
-                  c2Color: 'text-slate-900',
-                  c3: 'Collar Rib & Neckband',
-                  c4: 'BDL-104-09',
-                  c5: mockupTick === 1 ? '+30 Pcs' : '30 Pcs',
-                  badge: mockupTick === 1 ? '+₹165 Synced' : '₹165 Synced',
-                  badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Raju Kumar',
+                  c2: 'Collar Attach',
+                  c3: mockupTick === 1 ? '125' : '120',
+                  c4: '150',
+                  status: 'On Track',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: 'Collar Attach · 120/150 Pcs',
                   isActive: mockupTick === 1
                 },
                 {
                   id: 'sew-row-2',
-                  c1: 'Line 01',
-                  c2: 'Ramesh Dev (Tailor #08)',
-                  c2Color: 'text-slate-900',
-                  c3: 'Shoulder Join & Topstitch',
-                  c4: 'BDL-104-08',
-                  c5: mockupTick === 2 ? '+30 Pcs' : '30 Pcs',
-                  badge: mockupTick === 2 ? '+₹120 Synced' : '₹120 Synced',
-                  badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Meena Devi',
+                  c2: 'Side Seam',
+                  c3: '98',
+                  c4: '150',
+                  status: 'Behind',
+                  statusDot: 'bg-amber-500',
+                  mobileSubtitle: 'Side Seam · 98/150 Pcs',
                   isActive: mockupTick === 2
                 },
                 {
                   id: 'sew-row-3',
-                  c1: 'Line 02',
-                  c2: 'Sunita Roy (Tailor #15)',
-                  c2Color: 'text-slate-900',
-                  c3: 'Sleeve Hemming & Attach',
-                  c4: 'BDL-104-07',
-                  c5: mockupTick === 3 ? '+30 Pcs' : '30 Pcs',
-                  badge: mockupTick === 3 ? '+₹150 Synced' : '₹150 Synced',
-                  badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Amit Singh',
+                  c2: 'Hemming',
+                  c3: mockupTick === 3 ? '160' : '155',
+                  c4: '150',
+                  status: 'Ahead',
+                  statusDot: 'bg-teal-600',
+                  mobileSubtitle: 'Hemming · 155/150 Pcs',
                   isActive: mockupTick === 3
                 },
                 {
                   id: 'sew-row-4',
-                  c1: 'Line 02',
-                  c2: 'Md. Parvez (Tailor #04)',
-                  c2Color: 'text-slate-900',
-                  c3: 'Side Seam & Bottom Hem',
-                  c4: 'BDL-104-06',
-                  c5: '30 Pcs',
-                  badge: '₹180 Synced',
-                  badgeCls: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Priya Sharma',
+                  c2: 'Button Hole',
+                  c3: '140',
+                  c4: '150',
+                  status: 'On Track',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: 'Button Hole · 140/150 Pcs',
+                  isActive: false
+                },
+                {
+                  id: 'sew-row-5',
+                  c1: 'Suresh Yadav',
+                  c2: 'Sleeve Set',
+                  c3: '88',
+                  c4: '150',
+                  status: 'Behind',
+                  statusDot: 'bg-amber-500',
+                  mobileSubtitle: 'Sleeve Set · 88/150 Pcs',
                   isActive: false
                 }
               ],
               qc: [
                 {
                   id: 'qc-row-1',
-                  c1: mockupTick === 1 ? 'CTN-0143' : 'CTN-0142',
-                  c2: mockupTick === 1 ? 'Style 408 · Heather Grey' : 'Style 408 · Navy Blue',
-                  c2Color: mockupTick === 1 ? 'text-slate-700' : 'text-blue-700',
-                  c3: 'S:6 · M:12 · L:12 · XL:6',
-                  c4: mockupTick === 1 ? '+36 Pcs' : '36 Pcs',
-                  c5: mockupTick === 1 ? '11.42 kg' : '11.40 kg',
-                  badge: mockupTick === 1 ? 'Weight Verified' : 'Carton Sealed',
-                  badgeCls: mockupTick === 1 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Anita Kumari',
+                  c2: mockupTick === 1 ? '850' : '840',
+                  c3: mockupTick === 1 ? '830' : '820',
+                  c4: '20',
+                  status: 'Good',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: '840 Checked · 820 Pass · 20 Defects',
                   isActive: mockupTick === 1
                 },
                 {
                   id: 'qc-row-2',
-                  c1: 'CTN-0141',
-                  c2: 'Style 408 · Olive Green',
-                  c2Color: 'text-emerald-700',
-                  c3: 'S:6 · M:12 · L:12 · XL:6',
-                  c4: '36 Pcs',
-                  c5: '11.40 kg',
-                  badge: mockupTick === 2 ? 'AQL 2.5 Pass' : 'Carton Sealed',
-                  badgeCls: mockupTick === 2 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Deepak Verma',
+                  c2: '780',
+                  c3: '750',
+                  c4: '30',
+                  status: 'Good',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: '780 Checked · 750 Pass · 30 Defects',
                   isActive: mockupTick === 2
                 },
                 {
                   id: 'qc-row-3',
-                  c1: 'CTN-0140',
-                  c2: 'Style 408 · Mustard',
-                  c2Color: 'text-amber-700',
-                  c3: 'S:6 · M:12 · L:12 · XL:6',
-                  c4: '36 Pcs',
-                  c5: '11.45 kg',
-                  badge: mockupTick === 3 ? 'Weight Checked' : 'AQL Passed',
-                  badgeCls: mockupTick === 3 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold' : 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+                  c1: 'Sunita Rawat',
+                  c2: '700',
+                  c3: '670',
+                  c4: '30',
+                  status: 'Watch',
+                  statusDot: 'bg-amber-500',
+                  mobileSubtitle: '700 Checked · 670 Pass · 30 Defects',
                   isActive: mockupTick === 3
                 },
                 {
                   id: 'qc-row-4',
-                  c1: 'CTN-0139',
-                  c2: 'Style 408 · Charcoal',
-                  c2Color: 'text-slate-800',
-                  c3: 'S:6 · M:12 · L:12 · XL:6',
-                  c4: '36 Pcs',
-                  c5: '11.38 kg',
-                  badge: 'Dispatch Bay',
-                  badgeCls: 'bg-amber-50 text-amber-800 border-amber-200/60',
+                  c1: 'Manoj Thakur',
+                  c2: '650',
+                  c3: '620',
+                  c4: '30',
+                  status: 'Watch',
+                  statusDot: 'bg-amber-500',
+                  mobileSubtitle: '650 Checked · 620 Pass · 30 Defects',
+                  isActive: false
+                },
+                {
+                  id: 'qc-row-5',
+                  c1: 'Kavita Jha',
+                  c2: '520',
+                  c3: '510',
+                  c4: '10',
+                  status: 'Good',
+                  statusDot: 'bg-emerald-500',
+                  mobileSubtitle: '520 Checked · 510 Pass · 10 Defects',
                   isActive: false
                 }
               ]
@@ -1125,7 +1130,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'cutting'
-                            ? 'bg-[#3A3564] text-white shadow-xs'
+                            ? 'bg-[#1B2A4A] text-white shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1136,7 +1141,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'sewing'
-                            ? 'bg-[#3A3564] text-white shadow-xs'
+                            ? 'bg-[#1B2A4A] text-white shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1147,7 +1152,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'qc'
-                            ? 'bg-[#3A3564] text-white shadow-xs'
+                            ? 'bg-[#1B2A4A] text-white shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1155,51 +1160,38 @@ export function ZigzaLandingPageClient({
                       </button>
                     </div>
 
-                    {/* Top 2 Primary Mobile Metric Cards */}
+                    {/* Top 2 Primary Mobile Metric Cards (2 lines only) */}
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="p-2.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
-                          {departmentMetrics[mockupTab][0].label}
-                        </span>
-                        <div className={`text-[15px] font-extrabold mt-0.5 truncate font-mono ${departmentMetrics[mockupTab][0].color}`}>
-                          {departmentMetrics[mockupTab][0].value}
+                      {departmentMetrics[mockupTab].slice(0, 2).map((m, idx) => (
+                        <div key={idx} className="p-2.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block truncate">
+                            {m.label}
+                          </span>
+                          <div className={`text-[15px] font-extrabold mt-0.5 truncate font-mono ${m.color}`}>
+                            {m.isNumeric ? (
+                              <AnimatedCounter
+                                value={m.value as number}
+                                prefix={m.prefix}
+                                suffix={m.suffix}
+                                decimals={m.decimals}
+                                duration={800}
+                              />
+                            ) : (
+                              <span>{m.value}</span>
+                            )}
+                          </div>
                         </div>
-                        <span className="text-[10.5px] text-slate-600 block truncate mt-0.5">
-                          {departmentMetrics[mockupTab][0].sub}
-                        </span>
-                      </div>
-
-                      <div className="p-2.5 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
-                          {departmentMetrics[mockupTab][1].label}
-                        </span>
-                        <div className={`text-[15px] font-extrabold mt-0.5 truncate font-mono ${departmentMetrics[mockupTab][1].color}`}>
-                          {departmentMetrics[mockupTab][1].isNumeric ? (
-                            <AnimatedCounter
-                              value={departmentMetrics[mockupTab][1].value as number}
-                              prefix={departmentMetrics[mockupTab][1].prefix}
-                              suffix={departmentMetrics[mockupTab][1].suffix}
-                              decimals={departmentMetrics[mockupTab][1].decimals}
-                              duration={800}
-                            />
-                          ) : (
-                            <span>{departmentMetrics[mockupTab][1].value}</span>
-                          )}
-                        </div>
-                        <span className="text-[10.5px] text-slate-600 block truncate mt-0.5">
-                          {departmentMetrics[mockupTab][1].sub}
-                        </span>
-                      </div>
+                      ))}
                     </div>
 
-                    {/* Mobile Activity Feed (Clean vertical cards - zero overflow) */}
+                    {/* Mobile Activity Feed (Clean 2-line rows with status dot) */}
                     <div className="space-y-1.5 pt-0.5">
                       <div className="flex items-center justify-between text-xs text-slate-700 font-semibold px-0.5">
                         <span className="flex items-center gap-1.5 font-bold text-slate-900">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                          Live Station Feed
+                          Live Activity
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
+                        <span className="text-[10px] text-slate-500">
                           {currentBanner.badge}
                         </span>
                       </div>
@@ -1208,7 +1200,7 @@ export function ZigzaLandingPageClient({
                         {currentRows.slice(0, 3).map((r) => (
                           <div
                             key={r.id}
-                            className={`p-2.5 rounded-xl border transition-all duration-500 bg-white ${
+                            className={`p-2.5 rounded-xl border transition-all duration-300 bg-white ${
                               r.isActive
                                 ? 'border-emerald-400 bg-emerald-50/40 shadow-2xs'
                                 : 'border-slate-200/80'
@@ -1217,17 +1209,15 @@ export function ZigzaLandingPageClient({
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
-                                <span className="text-xs font-bold font-mono text-[#3A3564] truncate">{r.c1}</span>
-                                <span className="text-slate-300">•</span>
-                                <span className={`text-xs font-semibold truncate ${r.c2Color}`}>{r.c2}</span>
+                                <span className="text-xs font-bold text-slate-900 truncate">{r.c1}</span>
                               </div>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] border font-medium shrink-0 ${r.badgeCls}`}>
-                                {r.badge}
+                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 shrink-0">
+                                <span className={`w-1.5 h-1.5 rounded-full ${r.statusDot}`} />
+                                {r.status}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between text-[11px] text-slate-600 mt-1.5 pt-1.5 border-t border-slate-100 font-mono">
-                              <span className="truncate">{r.c3}</span>
-                              <span className="font-bold text-slate-900 shrink-0 ml-2">{r.c4} · {r.c5}</span>
+                            <div className="text-[11px] text-slate-500 mt-1 truncate">
+                              {r.mobileSubtitle}
                             </div>
                           </div>
                         ))}
@@ -1236,19 +1226,19 @@ export function ZigzaLandingPageClient({
 
                     {/* Modern Android 3-Button Navigation Bar */}
                     <div className="pt-3.5 pb-1.5 px-6 flex items-center justify-between max-w-[260px] mx-auto text-slate-700">
-                      {/* Back button (Modern Android Chevron <) */}
+                      {/* Back button */}
                       <div className="w-9 h-6 flex items-center justify-center">
                         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3] stroke-linecap-round stroke-linejoin-round">
                           <path d="M14.5 17.5L9 12L14.5 6.5" />
                         </svg>
                       </div>
-                      {/* Home button (Modern Android Circle ○) */}
+                      {/* Home button */}
                       <div className="w-9 h-6 flex items-center justify-center">
                         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3]">
                           <circle cx="12" cy="12" r="7" />
                         </svg>
                       </div>
-                      {/* Recent Apps / Overview button (Modern Android Rounded Square □) */}
+                      {/* Recent Apps button */}
                       <div className="w-9 h-6 flex items-center justify-center">
                         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3] stroke-linejoin-round">
                           <rect x="5" y="5" width="14" height="14" rx="3.5" />
@@ -1261,7 +1251,7 @@ export function ZigzaLandingPageClient({
                 {/* ========================================================= */}
                 {/* 2. DESKTOP macOS MES DASHBOARD (hidden sm:block)          */}
                 {/* ========================================================= */}
-                <div className="hidden sm:block bg-white border border-[#3A3564]/15 rounded-3xl shadow-xl shadow-[#3A3564]/5 overflow-hidden transition-all duration-300">
+                <div className="hidden sm:block bg-white border border-[#1B2A4A]/15 rounded-3xl shadow-xl shadow-[#1B2A4A]/5 overflow-hidden transition-all duration-300">
                   {/* macOS Dark Blue Window Header Bar */}
                   <div className="bg-[#1B2A4A] px-6 py-3 border-b border-slate-700/80 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -1271,7 +1261,7 @@ export function ZigzaLandingPageClient({
                         <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/60 inline-block shadow-2xs" />
                         <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/60 inline-block shadow-2xs" />
                       </div>
-                      {/* Interactive Station Tabs (Linked to JOB-457 · OLLYPOP Kids 2-Pc) */}
+                      {/* Interactive Station Tabs */}
                       <div className="flex items-center gap-1.5 ml-3">
                         <button
                           type="button"
@@ -1309,7 +1299,7 @@ export function ZigzaLandingPageClient({
                       </div>
                     </div>
 
-                    {/* Real-Time Sync Indicator & 10s Loop Timer */}
+                    {/* Real-Time Sync Indicator */}
                     <div className="flex items-center gap-2 text-sm font-medium text-slate-300 shrink-0">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span className="font-medium">Live Floor Sync</span>
@@ -1321,17 +1311,17 @@ export function ZigzaLandingPageClient({
 
                   {/* Mockup Body Content */}
                   <div className="p-6 bg-[#FAFAF8] space-y-5">
-                    {/* 4 Executive Metric Cards */}
+                    {/* 4 Executive Metric Cards (2 lines each - label + value) */}
                     <div className="grid grid-cols-4 gap-4">
                       {departmentMetrics[mockupTab].map((metric, idx) => (
                         <div
                           key={`metric-${idx}`}
-                          className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#3A3564]/30 transition-all duration-300"
+                          className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#1B2A4A]/30 transition-all duration-300"
                         >
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block truncate">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block truncate">
                             {metric.label}
                           </span>
-                          <div className={`text-xl font-black mt-1 font-mono truncate ${metric.color}`}>
+                          <div className={`text-xl sm:text-2xl font-bold mt-1.5 font-mono truncate ${metric.color}`}>
                             {metric.isNumeric ? (
                               <AnimatedCounter
                                 value={metric.value as number}
@@ -1344,14 +1334,11 @@ export function ZigzaLandingPageClient({
                               <span>{metric.value}</span>
                             )}
                           </div>
-                          <span className="text-[13px] font-medium text-slate-600 block mt-0.5 leading-tight truncate">
-                            {metric.sub}
-                          </span>
                         </div>
                       ))}
                     </div>
 
-                    {/* Dynamic Live Table */}
+                    {/* Dynamic Live Table (5 Simple Columns) */}
                     <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs">
                       <div className="flex items-center justify-between mb-3 gap-2">
                         <div className="flex items-center gap-2 min-w-0">
@@ -1360,7 +1347,7 @@ export function ZigzaLandingPageClient({
                             {currentBanner.title}
                           </span>
                         </div>
-                        <span className="text-xs font-semibold text-slate-600 bg-[#FAF7F0] border border-[#3A3564]/10 px-2.5 py-0.5 rounded-full shrink-0">
+                        <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full shrink-0">
                           {currentBanner.badge}
                         </span>
                       </div>
@@ -1368,38 +1355,37 @@ export function ZigzaLandingPageClient({
                       <div className="relative overflow-x-auto">
                         <table className="w-full table-fixed text-sm text-left">
                           <thead>
-                            <tr className="border-b border-slate-100 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                              <th className="py-2.5 px-3 w-[17%] transition-colors duration-300">{currentBanner.col1}</th>
-                              <th className="py-2.5 px-3 w-[24%] transition-colors duration-300">{currentBanner.col2}</th>
-                              <th className="py-2.5 px-3 w-[21%] transition-colors duration-300">{currentBanner.col3}</th>
-                              <th className="py-2.5 px-3 w-[11%] text-right transition-colors duration-300">{currentBanner.col4}</th>
-                              <th className="py-2.5 px-3 w-[12%] text-right transition-colors duration-300">{currentBanner.col5}</th>
-                              <th className="py-2.5 px-3 w-[15%] text-center transition-colors duration-300">{currentBanner.col6}</th>
+                            <tr className="border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+                              <th className="py-2.5 px-3 w-[26%]">{currentBanner.col1}</th>
+                              <th className="py-2.5 px-3 w-[24%]">{currentBanner.col2}</th>
+                              <th className="py-2.5 px-3 w-[16%]">{currentBanner.col3}</th>
+                              <th className="py-2.5 px-3 w-[16%]">{currentBanner.col4}</th>
+                              <th className="py-2.5 px-3 w-[18%] text-right">{currentBanner.col5}</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                          <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
                             {currentRows.map((r) => (
                               <tr 
                                 key={r.id} 
-                                className={`transition-all duration-700 ease-out ${
+                                className={`transition-all duration-300 ${
                                   r.isActive 
-                                    ? 'bg-emerald-50/70 border-l-2 border-emerald-500' 
-                                    : 'hover:bg-[#FAF7F0]/40'
+                                    ? 'bg-emerald-50/50' 
+                                    : 'hover:bg-slate-50/60'
                                 }`}
                               >
-                                <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564] truncate">
+                                <td className="py-2.5 px-3 font-bold text-slate-900 truncate">
                                   <span className="flex items-center gap-1.5">
                                     {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />}
                                     {r.c1}
                                   </span>
                                 </td>
-                                <td className={`py-2.5 px-3 font-semibold truncate ${r.c2Color}`}>{r.c2}</td>
+                                <td className="py-2.5 px-3 text-slate-700 truncate">{r.c2}</td>
                                 <td className="py-2.5 px-3 font-mono text-slate-600 truncate">{r.c3}</td>
-                                <td className="py-2.5 px-3 text-right font-mono font-semibold truncate">{r.c4}</td>
-                                <td className={`py-2.5 px-3 text-right font-bold font-mono truncate ${r.isActive ? 'text-emerald-700' : 'text-slate-900'}`}>{r.c5}</td>
-                                <td className="py-2.5 px-3 text-center">
-                                  <span className={`px-2 py-0.5 rounded-full text-[11px] border transition-colors duration-500 inline-block truncate ${r.badgeCls}`}>
-                                    {r.badge}
+                                <td className="py-2.5 px-3 font-mono font-medium text-slate-900 truncate">{r.c4}</td>
+                                <td className="py-2.5 px-3 text-right">
+                                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                                    <span className={`w-2 h-2 rounded-full ${r.statusDot} shrink-0`} />
+                                    {r.status}
                                   </span>
                                 </td>
                               </tr>
