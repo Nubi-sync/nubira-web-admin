@@ -2512,196 +2512,189 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 10. ENTERPRISE FOOTER (LIGHT MODERN PALETTE)                       */}
       {/* =================================================================== */}
-      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200">
+      <footer className="bg-[#FAF7F0]/90 text-slate-600 pt-12 sm:pt-16 pb-20 sm:pb-14 px-4 sm:px-6 lg:px-8 border-t border-slate-200/80">
         <div className="max-w-7xl mx-auto">
           
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-8 mb-12 sm:mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 mb-10 sm:mb-14">
             
             {/* Brand Column */}
-            <div className="col-span-2 lg:col-span-2 space-y-3.5">
+            <div className="lg:col-span-5 space-y-4">
               <Link href="/" className="inline-block group">
                 <img 
                   src="/z i g z a (8).png" 
                   alt="Zigza" 
-                  className="h-10 sm:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
+                  className="h-10 sm:h-11 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
                 />
               </Link>
-              <p className="text-[15px] sm:text-base text-slate-600 leading-relaxed max-w-sm font-normal">
+              <p className="text-[14.5px] sm:text-[15px] text-slate-600 leading-relaxed max-w-sm font-normal">
                 Simple, real-time software for garment manufacturers. Track fabric rolls, cut down wastage, monitor stitching targets, and ship orders on time.
               </p>
-            </div>
 
-            {/* Column 1: Platform */}
-            <div className="space-y-3.5">
-              <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
-                Platform
-              </h5>
-              <ul className="space-y-2.5 text-[14.5px] sm:text-[15px]">
-                <li>
-                  <a 
-                    href="#modules" 
-                    onClick={(e) => scrollToSection(e, 'modules')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Floor Modules
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#workflow" 
-                    onClick={(e) => scrollToSection(e, 'workflow')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    8-Step Pipeline
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#roles" 
-                    onClick={(e) => scrollToSection(e, 'roles')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Role Solutions
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#pricing" 
-                    onClick={(e) => scrollToSection(e, 'pricing')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Subscription Plans
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#faq" 
-                    onClick={(e) => scrollToSection(e, 'faq')}
-                    className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
-                  >
-                    Frequently Asked Questions
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 2: Access & Support */}
-            <div className="space-y-3.5">
-              <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
-                Access &amp; Support
-              </h5>
-              <ul className="space-y-2.5 text-[14.5px] sm:text-[15px]">
-                <li>
-                  <Link 
-                    href="/login" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5 font-medium"
-                  >
-                    <span>Staff Portal Sign In</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => setIsDemoModalOpen(true)}
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-block cursor-pointer"
-                  >
-                    Schedule Live Demo
-                  </button>
-                </li>
-                <li>
-                  <Link 
-                    href="/register" 
-                    className="text-slate-600 hover:text-slate-900 transition-colors inline-block"
-                  >
-                    Start 7-Day Free Trial
-                  </Link>
-                </li>
-                <li>
-                  <a 
-                    href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES." 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-block font-bold"
-                  >
-                    WhatsApp Consultation
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 3: Social Handles */}
-            <div className="col-span-2 sm:col-span-1 space-y-3.5">
-              <h5 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
-                Social Handles
-              </h5>
-              {/* Mobile: Horizontal icon row | Desktop: Vertical list with labels */}
-              <div className="flex items-center gap-3 sm:hidden">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Instagram" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
-                  <InstagramOutlineIcon className="w-5 h-5 text-black" />
+              {/* Social Handles Bar - Integrated smoothly in brand block */}
+              <div className="pt-1 flex items-center gap-2.5">
+                <a 
+                  href="https://instagram.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label="Zigza on Instagram" 
+                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                >
+                  <InstagramOutlineIcon className="w-4.5 h-4.5" />
                 </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on LinkedIn" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
-                  <LinkedinOutlineIcon className="w-5 h-5 text-black" />
+                <a 
+                  href="https://linkedin.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label="Zigza on LinkedIn" 
+                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                >
+                  <LinkedinOutlineIcon className="w-4.5 h-4.5" />
                 </a>
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Twitter / X" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
-                  <TwitterXOutlineIcon className="w-5 h-5 text-black" />
+                <a 
+                  href="https://x.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label="Zigza on Twitter / X" 
+                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                >
+                  <TwitterXOutlineIcon className="w-4.5 h-4.5" />
                 </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Facebook" className="w-10 h-10 rounded-lg border border-black/35 hover:border-black hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shadow-2xs">
-                  <FacebookOutlineIcon className="w-5 h-5 text-black" />
+                <a 
+                  href="https://facebook.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label="Zigza on Facebook" 
+                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                >
+                  <FacebookOutlineIcon className="w-4.5 h-4.5" />
                 </a>
               </div>
-              <ul className="hidden sm:block space-y-2.5 text-[14.5px] sm:text-[15px]">
-                <li>
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Instagram" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
-                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
-                      <InstagramOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
-                    </span>
-                    <span className="font-medium group-hover:underline">Instagram</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on LinkedIn" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
-                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
-                      <LinkedinOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
-                    </span>
-                    <span className="font-medium group-hover:underline">LinkedIn</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Twitter / X" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
-                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
-                      <TwitterXOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
-                    </span>
-                    <span className="font-medium group-hover:underline">Twitter / X</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Zigza on Facebook" className="text-slate-700 hover:text-black transition-colors inline-flex items-center gap-3 group cursor-pointer">
-                    <span className="w-8 h-8 rounded-lg border border-black/35 group-hover:border-black group-hover:bg-[#FAF7F0] flex items-center justify-center transition-all bg-transparent shrink-0 shadow-2xs">
-                      <FacebookOutlineIcon className="w-4.5 h-4.5 text-black group-hover:scale-105 transition-transform" />
-                    </span>
-                    <span className="font-medium group-hover:underline">Facebook</span>
-                  </a>
-                </li>
-              </ul>
+            </div>
+
+            {/* Navigation Grid (2 Columns on Mobile & Tablet, 7 Columns on Desktop) */}
+            <div className="lg:col-span-7 grid grid-cols-2 gap-6 sm:gap-10 pt-1 lg:pt-0">
+              
+              {/* Column 1: Platform */}
+              <div className="space-y-3">
+                <h5 className="text-[12px] sm:text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
+                  Platform
+                </h5>
+                <ul className="space-y-2.5 text-[14px] sm:text-[14.5px]">
+                  <li>
+                    <a 
+                      href="#modules" 
+                      onClick={(e) => scrollToSection(e, 'modules')}
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                    >
+                      Floor Modules
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="#workflow" 
+                      onClick={(e) => scrollToSection(e, 'workflow')}
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                    >
+                      8-Step Pipeline
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="#roles" 
+                      onClick={(e) => scrollToSection(e, 'roles')}
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                    >
+                      Role Solutions
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="#pricing" 
+                      onClick={(e) => scrollToSection(e, 'pricing')}
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                    >
+                      Subscription Plans
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="#faq" 
+                      onClick={(e) => scrollToSection(e, 'faq')}
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                    >
+                      FAQ &amp; Guide
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 2: Access & Support */}
+              <div className="space-y-3">
+                <h5 className="text-[12px] sm:text-[13px] font-mono font-bold uppercase tracking-wider text-slate-900">
+                  Access &amp; Support
+                </h5>
+                <ul className="space-y-2.5 text-[14px] sm:text-[14.5px]">
+                  <li>
+                    <Link 
+                      href="/login" 
+                      className="text-slate-700 hover:text-[#3A3564] transition-colors inline-flex items-center gap-1 font-semibold group"
+                    >
+                      <span>Staff Sign In</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => setIsDemoModalOpen(true)}
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer text-left"
+                    >
+                      Schedule Live Demo
+                    </button>
+                  </li>
+                  <li>
+                    <Link 
+                      href="/register" 
+                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block"
+                    >
+                      7-Day Free Trial
+                    </Link>
+                  </li>
+                  <li>
+                    <a 
+                      href="https://wa.me/?text=Hi,%20I%20would%20like%20to%20request%20a%20live%20demo%20of%20Zigza%20MES." 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-[#1F9D63] hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5 font-bold"
+                    >
+                      <Phone className="w-3.5 h-3.5 shrink-0" />
+                      <span>WhatsApp Support</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
             </div>
 
           </div>
 
           {/* Bottom Divider & Proudly Made in India Bar */}
-          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
-            <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
+          <div className="pt-6 sm:pt-8 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-600">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
               <div className="flex items-center gap-2">
-                <span className="text-proudly-india-black font-semibold">
+                <span className="text-proudly-india-black font-semibold text-[13px] sm:text-sm">
                   Proudly Made in India
                 </span>
-                <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
+                <IndiaFlag className="w-4.5 h-3 rounded-xs shrink-0" />
               </div>
-              <p className="text-sm text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
+              <span className="hidden sm:inline text-slate-300">•</span>
+              <p className="text-xs sm:text-sm text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
             </div>
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2 text-[13px] sm:text-sm text-slate-600">
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 sm:gap-x-5 gap-y-1.5 text-xs sm:text-sm text-slate-600">
               <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
+              <span className="text-slate-300">•</span>
               <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
+              <span className="text-slate-300">•</span>
               <Link href="/security" className="hover:text-slate-900 transition-colors">Security Standards</Link>
             </div>
           </div>
