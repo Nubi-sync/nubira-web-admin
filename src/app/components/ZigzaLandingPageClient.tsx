@@ -1106,6 +1106,15 @@ export function ZigzaLandingPageClient({
                       </div>
                     </div>
 
+                    {/* In-Phone App Brand Header: Zigza Logo */}
+                    <div className="flex items-center justify-center pt-0.5">
+                      <img
+                        src="/z i g z a (8).png"
+                        alt="Zigza"
+                        className="h-7 w-auto object-contain"
+                      />
+                    </div>
+
                     {/* Segmented Department Selector */}
                     <div className="grid grid-cols-3 gap-1.5 p-1 bg-white border border-slate-200 rounded-xl shadow-2xs">
                       <button
@@ -1222,9 +1231,22 @@ export function ZigzaLandingPageClient({
                       </div>
                     </div>
 
-                    {/* Modern Smartphone Home Indicator Swipe Bar */}
-                    <div className="pt-2">
-                      <div className="w-24 h-1 bg-slate-400/80 rounded-full mx-auto" />
+                    {/* Android 3-Button Navigation Bar */}
+                    <div className="pt-2 pb-0.5 flex items-center justify-around w-44 mx-auto text-slate-600">
+                      {/* Back button (Triangle pointing left) */}
+                      <div className="w-8 h-5 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-slate-600 stroke-[2.2] stroke-linejoin-round">
+                          <polygon points="17,19 7,12 17,5" />
+                        </svg>
+                      </div>
+                      {/* Home button (Circle) */}
+                      <div className="w-8 h-5 flex items-center justify-center">
+                        <div className="w-3.5 h-3.5 rounded-full border-[2px] border-slate-600" />
+                      </div>
+                      {/* Recent Apps / Overview button (Rounded Square) */}
+                      <div className="w-8 h-5 flex items-center justify-center">
+                        <div className="w-3.5 h-3.5 rounded-[2.5px] border-[2px] border-slate-600" />
+                      </div>
                     </div>
                   </div>
                 </div>

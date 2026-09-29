@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated screenshots
+public/introductory-sections-mobile/
+public/introductory-sections-mobile/**
+public/introductory-sections/
+public/introductory-sections/**
+introductory-site-sections-mobile/
+introductory-site-sections-mobile/**
+introductory-site-sections/
+introductory-site-sections/**
