@@ -130,7 +130,7 @@ export default async function ModuleCompanyProfilePage(props: {
   const adminPhone = tenant.phone || companyData?.admin_phone || ''
 
   return (
-    <AdminShell userEmail={user.email} userRole={userRole}>
+    <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6 select-none">
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">

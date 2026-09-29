@@ -4,19 +4,24 @@ import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  LayoutDashboard,
   LayoutGrid,
-  ShieldCheck,
-  Sparkles,
   Building2,
+  Users,
+  Palette,
+  Warehouse,
+  Bot,
+  FileText,
+  User,
   Plus,
   ChevronDown,
   Bell,
-  User,
   LogOut,
   Layers,
   Scissors,
   CheckCircle2,
-  Bot
+  Lock,
+  Sparkles
 } from 'lucide-react'
 import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 
@@ -24,6 +29,16 @@ interface CompanyOwnerHeaderProps {
   userEmail?: string
   userRole?: string
   companyName?: string
+}
+
+interface NavTabItem {
+  id: string
+  label: string
+  lines: [string, string?]
+  href?: string
+  icon: React.ComponentType<{ className?: string }>
+  isClickable: boolean
+  isActive: boolean
 }
 
 export function CompanyOwnerHeader({
@@ -83,74 +98,132 @@ export function CompanyOwnerHeader({
 
   const resolvedCompany = companyName && companyName.trim() && companyName !== 'Account Deactivated'
     ? companyName.trim()
-    : 'Trial Company'
+    : 'Apparel Factory'
 
-  // Primary horizontal navigation items (From Admin Workspace Hub)
-  const navItems = [
+  // Exact 9 Tabs in the user's requested order:
+  // 1. Dashboard
+  // 2. All Modules
+  // 3. Buyers & Vendors
+  // 4. Supervisor & Workers
+  // 5. All Designs
+  // 6. Fabric & Store
+  // 7. Zigza AI
+  // 8. Reports
+  // 9. Company Profile
+  const navTabs: NavTabItem[] = [
     {
+      id: 'dashboard',
+      label: 'Dashboard',
+      lines: ['Dashboard'],
+      icon: LayoutDashboard,
+      isClickable: false,
+      isActive: false
+    },
+    {
+      id: 'all-modules',
       label: 'All Modules',
+      lines: ['All Modules'],
       href: '/modules',
       icon: LayoutGrid,
+      isClickable: true,
       isActive: pathname === '/modules'
     },
     {
-      label: 'Department Heads',
+      id: 'buyers-vendors',
+      label: 'Buyers & Vendors',
+      lines: ['Buyers &', 'Vendors'],
+      icon: Building2,
+      isClickable: false,
+      isActive: false
+    },
+    {
+      id: 'supervisor-workers',
+      label: 'Supervisor & Workers',
+      lines: ['Supervisor &', 'Workers'],
       href: '/modules/access-control',
-      icon: ShieldCheck,
+      icon: Users,
+      isClickable: true,
       isActive: pathname === '/modules/access-control' || pathname?.startsWith('/modules/access-control') || pathname === '/access-control'
     },
     {
-      label: 'SA Design Approvals',
+      id: 'all-designs',
+      label: 'All Designs',
+      lines: ['All Designs'],
       href: '/design/sa-approvals',
-      icon: Sparkles,
+      icon: Palette,
+      isClickable: true,
       isActive: pathname === '/design/sa-approvals' || pathname?.startsWith('/design/sa-approvals')
     },
     {
+      id: 'fabric-store',
+      label: 'Fabric & Store',
+      lines: ['Fabric &', 'Store'],
+      icon: Warehouse,
+      isClickable: false,
+      isActive: false
+    },
+    {
+      id: 'zigza-ai',
+      label: 'Zigza AI',
+      lines: ['Zigza AI'],
+      href: '/zigza-ai',
+      icon: Bot,
+      isClickable: true,
+      isActive: pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
+    },
+    {
+      id: 'reports',
+      label: 'Reports',
+      lines: ['Reports'],
+      icon: FileText,
+      isClickable: false,
+      isActive: false
+    },
+    {
+      id: 'company-profile',
       label: 'Company Profile',
+      lines: ['Company', 'Profile'],
       href: '/modules/profile',
-      icon: Building2,
+      icon: User,
+      isClickable: true,
       isActive: pathname === '/modules/profile' || pathname?.startsWith('/modules/profile') || pathname === '/profile'
     }
   ]
 
-  const handleOpenAiCopilot = () => {
-    window.dispatchEvent(new CustomEvent('open-ai-copilot'))
-  }
-
   return (
-    <div className="w-full select-none z-30 sticky top-0">
-      {/* 1. TOP BRAND NAVBAR (Deep Brand Navy #1B2A4A) */}
-      <header className="w-full bg-[#1B2A4A] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-[#101D36] shadow-xs">
-        {/* Left Section: Brand Logo + Company Name */}
+    <div className="w-full select-none z-30 sticky top-0 font-[family-name:var(--font-public-sans)]">
+      {/* 1. MINIMAL TOP BRAND NAVBAR (#0F172A Minimal Deep Slate) */}
+      <header className="w-full bg-[#0F172A] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-slate-800 shadow-xs">
+        {/* Left Section: Crisp Brand Logo + Actual Company Name */}
         <div className="flex items-center gap-3 min-w-0">
           <Link href="/modules" className="flex items-center shrink-0">
             <img
               src="/z i g z a (8).png"
               alt="Zigza"
-              className="h-7 sm:h-8 w-auto object-contain brightness-0 invert"
+              className="h-7 sm:h-8 w-auto object-contain brightness-0 invert opacity-95"
             />
           </Link>
 
-          <span className="h-5 w-px bg-white/20 hidden sm:inline-block" />
+          <span className="h-5 w-px bg-slate-700 hidden sm:inline-block" />
 
           <div className="flex items-center gap-2 min-w-0">
-            <h1 className="text-sm sm:text-base md:text-lg font-extrabold text-white tracking-tight truncate font-[family-name:var(--font-heading)]">
+            <h1 className="text-sm sm:text-base font-bold text-white tracking-tight truncate font-[family-name:var(--font-heading)]">
               {resolvedCompany}
             </h1>
-            <span className="hidden md:inline-flex items-center text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/15 shrink-0">
+            <span className="hidden md:inline-flex items-center text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
               Super Admin
             </span>
           </div>
         </div>
 
-        {/* Right Section: Actions (+ Create, FY, Feedback/AI, Notifications, Profile) */}
+        {/* Right Section: Actions (+ Create, FY Selector, Notifications, Profile) */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* + Create Dropdown */}
           <div className="relative" ref={createRef}>
             <button
               type="button"
               onClick={() => setIsCreateOpen(!isCreateOpen)}
-              className="bg-white text-[#1B2A4A] hover:bg-slate-100 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              className="bg-white text-slate-900 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span className="hidden sm:inline">Create</span>
@@ -166,7 +239,7 @@ export function CompanyOwnerHeader({
                   href="/modules/access-control"
                   className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 transition-colors font-semibold text-slate-700 hover:text-slate-900"
                 >
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Users className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Appoint Department Head</span>
                 </Link>
                 <Link
@@ -207,10 +280,10 @@ export function CompanyOwnerHeader({
             <button
               type="button"
               onClick={() => setIsFyOpen(!isFyOpen)}
-              className="bg-white/10 hover:bg-white/15 text-white border border-white/20 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <span>{selectedFy}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-white/70" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {isFyOpen && (
@@ -224,7 +297,7 @@ export function CompanyOwnerHeader({
                     type="button"
                     onClick={() => { setSelectedFy(fy); setIsFyOpen(false) }}
                     className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-slate-50 cursor-pointer ${
-                      selectedFy === fy ? 'font-bold text-[#1B2A4A] bg-slate-50/80' : 'text-slate-600'
+                      selectedFy === fy ? 'font-bold text-slate-900 bg-slate-50' : 'text-slate-600'
                     }`}
                   >
                     <span>{fy}</span>
@@ -235,21 +308,10 @@ export function CompanyOwnerHeader({
             )}
           </div>
 
-          {/* Feedback / AI Copilot Trigger */}
-          <button
-            type="button"
-            onClick={handleOpenAiCopilot}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
-            title="Zigza AI Assistant & Support"
-            aria-label="Zigza AI Assistant"
-          >
-            <Bot className="w-4 h-4" />
-          </button>
-
           {/* Notification Bell */}
           <Link
             href="/stitching-sewing/notifications"
-            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors"
+            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
             title="Floor Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -265,7 +327,7 @@ export function CompanyOwnerHeader({
             <button
               type="button"
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 hover:bg-white/30 border border-white/30 flex items-center justify-center text-white font-bold text-xs transition-all cursor-pointer overflow-hidden shadow-2xs"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-200 font-bold text-xs transition-all cursor-pointer overflow-hidden"
               aria-label="User Account"
             >
               <User className="w-4 h-4" />
@@ -293,7 +355,7 @@ export function CompanyOwnerHeader({
                     href="/modules/access-control"
                     className="flex items-center gap-2 px-3.5 py-2 hover:bg-slate-50 transition-colors text-slate-700 font-medium"
                   >
-                    <ShieldCheck className="w-4 h-4 text-slate-500" />
+                    <Users className="w-4 h-4 text-slate-500" />
                     <span>Appointed Department Heads</span>
                   </Link>
                 </div>
@@ -315,31 +377,54 @@ export function CompanyOwnerHeader({
         </div>
       </header>
 
-      {/* 2. HORIZONTAL SUB-NAVBAR (Pure White with Coral/Orange Bottom Active Accent) */}
+      {/* 2. MINIMAL HORIZONTAL SUB-NAVBAR (9 Tabs with 2-line Text Support) */}
       <nav className="w-full bg-white border-b border-slate-200 shadow-2xs overflow-x-auto no-scrollbar">
         <div className="flex items-stretch min-w-max">
-          {navItems.map((item) => {
-            const Icon = item.icon
+          {navTabs.map((tab) => {
+            const Icon = tab.icon
+
+            if (!tab.isClickable) {
+              return (
+                <div
+                  key={tab.id}
+                  className="px-3.5 sm:px-4.5 py-2.5 sm:py-3 flex flex-col items-center justify-center text-center gap-1 border-r border-slate-200/80 first:border-l border-b-[3px] border-transparent text-slate-400 cursor-default select-none min-w-[95px] sm:min-w-[110px]"
+                  title={`${tab.label} (Coming Soon)`}
+                >
+                  <div className="relative">
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-300 stroke-[1.8]" />
+                    <span className="absolute -top-1 -right-1 text-slate-400">
+                      <Lock className="w-2.5 h-2.5" />
+                    </span>
+                  </div>
+                  <div className="text-[11px] sm:text-[11.5px] font-medium leading-tight text-center max-w-[85px]">
+                    <div>{tab.lines[0]}</div>
+                    {tab.lines[1] && <div>{tab.lines[1]}</div>}
+                  </div>
+                </div>
+              )
+            }
+
             return (
               <Link
-                key={item.href}
-                href={item.href}
-                className={`group px-6 sm:px-8 py-2.5 sm:py-3 flex flex-col items-center justify-center text-center gap-1 transition-all border-r border-slate-200/80 first:border-l ${
-                  item.isActive
+                key={tab.id}
+                href={tab.href || '#'}
+                className={`group px-3.5 sm:px-4.5 py-2.5 sm:py-3 flex flex-col items-center justify-center text-center gap-1 transition-all border-r border-slate-200/80 first:border-l min-w-[95px] sm:min-w-[110px] ${
+                  tab.isActive
                     ? 'border-b-[3px] border-[#EA580C] bg-slate-50/60 text-slate-950 font-bold'
-                    : 'border-b-[3px] border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50/40 font-medium'
+                    : 'border-b-[3px] border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50/40 font-medium'
                 }`}
               >
                 <Icon
                   className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${
-                    item.isActive
-                      ? 'text-[#1B2A4A] stroke-[2.3]'
+                    tab.isActive
+                      ? 'text-[#0F172A] stroke-[2.3]'
                       : 'text-slate-400 group-hover:text-slate-700 stroke-[2]'
                   }`}
                 />
-                <span className="text-xs sm:text-[13px] tracking-tight">
-                  {item.label}
-                </span>
+                <div className="text-[11px] sm:text-[11.5px] leading-tight text-center max-w-[85px]">
+                  <div>{tab.lines[0]}</div>
+                  {tab.lines[1] && <div>{tab.lines[1]}</div>}
+                </div>
               </Link>
             )
           })}
