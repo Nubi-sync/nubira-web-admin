@@ -41,7 +41,8 @@ import {
   Building2,
   Loader2,
   ArrowUp,
-  ChevronLeft
+  ChevronLeft,
+  Wifi
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
@@ -1086,13 +1087,18 @@ export function ZigzaLandingPageClient({
                   {/* Inner Phone Screen Display */}
                   <div className="rounded-[26px] bg-[#FAF7F0] border border-slate-200/90 overflow-hidden p-3 space-y-2.5">
                     {/* Native Phone Status Bar */}
-                    <div className="flex items-center justify-between px-1 text-slate-800">
+                    <div className="flex items-center justify-between px-1.5 text-slate-800">
                       <span className="text-xs font-mono font-bold">09:41</span>
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10.5px] font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span>Live</span>
+                        {/* Cellular Signal Bars */}
+                        <div className="flex items-end gap-0.5 h-2.5">
+                          <span className="w-0.5 h-1 bg-slate-800 rounded-full" />
+                          <span className="w-0.5 h-1.5 bg-slate-800 rounded-full" />
+                          <span className="w-0.5 h-2 bg-slate-800 rounded-full" />
+                          <span className="w-0.5 h-2.5 bg-slate-800 rounded-full" />
                         </div>
+                        {/* Wifi Icon */}
+                        <Wifi className="w-3.5 h-3.5 text-slate-800" />
                         {/* Phone Battery Icon */}
                         <div className="w-5 h-2.5 rounded-xs border border-slate-800 p-0.5 flex items-center">
                           <div className="h-full w-3 bg-slate-800 rounded-2xs" />
@@ -1216,17 +1222,9 @@ export function ZigzaLandingPageClient({
                       </div>
                     </div>
 
-                    {/* Mobile Bottom Status Bar & Home Indicator Bar */}
-                    <div className="pt-2 border-t border-slate-200/80">
-                      <div className="flex items-center justify-between text-[10.5px] text-slate-500 font-medium px-1">
-                        <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                          Cloud Synced
-                        </span>
-                        <span className="font-mono text-[10px] text-slate-400">0.1s Latency</span>
-                      </div>
-                      {/* Modern Smartphone Home Indicator Swipe Bar */}
-                      <div className="w-24 h-1 bg-slate-400/80 rounded-full mx-auto mt-2.5" />
+                    {/* Modern Smartphone Home Indicator Swipe Bar */}
+                    <div className="pt-2">
+                      <div className="w-24 h-1 bg-slate-400/80 rounded-full mx-auto" />
                     </div>
                   </div>
                 </div>
