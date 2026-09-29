@@ -36,7 +36,9 @@ import {
   Plus,
   FileText,
   Zap,
-  UserCheck
+  UserCheck,
+  BarChart3,
+  PieChart
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { WorkerAssignmentsTable, type WorkerAssignmentItem } from '@/app/components/WorkerAssignmentsTable'
@@ -131,6 +133,11 @@ type ActivityItem = {
   location: string
   timestamp: string
   relativeTime: string
+  lineman?: string
+  artNo?: string
+  artDesc?: string
+  challanNo?: string
+  qty?: number
 }
 
 type ArticleItem = {
@@ -172,6 +179,46 @@ type StageType = 'TOTAL_STOCKS' | 'GOODS_IN_LINE' | 'MENDING_CHECKING' | 'READY_
 function cleanDescription(desc?: string) {
   if (!desc) return ''
   return desc.replace(/\s*\[.*\]/g, '').trim()
+}
+
+function cleanCategoryName(raw: string): string {
+  const s = raw.trim()
+    .replace(/[_\-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+  if (!s) return 'General'
+  return s.split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
+}
+
+function extractDynamicCategory(art?: any, ch?: any): string {
+  if (art?.category && typeof art.category === 'string' && art.category.trim()) {
+    return cleanCategoryName(art.category)
+  }
+  if (art?.size_rates?.category && typeof art.size_rates.category === 'string' && art.size_rates.category.trim()) {
+    return cleanCategoryName(art.size_rates.category)
+  }
+
+  const desc = cleanDescription(art?.description || '').trim()
+  if (desc) {
+    const parts = desc.split(/[-•:\/|]/)
+    const firstPart = parts[0].trim()
+    if (firstPart && !firstPart.match(/^[0-9]+$/) && firstPart.length >= 2) {
+      const cleaned = firstPart.replace(/^(art|article|style|no|#)?\s*[0-9A-Z_-]+\s*[-•:]*\s*/i, '').trim()
+      if (cleaned.length >= 2 && isNaN(Number(cleaned))) {
+        return cleanCategoryName(cleaned)
+      }
+      if (isNaN(Number(firstPart))) {
+        return cleanCategoryName(firstPart)
+      }
+    }
+  }
+
+  if (ch?.fabric_type && typeof ch.fabric_type === 'string' && ch.fabric_type.trim()) {
+    return cleanCategoryName(ch.fabric_type)
+  }
+
+  return 'General'
 }
 
 function formatLinemanName(lm?: { username?: string } | { username?: string }[]) {
@@ -328,11 +375,21 @@ export default function DashboardClient({
   const [isArticleMenuOpen, setIsArticleMenuOpen] = useState(false)
   const [articleSearchQuery, setArticleSearchQuery] = useState('')
 
+  // Visual Analytics Widget Controls
+  const [trendMode, setTrendMode] = useState<'monthly' | 'weekly'>('monthly')
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('ALL')
+  const [categoryMonth, setCategoryMonth] = useState<string>('Aug 2026')
+
   // Selected Stage Drawer State
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
   const [drawerSearchQuery, setDrawerSearchQuery] = useState('')
   const [expandedLinemen, setExpandedLinemen] = useState<Record<string, boolean>>({})
   const [articleCardTabs, setArticleCardTabs] = useState<Record<string, 'matrix' | 'workers'>>({})
+
+  // Recent Activity Feed Drawer State
+  const [isActivityDrawerOpen, setIsActivityDrawerOpen] = useState(false)
+  const [activityFilter, setActivityFilter] = useState<'ALL' | 'ALLOTMENT' | 'QC' | 'STORE' | 'DISPATCH'>('ALL')
+  const [activitySearchQuery, setActivitySearchQuery] = useState('')
 
   // Real-time live synchronization with mobile floor apps via Supabase WebSockets & Heartbeat Polling
   useEffect(() => {
@@ -373,7 +430,7 @@ export default function DashboardClient({
       .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_assignments' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'qc_logs' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'store_transactions' }, triggerRefresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_challans' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'delivery_challans' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_product' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'challans' }, triggerRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'truck_inwards' }, triggerRefresh)
@@ -412,6 +469,8 @@ export default function DashboardClient({
       if (e.key === 'Escape') {
         setActiveDrilldownStage(null)
         setDrawerSearchQuery('')
+        setIsActivityDrawerOpen(false)
+        setActivitySearchQuery('')
         setIsArticleMenuOpen(false)
       }
     }
@@ -444,6 +503,31 @@ export default function DashboardClient({
     const stripped = cleanDesc.replace(new RegExp(`^${selectedArticleObj.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()
     return stripped ? `${selectedArticleObj.art_no} • ${stripped}` : selectedArticleObj.art_no
   }, [selectedArticleId, selectedArticleObj, articles.length])
+
+  // Filtered Activities for Live Factory Audit Slide-Over Drawer
+  const filteredActivitiesList = useMemo(() => {
+    return recentActivities.filter(act => {
+      if (activityFilter === 'ALLOTMENT') {
+        if (act.type !== 'ALLOTMENT' && act.type !== 'PRODUCTION') return false
+      } else if (activityFilter === 'QC') {
+        if (act.type !== 'QC' && act.type !== 'QC_PASS' && act.type !== 'QC_REJECT') return false
+      } else if (activityFilter === 'STORE') {
+        if (act.type !== 'STORE' && act.type !== 'STORE_INWARD') return false
+      } else if (activityFilter === 'DISPATCH') {
+        if (act.type !== 'DISPATCH') return false
+      }
+
+      if (activitySearchQuery.trim()) {
+        const q = activitySearchQuery.trim().toLowerCase()
+        const titleMatch = (act.title || '').toLowerCase().includes(q)
+        const detailsMatch = (act.details || '').toLowerCase().includes(q)
+        const locationMatch = (act.location || '').toLowerCase().includes(q)
+        return titleMatch || detailsMatch || locationMatch
+      }
+
+      return true
+    })
+  }, [recentActivities, activityFilter, activitySearchQuery])
 
   // 1. Extract Unique Brands for Quick Filter Tabs
   const brandTabs = useMemo(() => {
@@ -703,6 +787,301 @@ export default function DashboardClient({
       return timeB - timeA
     })
   }, [filteredData.allotments, workerAssignments])
+
+  // 4. Production Trend Data (Planned vs Production vs Delivered)
+  const productionTrendData = useMemo(() => {
+    const now = new Date()
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    if (trendMode === 'monthly') {
+      const result: { label: string; planned: number; production: number; delivered: number }[] = []
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+        const monthIndex = d.getMonth()
+        const year = d.getFullYear()
+        const monthLabel = `${months[monthIndex]} ${year !== now.getFullYear() ? `'${String(year).slice(-2)}` : ''}`
+
+        const plannedInMonth = challans.filter(c => {
+          if (!c.created_at) return false
+          const cd = new Date(c.created_at)
+          return cd.getMonth() === monthIndex && cd.getFullYear() === year
+        }).reduce((sum, c) => sum + (c.total_pcs || 0), 0)
+
+        const prodInMonth = rawProduction.filter(p => {
+          const dateStr = p.entry_date || p.created_at
+          if (!dateStr) return false
+          const pd = new Date(dateStr)
+          return pd.getMonth() === monthIndex && pd.getFullYear() === year
+        }).reduce((sum, p) => sum + (p.quantity || 0), 0)
+
+        const dispInMonth = rawDispatch.filter(dp => {
+          if (!dp.created_at) return false
+          const dd = new Date(dp.created_at)
+          return dd.getMonth() === monthIndex && dd.getFullYear() === year
+        }).reduce((sum, dp) => sum + (dp.total_pieces || 0), 0)
+
+        result.push({
+          label: monthLabel,
+          planned: plannedInMonth,
+          production: prodInMonth,
+          delivered: dispInMonth
+        })
+      }
+
+      const totalPlanned = result.reduce((s, r) => s + r.planned, 0)
+      const totalProd = result.reduce((s, r) => s + r.production, 0)
+      const totalDisp = result.reduce((s, r) => s + r.delivered, 0)
+
+      if (totalPlanned === 0 && totalProd === 0 && totalDisp === 0 && metrics.totalStocks > 0) {
+        const curr = result[result.length - 1]
+        curr.planned = metrics.totalStocks
+        curr.production = metrics.goodsInLine + metrics.readyDelivery
+        curr.delivered = metrics.readyDelivery
+      }
+
+      const maxValue = Math.max(1, ...result.map(r => Math.max(r.planned, r.production, r.delivered)))
+      return { items: result, maxValue }
+    } else {
+      const result: { label: string; planned: number; production: number; delivered: number }[] = []
+      for (let i = 5; i >= 0; i--) {
+        const endOfWeek = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000)
+        const startOfWeek = new Date(endOfWeek.getTime() - 7 * 24 * 60 * 60 * 1000)
+        const label = `Wk ${6 - i}`
+
+        const plannedInWk = challans.filter(c => {
+          if (!c.created_at) return false
+          const cd = new Date(c.created_at)
+          return cd >= startOfWeek && cd <= endOfWeek
+        }).reduce((sum, c) => sum + (c.total_pcs || 0), 0)
+
+        const prodInWk = rawProduction.filter(p => {
+          const dateStr = p.entry_date || p.created_at
+          if (!dateStr) return false
+          const pd = new Date(dateStr)
+          return pd >= startOfWeek && pd <= endOfWeek
+        }).reduce((sum, p) => sum + (p.quantity || 0), 0)
+
+        const dispInWk = rawDispatch.filter(dp => {
+          if (!dp.created_at) return false
+          const dd = new Date(dp.created_at)
+          return dd >= startOfWeek && dd <= endOfWeek
+        }).reduce((sum, dp) => sum + (dp.total_pieces || 0), 0)
+
+        result.push({
+          label,
+          planned: plannedInWk,
+          production: prodInWk,
+          delivered: dispInWk
+        })
+      }
+
+      const totalPlanned = result.reduce((s, r) => s + r.planned, 0)
+      if (totalPlanned === 0 && metrics.totalStocks > 0) {
+        const curr = result[result.length - 1]
+        curr.planned = metrics.totalStocks
+        curr.production = metrics.goodsInLine + metrics.readyDelivery
+        curr.delivered = metrics.readyDelivery
+      }
+
+      const maxValue = Math.max(1, ...result.map(r => Math.max(r.planned, r.production, r.delivered)))
+      return { items: result, maxValue }
+    }
+  }, [challans, rawProduction, rawDispatch, trendMode, metrics.totalStocks, metrics.goodsInLine, metrics.readyDelivery])
+
+  // 5. Order Status Breakdown (Donut Chart Computation)
+  const orderStatusData = useMemo(() => {
+    const inProduction = metrics.goodsInLine
+    const delivered = metrics.readyDelivery
+    const mending = metrics.mendingAlterationQty + metrics.mendingFloorPcs
+    const checking = metrics.mendingChecking
+    const rawPending = metrics.totalStocks - (inProduction + delivered + mending + checking)
+    const pending = Math.max(0, rawPending)
+    
+    const total = inProduction + delivered + mending + checking + pending || metrics.totalStocks || 1
+
+    const segments = [
+      { key: 'IN_PROD', label: 'In Production', count: inProduction, color: '#3A3564', pct: Math.round((inProduction / total) * 100) },
+      { key: 'DELIVERED', label: 'Delivered', count: delivered, color: '#0D9488', pct: Math.round((delivered / total) * 100) },
+      { key: 'MENDING', label: 'Mending', count: mending, color: '#E11D48', pct: Math.round((mending / total) * 100) },
+      { key: 'CHECKING', label: 'Checking', count: checking, color: '#D97706', pct: Math.round((checking / total) * 100) },
+      { key: 'PENDING', label: 'Pending Allotment', count: pending, color: '#94A3B8', pct: Math.round((pending / total) * 100) }
+    ]
+
+    let accumulatedAngle = 0
+    const circumference = 2 * Math.PI * 45 // radius = 45 -> c ≈ 282.74
+    const chartSlices = segments.map(seg => {
+      const fraction = seg.count / total
+      const strokeDasharray = `${Math.max(0, fraction * circumference)} ${circumference}`
+      const strokeDashoffset = -accumulatedAngle * circumference
+      accumulatedAngle += fraction
+      return {
+        ...seg,
+        strokeDasharray,
+        strokeDashoffset
+      }
+    })
+
+    return {
+      total,
+      segments,
+      chartSlices
+    }
+  }, [metrics])
+
+  // 6. 100% Dynamic Category Production Breakdown Data (Zero Hardcoding)
+  const categoryProductionData = useMemo(() => {
+    const palette = [
+      '#3A3564', // Deep Indigo
+      '#0D9488', // Emerald Teal
+      '#6366F1', // Iris Violet
+      '#F59E0B', // Amber Orange
+      '#EC4899', // Rose Pink
+      '#0284C7', // Sky Cyan
+      '#8B5CF6', // Purple
+      '#10B981', // Emerald Green
+    ]
+
+    const catMap = new Map<string, { label: string; count: number }>()
+
+    // Tally target pieces from filtered allotments
+    filteredData.allotments.forEach(al => {
+      if (al.status === 'CANCELLED') return
+      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
+      const category = extractDynamicCategory(art, ch)
+      const targetQty = Number(al.target_qty) || 0
+
+      if (!catMap.has(category)) {
+        catMap.set(category, { label: category, count: 0 })
+      }
+      catMap.get(category)!.count += targetQty
+    })
+
+    // Also include any challans not yet allotted
+    challans.forEach(ch => {
+      const category = extractDynamicCategory(undefined, ch)
+      if (category !== 'General') {
+        if (!catMap.has(category)) {
+          catMap.set(category, { label: category, count: 0 })
+        }
+        if (catMap.get(category)!.count === 0 && (ch.total_pcs || 0) > 0) {
+          catMap.get(category)!.count += (ch.total_pcs || 0)
+        }
+      }
+    })
+
+    // If still empty, check articles list
+    if (catMap.size === 0) {
+      articles.forEach(art => {
+        const category = extractDynamicCategory(art, undefined)
+        if (!catMap.has(category)) {
+          catMap.set(category, { label: category, count: 0 })
+        }
+      })
+    }
+
+    // Sort by volume descending
+    const rawItems = Array.from(catMap.values())
+      .filter(item => item.label && item.label !== 'General')
+      .sort((a, b) => b.count - a.count)
+
+    // If only General or empty, fallback gracefully
+    if (rawItems.length === 0 && catMap.has('General')) {
+      rawItems.push(catMap.get('General')!)
+    }
+
+    // Take top 6 categories for balanced visual column spacing
+    const sliced = rawItems.slice(0, 6)
+
+    const items = sliced.map((item, index) => ({
+      ...item,
+      color: palette[index % palette.length]
+    }))
+
+    const totalCount = items.reduce((sum, item) => sum + item.count, 0)
+    const maxCount = Math.max(1, ...items.map(i => i.count))
+
+    // Determine top primary segment
+    const topCategory = items.length > 0 ? items[0] : null
+    const topPct = (topCategory && totalCount > 0)
+      ? Math.round((topCategory.count / totalCount) * 100)
+      : 0
+    const primarySegmentText = topCategory
+      ? `${topCategory.label}${topPct > 0 ? ` (${topPct}%)` : ''}`
+      : 'All Items'
+
+    return { items, totalCount, maxCount, primarySegmentText }
+  }, [filteredData.allotments, challans, articles])
+
+  // 7. Top Running Styles (Ranking & Dual-Tone Progress)
+  const topRunningStyles = useMemo(() => {
+    const styleMap = new Map<string, {
+      artNo: string
+      description: string
+      orderQty: number
+      producedQty: number
+      balanceQty: number
+      progressPct: number
+    }>()
+
+    articles.forEach(art => {
+      const artNo = art.art_no?.trim() || 'Style'
+      if (!styleMap.has(artNo)) {
+        styleMap.set(artNo, {
+          artNo,
+          description: cleanDescription(art.description || ''),
+          orderQty: 0,
+          producedQty: 0,
+          balanceQty: 0,
+          progressPct: 0
+        })
+      }
+    })
+
+    allotments.forEach(al => {
+      if (al.status === 'CANCELLED') return
+      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+      const artNo = (art?.art_no || '').trim() || 'Style'
+      const target = Number(al.target_qty) || 0
+
+      if (!styleMap.has(artNo)) {
+        styleMap.set(artNo, {
+          artNo,
+          description: cleanDescription(art?.description || ''),
+          orderQty: 0,
+          producedQty: 0,
+          balanceQty: 0,
+          progressPct: 0
+        })
+      }
+      const entry = styleMap.get(artNo)!
+      entry.orderQty += target
+    })
+
+    workerAssignments.forEach(w => {
+      const allot = allotments.find(a => a.id === w.allotment_id)
+      const art = Array.isArray(allot?.articles) ? allot?.articles[0] : allot?.articles
+      const artNo = (art?.art_no || '').trim()
+      if (artNo && styleMap.has(artNo)) {
+        const qty = Number(w.completed_qty) || (w.status === 'DONE' ? Number(w.assigned_qty) : 0)
+        styleMap.get(artNo)!.producedQty += qty
+      }
+    })
+
+    return Array.from(styleMap.values())
+      .filter(s => s.orderQty > 0 || s.producedQty > 0)
+      .map(s => {
+        const balanceQty = Math.max(0, s.orderQty - s.producedQty)
+        const progressPct = s.orderQty > 0 ? Math.min(100, Math.round((s.producedQty / s.orderQty) * 100)) : 0
+        return {
+          ...s,
+          balanceQty,
+          progressPct
+        }
+      })
+      .sort((a, b) => b.orderQty - a.orderQty)
+      .slice(0, 5)
+  }, [articles, allotments, workerAssignments])
 
   return (
     <div className="space-y-6">
@@ -1273,158 +1652,425 @@ export default function DashboardClient({
       </div>
 
       {/* ========================================================= */}
-      {/* 4. ACTIVE PRODUCTION LOTS & RECENT ACTIVITY FEED           */}
+      {/* 4. EXECUTIVE VISUAL ANALYTICS SUITE                       */}
       {/* ========================================================= */}
+      
+      {/* ROW 1: 3 VISUAL ANALYTICS CARDS (Trend + Donut + Category) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Active Floor Allotments Table (2 Cols) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">
-                Active Production Orders & Floor Allotments
-              </h3>
-              <p className="text-sm text-slate-400 mt-0.5">
-                Live status of distinct delivery challans and assigned sewing lines
-              </p>
-            </div>
-            <Link 
-              href="/production-orders"
-              className="text-sm font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1.5"
-            >
-              View All Orders <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
+        {/* 1. Production Trend Card */}
+        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-[#3A3564]" />
+                  Production Trend
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Monthly vs planned vs delivered
+                </p>
+              </div>
 
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
-                  <th className="py-2.5 px-3">Challan / Order</th>
-                  <th className="py-2.5 px-3">Article Style</th>
-                  <th className="py-2.5 px-3">Assigned Lineman</th>
-                  <th className="py-2.5 px-3 text-right">Target Pcs</th>
-                  <th className="py-2.5 px-3 text-center">Floor Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {groupedActiveOrders.slice(0, 8).map(order => {
-                  const artDisplay = order.uniqueArtNos.length > 0 ? `Art: ${order.uniqueArtNos.join(', ')}` : 'Garment Style'
-                  const descDisplay = order.masterDescriptions.length > 0 ? order.masterDescriptions.join(' • ') : ''
-                  const linemanDisplay = order.linemen.length > 0 ? order.linemen.join(', ') : 'Unassigned'
-                  const progressPct = order.totalTargetQty > 0 ? Math.min(100, Math.round((order.totalCompletedQty / order.totalTargetQty) * 100)) : 0
+              {/* Monthly / Weekly Toggle */}
+              <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setTrendMode('monthly')}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
+                    trendMode === 'monthly'
+                      ? 'bg-white text-[#3A3564] shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTrendMode('weekly')}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
+                    trendMode === 'weekly'
+                      ? 'bg-white text-[#3A3564] shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Weekly
+                </button>
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-4 mt-3 text-[11px] font-medium text-slate-600">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564]" /> Planned
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" /> Production
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" /> Delivered
+              </span>
+            </div>
+
+            {/* Bar Chart Visualization */}
+            <div className="mt-6">
+              <div className="h-44 w-full flex items-end justify-between gap-2 sm:gap-3 px-2 pt-4 pb-2 bg-slate-50/50 rounded-xl border border-slate-100">
+                {productionTrendData.items.map((item, idx) => {
+                  const max = productionTrendData.maxValue || 1
+                  const plannedH = Math.min(100, Math.max(8, Math.round((item.planned / max) * 100)))
+                  const prodH = Math.min(100, Math.max(8, Math.round((item.production / max) * 100)))
+                  const delivH = Math.min(100, Math.max(8, Math.round((item.delivered / max) * 100)))
 
                   return (
-                    <tr key={order.key} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
-                          <span className="font-bold text-slate-900 font-mono text-xs sm:text-sm">
-                            {order.challanNo}
-                          </span>
-                        </div>
-                        {order.brand && (
-                          <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-                            {order.brand}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="font-extrabold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                          <Tag className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{artDisplay}</span>
-                        </div>
-                        {descDisplay && (
-                          <span className="block text-[11px] font-medium text-slate-500 truncate max-w-[200px] mt-0.5">
-                            {descDisplay}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-1.5">
-                          <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
-                          <span className="text-slate-800 font-semibold text-xs sm:text-sm">
-                            {linemanDisplay}
-                          </span>
-                        </div>
-                        {order.sliceCount > 1 && (
-                          <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                            {order.sliceCount} Color/Size Cuts
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <span className="font-extrabold text-slate-900 font-mono text-xs sm:text-sm block">
-                          {order.totalTargetQty.toLocaleString()} pcs
-                        </span>
-                        {order.totalCompletedQty > 0 && (
-                          <span className="text-[10.5px] font-mono text-emerald-600 font-bold block mt-0.5">
-                            {order.totalCompletedQty.toLocaleString()} done ({progressPct}%)
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs font-mono">
-                          <Zap className="w-3 h-3 text-emerald-600" />
-                          <span>{order.mendingStatus === 'PENDING_MENDING' ? 'Mending Queue' : 'In Production'}</span>
-                        </span>
-                      </td>
-                    </tr>
+                    <div key={idx} className="flex-1 flex flex-col items-center h-full justify-end group relative">
+                      {/* Tooltip on Hover */}
+                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] font-mono px-2 py-1 rounded shadow-md pointer-events-none whitespace-nowrap z-10">
+                        P: {item.planned.toLocaleString()} | Pr: {item.production.toLocaleString()} | D: {item.delivered.toLocaleString()}
+                      </div>
+
+                      <div className="w-full flex items-end justify-center gap-1 h-32">
+                        {/* Planned Bar */}
+                        <div 
+                          className="w-1/3 max-w-[10px] bg-[#3A3564] rounded-t-sm transition-all duration-500 hover:brightness-110"
+                          style={{ height: `${plannedH}%` }}
+                        />
+                        {/* Production Bar */}
+                        <div 
+                          className="w-1/3 max-w-[10px] bg-[#0D9488] rounded-t-sm transition-all duration-500 hover:brightness-110"
+                          style={{ height: `${prodH}%` }}
+                        />
+                        {/* Delivered Bar */}
+                        <div 
+                          className="w-1/3 max-w-[10px] bg-[#F59E0B] rounded-t-sm transition-all duration-500 hover:brightness-110"
+                          style={{ height: `${delivH}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-medium text-slate-500 mt-2 truncate max-w-[45px] text-center">
+                        {item.label}
+                      </span>
+                    </div>
                   )
                 })}
-                {groupedActiveOrders.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-10 text-center text-xs text-slate-400">
-                      No active production orders found for the selected filter.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
+            <span>Peak Month Target</span>
+            <span className="font-mono font-bold text-slate-900">{productionTrendData.maxValue.toLocaleString()} pcs</span>
           </div>
         </div>
 
-        {/* Live Recent Activity Feed (1 Col) */}
+        {/* 2. Order Status Donut Card */}
         <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <h3 className="text-base font-extrabold text-slate-900">
-                Floor Activity Stream
-              </h3>
-              <Clock className="w-[18px] h-[18px] text-slate-400" />
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <PieChart className="w-4 h-4 text-[#3A3564]" />
+                  Order Status
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Current lifecycle status breakdown
+                </p>
+              </div>
+              <span className="text-[11px] font-mono font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200">
+                Live
+              </span>
             </div>
 
-            <div className="mt-4 space-y-2.5">
-              {recentActivities.map(act => (
-                <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:bg-[#FAF7F0]/60 transition-all">
-                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-                    {act.type === 'QC' || act.type === 'QC_PASS' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
-                    ) : act.type === 'QC_REJECT' ? (
-                      <AlertTriangle className="w-4 h-4 text-amber-600 stroke-[2.5]" />
-                    ) : act.type === 'STORE' || act.type === 'STORE_INWARD' ? (
-                      <Boxes className="w-4 h-4 text-[#3A3564]" />
-                    ) : act.type === 'DISPATCH' ? (
-                      <Truck className="w-4 h-4 text-[#3A3564]" />
-                    ) : (
-                      <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5]" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                        {act.title}
-                      </p>
-                      <span className="text-[11px] font-mono text-slate-400 shrink-0 font-medium">
-                        {act.relativeTime}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 truncate mt-0.5 font-medium">
-                      {act.details}
-                    </p>
-                  </div>
+            {/* Donut Chart with Center Text */}
+            <div className="mt-4 flex flex-col items-center">
+              <div className="relative w-36 h-36 flex items-center justify-center">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  {/* Background Circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    className="text-slate-100"
+                    strokeWidth="12"
+                    stroke="currentColor"
+                    fill="transparent"
+                  />
+                  {/* Segments */}
+                  {orderStatusData.chartSlices.map((slice, i) => (
+                    <circle
+                      key={i}
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      stroke={slice.color}
+                      strokeWidth="12"
+                      strokeDasharray={slice.strokeDasharray}
+                      strokeDashoffset={slice.strokeDashoffset}
+                      strokeLinecap="round"
+                      fill="transparent"
+                      className="transition-all duration-700"
+                    />
+                  ))}
+                </svg>
+
+                {/* Center Content */}
+                <div className="absolute flex flex-col items-center justify-center text-center">
+                  <span className="text-sm sm:text-base font-extrabold text-slate-900 font-mono tracking-tight">
+                    {orderStatusData.total > 1000 ? `${(orderStatusData.total / 1000).toFixed(0)}k` : orderStatusData.total}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                    Total Pcs
+                  </span>
                 </div>
-              ))}
+              </div>
+
+              {/* Status Breakdown Legend */}
+              <div className="w-full grid grid-cols-2 gap-2 mt-4 text-xs">
+                {orderStatusData.segments.map(seg => (
+                  <div key={seg.key} className="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
+                      <span className="text-[11px] font-medium text-slate-700 truncate">{seg.label}</span>
+                    </div>
+                    <span className="text-[11px] font-bold font-mono text-slate-900 shrink-0 ml-1">{seg.pct}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
+            <span>In Pipeline</span>
+            <span className="font-mono font-bold text-slate-900">{orderStatusData.total.toLocaleString()} pcs</span>
+          </div>
+        </div>
+
+        {/* 3. Production by Category Card */}
+        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-[#3A3564]" />
+                  Production by Category
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Volume across product segments
+                </p>
+              </div>
+              <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                All Time
+              </span>
+            </div>
+
+            {/* Category Columns */}
+            <div className="mt-6 flex items-end justify-around gap-2 sm:gap-3 h-44 px-3 sm:px-4 bg-slate-50/50 rounded-xl border border-slate-100 pt-4 pb-2">
+              {categoryProductionData.items.map((cat, idx) => {
+                const max = categoryProductionData.maxCount || 1
+                const heightPct = Math.min(100, Math.max(15, Math.round((cat.count / max) * 100)))
+
+                return (
+                  <div key={idx} className="flex-1 flex flex-col items-center h-full justify-end group">
+                    <span className="text-[11px] font-mono font-bold text-slate-800 mb-2">
+                      {cat.count > 1000 ? `${(cat.count / 1000).toFixed(0)}k` : cat.count}
+                    </span>
+                    <div className="w-full max-w-[36px] bg-slate-100 rounded-t-lg h-32 flex items-end overflow-hidden">
+                      <div
+                        className="w-full rounded-t-lg transition-all duration-700 group-hover:brightness-110"
+                        style={{
+                          height: `${heightPct}%`,
+                          backgroundColor: cat.color
+                        }}
+                      />
+                    </div>
+                    <span className="text-[11px] font-medium text-slate-600 mt-2 truncate text-center max-w-[70px]" title={cat.label}>
+                      {cat.label}
+                    </span>
+                  </div>
+                )
+              })}
+              {categoryProductionData.items.length === 0 && (
+                <div className="flex items-center justify-center h-full w-full text-xs text-slate-400">
+                  No categories in active orders
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
+            <span>Primary Segment</span>
+            <span className="font-bold text-[#3A3564]">{categoryProductionData.primarySegmentText}</span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ROW 2: 2 OPERATIONAL INSIGHT CARDS (Top Running Styles + Recent Activities) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {/* Left: Top Running Styles (7 Cols / ~60%) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[#3A3564]" />
+                  Top Running Styles
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Styles with highest production volume and progress
+                </p>
+              </div>
+              <Link 
+                href="/production-orders"
+                className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+              >
+                View All <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50/70">
+                    <th className="py-2.5 px-3 w-8">#</th>
+                    <th className="py-2.5 px-3">Style / Art No.</th>
+                    <th className="py-2.5 px-3 text-right">Order Qty</th>
+                    <th className="py-2.5 px-3 text-right">Produced</th>
+                    <th className="py-2.5 px-3 text-right">Balance</th>
+                    <th className="py-2.5 px-3 text-left w-36">Progress</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {topRunningStyles.map((style, idx) => (
+                    <tr key={style.artNo} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3 px-3 font-mono text-xs font-bold text-slate-400">
+                        {String(idx + 1).padStart(2, '0')}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-extrabold text-slate-900 text-xs sm:text-sm font-mono">
+                          Art: {style.artNo}
+                        </div>
+                        {style.description && (
+                          <span className="block text-[11px] font-medium text-slate-500 truncate max-w-[160px] mt-0.5">
+                            {style.description}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs sm:text-sm">
+                        {style.orderQty.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-bold text-emerald-600 text-xs sm:text-sm">
+                        {style.producedQty.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-3 text-right font-mono font-medium text-slate-500 text-xs sm:text-sm">
+                        {style.balanceQty.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-[#0D9488] to-[#14B8A6] rounded-full transition-all duration-500"
+                              style={{ width: `${style.progressPct}%` }}
+                            />
+                          </div>
+                          <span className="text-[11px] font-mono font-bold text-slate-700 shrink-0 w-8 text-right">
+                            {style.progressPct}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {topRunningStyles.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-xs text-slate-400">
+                        No running styles recorded yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
+            <span>Tracking active production runs</span>
+            <Link href="/allotments" className="font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1">
+              Floor Line Allotments <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Right: Recent Activities Feed (5 Cols / ~40%) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#3A3564]" />
+                  Recent Activities
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Real-time factory floor log events
+                </p>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setIsActivityDrawerOpen(true)}
+                className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                View All <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {recentActivities.slice(0, 5).map(act => {
+                const isQC = act.type === 'QC' || act.type === 'QC_PASS'
+                const isReject = act.type === 'QC_REJECT'
+                const isStore = act.type === 'STORE' || act.type === 'STORE_INWARD'
+                const isDispatch = act.type === 'DISPATCH'
+
+                return (
+                  <div key={act.id} className="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50/80 border border-slate-100 hover:bg-slate-100/70 transition-all">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
+                      isQC ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                      isReject ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                      isStore ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                      isDispatch ? 'bg-purple-50 text-purple-600 border-purple-200' :
+                      'bg-indigo-50 text-indigo-600 border-indigo-200'
+                    }`}>
+                      {isQC ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : isReject ? (
+                        <AlertTriangle className="w-4 h-4" />
+                      ) : isStore ? (
+                        <Boxes className="w-4 h-4" />
+                      ) : isDispatch ? (
+                        <Truck className="w-4 h-4" />
+                      ) : (
+                        <Zap className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                          {act.title}
+                        </p>
+                        <span className="text-[10.5px] font-mono text-slate-400 shrink-0 font-medium">
+                          {act.relativeTime}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 truncate mt-0.5 font-medium">
+                        {act.details}
+                      </p>
+                      {act.lineman && act.lineman !== 'Unassigned Floor' && (
+                        <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-[#3A3564]">
+                          <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span>Lineman: {act.lineman}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
               {recentActivities.length === 0 && (
                 <p className="text-xs text-slate-400 text-center py-6">
                   No recent activities recorded.
@@ -1433,13 +2079,14 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 mt-4">
-            <Link 
-              href="/reports"
-              className="text-xs sm:text-sm font-bold text-[#3A3564] hover:text-[#2A2649] inline-flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 shadow-2xs transition-all cursor-pointer"
+          <div className="pt-3 border-t border-slate-100 mt-4">
+            <button 
+              type="button"
+              onClick={() => setIsActivityDrawerOpen(true)}
+              className="text-xs font-bold text-[#3A3564] hover:text-[#2A2649] inline-flex items-center justify-center gap-1.5 w-full py-2 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 shadow-2xs transition-all cursor-pointer"
             >
-              <FileCheck2 className="w-4 h-4" /> Full Factory Audit Reports
-            </Link>
+              <FileCheck2 className="w-3.5 h-3.5" /> Full Factory Audit Logs ({recentActivities.length})
+            </button>
           </div>
         </div>
 
@@ -2449,6 +3096,240 @@ export default function DashboardClient({
                 className="px-4 py-2 text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
               >
                 Close Drawer
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 6. LIVE FACTORY ACTIVITIES & AUDIT LOG CENTERED MODAL      */}
+      {/* ========================================================= */}
+      {isActivityDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+          
+          {/* Translucent Dimmed & Blurred Backdrop - Click outside to close */}
+          <div 
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity cursor-pointer animate-in fade-in duration-200"
+            onClick={() => {
+              setIsActivityDrawerOpen(false)
+              setActivitySearchQuery('')
+              setActivityFilter('ALL')
+            }}
+          />
+
+          {/* Centered Floating Modal Container */}
+          <div className="relative z-10 bg-white w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col justify-between border border-black/10 animate-in zoom-in-95 fade-in duration-200 overflow-hidden">
+
+            {/* Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/90 shrink-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                    <Clock className="w-5 h-5 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                        Live Feed
+                      </span>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] truncate">
+                        Factory Floor Activity Stream
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 truncate">
+                      {recentActivities.length} real-time operations logged across plant
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsActivityDrawerOpen(false)
+                    setActivitySearchQuery('')
+                    setActivityFilter('ALL')
+                  }}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer shrink-0"
+                  title="Close (Esc)"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Search Bar */}
+              <div className="mt-3.5 relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search activities by article, lineman, challan, or notes..."
+                  value={activitySearchQuery}
+                  onChange={e => setActivitySearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-9 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+                />
+                {activitySearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setActivitySearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Chips */}
+              <div className="flex items-center gap-1.5 mt-3 overflow-x-auto no-scrollbar">
+                {[
+                  { key: 'ALL', label: 'All Events', count: recentActivities.length },
+                  { key: 'ALLOTMENT', label: 'Allotments', count: recentActivities.filter(a => a.type === 'ALLOTMENT' || a.type === 'PRODUCTION').length },
+                  { key: 'QC', label: 'QC & Alter', count: recentActivities.filter(a => a.type === 'QC' || a.type === 'QC_PASS' || a.type === 'QC_REJECT').length },
+                  { key: 'STORE', label: 'Store', count: recentActivities.filter(a => a.type === 'STORE' || a.type === 'STORE_INWARD').length },
+                  { key: 'DISPATCH', label: 'Dispatch', count: recentActivities.filter(a => a.type === 'DISPATCH').length }
+                ].map(chip => (
+                  <button
+                    key={chip.key}
+                    type="button"
+                    onClick={() => setActivityFilter(chip.key as any)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                      activityFilter === chip.key
+                        ? 'bg-[#3A3564] text-white shadow-xs'
+                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    }`}
+                  >
+                    <span>{chip.label}</span>
+                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                      activityFilter === chip.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {chip.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Activities Scrollable Body */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+              {filteredActivitiesList.map(act => {
+                const isQC = act.type === 'QC' || act.type === 'QC_PASS'
+                const isReject = act.type === 'QC_REJECT'
+                const isStore = act.type === 'STORE' || act.type === 'STORE_INWARD'
+                const isDispatch = act.type === 'DISPATCH'
+                const isAllot = act.type === 'ALLOTMENT' || act.type === 'PRODUCTION'
+
+                return (
+                  <div 
+                    key={act.id} 
+                    className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-[#3A3564]/30 hover:shadow-xs transition-all flex items-start gap-3.5"
+                  >
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
+                      isQC ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                      isReject ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                      isStore ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                      isDispatch ? 'bg-purple-50 text-purple-600 border-purple-200' :
+                      'bg-indigo-50 text-indigo-600 border-indigo-200'
+                    }`}>
+                      {isQC ? (
+                        <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                      ) : isReject ? (
+                        <AlertTriangle className="w-5 h-5 stroke-[2.5]" />
+                      ) : isStore ? (
+                        <Boxes className="w-5 h-5 stroke-[2.5]" />
+                      ) : isDispatch ? (
+                        <Truck className="w-5 h-5 stroke-[2.5]" />
+                      ) : (
+                        <Zap className="w-5 h-5 stroke-[2.5]" />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-sm font-extrabold text-slate-900 truncate">
+                          {act.title}
+                        </h4>
+                        <span className="text-[11px] font-mono text-slate-400 shrink-0 font-semibold bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-200">
+                          {act.relativeTime}
+                        </span>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-slate-700 mt-1 font-medium leading-relaxed">
+                        {act.details}
+                      </p>
+
+                      {/* Structured Badges Row */}
+                      <div className="mt-3 flex items-center gap-2 flex-wrap text-xs">
+                        {act.lineman && act.lineman !== 'Unassigned Floor' && (
+                          <span className="inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 font-mono text-[11px]">
+                            <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                            <span>Lineman: {act.lineman}</span>
+                          </span>
+                        )}
+                        {act.artNo && (
+                          <span className="inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 font-mono text-[11px]">
+                            <Tag className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Art: {act.artNo}{act.artDesc ? ` (${act.artDesc})` : ''}</span>
+                          </span>
+                        )}
+                        {act.challanNo && (
+                          <span className="inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 font-mono text-[11px]">
+                            <FileText className="w-3.5 h-3.5 text-amber-700" />
+                            <span>{act.challanNo}</span>
+                          </span>
+                        )}
+                        {act.qty && (
+                          <span className="inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[11px]">
+                            <span>{act.qty.toLocaleString()} pcs</span>
+                          </span>
+                        )}
+                        {act.location && (
+                          <span className="inline-flex items-center gap-1 font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-150 text-[10.5px]">
+                            📍 {act.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+
+              {filteredActivitiesList.length === 0 && (
+                <div className="py-16 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <Search className="w-6 h-6" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-700">No matching activities found</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Try changing your search terms or filter selection.
+                  </p>
+                  {activitySearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setActivitySearchQuery('')}
+                      className="mt-3 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
+                    >
+                      Clear Search Query
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50/90 shrink-0 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">
+                Showing {filteredActivitiesList.length} of {recentActivities.length} logs
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsActivityDrawerOpen(false)
+                  setActivitySearchQuery('')
+                  setActivityFilter('ALL')
+                }}
+                className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
+              >
+                Close Feed
               </button>
             </div>
 

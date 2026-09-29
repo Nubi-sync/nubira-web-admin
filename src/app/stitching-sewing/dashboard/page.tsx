@@ -23,6 +23,11 @@ const supabaseAdmin = createAdminClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+function cleanDescription(desc?: string) {
+  if (!desc) return ''
+  return desc.replace(/\s*\[.*\]/g, '').trim()
+}
+
 function formatRelativeTime(dateStr?: string) {
   if (!dateStr) return 'Just now'
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -106,7 +111,7 @@ export default async function StitchingSewingDashboardPage() {
 
   // For Custom Factory Plan (Nubira Creation): Full 6-Stage Deep Manufacturing Suite
   const normComp = (tenant.companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
-  const cacheKey = `company:${normComp}:stitching:dashboard_data`
+  const cacheKey = `company:${normComp}:stitching:dashboard_live_v3`
 
   let articlesQuery = supabaseAdmin
     .from('articles')
@@ -287,33 +292,48 @@ export default async function StitchingSewingDashboardPage() {
     location: string
     timestamp: string
     relativeTime: string
+    lineman?: string
+    artNo?: string
+    artDesc?: string
+    challanNo?: string
+    qty?: number
   }> = []
 
   // Stitching Production Events
   ;(prodData || []).forEach(p => {
     const art: any = Array.isArray(p.article) ? p.article[0] : p.article
+    const artNo = art?.art_no || 'Article'
+    const artDesc = cleanDescription(art?.description || '')
     activities.push({
       id: 'prod-' + p.id,
       type: 'PRODUCTION',
       title: 'Stitching Completed',
-      details: p.quantity + ' pcs • ' + (art?.art_no || 'Article'),
+      details: `${p.quantity.toLocaleString()} pcs produced • Art: ${artNo}${artDesc ? ` (${artDesc})` : ''}`,
       location: 'Floor Line',
       timestamp: p.created_at,
-      relativeTime: formatRelativeTime(p.created_at)
+      relativeTime: formatRelativeTime(p.created_at),
+      artNo,
+      artDesc,
+      qty: p.quantity
     })
   })
 
   // QC Inspection Events
   ;(qcData || []).forEach(q => {
     const art: any = Array.isArray(q.article) ? q.article[0] : q.article
+    const artNo = art?.art_no || 'Article'
+    const artDesc = cleanDescription(art?.description || '')
     activities.push({
       id: 'qc-' + q.id,
       type: 'QC',
       title: 'QC ' + (q.stage || 'Final').toUpperCase(),
-      details: q.qty_passed + ' passed, ' + q.qty_rejected + ' rejected (' + (art?.art_no || 'Article') + ')',
+      details: `${q.qty_passed} passed, ${q.qty_rejected} rejected • Art: ${artNo}${artDesc ? ` (${artDesc})` : ''}`,
       location: 'QC Station',
       timestamp: q.created_at,
-      relativeTime: formatRelativeTime(q.created_at)
+      relativeTime: formatRelativeTime(q.created_at),
+      artNo,
+      artDesc,
+      qty: q.qty_passed + q.qty_rejected
     })
   })
 
@@ -323,20 +343,22 @@ export default async function StitchingSewingDashboardPage() {
       id: 'store-' + s.id,
       type: 'STORE',
       title: (s.type === 'INWARD' ? 'Godown Stock Received' : 'Store Outward'),
-      details: s.quantity + ' pcs' + (s.party_name ? ' • ' + s.party_name : ''),
+      details: `${s.quantity.toLocaleString()} pcs${s.party_name ? ' • ' + s.party_name : ''}`,
       location: 'Godown Store',
       timestamp: s.created_at,
-      relativeTime: formatRelativeTime(s.created_at)
+      relativeTime: formatRelativeTime(s.created_at),
+      qty: s.quantity
     })
   })
 
-  // Allotments & Floor Handovers (Consolidated by Challan / Batch to avoid 8x duplicate spam)
+  // Allotments & Floor Handovers (Consolidated by Challan / Batch to avoid duplicate spam)
   const allotmentActivitiesMap = new Map<string, {
     id: string
     type: 'ALLOTMENT'
     title: string
     totalQty: number
     artNo: string
+    artDesc: string
     challanNo: string
     lineman: string
     location: string
@@ -354,16 +376,20 @@ export default async function StitchingSewingDashboardPage() {
     const key = isMending ? `mending-${al.challan_id || al.id}` : `allot-${al.challan_id || al.id}-${al.lineman_id}`
     const chNo = (ch?.challan_no || '').trim()
     const cleanChNo = chNo ? (chNo.toUpperCase().startsWith('CHALLAN') ? chNo : `Challan ${chNo}`) : ''
+    const linemanName = lm?.username || 'Unassigned Floor'
+    const artNo = art?.art_no || 'Article'
+    const artDesc = cleanDescription(art?.description || '')
 
     if (!allotmentActivitiesMap.has(key)) {
       allotmentActivitiesMap.set(key, {
         id: (isMending ? 'mending-' : 'allot-') + al.id,
         type: 'ALLOTMENT',
-        title: isMending ? 'Handover to Mending Floor' : 'Target Allotted',
+        title: isMending ? 'Handover to Mending Floor' : `Allotted to ${linemanName}`,
         totalQty: 0,
-        artNo: art?.art_no || 'Article',
+        artNo,
+        artDesc,
         challanNo: cleanChNo,
-        lineman: lm?.username || 'Lineman',
+        lineman: linemanName,
         location: isMending ? 'Mending Dept' : 'Floor Line',
         timestamp: (isMending ? al.handed_to_mending_at : al.created_at) || al.created_at,
         isMending,
@@ -382,11 +408,16 @@ export default async function StitchingSewingDashboardPage() {
       type: 'ALLOTMENT',
       title: act.title,
       details: act.isMending
-        ? `${act.totalQty.toLocaleString()} pcs • Art ${act.artNo}${challanSuffix} ${act.mendingDetails || ''}`
-        : `${act.totalQty.toLocaleString()} pcs of Art ${act.artNo}${challanSuffix} to ${act.lineman}`,
+        ? `${act.totalQty.toLocaleString()} pcs • Art: ${act.artNo}${act.artDesc ? ` (${act.artDesc})` : ''}${challanSuffix} ${act.mendingDetails || ''}`
+        : `${act.totalQty.toLocaleString()} pcs of Art: ${act.artNo}${act.artDesc ? ` (${act.artDesc})` : ''}${challanSuffix}`,
       location: act.location,
       timestamp: act.timestamp,
-      relativeTime: formatRelativeTime(act.timestamp)
+      relativeTime: formatRelativeTime(act.timestamp),
+      lineman: act.lineman,
+      artNo: act.artNo,
+      artDesc: act.artDesc,
+      challanNo: act.challanNo,
+      qty: act.totalQty
     })
   })
 
@@ -395,18 +426,20 @@ export default async function StitchingSewingDashboardPage() {
     activities.push({
       id: 'dispatch-' + d.id,
       type: 'DISPATCH',
-      title: 'Challan ' + d.challan_no,
-      details: (d.buyer_name || 'Buyer') + ' • ' + d.total_pieces + ' pcs dispatched',
+      title: 'Challan ' + d.challan_no + ' Dispatched',
+      details: `${(d.buyer_name || 'Buyer')} • ${d.total_pieces?.toLocaleString()} pcs dispatched via Gate Pass`,
       location: 'Dispatch Bay',
       timestamp: d.created_at,
-      relativeTime: formatRelativeTime(d.created_at)
+      relativeTime: formatRelativeTime(d.created_at),
+      challanNo: d.challan_no,
+      qty: d.total_pieces
     })
   })
 
-  // Sort activities newest first and pick top 6
+  // Sort activities newest first (Keep up to 80 for the full modal view)
   const sortedActivities = activities
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 6)
+    .slice(0, 80)
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
