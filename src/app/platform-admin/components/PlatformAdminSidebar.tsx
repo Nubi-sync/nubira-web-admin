@@ -190,11 +190,18 @@ export function PlatformAdminSidebar({
                   ? 'opacity-100 max-w-[220px] duration-200 ease-out' 
                   : 'opacity-0 max-w-0 duration-500 ease-in-out'
               }`}>
-                <img 
-                  src="/z i g z a (8).png" 
-                  alt="Zigza" 
-                  className="h-8 w-auto object-contain"
-                />
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="/new icon.png" 
+                    alt="" 
+                    className="h-7 w-auto object-contain shrink-0"
+                  />
+                  <img 
+                    src="/zigza new logo.png" 
+                    alt="Zigza" 
+                    className="h-5.5 w-auto object-contain shrink-0"
+                  />
+                </div>
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white shrink-0 shadow-2xs ml-2">
                   ROOT
                 </span>
@@ -298,14 +305,14 @@ export function PlatformAdminSidebar({
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between h-[65px]">
             <Link href="/platform-admin" className="flex items-center gap-2">
               <img 
-                src="/zigza_icon.png" 
-                alt="Zigza" 
-                className="w-7 h-7 object-contain"
+                src="/new icon.png" 
+                alt="" 
+                className="h-7 w-auto object-contain shrink-0"
               />
               <img
-                src="/z i g z a (8).png"
+                src="/zigza new logo.png"
                 alt="Zigza"
-                className="h-7 w-auto object-contain ml-1"
+                className="h-5.5 w-auto object-contain shrink-0"
               />
             </Link>
             <div className="flex items-center gap-2">

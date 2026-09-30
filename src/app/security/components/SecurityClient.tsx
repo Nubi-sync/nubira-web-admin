@@ -223,11 +223,16 @@ export function SecurityClient() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
           {/* Brand Logo */}
-          <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0 py-1">
+          <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 py-1">
             <img 
-              src="/z i g z a (8).png" 
+              src="/new icon.png" 
+              alt="" 
+              className="h-8 sm:h-10 lg:h-11 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
+            />
+            <img 
+              src="/zigza new logo.png" 
               alt="Zigza" 
-              className="h-[46px] sm:h-[58px] lg:h-[64px] w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02]"
+              className="h-6 sm:h-7.5 lg:h-8.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
             />
           </Link>
 
@@ -810,11 +815,16 @@ export function SecurityClient() {
             
             {/* Brand Column */}
             <div className="col-span-1 sm:col-span-2 md:col-span-2 space-y-3.5">
-              <Link href="/" className="inline-block group">
+              <Link href="/" className="inline-flex items-center gap-2.5 group">
                 <img 
-                  src="/z i g z a (8).png" 
+                  src="/new icon.png" 
+                  alt="" 
+                  className="h-8 sm:h-9 w-auto object-contain group-hover:scale-105 transition-transform duration-150 shrink-0"
+                />
+                <img 
+                  src="/zigza new logo.png" 
                   alt="Zigza" 
-                  className="h-10 sm:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
+                  className="h-6 sm:h-7 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150 shrink-0"
                 />
               </Link>
               <p className="text-[15px] sm:text-base text-slate-600 leading-relaxed max-w-sm font-normal">

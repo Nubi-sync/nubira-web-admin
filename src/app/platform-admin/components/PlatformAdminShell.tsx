@@ -39,11 +39,16 @@ export function PlatformAdminShell({
             <Menu className="w-5 h-5" />
           </button>
 
-          <Link href="/platform-admin" className="flex items-center">
+          <Link href="/platform-admin" className="flex items-center gap-2">
             <img 
-              src="/z i g z a (8).png" 
+              src="/new icon.png" 
+              alt="" 
+              className="h-7 w-auto object-contain shrink-0"
+            />
+            <img 
+              src="/zigza new logo.png" 
               alt="Zigza" 
-              className="h-8 sm:h-9 w-auto object-contain"
+              className="h-5.5 w-auto object-contain shrink-0"
             />
           </Link>
 
