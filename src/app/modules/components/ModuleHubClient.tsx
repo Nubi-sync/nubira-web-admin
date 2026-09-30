@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Palette,
@@ -12,15 +12,13 @@ import {
   Waves,
   Flame,
   Boxes,
-  Wrench,
   Store,
   Truck,
   ArrowRight,
-  LogOut,
   LayoutGrid,
-  CheckCircle2,
   Loader2,
-  ShieldCheck
+  Search,
+  X
 } from 'lucide-react'
 
 interface ModuleHubClientProps {
@@ -157,6 +155,7 @@ const MODULES: ModuleCardData[] = [
 
 export function ModuleHubClient({ userEmail, userName, userRole, companyName, allowedModules }: ModuleHubClientProps) {
   const [launchingId, setLaunchingId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const isModuleAllowed = (modHref: string) => {
     if (!allowedModules || allowedModules.includes('/modules')) return true
@@ -173,6 +172,18 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
   const visibleModules = (allowedModules && !allowedModules.includes('/modules'))
     ? MODULES.filter(m => isModuleAllowed(m.href))
     : MODULES
+
+  const filteredModules = useMemo(() => {
+    if (!searchQuery.trim()) return visibleModules
+    const q = searchQuery.toLowerCase().trim()
+    return visibleModules.filter(m => (
+      m.title.toLowerCase().includes(q) ||
+      m.subtitle.toLowerCase().includes(q) ||
+      m.badge.toLowerCase().includes(q) ||
+      m.statusText.toLowerCase().includes(q) ||
+      m.features.some(f => f.toLowerCase().includes(q))
+    ))
+  }, [visibleModules, searchQuery])
 
   const handleCardClick = (e: React.MouseEvent, mod: ModuleCardData) => {
     if (launchingId) {
@@ -222,131 +233,147 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Department Heads & Incharges RBAC Button */}
-          <Link
-            href="/modules/access-control"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
-            title="Appoint and manage Division Heads across all 11 manufacturing units"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#14C8B4]" />
-            <span>Department Heads</span>
-          </Link>
-
-          <Link
-            href="/modules/profile"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#F0FDFA] hover:bg-[#E6FAF7] text-[#0B1220] border border-[#14C8B4]/30 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <span>Company Profile</span>
-          </Link>
-
-          <form action="/auth/signout" method="post">
-            <button 
-              type="submit"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-xs cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </button>
-          </form>
+        {/* Right Search Option */}
+        <div className="w-full sm:w-72 md:w-80 relative shrink-0">
+          <div className="relative flex items-center">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search modules..."
+              className="w-full pl-10 pr-9 py-2.5 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 rounded-xl transition-all outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* 2. Equalized Enterprise Module Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-        {visibleModules.map((mod) => {
-          const Icon = mod.icon
-          const isLaunching = launchingId === mod.id
-          const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)
+      {filteredModules.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center space-y-3 shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] mx-auto shadow-xs">
+            <Search className="w-6 h-6 text-slate-400" />
+          </div>
+          <h3 className="text-base font-extrabold text-[#0B1220]">
+            No modules found
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
+            No operating unit matched &quot;{searchQuery}&quot;. Try a different search keyword.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+          >
+            <span>Clear Search</span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {filteredModules.map((mod) => {
+            const Icon = mod.icon
+            const isLaunching = launchingId === mod.id
+            const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)
 
-          return (
-            <Link
-              key={mod.id}
-              href={mod.href}
-              onClick={(e) => handleCardClick(e, mod)}
-              aria-disabled={isOtherLaunching}
-              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
-                isLaunching
-                  ? 'border-2 border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md bg-[#F0FDFA]/40 -translate-y-0.5'
-                  : isOtherLaunching
-                    ? 'border-slate-200 opacity-50 pointer-events-none'
-                    : 'border-slate-200/80 hover:border-[#0B1220]/40 hover:shadow-md hover:-translate-y-1'
-              }`}
-            >
-              {/* Top animated progress bar when launching */}
-              {isLaunching && (
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0B1220] overflow-hidden rounded-t-3xl z-20">
-                  <div className="w-full h-full bg-gradient-to-r from-[#0B1220] via-[#14C8B4] to-[#0B1220] animate-pulse" />
-                </div>
-              )}
-
-              {/* Top Section */}
-              <div>
-                {/* Row 1: Bare Outline Icon + Category Tag */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  {isLaunching ? (
-                    <Loader2 className="w-7 h-7 text-[#0B1220] stroke-[2] animate-spin" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
-                      <Icon className="w-6 h-6 text-[#0B1220] stroke-[1.75]" />
-                    </div>
-                  )}
-
-                  {/* Single Top-Right Category Tag */}
-                  <span
-                    className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider transition-colors ${
-                      isLaunching
-                        ? 'bg-[#0B1220] text-white'
-                        : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs'
-                    }`}
-                  >
-                    {isLaunching ? 'OPENING...' : mod.badge}
-                  </span>
-                </div>
-
-                {/* Card Title */}
-                <h2
-                  className={`text-lg sm:text-xl font-extrabold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
-                    isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#1D4ED8]'
-                  }`}
-                >
-                  {mod.title}
-                </h2>
-
-                {/* Card Description */}
-                <p className="mt-2 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
-                  {mod.subtitle}
-                </p>
-
-                {/* 2 Feature Bullets */}
-                <div className="mt-4 flex flex-col gap-2">
-                  {mod.features.slice(0, 2).map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] shrink-0" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Bottom Section: Solid Filled Launch Button */}
-              <div className="mt-6 flex items-center justify-end">
-                {isLaunching ? (
-                  <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#14C8B4]" />
-                    <span>Opening...</span>
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] transition-all cursor-pointer">
-                    <span>Launch</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#14C8B4] transition-transform group-hover:translate-x-0.5" />
+            return (
+              <Link
+                key={mod.id}
+                href={mod.href}
+                onClick={(e) => handleCardClick(e, mod)}
+                aria-disabled={isOtherLaunching}
+                className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
+                  isLaunching
+                    ? 'border-2 border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md bg-[#F0FDFA]/40 -translate-y-0.5'
+                    : isOtherLaunching
+                      ? 'border-slate-200 opacity-50 pointer-events-none'
+                      : 'border-slate-200/80 hover:border-[#0B1220]/40 hover:shadow-md hover:-translate-y-1'
+                }`}
+              >
+                {/* Top animated progress bar when launching */}
+                {isLaunching && (
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0B1220] overflow-hidden rounded-t-3xl z-20">
+                    <div className="w-full h-full bg-gradient-to-r from-[#0B1220] via-[#14C8B4] to-[#0B1220] animate-pulse" />
                   </div>
                 )}
-              </div>
-            </Link>
-          )
-        })}
-      </div>
+
+                {/* Top Section */}
+                <div>
+                  {/* Row 1: Bare Outline Icon + Category Tag */}
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    {isLaunching ? (
+                      <Loader2 className="w-7 h-7 text-[#0B1220] stroke-[2] animate-spin" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
+                        <Icon className="w-6 h-6 text-[#0B1220] stroke-[1.75]" />
+                      </div>
+                    )}
+
+                    {/* Single Top-Right Category Tag */}
+                    <span
+                      className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider transition-colors ${
+                        isLaunching
+                          ? 'bg-[#0B1220] text-white'
+                          : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs'
+                      }`}
+                    >
+                      {isLaunching ? 'OPENING...' : mod.badge}
+                    </span>
+                  </div>
+
+                  {/* Card Title */}
+                  <h2
+                    className={`text-lg sm:text-xl font-extrabold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
+                      isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#1D4ED8]'
+                    }`}
+                  >
+                    {mod.title}
+                  </h2>
+
+                  {/* Card Description */}
+                  <p className="mt-2 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
+                    {mod.subtitle}
+                  </p>
+
+                  {/* 2 Feature Bullets */}
+                  <div className="mt-4 flex flex-col gap-2">
+                    {mod.features.slice(0, 2).map((feat, idx) => (
+                      <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] shrink-0" />
+                        <span>{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Section: Solid Filled Launch Button */}
+                <div className="mt-6 flex items-center justify-end">
+                  {isLaunching ? (
+                    <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#14C8B4]" />
+                      <span>Opening...</span>
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] transition-all cursor-pointer">
+                      <span>Launch</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#14C8B4] transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      )}
 
     </div>
   )
