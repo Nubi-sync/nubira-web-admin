@@ -537,64 +537,69 @@ export function ZigzaLandingPageClient({
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#14140F] font-sans antialiased selection:bg-[#3A3564] selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0B1220] font-sans antialiased selection:bg-[#0B1220] selection:text-[#14C8B4]">
       
       {/* =================================================================== */}
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
-      <header className="sticky top-0 z-40 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#57564E]/15">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
           {/* Brand Logo */}
-          <Link href="/" className="group flex items-center cursor-pointer select-none shrink-0 py-1">
+          <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 py-1">
             <img 
-              src="/z i g z a (8).png" 
+              src="/new icon.png" 
+              alt="" 
+              className="h-9 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
+            />
+            <img 
+              src="/zigza new logo.png" 
               alt="Zigza" 
-              className="h-[46px] sm:h-[58px] lg:h-[64px] w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02]"
+              className="h-6 sm:h-7.5 lg:h-8.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
             />
           </Link>
 
-          {/* Desktop Navigation Links — High contrast slate-charcoal text, Indigo hover underline */}
-          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2 text-[15.5px] font-semibold text-[#2B2925]">
+          {/* Desktop Navigation Links — High contrast slate-charcoal text, Mint hover underline */}
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2 text-[15.5px] font-semibold text-slate-700">
             <a 
               href="#modules"
               onClick={(e) => scrollToSection(e, 'modules')}
-              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
+              className="group relative px-3 py-2 text-slate-700 hover:text-[#0B1220] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Modules</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#14C8B4] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#workflow"
               onClick={(e) => scrollToSection(e, 'workflow')}
-              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
+              className="group relative px-3 py-2 text-slate-700 hover:text-[#0B1220] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Floor Workflow</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#14C8B4] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#roles"
               onClick={(e) => scrollToSection(e, 'roles')}
-              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
+              className="group relative px-3 py-2 text-slate-700 hover:text-[#0B1220] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Solutions</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#14C8B4] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#pricing"
               onClick={(e) => scrollToSection(e, 'pricing')}
-              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
+              className="group relative px-3 py-2 text-slate-700 hover:text-[#0B1220] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>Subscription Plans</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#14C8B4] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
             <a 
               href="#faq"
               onClick={(e) => scrollToSection(e, 'faq')}
-              className="group relative px-3 py-2 text-[#2B2925] hover:text-[#3A3564] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
+              className="group relative px-3 py-2 text-slate-700 hover:text-[#0B1220] transition-colors duration-150 cursor-pointer tracking-[-0.01em]"
             >
               <span>FAQ</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#3A3564] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
+              <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#14C8B4] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left" />
             </a>
           </nav>
 
@@ -603,25 +608,25 @@ export function ZigzaLandingPageClient({
             {isAuthenticated ? (
               <Link
                 href="/modules"
-                className="px-5 py-2.5 rounded-lg text-[15px] font-semibold bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:shadow-sm"
+                className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:shadow-md active:scale-95"
               >
                 <span>Enter Workspace Hub</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
               </Link>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2.5 rounded-lg text-[14.5px] font-semibold text-[#14140F] bg-white border border-[#14140F]/30 hover:border-[#14140F] hover:bg-[#14140F]/5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-[14.5px] font-semibold text-[#0B1220] bg-white border border-slate-300 hover:border-[#0B1220] hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-5 py-2.5 rounded-lg text-[14.5px] font-semibold bg-[#3A3564] text-white hover:bg-[#2F2B52] shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl text-[14.5px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95"
                 >
                   <span>Try For Free</span>
-                  <ArrowRight className="w-4 h-4 text-white/80" />
+                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                 </Link>
               </>
             )}
@@ -633,7 +638,7 @@ export function ZigzaLandingPageClient({
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle navigation menu"
-              className="p-2 rounded-md border border-[#57564E]/25 text-[#14140F] hover:bg-[#14140F]/5 transition-colors"
+              className="p-2 rounded-xl border border-slate-300 text-[#0B1220] hover:bg-slate-100 transition-colors"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -643,9 +648,9 @@ export function ZigzaLandingPageClient({
 
         {/* Mobile Navigation Drawer with Sliding Opening Transition */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-[#FAFAF8] ${
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${
             isMobileMenuOpen
-              ? 'max-h-[520px] opacity-100 translate-y-0 border-b border-[#57564E]/15 shadow-lg'
+              ? 'max-h-[520px] opacity-100 translate-y-0 border-b border-slate-200 shadow-lg'
               : 'max-h-0 opacity-0 -translate-y-2 border-b-0 pointer-events-none'
           }`}
         >
@@ -665,37 +670,37 @@ export function ZigzaLandingPageClient({
                     scrollToSection(e, item.id)
                     setIsMobileMenuOpen(false)
                   }}
-                  className="px-4 py-3 rounded-md text-[15px] font-medium text-[#14140F] hover:bg-[#14140F]/5 active:bg-[#14140F]/10 transition-colors"
+                  className="px-4 py-3 rounded-lg text-[15px] font-medium text-slate-800 hover:bg-slate-50 active:bg-slate-100 transition-colors"
                 >
                   {item.label}
                 </a>
               ))}
             </nav>
 
-            <div className="pt-3 border-t border-[#57564E]/15 flex flex-col gap-2.5">
+            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
               {isAuthenticated ? (
                 <Link
                   href="/modules"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <span>Enter Workspace Hub</span>
-                  <ArrowRight className="w-4 h-4 text-white/70" />
+                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                 </Link>
               ) : (
                 <>
                   <Link
                     href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-3 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                    className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                   >
                     <span>Try For Free</span>
-                    <ArrowRight className="w-4 h-4 text-white/70" />
+                    <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                   </Link>
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-2.5 rounded-md text-[15px] font-medium text-[#14140F] border border-[#57564E]/25 bg-transparent hover:bg-[#14140F]/5 transition-colors flex items-center justify-center cursor-pointer"
+                    className="w-full py-2.5 rounded-xl text-[15px] font-semibold text-[#0B1220] border border-slate-300 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer"
                   >
                     <span>Sign In</span>
                   </Link>
@@ -712,9 +717,9 @@ export function ZigzaLandingPageClient({
       <section className="relative pt-8 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-5">
           {/* Main Hero Headline: High-converting, relatable positioning */}
-          <h1 className="text-[30px] sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#14140F] leading-[1.2] sm:leading-[1.08]">
+          <h1 className="text-[30px] sm:text-5xl lg:text-[58px] font-extrabold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.08]">
             The Smarter Way to Run Your{' '}
-            <span className="inline-block whitespace-nowrap text-[#3A3564] underline decoration-[#C8802B] decoration-4 underline-offset-8">
+            <span className="inline-block whitespace-nowrap text-[#0B1220] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
               Garment Business
             </span>
           </h1>
@@ -722,43 +727,43 @@ export function ZigzaLandingPageClient({
           {/* Subtitle */}
           <div className="relative max-w-2xl mx-auto px-1 sm:px-0">
             {/* Subtitle: Clean, direct value proposition */}
-            <p className="text-[15px] sm:text-xl text-[#3D3C36] leading-relaxed font-normal">
+            <p className="text-[15px] sm:text-xl text-slate-600 leading-relaxed font-normal">
               Replace paper slips and endless calls with one simple system. Track live orders, cut fabric waste, and ship to buyers with zero panic.
             </p>
           </div>
 
-          {/* Hero Action Buttons: Deep Indigo primary + High-contrast crisp border secondary */}
+          {/* Hero Action Buttons: Deep Obsidian primary + High-contrast crisp border secondary */}
           <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(true)}
-              className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-semibold bg-[#3A3564] text-white hover:bg-[#2F2B52] shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               <span>Request a Live Demo</span>
-              <ArrowRight className="w-4 h-4 text-white/80 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="w-4 h-4 text-[#14C8B4] transition-transform group-hover:translate-x-0.5" />
             </button>
 
             <Link
               href="/login"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-[#14140F] bg-white border-2 border-[#14140F]/30 hover:border-[#14140F] hover:bg-[#14140F]/5 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-bold text-[#0B1220] bg-white border-2 border-slate-300 hover:border-[#0B1220] hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
             >
-              <Lock className="w-4 h-4 text-[#3A3564]" />
+              <Lock className="w-4 h-4 text-[#14C8B4]" />
               <span>Staff Login to Portal</span>
             </Link>
           </div>
 
           {/* Key Metric Feature Flags: Clear customer benefits */}
-          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 lg:gap-8 text-sm sm:text-[14.5px] font-medium text-[#3D3C36]">
+          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 lg:gap-8 text-sm sm:text-[14.5px] font-semibold text-slate-700">
             <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
-              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0" />
+              <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
               <span>Zero missing pieces across lines</span>
             </div>
             <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
-              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0" />
+              <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
               <span>Works on any Android phone</span>
             </div>
             <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
-              <Check className="w-4 h-4 text-[#3A3564] stroke-[2.5] shrink-0" />
+              <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
               <span>Instant wages with zero disputes</span>
             </div>
           </div>
@@ -789,7 +794,7 @@ export function ZigzaLandingPageClient({
                   label: 'Total Cut',
                   value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0),
                   suffix: ' Pcs',
-                  color: 'text-[#1B2A4A]',
+                  color: 'text-[#0B1220]',
                   isNumeric: true
                 },
                 {
@@ -819,7 +824,7 @@ export function ZigzaLandingPageClient({
                   label: 'Today Output',
                   value: 1240 + (mockupTick > 0 ? mockupTick * 35 : 0),
                   suffix: ' Pcs',
-                  color: 'text-[#1B2A4A]',
+                  color: 'text-[#0B1220]',
                   isNumeric: true
                 },
                 {
@@ -841,7 +846,7 @@ export function ZigzaLandingPageClient({
                   label: 'Inspected',
                   value: 4200 + (mockupTick > 0 ? mockupTick * 30 : 0),
                   suffix: ' Pcs',
-                  color: 'text-[#1B2A4A]',
+                  color: 'text-[#0B1220]',
                   isNumeric: true
                 },
                 {
@@ -871,7 +876,7 @@ export function ZigzaLandingPageClient({
 
             const departmentBanners = {
               cutting: {
-                icon: <FileSpreadsheet className="w-4 h-4 text-[#1B2A4A] shrink-0" />,
+                icon: <FileSpreadsheet className="w-4 h-4 text-[#0B1220] shrink-0" />,
                 title: 'Lay Sheets',
                 badge: 'Real-Time Floor Sync',
                 col1: 'Lay Sheet',
@@ -881,7 +886,7 @@ export function ZigzaLandingPageClient({
                 col5: 'Status'
               },
               sewing: {
-                icon: <Scissors className="w-4 h-4 text-[#1B2A4A] shrink-0" />,
+                icon: <Scissors className="w-4 h-4 text-[#0B1220] shrink-0" />,
                 title: 'Workers on Line',
                 badge: 'Line 3 Live Output',
                 col1: 'Worker Name',
@@ -891,7 +896,7 @@ export function ZigzaLandingPageClient({
                 col5: 'Status'
               },
               qc: {
-                icon: <PackageCheck className="w-4 h-4 text-[#1B2A4A] shrink-0" />,
+                icon: <PackageCheck className="w-4 h-4 text-[#0B1220] shrink-0" />,
                 title: 'Inspection Log',
                 badge: 'End-Line Audit',
                 col1: 'Inspector',
@@ -1086,14 +1091,14 @@ export function ZigzaLandingPageClient({
                 {/* 1. MOBILE PHONE MES COMPANION CARD (sm:hidden)            */}
                 {/* Pure Black Outline Phone Illustration Mockup             */}
                 {/* ========================================================= */}
-                <div className="sm:hidden max-w-[340px] mx-auto rounded-[36px] border-[3px] border-slate-900 bg-white p-2.5 shadow-xl shadow-slate-900/10">
+                <div className="sm:hidden max-w-[340px] mx-auto rounded-[36px] border-[3px] border-[#0B1220] bg-white p-2.5 shadow-xl shadow-[#0B1220]/10">
                   {/* Phone Top Dynamic Island / Camera Notch */}
-                  <div className="w-20 h-3.5 bg-slate-900 rounded-full mx-auto mb-2 flex items-center justify-end px-2">
+                  <div className="w-20 h-3.5 bg-[#0B1220] rounded-full mx-auto mb-2 flex items-center justify-end px-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
                   </div>
 
                   {/* Inner Phone Screen Display */}
-                  <div className="rounded-[26px] bg-[#FAF7F0] border border-slate-200/90 overflow-hidden p-3 space-y-2.5">
+                  <div className="rounded-[26px] bg-[#F8FAFC] border border-slate-200/90 overflow-hidden p-3 space-y-2.5">
                     {/* Native Phone Status Bar */}
                     <div className="flex items-center justify-between px-1.5 text-slate-800">
                       <span className="text-xs font-mono font-bold">09:41</span>
@@ -1115,11 +1120,16 @@ export function ZigzaLandingPageClient({
                     </div>
 
                     {/* In-Phone App Brand Header: Zigza Logo */}
-                    <div className="flex items-center justify-center pt-0.5">
+                    <div className="flex items-center justify-center gap-1.5 pt-0.5">
                       <img
-                        src="/z i g z a (8).png"
+                        src="/new icon.png"
+                        alt=""
+                        className="h-5.5 w-auto object-contain"
+                      />
+                      <img
+                        src="/zigza new logo.png"
                         alt="Zigza"
-                        className="h-7 w-auto object-contain"
+                        className="h-4 w-auto object-contain"
                       />
                     </div>
 
@@ -1130,7 +1140,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'cutting'
-                            ? 'bg-[#1B2A4A] text-white shadow-xs'
+                            ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1141,7 +1151,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'sewing'
-                            ? 'bg-[#1B2A4A] text-white shadow-xs'
+                            ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1152,7 +1162,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'qc'
-                            ? 'bg-[#1B2A4A] text-white shadow-xs'
+                            ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1188,7 +1198,7 @@ export function ZigzaLandingPageClient({
                     <div className="space-y-1.5 pt-0.5">
                       <div className="flex items-center justify-between text-xs text-slate-700 font-semibold px-0.5">
                         <span className="flex items-center gap-1.5 font-bold text-slate-900">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="w-2 h-2 rounded-full bg-[#14C8B4] animate-pulse" />
                           Live Activity
                         </span>
                         <span className="text-[10px] text-slate-500">
@@ -1202,13 +1212,13 @@ export function ZigzaLandingPageClient({
                             key={r.id}
                             className={`p-2.5 rounded-xl border transition-all duration-300 bg-white ${
                               r.isActive
-                                ? 'border-emerald-400 bg-emerald-50/40 shadow-2xs'
+                                ? 'border-[#14C8B4] bg-[#F0FDFA] shadow-2xs'
                                 : 'border-slate-200/80'
                             }`}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
-                                {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
+                                {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] animate-pulse shrink-0" />}
                                 <span className="text-xs font-bold text-slate-900 truncate">{r.c1}</span>
                               </div>
                               <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 shrink-0">
@@ -1251,9 +1261,9 @@ export function ZigzaLandingPageClient({
                 {/* ========================================================= */}
                 {/* 2. DESKTOP macOS MES DASHBOARD (hidden sm:block)          */}
                 {/* ========================================================= */}
-                <div className="hidden sm:block bg-white border border-[#1B2A4A]/15 rounded-3xl shadow-xl shadow-[#1B2A4A]/5 overflow-hidden transition-all duration-300">
-                  {/* macOS Dark Blue Window Header Bar */}
-                  <div className="bg-[#1B2A4A] px-6 py-3 border-b border-slate-700/80 flex items-center justify-between gap-4">
+                <div className="hidden sm:block bg-white border border-[#0B1220]/15 rounded-3xl shadow-xl shadow-[#0B1220]/5 overflow-hidden transition-all duration-300">
+                  {/* macOS Dark Obsidian Window Header Bar */}
+                  <div className="bg-[#0B1220] px-6 py-3 border-b border-slate-800 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       {/* macOS Colored Window Control Dots */}
                       <div className="flex items-center gap-2 shrink-0">
@@ -1268,7 +1278,7 @@ export function ZigzaLandingPageClient({
                           onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
                           className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                             mockupTab === 'cutting'
-                              ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                              ? 'bg-white/15 text-[#14C8B4] font-bold shadow-2xs backdrop-blur-xs'
                               : 'text-slate-300 hover:text-white hover:bg-white/10'
                           }`}
                         >
@@ -1279,7 +1289,7 @@ export function ZigzaLandingPageClient({
                           onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
                           className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                             mockupTab === 'sewing'
-                              ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                              ? 'bg-white/15 text-[#14C8B4] font-bold shadow-2xs backdrop-blur-xs'
                               : 'text-slate-300 hover:text-white hover:bg-white/10'
                           }`}
                         >
@@ -1290,7 +1300,7 @@ export function ZigzaLandingPageClient({
                           onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
                           className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                             mockupTab === 'qc'
-                              ? 'bg-white/20 text-white shadow-2xs backdrop-blur-xs'
+                              ? 'bg-white/15 text-[#14C8B4] font-bold shadow-2xs backdrop-blur-xs'
                               : 'text-slate-300 hover:text-white hover:bg-white/10'
                           }`}
                         >
@@ -1301,22 +1311,22 @@ export function ZigzaLandingPageClient({
 
                     {/* Real-Time Sync Indicator */}
                     <div className="flex items-center gap-2 text-sm font-medium text-slate-300 shrink-0">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="font-medium">Live Floor Sync</span>
-                      <span className="text-xs font-mono text-slate-400">
+                      <span className="w-2 h-2 rounded-full bg-[#14C8B4] animate-pulse" />
+                      <span className="font-semibold text-white">Live Floor Sync</span>
+                      <span className="text-xs font-mono text-[#14C8B4]/80">
                         {mockupTick === 0 ? '· Synced' : `· +${mockupTick} Events`}
                       </span>
                     </div>
                   </div>
 
                   {/* Mockup Body Content */}
-                  <div className="p-6 bg-[#FAFAF8] space-y-5">
+                  <div className="p-6 bg-[#F8FAFC] space-y-5">
                     {/* 4 Executive Metric Cards (2 lines each - label + value) */}
                     <div className="grid grid-cols-4 gap-4">
                       {departmentMetrics[mockupTab].map((metric, idx) => (
                         <div
                           key={`metric-${idx}`}
-                          className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#1B2A4A]/30 transition-all duration-300"
+                          className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#0B1220]/30 transition-all duration-300"
                         >
                           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block truncate">
                             {metric.label}
@@ -1347,7 +1357,7 @@ export function ZigzaLandingPageClient({
                             {currentBanner.title}
                           </span>
                         </div>
-                        <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full shrink-0">
+                        <span className="text-xs font-semibold text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/30 px-2.5 py-0.5 rounded-full shrink-0">
                           {currentBanner.badge}
                         </span>
                       </div>
@@ -1369,13 +1379,13 @@ export function ZigzaLandingPageClient({
                                 key={r.id} 
                                 className={`transition-all duration-300 ${
                                   r.isActive 
-                                    ? 'bg-emerald-50/50' 
+                                    ? 'bg-[#F0FDFA]' 
                                     : 'hover:bg-slate-50/60'
                                 }`}
                               >
                                 <td className="py-2.5 px-3 font-bold text-slate-900 truncate">
                                   <span className="flex items-center gap-1.5">
-                                    {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block shrink-0" />}
+                                    {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] animate-pulse inline-block shrink-0" />}
                                     {r.c1}
                                   </span>
                                 </td>
@@ -1672,7 +1682,7 @@ export function ZigzaLandingPageClient({
             return (
               <div
                 key={engine.title}
-                className={`group relative bg-white rounded-2xl border border-slate-200 hover:border-black/70 p-6 sm:p-7 transition-all duration-300 hover:shadow-md md:hover:-translate-y-1 flex flex-col justify-between overflow-hidden cursor-default ${
+                className={`group relative bg-white rounded-2xl border border-slate-200/90 hover:border-[#0B1220] p-6 sm:p-7 transition-all duration-300 hover:shadow-md md:hover:-translate-y-1 flex flex-col justify-between overflow-hidden cursor-default ${
                   isMobileSlide ? 'w-full flex-shrink-0 snap-center h-full' : 'h-full'
                 }`}
               >
@@ -1683,14 +1693,14 @@ export function ZigzaLandingPageClient({
                       <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                         {engine.title}
                       </h3>
-                      <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0">
-                        <Icon className="w-4.5 h-4.5 text-[#3A3564] shrink-0 md:group-hover:scale-110 transition-transform duration-300" />
+                      <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
+                        <Icon className="w-4.5 h-4.5 text-[#0B1220] shrink-0 md:group-hover:scale-110 md:group-hover:text-[#14C8B4] transition-all duration-300" />
                       </div>
                     </div>
 
                     {/* Expanding Seam Line */}
                     <div className="w-full h-[2.5px] bg-slate-200 rounded-full overflow-hidden relative">
-                      <div className="h-full bg-[#3A3564] w-full md:w-9 md:group-hover:w-full transition-all duration-420 ease-out rounded-full" />
+                      <div className="h-full bg-[#0B1220] w-full md:w-9 md:group-hover:w-full md:group-hover:bg-[#14C8B4] transition-all duration-420 ease-out rounded-full" />
                     </div>
                   </div>
 
@@ -1703,7 +1713,7 @@ export function ZigzaLandingPageClient({
                           fIdx === 0 ? 'delay-0' : fIdx === 1 ? 'delay-75' : 'delay-150'
                         } md:group-hover:translate-x-1.5`}
                       >
-                        <Check className="w-4 h-4 text-[#3A3564] md:group-hover:scale-110 md:group-hover:text-emerald-600 transition-all duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
+                        <Check className="w-4 h-4 text-[#14C8B4] md:group-hover:scale-110 transition-all duration-200 shrink-0 mt-0.5 stroke-[2.5]" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -1754,7 +1764,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => scrollToModuleSlide(idx)}
                         className={`rounded-full transition-all duration-300 cursor-pointer ${
                           activeModuleSlide === idx
-                            ? 'w-7 h-2.5 bg-[#3A3564] shadow-2xs'
+                            ? 'w-7 h-2.5 bg-[#0B1220] shadow-2xs'
                             : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
                         }`}
                         aria-label={`Go to module ${idx + 1}`}
@@ -1835,20 +1845,20 @@ export function ZigzaLandingPageClient({
                           {/* Timeline node (circle) */}
                           <div className={`absolute -left-8 top-2.5 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
                             isActive
-                              ? 'bg-[#3A3564] text-white shadow-sm ring-2 ring-[#3A3564]/30 scale-110'
-                              : 'bg-white text-[#3A3564] border-2 border-slate-300 group-hover:border-black group-hover:scale-105'
+                              ? 'bg-[#0B1220] text-[#14C8B4] shadow-sm ring-2 ring-[#0B1220]/20 scale-110'
+                              : 'bg-white text-slate-700 border-2 border-slate-300 group-hover:border-[#0B1220] group-hover:scale-105'
                           }`}>
                             {stage.step}
                           </div>
 
-                          {/* Content Card Box with animated black outline on hover */}
+                          {/* Content Card Box with animated outline on hover */}
                           <div className={`py-2.5 px-3.5 rounded-xl border-2 transition-all duration-300 ease-out ${
                             isActive 
-                              ? 'border-black bg-[#FAF7F0] shadow-2xs' 
-                              : 'border-transparent bg-transparent hover:border-black hover:bg-[#FAF7F0]/40 hover:shadow-2xs'
+                              ? 'border-[#0B1220] bg-[#F0FDFA] shadow-2xs' 
+                              : 'border-transparent bg-transparent hover:border-[#0B1220]/50 hover:bg-[#F0FDFA]/40 hover:shadow-2xs'
                           }`}>
                             <h3 className={`text-[15px] font-bold tracking-tight leading-snug transition-colors ${
-                              isActive ? 'text-slate-900' : 'text-slate-900 group-hover:text-black'
+                              isActive ? 'text-slate-900' : 'text-slate-900 group-hover:text-[#0B1220]'
                             }`}>
                               {stage.title}
                             </h3>
@@ -1876,14 +1886,14 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(idx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
-                                : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dashed border-slate-300 hover:border-[#0B1220] hover:shadow-2xs'
                             }`}
                           >
                             <div>
                               <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
                                 <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                                  isActive ? 'bg-[#3A3564] text-white shadow-2xs' : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                                  isActive ? 'bg-[#0B1220] text-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
                                 }`}>
                                   {stage.step}
                                 </span>
@@ -1900,7 +1910,7 @@ export function ZigzaLandingPageClient({
                   {/* Connecting Line Row 1 → Row 2 */}
                   <div className="hidden lg:block relative w-full h-9 pointer-events-none z-0">
                     <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 36" preserveAspectRatio="none">
-                      <path d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36" fill="none" stroke="rgba(15, 23, 42, 0.6)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      <path d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36" fill="none" stroke="rgba(11, 18, 32, 0.5)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                     </svg>
                   </div>
 
@@ -1917,14 +1927,14 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(globalIdx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#3A3564] shadow-md ring-1 ring-[#3A3564]/30 -translate-y-1 bg-[#FAF7F0]/40'
-                                : 'border-2 border-dashed border-black/60 hover:border-black hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dashed border-slate-300 hover:border-[#0B1220] hover:shadow-2xs'
                             }`}
                           >
                             <div>
                               <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
                                 <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                                  isActive ? 'bg-[#3A3564] text-white shadow-2xs' : 'bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/20'
+                                  isActive ? 'bg-[#0B1220] text-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
                                 }`}>
                                   {stage.step}
                                 </span>
@@ -1993,10 +2003,10 @@ export function ZigzaLandingPageClient({
             ].map((pillar) => (
               <div
                 key={pillar.id}
-                className="bg-white rounded-2xl border-2 border-dotted border-black/60 p-4 sm:p-5 flex items-start gap-4 transition-all duration-200 hover:border-black hover:shadow-xs"
+                className="bg-white rounded-2xl border border-slate-200 hover:border-[#0B1220] p-4 sm:p-5 flex items-start gap-4 transition-all duration-200 hover:shadow-xs group"
               >
                 {/* Outline Icon Badge */}
-                <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/15 text-[#3A3564] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] group-hover:text-[#14C8B4] group-hover:scale-105 flex items-center justify-center shrink-0 mt-0.5 transition-all">
                   <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
                 </div>
 
@@ -2028,7 +2038,7 @@ export function ZigzaLandingPageClient({
                   y1="17"
                   x2="66"
                   y2="2"
-                  stroke="#3A3564"
+                  stroke="#0B1220"
                   strokeWidth="0.35"
                   strokeDasharray="1.2 1.2"
                   strokeOpacity="0.7"
@@ -2040,7 +2050,7 @@ export function ZigzaLandingPageClient({
                   y1="48"
                   x2="84"
                   y2="70"
-                  stroke="#3A3564"
+                  stroke="#0B1220"
                   strokeWidth="0.35"
                   strokeDasharray="1.2 1.2"
                   strokeOpacity="0.7"
@@ -2113,9 +2123,9 @@ export function ZigzaLandingPageClient({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
             
             {/* TIER 1: MODULAR FLOOR */}
-            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-black/80 hover:border-black shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-slate-200 hover:border-[#0B1220] shadow-2xs hover:shadow-md transition-all duration-200">
               <div>
-                <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center mb-6 shadow-2xs">
+                <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center mb-6 shadow-2xs">
                   <Layers className="w-6 h-6 stroke-[2]" />
                 </div>
 
@@ -2127,7 +2137,7 @@ export function ZigzaLandingPageClient({
                 </p>
 
                 {/* Price Block */}
-                <div className="my-7 pt-6 border-t border-black/10">
+                <div className="my-7 pt-6 border-t border-slate-100">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-4xl font-extrabold font-mono text-slate-900">
                       ₹1,999
@@ -2147,19 +2157,19 @@ export function ZigzaLandingPageClient({
                 {/* Uncluttered Punchy Features */}
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>1 to 3 production units of your choice</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Operator bundle QR & barcode tracking</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Daily cutting lots & piece-rate wage ledgers</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Mobile floor app with real-time sync</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-400">
@@ -2170,14 +2180,14 @@ export function ZigzaLandingPageClient({
               </div>
 
               {/* Action Button */}
-              <div className="mt-9 pt-6 border-t border-black/10">
+              <div className="mt-9 pt-6 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => {
                     setDemoForm(prev => ({ ...prev, plan: 'MODULAR' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-[15px] font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-white text-[#0B1220] hover:bg-[#0B1220] hover:text-white border border-slate-300 hover:border-[#0B1220] transition-all shadow-2xs cursor-pointer active:scale-95"
                 >
                   <span>Select Modular Units</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2186,15 +2196,15 @@ export function ZigzaLandingPageClient({
             </div>
 
             {/* TIER 2: ALL-ACCESS + ZIGZA AI */}
-            <div className="relative flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-[#FAF7F0] border-2 border-[#3A3564] shadow-sm transition-all duration-200">
+            <div className="relative flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border-2 border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 transition-all duration-200">
               {/* Most Popular Badge */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                <span className="px-4 py-1 bg-[#3A3564] text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-sm whitespace-nowrap">
+                <span className="px-4 py-1 bg-[#0B1220] text-[#14C8B4] text-xs font-bold uppercase tracking-wider rounded-full shadow-sm border border-[#14C8B4]/40 whitespace-nowrap">
                   Most Popular
                 </span>
               </div>
               <div>
-                <div className="w-12 h-12 rounded-xl bg-[#3A3564] text-white flex items-center justify-center mb-6 shadow-2xs">
+                <div className="w-12 h-12 rounded-xl bg-[#0B1220] text-[#14C8B4] flex items-center justify-center mb-6 shadow-2xs">
                   <Zap className="w-6 h-6 stroke-[2]" />
                 </div>
 
@@ -2206,19 +2216,19 @@ export function ZigzaLandingPageClient({
                 </p>
 
                 {/* Price Block */}
-                <div className="my-7 pt-6 border-t border-black/10">
+                <div className="my-7 pt-6 border-t border-slate-200">
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="text-4xl font-extrabold font-mono text-[#3A3564]">
+                    <span className="text-4xl font-extrabold font-mono text-[#0B1220]">
                       ₹4,999
                     </span>
-                    <span className="text-[15px] font-semibold font-mono text-[#3A3564]/50 line-through">
+                    <span className="text-[15px] font-semibold font-mono text-slate-400 line-through">
                       ₹8,999
                     </span>
-                    <span className="text-sm font-semibold text-[#3A3564]/90">
+                    <span className="text-sm font-semibold text-slate-600">
                       / plant / mo
                     </span>
                   </div>
-                  <p className="text-[13px] sm:text-sm text-[#3A3564] mt-1.5 font-semibold">
+                  <p className="text-[13px] sm:text-sm text-slate-700 mt-1.5 font-semibold">
                     All 12 modules unlocked • Unlimited operators
                   </p>
                 </div>
@@ -2226,48 +2236,48 @@ export function ZigzaLandingPageClient({
                 {/* Uncluttered Punchy Features */}
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>All 12 production divisions unlocked</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>In-built Zigza AI floor assistant & audit</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Zero Ghost Piece guarantee (100% matched)</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Cross-division automatic pipeline sync</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-900 font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Real-time line velocity & bottleneck alerts</span>
                   </div>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="mt-9 pt-6 border-t border-black/10">
+              <div className="mt-9 pt-6 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => {
                     setDemoForm(prev => ({ ...prev, plan: 'FULL_PLANT_AI' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-[15px] font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white border border-black shadow-xs transition-all cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-[#0B1220] hover:bg-[#162032] text-white shadow-md transition-all cursor-pointer active:scale-95"
                 >
                   <span>Deploy Full Plant + AI</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                 </button>
               </div>
             </div>
 
             {/* TIER 3: CUSTOM ENGINEERING */}
-            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-black/80 hover:border-black shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-slate-200 hover:border-[#0B1220] shadow-2xs hover:shadow-md transition-all duration-200">
               <div>
-                <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center mb-6 shadow-2xs">
+                <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center mb-6 shadow-2xs">
                   <Building2 className="w-6 h-6 stroke-[2]" />
                 </div>
 
@@ -2279,7 +2289,7 @@ export function ZigzaLandingPageClient({
                 </p>
 
                 {/* Price Block */}
-                <div className="my-7 pt-6 border-t border-black/10">
+                <div className="my-7 pt-6 border-t border-slate-100">
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-4xl font-extrabold font-mono text-slate-900">
                       Custom
@@ -2296,37 +2306,37 @@ export function ZigzaLandingPageClient({
                 {/* Uncluttered Punchy Features */}
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Custom division stages built to spec</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Bi-directional SAP, Oracle & Tally sync</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Weighing scales, auto-cutters & RFID hooks</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Multi-plant executive dashboard</span>
                   </div>
                   <div className="flex items-center gap-3 text-[14.5px] sm:text-[15px] text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                     <span>Dedicated solutions architect & 24/7 SLA</span>
                   </div>
                 </div>
               </div>
 
               {/* Action Button */}
-              <div className="mt-9 pt-6 border-t border-black/10">
+              <div className="mt-9 pt-6 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => {
                     setDemoForm(prev => ({ ...prev, plan: 'CUSTOM' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg text-[15px] font-bold bg-[#FAF7F0] text-slate-900 hover:bg-[#3A3564] hover:text-white border border-black transition-all shadow-2xs cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-white text-[#0B1220] hover:bg-[#0B1220] hover:text-white border border-slate-300 hover:border-[#0B1220] transition-all shadow-2xs cursor-pointer active:scale-95"
                 >
                   <span>Request Custom Build</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2445,7 +2455,7 @@ export function ZigzaLandingPageClient({
               <div
                 key={idx}
                 className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
-                  isOpen ? 'border-black shadow-sm ring-1 ring-black/5' : 'border-slate-200 hover:border-black/40'
+                  isOpen ? 'border-[#0B1220] shadow-sm ring-1 ring-[#0B1220]/10' : 'border-slate-200 hover:border-[#0B1220]/40'
                 }`}
               >
                 <button
@@ -2454,12 +2464,12 @@ export function ZigzaLandingPageClient({
                   className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer group"
                 >
                   <span className={`font-bold text-base sm:text-lg transition-colors ${
-                    isOpen ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                    isOpen ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#0B1220]'
                   }`}>
                     {faq.q}
                   </span>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                    isOpen ? 'bg-[#3A3564] text-white rotate-180 shadow-xs' : 'bg-[#FAF7F0] border border-black/10 text-slate-500 rotate-0'
+                    isOpen ? 'bg-[#0B1220] text-[#14C8B4] rotate-180 shadow-xs' : 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] rotate-0'
                   }`}>
                     <ChevronDown className="w-4 h-4 transition-transform duration-300" />
                   </div>
@@ -2487,7 +2497,7 @@ export function ZigzaLandingPageClient({
       {/* 9. BOTTOM DIRECT QUERY & CONTACT US WINDOW                          */}
       {/* =================================================================== */}
       <section id="contact" className="py-14 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80 scroll-mt-24">
-        <div className="relative max-w-5xl mx-auto bg-transparent sm:bg-[#FAF7F0] border-0 sm:border sm:border-black md:hover:border-[#3A3564]/60 rounded-none sm:rounded-3xl p-0 sm:p-10 lg:p-12 shadow-none sm:shadow-sm md:hover:shadow-md transition-all duration-300">
+        <div className="relative max-w-5xl mx-auto bg-slate-50 sm:bg-[#F8FAFC] border border-slate-200/90 hover:border-[#0B1220]/40 rounded-none sm:rounded-3xl p-0 sm:p-10 lg:p-12 shadow-none sm:shadow-xs md:hover:shadow-md transition-all duration-300">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* Left Column: Direct Assistance & Contact */}
@@ -2503,11 +2513,11 @@ export function ZigzaLandingPageClient({
               {/* Trust Points */}
               <div className="space-y-2.5 pt-1 text-sm sm:text-[15px] font-semibold text-slate-800 text-left max-w-md mx-auto lg:mx-0">
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                   <span>Direct response from apparel operations specialists</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                   <span>Prompt phone callback or WhatsApp message</span>
                 </div>
               </div>
@@ -2517,7 +2527,7 @@ export function ZigzaLandingPageClient({
                   href="https://wa.me/?text=Hi%20Zigza%20Team,%20I%20have%20a%20query%20about%20your%20apparel%20MES%20system."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-[15px] font-bold transition-all shadow-xs cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#1F9D63] hover:bg-emerald-700 text-white text-[15px] font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 >
                   <Phone className="w-4 h-4" />
                   <span>Instant WhatsApp Chat</span>
@@ -2526,7 +2536,7 @@ export function ZigzaLandingPageClient({
             </div>
 
             {/* Right Single Contact Us Form Card */}
-            <div className="lg:col-span-6 bg-white text-slate-900 p-5 sm:p-8 lg:p-9 rounded-2xl border border-black shadow-sm">
+            <div className="lg:col-span-6 bg-white text-slate-900 p-5 sm:p-8 lg:p-9 rounded-2xl border border-slate-200/90 shadow-sm">
               <div className="mb-5 sm:mb-6">
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
                   Contact Us
@@ -2537,7 +2547,7 @@ export function ZigzaLandingPageClient({
               </div>
 
               {querySubmitted ? (
-                <div className="p-5 sm:p-7 bg-[#FAFAF8] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
+                <div className="p-5 sm:p-7 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
                   <div className="flex items-start gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/80">
                       <CheckCircle2 className="w-5 h-5 stroke-[2.4]" />
@@ -2591,7 +2601,7 @@ export function ZigzaLandingPageClient({
                           query: ''
                         })
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Send Another Query
                     </button>
@@ -2610,7 +2620,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter your name"
                       value={queryForm.name}
                       onChange={e => setQueryForm({ ...queryForm, name: e.target.value })}
-                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -2619,7 +2629,7 @@ export function ZigzaLandingPageClient({
                     <label className="block text-sm font-bold text-slate-800 mb-1.5">
                       Phone Number *
                     </label>
-                    <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
+                    <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#0B1220] focus-within:border-transparent transition-all overflow-hidden bg-white shadow-2xs">
                       <div className="flex items-center justify-center px-3 sm:px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm select-none shrink-0">
                         +91
                       </div>
@@ -2645,7 +2655,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter company / factory name"
                       value={queryForm.companyName}
                       onChange={e => setQueryForm({ ...queryForm, companyName: e.target.value })}
-                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -2660,7 +2670,7 @@ export function ZigzaLandingPageClient({
                       placeholder="Enter your query or message..."
                       value={queryForm.query}
                       onChange={e => setQueryForm({ ...queryForm, query: e.target.value })}
-                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                      className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all resize-none"
                     />
                   </div>
 
@@ -2674,7 +2684,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="submit"
                     disabled={isSubmittingQuery}
-                    className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4"
+                    className="w-full py-3.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-95"
                   >
                     {isSubmittingQuery ? (
                       <>
@@ -2683,7 +2693,7 @@ export function ZigzaLandingPageClient({
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 shrink-0" />
+                        <Send className="w-4 h-4 text-[#14C8B4] shrink-0" />
                         <span>Send Query</span>
                       </>
                     )}
@@ -2699,18 +2709,23 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       {/* 10. ENTERPRISE FOOTER (LIGHT MODERN PALETTE)                       */}
       {/* =================================================================== */}
-      <footer className="bg-[#FAF7F0]/90 text-slate-600 pt-12 sm:pt-16 pb-20 sm:pb-14 px-4 sm:px-6 lg:px-8 border-t border-slate-200/80">
+      <footer className="bg-white text-slate-600 pt-12 sm:pt-16 pb-20 sm:pb-14 px-4 sm:px-6 lg:px-8 border-t border-slate-200/80">
         <div className="max-w-7xl mx-auto">
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 mb-10 sm:mb-14">
             
             {/* Brand Column */}
             <div className="lg:col-span-5 space-y-4">
-              <Link href="/" className="inline-block group">
+              <Link href="/" className="inline-flex items-center gap-2.5 group">
                 <img 
-                  src="/z i g z a (8).png" 
+                  src="/new icon.png" 
+                  alt="" 
+                  className="h-8 sm:h-9 w-auto object-contain group-hover:scale-105 transition-transform duration-150 shrink-0"
+                />
+                <img 
+                  src="/zigza new logo.png" 
                   alt="Zigza" 
-                  className="h-10 sm:h-11 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150"
+                  className="h-6 sm:h-7 w-auto object-contain group-hover:opacity-90 transition-opacity duration-150 shrink-0"
                 />
               </Link>
               <p className="text-[14.5px] sm:text-[15px] text-slate-600 leading-relaxed max-w-sm font-normal">
@@ -2724,7 +2739,7 @@ export function ZigzaLandingPageClient({
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label="Zigza on Instagram" 
-                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                  className="w-9 h-9 rounded-lg border border-slate-200 hover:border-[#0B1220] hover:bg-[#F0FDFA] flex items-center justify-center transition-all text-slate-700 hover:text-[#0B1220] shadow-2xs"
                 >
                   <InstagramOutlineIcon className="w-4.5 h-4.5" />
                 </a>
@@ -2733,7 +2748,7 @@ export function ZigzaLandingPageClient({
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label="Zigza on LinkedIn" 
-                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                  className="w-9 h-9 rounded-lg border border-slate-200 hover:border-[#0B1220] hover:bg-[#F0FDFA] flex items-center justify-center transition-all text-slate-700 hover:text-[#0B1220] shadow-2xs"
                 >
                   <LinkedinOutlineIcon className="w-4.5 h-4.5" />
                 </a>
@@ -2742,7 +2757,7 @@ export function ZigzaLandingPageClient({
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label="Zigza on Twitter / X" 
-                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                  className="w-9 h-9 rounded-lg border border-slate-200 hover:border-[#0B1220] hover:bg-[#F0FDFA] flex items-center justify-center transition-all text-slate-700 hover:text-[#0B1220] shadow-2xs"
                 >
                   <TwitterXOutlineIcon className="w-4.5 h-4.5" />
                 </a>
@@ -2751,7 +2766,7 @@ export function ZigzaLandingPageClient({
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label="Zigza on Facebook" 
-                  className="w-9 h-9 rounded-lg border border-slate-300 hover:border-black hover:bg-white flex items-center justify-center transition-all text-slate-800 hover:text-black shadow-2xs"
+                  className="w-9 h-9 rounded-lg border border-slate-200 hover:border-[#0B1220] hover:bg-[#F0FDFA] flex items-center justify-center transition-all text-slate-700 hover:text-[#0B1220] shadow-2xs"
                 >
                   <FacebookOutlineIcon className="w-4.5 h-4.5" />
                 </a>
@@ -2771,7 +2786,7 @@ export function ZigzaLandingPageClient({
                     <a 
                       href="#modules" 
                       onClick={(e) => scrollToSection(e, 'modules')}
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block cursor-pointer"
                     >
                       Floor Modules
                     </a>
@@ -2780,7 +2795,7 @@ export function ZigzaLandingPageClient({
                     <a 
                       href="#workflow" 
                       onClick={(e) => scrollToSection(e, 'workflow')}
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block cursor-pointer"
                     >
                       8-Step Pipeline
                     </a>
@@ -2789,7 +2804,7 @@ export function ZigzaLandingPageClient({
                     <a 
                       href="#roles" 
                       onClick={(e) => scrollToSection(e, 'roles')}
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block cursor-pointer"
                     >
                       Role Solutions
                     </a>
@@ -2798,7 +2813,7 @@ export function ZigzaLandingPageClient({
                     <a 
                       href="#pricing" 
                       onClick={(e) => scrollToSection(e, 'pricing')}
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block cursor-pointer"
                     >
                       Subscription Plans
                     </a>
@@ -2807,7 +2822,7 @@ export function ZigzaLandingPageClient({
                     <a 
                       href="#faq" 
                       onClick={(e) => scrollToSection(e, 'faq')}
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block cursor-pointer"
                     >
                       FAQ &amp; Guide
                     </a>
@@ -2824,17 +2839,17 @@ export function ZigzaLandingPageClient({
                   <li>
                     <Link 
                       href="/login" 
-                      className="text-slate-700 hover:text-[#3A3564] transition-colors inline-flex items-center gap-1 font-semibold group"
+                      className="text-slate-800 hover:text-[#0B1220] transition-colors inline-flex items-center gap-1 font-semibold group"
                     >
                       <span>Staff Sign In</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
                     </Link>
                   </li>
                   <li>
                     <button
                       type="button"
                       onClick={() => setIsDemoModalOpen(true)}
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block cursor-pointer text-left"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block cursor-pointer text-left"
                     >
                       Schedule Live Demo
                     </button>
@@ -2842,7 +2857,7 @@ export function ZigzaLandingPageClient({
                   <li>
                     <Link 
                       href="/register" 
-                      className="text-slate-600 hover:text-slate-900 hover:underline transition-colors inline-block"
+                      className="text-slate-600 hover:text-[#0B1220] hover:underline transition-colors inline-block"
                     >
                       7-Day Free Trial
                     </Link>
@@ -2894,7 +2909,7 @@ export function ZigzaLandingPageClient({
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         aria-label="Back to top"
-        className={`fixed bottom-6 right-5 sm:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#3A3564] text-white shadow-lg hover:shadow-xl hover:bg-[#2A2649] flex items-center justify-center transition-all duration-300 cursor-pointer border border-white/20 active:scale-95 ${
+        className={`fixed bottom-6 right-5 sm:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0B1220] text-[#14C8B4] shadow-lg hover:shadow-xl hover:bg-[#162032] flex items-center justify-center transition-all duration-300 cursor-pointer border border-slate-700 active:scale-95 ${
           showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
@@ -2905,7 +2920,7 @@ export function ZigzaLandingPageClient({
       {/* 11. INTERACTIVE REQUEST DEMO MODAL                                  */}
       {/* =================================================================== */}
       {isDemoModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-[#1C1A2E]/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-[#0B1220]/75 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 border border-slate-100 sm:my-auto relative max-h-[90vh] overflow-y-auto">
             
             <button
@@ -2917,11 +2932,18 @@ export function ZigzaLandingPageClient({
             </button>
 
             <div className="mb-6">
-              <img 
-                src="/z i g z a (8).png" 
-                alt="Zigza" 
-                className="h-9 sm:h-10 w-auto object-contain mb-3"
-              />
+              <div className="flex items-center gap-2 mb-3">
+                <img 
+                  src="/new icon.png" 
+                  alt="" 
+                  className="h-8 w-auto object-contain shrink-0"
+                />
+                <img 
+                  src="/zigza new logo.png" 
+                  alt="Zigza" 
+                  className="h-6 w-auto object-contain shrink-0"
+                />
+              </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                 Request a Live Demo
               </h3>
@@ -2975,14 +2997,14 @@ export function ZigzaLandingPageClient({
                         setSubmitError(null)
                         setIsDemoModalOpen(false)
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Done / Close
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="p-6 bg-[#FAFAF8] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
+                <div className="p-6 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-4 shadow-sm animate-in fade-in duration-200">
                   <div className="flex items-start gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200/80">
                       <CheckCircle2 className="w-5 h-5 stroke-[2.4]" />
@@ -2998,7 +3020,7 @@ export function ZigzaLandingPageClient({
                   <div className="p-4 bg-white border border-slate-200/80 rounded-xl text-sm space-y-2.5 text-slate-700">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                       <span className="text-slate-500 font-medium">Requested Plan</span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#3A3564]/10 text-[#3A3564]">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                         {demoForm.plan === 'FULL_PLANT_AI' ? 'Full Plant + Zigza AI (12 Units)' : demoForm.plan === 'MODULAR' ? 'Modular Units' : 'Custom Enterprise Build'}
                       </span>
                     </div>
@@ -3038,7 +3060,7 @@ export function ZigzaLandingPageClient({
                         setSubmitError(null)
                         setIsDemoModalOpen(false)
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       Done / Close
                     </button>
@@ -3055,7 +3077,7 @@ export function ZigzaLandingPageClient({
                   <select
                     value={demoForm.plan}
                     onChange={e => setDemoForm({ ...demoForm, plan: e.target.value as any })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all font-medium cursor-pointer"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all font-medium cursor-pointer"
                   >
                     <option value="FULL_PLANT_AI">Full Plant + Zigza AI (All 12 Units - ₹4,999/mo)</option>
                     <option value="MODULAR">Modular Units (Selected Units - ₹1,999/mo)</option>
@@ -3074,7 +3096,7 @@ export function ZigzaLandingPageClient({
                     placeholder="Enter company / factory name"
                     value={demoForm.companyName}
                     onChange={e => setDemoForm({ ...demoForm, companyName: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -3089,7 +3111,7 @@ export function ZigzaLandingPageClient({
                     placeholder="Enter plant location / city & state"
                     value={demoForm.cityState}
                     onChange={e => setDemoForm({ ...demoForm, cityState: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -3104,7 +3126,7 @@ export function ZigzaLandingPageClient({
                     placeholder="Enter full name"
                     value={demoForm.ownerName}
                     onChange={e => setDemoForm({ ...demoForm, ownerName: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -3116,7 +3138,7 @@ export function ZigzaLandingPageClient({
                   <div className={`relative flex rounded-xl border transition-all overflow-hidden bg-white shadow-2xs ${
                     phoneDuplicate?.inUse 
                       ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300' 
-                      : 'border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-transparent'
+                      : 'border-slate-300 focus-within:ring-2 focus-within:ring-[#0B1220] focus-within:border-transparent'
                   }`}>
                     <div className="flex items-center justify-center px-3.5 bg-slate-50 border-r border-slate-200 text-slate-700 font-mono font-bold text-sm sm:text-[15px] select-none shrink-0">
                       +91
@@ -3161,7 +3183,7 @@ export function ZigzaLandingPageClient({
                       className={`w-full px-4 py-3 border rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all ${
                         emailDuplicate?.inUse
                           ? 'border-rose-300 bg-rose-50/30 ring-1 ring-rose-300'
-                          : 'border-slate-300 focus:ring-2 focus:ring-[#3A3564] focus:border-transparent'
+                          : 'border-slate-300 focus:ring-2 focus:ring-[#0B1220] focus:border-transparent'
                       }`}
                     />
                     {emailDuplicate?.inUse && (
@@ -3192,7 +3214,7 @@ export function ZigzaLandingPageClient({
                         placeholder="Enter custom engineering requirements & scope..."
                         value={demoForm.customRequirements}
                         onChange={e => setDemoForm({ ...demoForm, customRequirements: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all resize-none"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all resize-none"
                       />
                     </div>
 
@@ -3205,7 +3227,7 @@ export function ZigzaLandingPageClient({
                         placeholder="Enter estimated machines / capacity"
                         value={demoForm.estimatedMachines}
                         onChange={e => setDemoForm({ ...demoForm, estimatedMachines: e.target.value })}
-                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564] focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220] focus:border-transparent transition-all"
                       />
                     </div>
                   </>
@@ -3221,7 +3243,7 @@ export function ZigzaLandingPageClient({
                 <button
                   type="submit"
                   disabled={isSubmittingDemo || isCheckingDuplicate}
-                  className="w-full py-3.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5"
+                  className="w-full py-3.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5 active:scale-95"
                 >
                   {isSubmittingDemo ? (
                     <>
@@ -3235,7 +3257,7 @@ export function ZigzaLandingPageClient({
                     </>
                   ) : (
                     <>
-                      <Mail className="w-4 h-4 shrink-0" />
+                      <Mail className="w-4 h-4 text-[#14C8B4] shrink-0" />
                       <span>Send Demo Request</span>
                     </>
                   )}
