@@ -36,9 +36,14 @@ export default function NotFound() {
       <header className="px-6 py-5 sm:px-10 flex items-center justify-between border-b border-slate-200/80 bg-white/70 backdrop-blur-md">
         <Link href="/" className="inline-flex items-center gap-2 group">
           <img 
-            src="/z i g z a (8).png" 
+            src="/new icon.png" 
+            alt="" 
+            className="h-7 w-auto object-contain transition-transform group-hover:scale-105 shrink-0"
+          />
+          <img 
+            src="/zigza new logo.png" 
             alt="Zigza" 
-            className="h-7 w-auto object-contain transition-opacity group-hover:opacity-85"
+            className="h-5.5 w-auto object-contain transition-opacity group-hover:opacity-85 shrink-0"
           />
         </Link>
         <Link
