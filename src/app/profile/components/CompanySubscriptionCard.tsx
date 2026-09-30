@@ -105,7 +105,7 @@ export function CompanySubscriptionCard({
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden transition-all">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden transition-all">
         {/* Expired / Warning Banner */}
         {isAccountExpired && (
           <div className="bg-rose-50 border-b border-rose-200 px-5 py-3.5 flex items-center justify-between gap-3 text-rose-800">
@@ -136,15 +136,15 @@ export function CompanySubscriptionCard({
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                <CreditCard className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+                <CreditCard className="w-6 h-6 text-[#14C8B4]" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                    Subscription & License Status
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                    Subscription & <span className="text-[#1D4ED8]">License</span> Status
                   </h2>
-                  <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                  <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
                     {isTrial ? '7-DAY TRIAL' : 'ACTIVE PLAN'}
                   </span>
                 </div>
@@ -158,24 +158,24 @@ export function CompanySubscriptionCard({
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all cursor-pointer w-fit self-start sm:self-center"
+              className="px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer w-fit self-start sm:self-center"
             >
               {isTrial ? 'Activate Subscription' : 'Renew Subscription'}
             </button>
           </div>
 
-          {/* Details 4-Column Grid matching AdminIdentityCard reference */}
+          {/* Details 4-Column Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4.5 pt-1">
             {/* 1. Plan Tier */}
-            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#3A3564]/30 hover:shadow-xs transition-all">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
+            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Plan Tier
                 </span>
-                <span className="text-xs sm:text-sm md:text-base font-bold text-slate-900 mt-1 block truncate">
+                <span className="text-xs sm:text-sm md:text-base font-bold text-[#0B1220] mt-1 block truncate">
                   {subscriptionTier === 'FULL_PLANT_AI'
                     ? 'Full Plant AI (12 Div)'
                     : (subscriptionTier === 'MODULAR' ? 'Modular Plan' : 'Enterprise Custom')}
@@ -187,15 +187,15 @@ export function CompanySubscriptionCard({
             </div>
 
             {/* 2. Start Date */}
-            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#3A3564]/30 hover:shadow-xs transition-all">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
+            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Start Date
                 </span>
-                <span className="text-xs sm:text-sm md:text-base font-bold text-slate-900 mt-1 block font-mono">
+                <span className="text-xs sm:text-sm md:text-base font-bold text-[#0B1220] mt-1 block font-mono">
                   {issueDateStr}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -205,15 +205,15 @@ export function CompanySubscriptionCard({
             </div>
 
             {/* 3. Valid Until */}
-            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#3A3564]/30 hover:shadow-xs transition-all">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
+            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Valid Until
                 </span>
-                <span className={`text-xs sm:text-sm md:text-base font-bold mt-1 block font-mono ${isAccountExpired ? 'text-rose-600' : 'text-slate-900'}`}>
+                <span className={`text-xs sm:text-sm md:text-base font-bold mt-1 block font-mono ${isAccountExpired ? 'text-rose-600' : 'text-[#0B1220]'}`}>
                   {expiryDateStr}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -223,7 +223,7 @@ export function CompanySubscriptionCard({
             </div>
 
             {/* 4. Status */}
-            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#3A3564]/30 hover:shadow-xs transition-all">
+            <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
               <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs ${
                 isAccountExpired ? 'text-rose-600' : (daysLeft <= 3 && isTrial ? 'text-amber-600' : 'text-emerald-600')
               }`}>
@@ -264,17 +264,17 @@ export function CompanySubscriptionCard({
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
           <div
-            className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200"
+            className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 my-auto animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-5 border-b border-slate-100">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
-                  <CreditCard className="w-5 h-5" />
+                <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
+                  <CreditCard className="w-5 h-5 text-[#14C8B4]" />
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-[#0B1220]">
                     {isTrial ? 'Activate Full Enterprise License' : 'Renew Subscription Plan'}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -313,16 +313,16 @@ export function CompanySubscriptionCard({
                 <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
                   Requested License Plan
                 </label>
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F0] border-2 border-[#3A3564]/20 shadow-2xs">
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#F0FDFA] border-2 border-[#14C8B4]/30 shadow-2xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-base font-extrabold text-[#3A3564]">
+                    <span className="text-base font-extrabold text-[#0B1220]">
                       {activePlanTier === 'FULL_PLANT_AI' ? 'Full Plant AI' : 'Modular Plan'}
                     </span>
-                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564] text-white">
+                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
                       {activePlanTier === 'FULL_PLANT_AI' ? '12 Divisions' : 'Core Units'}
                     </span>
                   </div>
-                  <div className="text-xl font-extrabold text-slate-900 mt-1.5">
+                  <div className="text-xl font-extrabold text-[#0B1220] mt-1.5">
                     ₹{baseMonthlyPrice.toLocaleString('en-IN')}<span className="text-sm font-normal text-slate-500"> / month</span>
                   </div>
                   <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
@@ -339,7 +339,7 @@ export function CompanySubscriptionCard({
                   </span>
                   <a
                     href="mailto:support@zigza.in?subject=Custom%20Plan%20Inquiry%20-%20Shaw%20Industries"
-                    className="font-bold text-[#3A3564] hover:underline whitespace-nowrap shrink-0"
+                    className="font-bold text-[#0B1220] hover:text-[#1D4ED8] hover:underline whitespace-nowrap shrink-0"
                   >
                     Contact Desk &rarr;
                   </a>
@@ -357,7 +357,7 @@ export function CompanySubscriptionCard({
                     onClick={() => setSelectedDuration(1)}
                     className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       selectedDuration === 1
-                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] shadow-2xs'
+                        ? 'border-[#0B1220] bg-[#F0FDFA] text-[#0B1220] shadow-2xs'
                         : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -370,7 +370,7 @@ export function CompanySubscriptionCard({
                     onClick={() => setSelectedDuration(3)}
                     className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       selectedDuration === 3
-                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] shadow-2xs'
+                        ? 'border-[#0B1220] bg-[#F0FDFA] text-[#0B1220] shadow-2xs'
                         : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -383,7 +383,7 @@ export function CompanySubscriptionCard({
                     onClick={() => setSelectedDuration(12)}
                     className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
                       selectedDuration === 12
-                        ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] shadow-2xs'
+                        ? 'border-[#0B1220] bg-[#F0FDFA] text-[#0B1220] shadow-2xs'
                         : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -407,15 +407,15 @@ export function CompanySubscriptionCard({
                 </div>
                 <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 text-slate-900">
                   <span className="font-bold text-sm">Total Payable:</span>
-                  <span className="font-mono font-extrabold text-[#3A3564] text-lg">
+                  <span className="font-mono font-extrabold text-[#0B1220] text-lg">
                     ₹{totalAmount.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
 
               {/* Payment Info Note */}
-              <div className="text-xs text-slate-600 leading-relaxed bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10">
-                <p className="font-bold text-[#3A3564] mb-0.5">Direct Corporate Activation:</p>
+              <div className="text-xs text-slate-600 leading-relaxed bg-[#F0FDFA] p-3.5 rounded-xl border border-[#14C8B4]/30">
+                <p className="font-bold text-[#0B1220] mb-0.5">Direct Corporate Activation:</p>
                 Confirming updates your factory subscription immediately. Invoices with GST credit details are dispatched directly to your registered email.
               </div>
 
@@ -433,7 +433,7 @@ export function CompanySubscriptionCard({
                   type="button"
                   onClick={handleUpgrade}
                   disabled={isPending}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs cursor-pointer transition-all disabled:opacity-50"
                 >
                   {isPending ? (
                     <>
