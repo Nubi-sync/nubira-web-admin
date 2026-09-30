@@ -49,12 +49,14 @@ function AdminShellContent({
   children, 
   userEmail, 
   userRole,
-  companyName
+  companyName,
+  allowedTabs
 }: { 
   children: React.ReactNode
   userEmail?: string 
   userRole?: string
   companyName?: string
+  allowedTabs?: string[]
 }) {
   const { isTvMode } = useTvMode()
   const pathname = usePathname()
@@ -168,7 +170,8 @@ function AdminShellContent({
           <CompanyOwnerHeader 
             userEmail={userEmail} 
             userRole={userRole} 
-            companyName={companyName} 
+            companyName={companyName}
+            allowedTabs={allowedTabs}
           />
         )}
 
@@ -192,16 +195,18 @@ export function AdminShell({
   children, 
   userEmail, 
   userRole,
-  companyName
+  companyName,
+  allowedTabs
 }: { 
   children: React.ReactNode
   userEmail?: string 
   userRole?: string
   companyName?: string
+  allowedTabs?: string[]
 }) {
   return (
     <TvModeProvider>
-      <AdminShellContent userEmail={userEmail} userRole={userRole} companyName={companyName}>
+      <AdminShellContent userEmail={userEmail} userRole={userRole} companyName={companyName} allowedTabs={allowedTabs}>
         {children}
       </AdminShellContent>
     </TvModeProvider>

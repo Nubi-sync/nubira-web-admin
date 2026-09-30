@@ -33,6 +33,7 @@ interface CompanyOwnerHeaderProps {
   userEmail?: string
   userRole?: string
   companyName?: string
+  allowedTabs?: string[]
 }
 
 interface NavTabItem {
@@ -47,7 +48,8 @@ interface NavTabItem {
 export function CompanyOwnerHeader({
   userEmail = 'admin@zigza.in',
   userRole = 'Super Admin',
-  companyName
+  companyName,
+  allowedTabs
 }: CompanyOwnerHeaderProps) {
   const pathname = usePathname()
 
@@ -338,11 +340,29 @@ export function CompanyOwnerHeader({
       </header>
 
       {/* 2. RECTANGULAR HORIZONTAL SUB-NAVBAR */}
-      <nav className="w-full bg-white border-b border-slate-200/80 overflow-x-auto scrollbar-none shadow-2xs">
-        <div className="w-full min-w-[860px] md:min-w-full grid grid-cols-9">
-          {navTabs.map((tab, idx) => {
-            const Icon = tab.icon
-            const isLast = idx === navTabs.length - 1
+      {(() => {
+        const isOwnerOrPM = userRole?.toUpperCase() === 'SUPERADMIN' ||
+          userRole?.toUpperCase() === 'ADMIN' ||
+          userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||
+          userRole?.toUpperCase() === 'PRODUCTION_MANAGER' ||
+          userRole === 'Enterprise Master' ||
+          userEmail === 'admin@zigza.in' ||
+          userEmail === 'team.anga9@gmail.com' ||
+          userEmail === 'aj@nubiracreation.com'
+
+        const visibleNavTabs = (allowedTabs && allowedTabs.length > 0 && !isOwnerOrPM)
+          ? navTabs.filter(t => allowedTabs.includes(t.id))
+          : navTabs
+
+        return (
+          <nav className="w-full bg-white border-b border-slate-200/80 overflow-x-auto scrollbar-none shadow-2xs">
+            <div 
+              className="w-full min-w-[700px] md:min-w-full grid"
+              style={{ gridTemplateColumns: `repeat(${visibleNavTabs.length}, minmax(0, 1fr))` }}
+            >
+              {visibleNavTabs.map((tab, idx) => {
+                const Icon = tab.icon
+                const isLast = idx === visibleNavTabs.length - 1
 
             const content = (
               <>
@@ -416,7 +436,9 @@ export function CompanyOwnerHeader({
             )
           })}
         </div>
-      </nav>
+          </nav>
+        )
+      })()}
     </div>
   )
 }

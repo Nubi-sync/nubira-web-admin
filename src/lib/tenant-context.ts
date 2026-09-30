@@ -34,6 +34,7 @@ export interface ResolvedTenantProfile {
   cityState: string
   subscriptionTier: string
   allowedDivisions: string[]
+  allowedTabs?: string[]
   isProvisionedTenant: boolean
   tenantId?: string
   accessType?: 'DEMO_TRIAL' | 'FULL_ACCESS'
@@ -362,27 +363,38 @@ async function resolveUserTenantFresh(user: {
     let profileIsHead = Boolean(profile?.is_head)
     let profileDesignation = profile?.designation || ''
 
+    // A user is a Production Manager if role is explicitly PRODUCTION_MANAGER
+    const isProductionManager = profileRole?.toUpperCase() === 'PRODUCTION_MANAGER' || metadata.role?.toUpperCase() === 'PRODUCTION_MANAGER'
+
     // A user is a Department Head if is_head is true, or if they have restricted modules (not full factory admin)
-    const isDepartmentHead = profileIsHead || metadata.is_head || (!isTenantAdmin && profileAllowedModules.length > 0)
+    const isDepartmentHead = !isProductionManager && (profileIsHead || metadata.is_head || (!isTenantAdmin && profileAllowedModules.length > 0))
 
-    // Strict SuperAdmin check: only primary tenant factory admin, and never department heads
-    const isSuperAdmin = isTenantAdmin && !isDepartmentHead
+    // Strict SuperAdmin check: only primary tenant factory admin, and never department heads or PMs
+    const isSuperAdmin = isTenantAdmin && !isDepartmentHead && !isProductionManager
 
-    const effectiveRole = isDepartmentHead
-      ? (profileDesignation || metadata.designation || profileRole || 'DEPARTMENT_HEAD')
-      : (isTenantAdmin ? 'SUPERADMIN' : (profileRole || metadata.role || 'STAFF')).toUpperCase()
+    const effectiveRole = isProductionManager
+      ? 'PRODUCTION_MANAGER'
+      : isDepartmentHead
+        ? (profileDesignation || metadata.designation || profileRole || 'DEPARTMENT_HEAD')
+        : (isTenantAdmin ? 'SUPERADMIN' : (profileRole || metadata.role || 'STAFF')).toUpperCase()
 
     const userAllowedModules = profileAllowedModules.length > 0
       ? profileAllowedModules
       : (Array.isArray(metadata.allowed_modules) && metadata.allowed_modules.length > 0 ? metadata.allowed_modules : [])
 
-    const divisions = isSuperAdmin
+    const divisions = (isSuperAdmin || isProductionManager)
       ? (Array.isArray(tenant.allowed_divisions) && tenant.allowed_divisions.length > 0 ? tenant.allowed_divisions : ALL_DEFAULT_DIVISIONS)
       : (userAllowedModules.length > 0 ? userAllowedModules : ['/stitching-sewing'])
 
+    const allowedTabs: string[] = (isSuperAdmin || isProductionManager)
+      ? ['dashboard', 'all-modules', 'buyers-vendors', 'supervisor-workers', 'all-designs', 'fabric-store', 'zigza-ai', 'reports', 'company-profile']
+      : (Array.isArray(profile?.allowed_tabs) && profile.allowed_tabs.length > 0
+          ? profile.allowed_tabs
+          : (Array.isArray(metadata?.allowed_tabs) && metadata.allowed_tabs.length > 0 ? metadata.allowed_tabs : ['all-modules']))
+
     const displayName = isTenantAdmin
       ? (tenant.admin_name || metadata.displayName || 'Plant Head')
-      : (metadata.display_name || metadata.displayName || profileUsername || 'Department Head')
+      : (metadata.display_name || metadata.displayName || profileUsername || (isProductionManager ? 'Production Manager' : 'Department Head'))
 
     const accessType: 'DEMO_TRIAL' | 'FULL_ACCESS' = tenant.access_type || 'FULL_ACCESS'
     const provisionedTime = tenant.provisioned_at ? new Date(tenant.provisioned_at).getTime() : Date.now()
@@ -424,6 +436,7 @@ async function resolveUserTenantFresh(user: {
       cityState: tenant.city_state || 'India',
       subscriptionTier: tenant.subscription_tier || 'FULL_PLANT_AI',
       allowedDivisions: divisions,
+      allowedTabs,
       isProvisionedTenant: true,
       tenantId: tenant.id,
       accessType,

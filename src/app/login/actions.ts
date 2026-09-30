@@ -81,12 +81,24 @@ export async function login(formData: FormData) {
           email = matchedDesignerUser.designer_email || (matchedDesignerUser.phone_number ? `${matchedDesignerUser.phone_number}@designer.nubira.local` : email)
         }
 
-        // 2. Check profiles by username
-        const { data: matchedProfile } = await adminClient
-          .from('profiles')
-          .select('id')
-          .ilike('username', rawInput.trim())
-          .maybeSingle()
+        // 2. Check profiles by phone or username
+        let matchedProfile: any = null
+        if (phone10) {
+          const { data } = await adminClient
+            .from('profiles')
+            .select('id')
+            .or(`phone.ilike.%${phone10}%,phone.eq.${phone10}`)
+            .maybeSingle()
+          matchedProfile = data
+        }
+        if (!matchedProfile) {
+          const { data } = await adminClient
+            .from('profiles')
+            .select('id')
+            .ilike('username', rawInput.trim())
+            .maybeSingle()
+          matchedProfile = data
+        }
 
         if (matchedProfile?.id) {
           const { data: authUser } = await adminClient.auth.admin.getUserById(matchedProfile.id)
