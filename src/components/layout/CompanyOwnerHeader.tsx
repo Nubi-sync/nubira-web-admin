@@ -138,9 +138,9 @@ export function CompanyOwnerHeader({
       id: 'all-designs',
       label: 'All Designs',
       lines: ['All Designs'],
-      href: '/design',
+      href: '/all-designs',
       icon: Palette,
-      isActive: pathname === '/design' || pathname?.startsWith('/design') || pathname === '/all-designs'
+      isActive: pathname === '/all-designs' || pathname?.startsWith('/all-designs') || pathname === '/design/sa-approvals' || pathname?.startsWith('/design/sa-approvals')
     },
     {
       id: 'fabric-store',
