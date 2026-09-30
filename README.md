@@ -173,16 +173,18 @@ nubira-web-admin/
 
 The UI adheres strictly to the Zigza Minimal Executive design language:
 
-### Color Palette
-- **Primary Brand Purple (`#3A3564`)**: Used on primary action buttons, active navigation indicators, and key operational headers.
-- **Ivory Accent (`#FAF7F0`)**: Used on subtle secondary buttons, active badges, and metric card icon containers.
-- **Dark Ink (`#14140F` / `#0F172A`)**: High-contrast body and title typography.
-- **Subtle Borders (`border-black/10` / `border-slate-200`)**: Crisp boundaries without heavy drop-shadows.
+### Color Palette & Hierarchy
+- **Deep Obsidian Navy (`#0B1220` / `#162032`) — Level 1**: Primary action buttons, executive headings (`h1`, `h2`), top navbar, and dark container surfaces.
+- **Deep Royal Blue (`#1D4ED8`) — Level 2 (Keyword Highlighter)**: Strategic keyword highlighting inside headers (`<h1>`, `<h2>`, `<h3>` key terms) for maximum focal impact without competing with body copy.
+- **Electric Mint / Teal (`#14C8B4`) — Level 3 (Brand Accent & Telemetry)**: Signature headline underlines, live sync pulse telemetry, active tab indicators, and verified status icons.
+- **Crisp Tech Canvas (`#F8FAFC` / `#FFFFFF`)**: Modern, high-contrast canvas with subtle `#F0FDFA` mint container washes.
+- **Dark Slate Ink (`#1E293B` / `#334155` / `#64748B`) — Level 4**: High-contrast body, descriptions, and subtitle typography.
+- **Subtle Borders (`border-slate-200` / `border-[#0B1220]`)**: Crisp boundaries without heavy drop-shadows.
 
 ### Typography Hierarchy
-- **Heading Font**: Plus Jakarta Sans (`var(--font-heading)`) for executive titles, brand names, and page headers.
-- **Body Font**: Inter / Geist for legible data reading across dense tables.
-- **Monospace Font**: JetBrains Mono for SKUs, challan numbers, dates, and quantitative values.
+- **Heading Font**: Plus Jakarta Sans (`var(--font-heading)`) / Inter for executive titles, brand names, and section headers.
+- **Body Font**: Public Sans / Inter for legible data reading across dense tables and descriptions.
+- **Monospace Font**: JetBrains Mono for SKUs, challan numbers, lot IDs, dates, and quantitative values.
 
 ### Interaction Patterns
 - **Zero Raw Emojis**: Replaced entirely with monochrome Lucide vector icons and semantic status dots (Emerald for Active/Matched, Amber for In Progress, Rose for Discrepancy).

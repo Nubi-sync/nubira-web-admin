@@ -717,9 +717,9 @@ export function ZigzaLandingPageClient({
       <section className="relative pt-8 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-5">
           {/* Main Hero Headline: High-converting, relatable positioning */}
-          <h1 className="text-[30px] sm:text-5xl lg:text-[58px] font-extrabold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.08]">
+          <h1 className="text-[30px] sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.08]">
             The Smarter Way to Run Your{' '}
-            <span className="inline-block whitespace-nowrap text-[#0B1220] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
+            <span className="inline-block whitespace-nowrap text-[#1D4ED8] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
               Garment Business
             </span>
           </h1>
@@ -1420,8 +1420,8 @@ export function ZigzaLandingPageClient({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Why Garment Factories Are Switching from Paper to Zigza
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+              Why Garment Factories Are Switching from Paper to <span className="text-[#1D4ED8]">Zigza</span>
             </h2>
             <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
               Compare traditional manual paper registers with Zigza's modern factory system.
@@ -1611,8 +1611,8 @@ export function ZigzaLandingPageClient({
       {/* =================================================================== */}
       <section id="modules" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Everything You Need to Run Your Garment Factory
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+            Everything You Need to Run Your <span className="text-[#1D4ED8]">Garment Factory</span>
           </h2>
           <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
             Simple, powerful tools for every team on your floor — from fabric inward to final buyer dispatch.
@@ -1806,8 +1806,8 @@ export function ZigzaLandingPageClient({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              The 8-Step Synchronized Factory Pipeline
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+              The 8-Step <span className="text-[#1D4ED8]">Synchronized Factory Pipeline</span>
             </h2>
             <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
               From CAD tech pack to buyer delivery truck — every garment milestone is verified in real time.
@@ -1963,8 +1963,8 @@ export function ZigzaLandingPageClient({
         
         {/* Centered Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-            Trusted Across India&apos;s Garment Hubs
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight leading-[1.15]">
+            Trusted Across India&apos;s <span className="text-[#1D4ED8]">Garment Hubs</span>
           </h2>
           <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed font-normal">
             From local stitching lines to multi-tier export factories — Zigza simplifies daily production, piece-rate wages, and floor operations.
@@ -2110,8 +2110,8 @@ export function ZigzaLandingPageClient({
           
           {/* Section Header (No pill badge) */}
           <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Predictable Plans for Modern Plants
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+              Predictable Plans for <span className="text-[#1D4ED8]">Modern Plants</span>
             </h2>
             <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed max-w-2xl mx-auto">
               From modular floor units to complete synchronized AI operations and bespoke machine engineering.
@@ -2415,8 +2415,8 @@ export function ZigzaLandingPageClient({
         />
 
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Frequently Asked Questions
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+            Frequently Asked <span className="text-[#1D4ED8]">Questions</span>
           </h2>
           <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
             Clear answers to common questions about setting up, trusting, and running Zigza in your factory.
@@ -2502,8 +2502,8 @@ export function ZigzaLandingPageClient({
             
             {/* Left Column: Direct Assistance & Contact */}
             <div className="lg:col-span-6 space-y-4 text-center lg:text-left px-1 sm:px-0">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Have a Question? <br className="hidden sm:inline" />Talk With Our Team
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight leading-tight">
+                Have a Question? <br className="hidden sm:inline" />Talk With <span className="text-[#1D4ED8]">Our Team</span>
               </h2>
 
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
@@ -2944,8 +2944,8 @@ export function ZigzaLandingPageClient({
                   className="h-6 w-auto object-contain shrink-0"
                 />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
-                Request a Live Demo
+              <h3 className="text-xl sm:text-2xl font-bold text-[#0B1220]">
+                Request a <span className="text-[#1D4ED8]">Live Demo</span>
               </h3>
               <p className="text-sm text-slate-600 mt-1">
                 Schedule a personalized walkthrough of the apparel MES platform.
