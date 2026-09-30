@@ -5033,6 +5033,7 @@ interface MasterArticleGroup {
   mendingPcs: number
   qcPcs: number
   readyPcs: number
+  latestCreatedAt?: number
   linemenSummary: LinemanConsolidatedSummary[]
 }
 
@@ -5119,6 +5120,7 @@ function GoodsInLineDrawer({ onClose, activeAllotments }: GoodsInLineDrawerProps
       mendingPcs: number
       qcPcs: number
       readyPcs: number
+      latestCreatedAt: number
       linemanMap: Map<string, {
         linemanName: string
         challanSet: Set<string>
