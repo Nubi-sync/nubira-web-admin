@@ -47,8 +47,8 @@ export function ConfirmDialog({
       Icon: CheckCircle2
     },
     primary: {
-      iconBg: 'bg-[#FAF7F0] border-black/10 text-[#3A3564]',
-      btnBg: 'bg-[#3A3564] hover:bg-[#2A2649] text-[#FAF7F0] shadow-xs',
+      iconBg: 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220]',
+      btnBg: 'bg-[#0B1220] hover:bg-[#162032] text-white shadow-xs',
       Icon: ShieldAlert
     }
   }
@@ -58,14 +58,14 @@ export function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none">
       <div 
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-black/15 overflow-hidden animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150"
         role="dialog"
         aria-modal="true"
       >
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-slate-100 bg-[#F8FAFC] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+            <span className="w-2 h-2 rounded-full bg-[#14C8B4]" />
             <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
               Action Confirmation
             </span>

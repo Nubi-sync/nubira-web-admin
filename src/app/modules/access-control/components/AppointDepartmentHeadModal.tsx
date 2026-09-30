@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User, Phone, Mail, Lock, ArrowRight, ArrowLeft, Loader2, Layers, CheckSquare, Square, Shield, Eye } from 'lucide-react'
+import { X, User, Phone, Mail, Lock, ArrowRight, ArrowLeft, Loader2, Layers, CheckSquare, Square, Shield, Eye, CheckCircle2 } from 'lucide-react'
 import { appointOrUpdateDepartmentHeadAction, DepartmentHeadItem } from '../actions'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 
@@ -83,7 +83,7 @@ export function AppointDepartmentHeadModal({
     }
     setStep(1)
     setError(null)
-  }, [existingHead, initialDivisionRoute, isOpen])
+  }, [existingHead, initialDivisionRoute, isOpen, allowedDivisions])
 
   if (!isOpen) return null
 
@@ -186,41 +186,45 @@ export function AppointDepartmentHeadModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none">
+      <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
         
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60 shrink-0">
+        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#F8FAFC] shrink-0">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#14C8B4] text-[#0B1220]">
-                Level 3 Authority
+              <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
+                Tier 3 Authority
               </span>
-              <span className="text-[11px] font-mono text-slate-400">Step {step} of 2</span>
+              <span className="text-xs font-mono font-medium text-slate-500">Step {step} of 2</span>
             </div>
-            <h3 className="text-base font-extrabold text-[#0B1220] tracking-tight mt-1 font-[family-name:var(--font-heading)]">
-              {isEditing ? 'Edit Department Head' : 'Assign Department Head'}
+            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight mt-1 font-[family-name:var(--font-heading)]">
+              {isEditing ? (
+                <>Edit <span className="text-[#1D4ED8]">Department Head</span></>
+              ) : (
+                <>Appoint <span className="text-[#1D4ED8]">Department Head</span></>
+              )}
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* 2-Step Progress */}
-        <div className="grid grid-cols-2 gap-1 px-6 pt-3 shrink-0">
-          <div className={`h-1 rounded-full transition-all ${step >= 1 ? 'bg-[#14C8B4]' : 'bg-slate-200'}`} />
-          <div className={`h-1 rounded-full transition-all ${step >= 2 ? 'bg-[#14C8B4]' : 'bg-slate-200'}`} />
+        <div className="grid grid-cols-2 gap-1.5 px-6 pt-4 shrink-0">
+          <div className={`h-1.5 rounded-full transition-all ${step >= 1 ? 'bg-[#0B1220]' : 'bg-slate-200'}`} />
+          <div className={`h-1.5 rounded-full transition-all ${step >= 2 ? 'bg-[#0B1220]' : 'bg-slate-200'}`} />
         </div>
 
         {/* Content */}
         <div className="p-6 overflow-y-auto flex-1">
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+            <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium">
               {error}
             </div>
           )}
@@ -228,7 +232,7 @@ export function AppointDepartmentHeadModal({
           {step === 1 ? (
             <form onSubmit={handleStep1Next} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-sm font-bold text-slate-800 mb-1.5">
                   Full Name <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative flex items-center">
@@ -239,15 +243,15 @@ export function AppointDepartmentHeadModal({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Anand Verma"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
               </div>
 
               {/* 1 or 2 Phone Numbers */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
                     Primary Phone <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative flex items-center">
@@ -259,15 +263,16 @@ export function AppointDepartmentHeadModal({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                       placeholder="10-digit number"
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                     />
                   </div>
+                  <p className="text-xs text-slate-500 mt-1">Used for mobile login.</p>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-slate-700">Second Phone</label>
-                    <span className="text-[10px] text-slate-400 font-mono">Optional</span>
+                    <label className="text-sm font-bold text-slate-800">Second Phone</label>
+                    <span className="text-xs text-slate-400 font-mono">Optional</span>
                   </div>
                   <div className="relative flex items-center">
                     <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
@@ -277,16 +282,17 @@ export function AppointDepartmentHeadModal({
                       value={phone2}
                       onChange={(e) => setPhone2(e.target.value.replace(/\D/g, ''))}
                       placeholder="Alternate phone"
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                     />
                   </div>
+                  <p className="text-xs text-slate-500 mt-1">Backup contact.</p>
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-slate-700">Email Address</label>
-                  <span className="text-[10px] text-slate-400 font-mono">Optional</span>
+                  <label className="text-sm font-bold text-slate-800">Email Address</label>
+                  <span className="text-xs text-slate-400 font-mono">Optional</span>
                 </div>
                 <div className="relative flex items-center">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
@@ -295,72 +301,75 @@ export function AppointDepartmentHeadModal({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="e.g. head@factory.com (optional)"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
               </div>
 
               {/* Password */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    {isEditing ? 'New Password' : 'Password'} {!isEditing && <span className="text-rose-500">*</span>}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-bold text-slate-800">
+                    {isEditing ? 'New Password' : 'Create Password'} {!isEditing && <span className="text-rose-500">*</span>}
                   </label>
-                  <div className="relative flex items-center">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
-                    <input
-                      type="password"
-                      required={!isEditing}
-                      minLength={6}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={isEditing ? 'Keep unchanged' : 'Min 6 chars'}
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all"
-                    />
-                  </div>
+                  {isEditing && <span className="text-xs text-slate-400 font-mono">Leave blank to keep current</span>}
                 </div>
+                <div className="relative flex items-center">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+                  <input
+                    type="password"
+                    required={!isEditing}
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={isEditing ? 'Leave blank to keep unchanged' : 'At least 6 characters'}
+                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                  />
+                </div>
+              </div>
 
+              {(password || !isEditing) && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Retype Password {!isEditing && <span className="text-rose-500">*</span>}
+                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
+                    Retype Password <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative flex items-center">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                     <input
                       type="password"
-                      required={!isEditing || !!password}
+                      required={!isEditing || Boolean(password)}
                       minLength={6}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder={isEditing ? 'Confirm if changed' : 'Repeat password'}
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all"
+                      placeholder="Confirm password"
+                      className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                     />
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
                   <span>Continue to Permissions</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                 </button>
               </div>
             </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Primary Department Selection (Purchased only) */}
+              {/* Primary Department */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                  Primary Department <span className="text-rose-500">*</span>
+                <label className="block text-sm font-bold text-slate-800 mb-1.5">
+                  Primary Overseeing Department <span className="text-rose-500">*</span>
                 </label>
                 <select
                   required
                   value={primaryRoute}
                   onChange={(e) => handlePrimaryChange(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-semibold text-[#0B1220] border border-slate-200 focus:border-[#14C8B4] focus:ring-2 focus:ring-[#14C8B4]/20 rounded-xl outline-none transition-all cursor-pointer"
+                  className="w-full px-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-bold text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all cursor-pointer"
                 >
                   {purchasedCatalog.map(div => (
                     <option key={div.route} value={div.route}>
@@ -368,106 +377,105 @@ export function AppointDepartmentHeadModal({
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Only includes modules purchased by your organization.
+                <p className="text-xs text-slate-500 mt-1">
+                  Only divisions purchased by your company are available.
                 </p>
               </div>
 
-              {/* Modules Visible in Modules Hub */}
+              {/* Additional Module Visibility */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-slate-800">
-                    Visible Modules in Hub
-                  </label>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    {selectedModules.length} Selected
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-1 border border-slate-100 rounded-xl bg-slate-50/50">
+                <label className="block text-sm font-bold text-slate-800 mb-1.5">
+                  Allowed Module Access
+                </label>
+                <p className="text-xs text-slate-500 mb-2.5">
+                  Select which factory modules this head can view and manage.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
                   {purchasedCatalog.map(div => {
-                    const isChecked = selectedModules.includes(div.route)
                     const isPrimary = div.route === primaryRoute
-
+                    const isChecked = isPrimary || selectedModules.includes(div.route)
                     return (
                       <button
+                        type="button"
                         key={div.route}
-                        type="button"
                         onClick={() => toggleModule(div.route)}
-                        disabled={isPrimary}
-                        className={`flex items-center gap-2 p-2 rounded-lg text-left text-xs font-medium transition-all ${
+                        className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                           isChecked
-                            ? 'bg-white border border-[#14C8B4]/40 text-[#0B1220] shadow-2xs'
-                            : 'text-slate-500 hover:bg-white/60 border border-transparent'
-                        } ${isPrimary ? 'opacity-90' : 'cursor-pointer'}`}
+                            ? 'bg-[#F0FDFA] border-[#14C8B4]/40 text-[#0B1220]'
+                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
+                        }`}
                       >
                         {isChecked ? (
-                          <CheckSquare className="w-3.5 h-3.5 text-[#14C8B4] shrink-0" />
+                          <CheckSquare className="w-4 h-4 text-[#0B1220] shrink-0" />
                         ) : (
-                          <Square className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          <Square className="w-4 h-4 text-slate-400 shrink-0" />
                         )}
-                        <span className="truncate">{div.name}</span>
+                        <span className="text-xs sm:text-sm font-bold leading-tight line-clamp-1">
+                          {div.name}
+                        </span>
+                        {isPrimary && (
+                          <span className="text-[10px] font-mono font-bold bg-[#0B1220] text-white px-1.5 py-0.5 rounded-sm ml-auto shrink-0">
+                            Primary
+                          </span>
+                        )}
                       </button>
                     )
                   })}
                 </div>
               </div>
 
-              {/* Top Navigation Tabs Visibility */}
+              {/* Allowed Top Tabs */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-slate-800">
-                    Top Navigation Tabs Visibility
-                  </label>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    {selectedTabs.length} of {ALL_TOP_TABS.length}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-1 border border-slate-100 rounded-xl bg-slate-50/50">
+                <label className="block text-sm font-bold text-slate-800 mb-1.5">
+                  Top Header Tab Access
+                </label>
+                <p className="text-xs text-slate-500 mb-2.5">
+                  Control which navigation tabs appear in this head's top bar.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
                   {ALL_TOP_TABS.map(tab => {
-                    const isChecked = selectedTabs.includes(tab.id)
                     const isMandatory = tab.id === 'all-modules'
-
+                    const isChecked = isMandatory || selectedTabs.includes(tab.id)
                     return (
                       <button
-                        key={tab.id}
                         type="button"
+                        key={tab.id}
                         onClick={() => toggleTab(tab.id)}
-                        disabled={isMandatory}
-                        className={`flex items-center gap-2 p-2 rounded-lg text-left text-xs font-medium transition-all ${
+                        className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all cursor-pointer ${
                           isChecked
-                            ? 'bg-white border border-[#0B1220]/20 text-[#0B1220] shadow-2xs font-semibold'
-                            : 'text-slate-400 hover:bg-white/60 border border-transparent'
-                        } ${isMandatory ? 'opacity-80' : 'cursor-pointer'}`}
+                            ? 'bg-[#F0FDFA] border-[#14C8B4]/40 text-[#0B1220]'
+                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                        }`}
                       >
                         {isChecked ? (
-                          <CheckSquare className="w-3.5 h-3.5 text-[#0B1220] shrink-0" />
+                          <CheckSquare className="w-4 h-4 text-[#0B1220] shrink-0" />
                         ) : (
-                          <Square className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          <Square className="w-4 h-4 text-slate-400 shrink-0" />
                         )}
-                        <span className="truncate">{tab.label}</span>
+                        <span className="text-xs font-semibold leading-tight line-clamp-1">
+                          {tab.label}
+                        </span>
                       </button>
                     )
                   })}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Limits the top horizontal bar to only these selected tabs.
-                </p>
               </div>
 
-              <div className="pt-2 flex items-center gap-2">
+              {/* Actions */}
+              <div className="pt-2 flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
                   disabled={isSubmitting}
-                  className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                  className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <ArrowLeft className="w-4 h-4" />
                   <span>Back</span>
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 py-2.5 px-4 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
+                  className="flex-1 py-3 px-5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isSubmitting ? (
                     <>
@@ -475,7 +483,7 @@ export function AppointDepartmentHeadModal({
                       <span>Saving...</span>
                     </>
                   ) : (
-                    <span>{isEditing ? 'Update Department Head' : 'Assign Department Head'}</span>
+                    <span>{isEditing ? 'Update Head Permissions' : 'Appoint Department Head'}</span>
                   )}
                 </button>
               </div>

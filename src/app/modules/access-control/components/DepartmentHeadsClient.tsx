@@ -3,12 +3,9 @@
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ShieldCheck,
   Crown,
   Factory,
   Users,
-  Wrench,
-  Plus,
   Search,
   X,
   Phone,
@@ -17,8 +14,6 @@ import {
   PowerOff,
   Edit2,
   CheckCircle2,
-  AlertCircle,
-  ExternalLink,
   Layers,
   Palette,
   Briefcase,
@@ -30,9 +25,14 @@ import {
   Flame,
   Store,
   Truck,
-  Eye,
-  Check,
-  UserCheck
+  Wrench,
+  ChevronDown,
+  UserPlus,
+  Mail,
+  UserCheck,
+  Plus,
+  ShieldCheck,
+  Sparkle
 } from 'lucide-react'
 import {
   SupervisorHubData,
@@ -66,7 +66,6 @@ const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>
 
 interface DepartmentHeadsClientProps {
   hubData?: SupervisorHubData
-  // Backward compatibility
   initialDivisions?: DivisionWithHeadStatus[]
   allowedDivisions?: string[]
   tenantName?: string
@@ -82,7 +81,7 @@ export function DepartmentHeadsClient({
 }: DepartmentHeadsClientProps) {
   const router = useRouter()
 
-  // Resolve base data from hubData or fallbacks
+  // Base data resolution
   const callerPowerLevel = hubData?.callerPowerLevel || (legacyIsSuperAdmin ? 'OWNER' : 'DEPARTMENT_HEAD')
   const companyName = hubData?.tenantName || legacyTenantName || 'Apparel Factory'
   const allowedDivisions = hubData?.allowedDivisions || legacyAllowedDivisions || []
@@ -92,10 +91,39 @@ export function DepartmentHeadsClient({
   const workers = hubData?.workers || []
   const owner = hubData?.owner || { name: 'Company Owner', email: '' }
 
-  // Navigation tab inside this view
-  const [activeTab, setActiveTab] = useState<'HEADS' | 'MANAGERS' | 'WORKERS'>('HEADS')
+  const isOwner = callerPowerLevel === 'OWNER'
+  const isPM = callerPowerLevel === 'PRODUCTION_MANAGER'
+  const canAppointHeads = isOwner || isPM
+  const canAppointPM = isOwner
+
+  // Search query
   const [searchQuery, setSearchQuery] = useState('')
-  const [workerDepartmentFilter, setWorkerDepartmentFilter] = useState<string>('ALL')
+
+  // Expand / Collapse state: allow multiple open, default open first or all
+  const [expandedRoutes, setExpandedRoutes] = useState<Set<string>>(() => {
+    // Open first 2 divisions by default for immediate preview, or user can expand any
+    return new Set(divisions.slice(0, 2).map(d => d.route))
+  })
+
+  const toggleExpand = (route: string) => {
+    setExpandedRoutes(prev => {
+      const next = new Set(prev)
+      if (next.has(route)) {
+        next.delete(route)
+      } else {
+        next.add(route)
+      }
+      return next
+    })
+  }
+
+  const expandAll = () => {
+    setExpandedRoutes(new Set(divisions.map(d => d.route)))
+  }
+
+  const collapseAll = () => {
+    setExpandedRoutes(new Set())
+  }
 
   // Modals state
   const [isPmModalOpen, setIsPmModalOpen] = useState(false)
@@ -134,53 +162,15 @@ export function DepartmentHeadsClient({
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Quick Toast Notification
+  // Toast Notification
   const [toast, setToast] = useState<string | null>(null)
   const showToast = (msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
   }
 
-  // Filtered Department Heads / Divisions
-  const filteredDivisions = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    if (!q) return divisions
-    return divisions.filter(div => {
-      const nameMatch = div.name.toLowerCase().includes(q)
-      const headMatch = div.appointedHead?.displayName.toLowerCase().includes(q) ||
-        div.appointedHead?.phone.includes(q) ||
-        (div.appointedHead?.phone2 && div.appointedHead.phone2.includes(q))
-      return nameMatch || headMatch
-    })
-  }, [divisions, searchQuery])
-
-  // Filtered Production Managers
-  const filteredPms = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    if (!q) return productionManagers
-    return productionManagers.filter(pm =>
-      pm.name.toLowerCase().includes(q) ||
-      pm.phone.includes(q) ||
-      (pm.email && pm.email.toLowerCase().includes(q))
-    )
-  }, [productionManagers, searchQuery])
-
-  // Filtered Workers
-  const filteredWorkers = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim()
-    return workers.filter(w => {
-      const deptMatch = workerDepartmentFilter === 'ALL' || w.departmentRoute === workerDepartmentFilter
-      const textMatch = !q ||
-        w.name.toLowerCase().includes(q) ||
-        w.phone.includes(q) ||
-        w.role.toLowerCase().includes(q) ||
-        w.departmentName.toLowerCase().includes(q)
-      return deptMatch && textMatch
-    })
-  }, [workers, searchQuery, workerDepartmentFilter])
-
-  // Handlers
-  const handleOpenAssignHead = (route?: string, head?: DepartmentHeadItem | null) => {
+  // Action handlers
+  const handleOpenAppointHead = (route?: string, head?: DepartmentHeadItem) => {
     setSelectedHeadForEdit(head || null)
     setHeadModalInitialRoute(route)
     setIsHeadModalOpen(true)
@@ -197,21 +187,17 @@ export function DepartmentHeadsClient({
     currentStatus: boolean,
     divisionRoute?: string
   ) => {
-    const res = await toggleStaffStatusAction({
-      id,
-      type,
-      currentStatus,
-      divisionRoute
-    })
+    const res = await toggleStaffStatusAction({ id, type, currentStatus, divisionRoute })
     if (res.success) {
-      showToast('Status updated successfully')
+      showToast(`Status updated to ${currentStatus ? 'Inactive' : 'Active'}`)
       router.refresh()
     } else {
       showToast(res.error || 'Failed to update status')
     }
   }
 
-  const handleConfirmDelete = async () => {
+  const handleDeleteStaff = async () => {
+    if (!deleteConfirm.id) return
     setIsDeleting(true)
     const res = await deleteStaffMemberAction({
       id: deleteConfirm.id,
@@ -219,693 +205,662 @@ export function DepartmentHeadsClient({
       divisionRoute: deleteConfirm.divisionRoute
     })
     setIsDeleting(false)
-    setDeleteConfirm(prev => ({ ...prev, isOpen: false }))
-
     if (res.success) {
-      showToast('Staff removed successfully')
+      showToast(`${deleteConfirm.name} removed successfully`)
+      setDeleteConfirm({ isOpen: false, id: '', name: '', type: 'DEPARTMENT_HEAD' })
       router.refresh()
     } else {
-      showToast(res.error || 'Failed to remove staff')
+      showToast(res.error || 'Failed to remove member')
     }
   }
 
-  const canAppointPm = callerPowerLevel === 'OWNER'
-  const canAppointHead = callerPowerLevel === 'OWNER' || callerPowerLevel === 'PRODUCTION_MANAGER'
-  const canAddWorker = callerPowerLevel === 'OWNER' || callerPowerLevel === 'PRODUCTION_MANAGER' || callerPowerLevel === 'DEPARTMENT_HEAD'
+  // Group workers by division
+  const workersByDivision = useMemo(() => {
+    const map = new Map<string, FloorWorkerItem[]>()
+    divisions.forEach(div => {
+      map.set(div.route, [])
+    })
+    workers.forEach(w => {
+      const existing = map.get(w.departmentRoute) || []
+      existing.push(w)
+      map.set(w.departmentRoute, existing)
+    })
+    return map
+  }, [divisions, workers])
+
+  // Filtered divisions based on search
+  const filteredDivisions = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim()
+    if (!q) return divisions
+
+    return divisions.filter(div => {
+      const nameMatch = div.name.toLowerCase().includes(q)
+      const headNameMatch = div.appointedHead?.displayName.toLowerCase().includes(q) ||
+        div.appointedHead?.username.toLowerCase().includes(q) ||
+        div.appointedHead?.phone.includes(q) ||
+        div.appointedHead?.phone2?.includes(q)
+      
+      const divWorkers = workersByDivision.get(div.route) || []
+      const workerMatch = divWorkers.some(w => 
+        w.name.toLowerCase().includes(q) ||
+        w.phone.includes(q) ||
+        w.role.toLowerCase().includes(q)
+      )
+
+      return nameMatch || headNameMatch || workerMatch
+    })
+  }, [divisions, searchQuery, workersByDivision])
+
+  const primaryPM = productionManagers[0] || null
 
   return (
-    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6 text-[#0B1220] select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* Toast Notification */}
+      {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 bg-[#0B1220] text-white text-xs font-bold rounded-2xl shadow-xl border border-slate-700 animate-in fade-in slide-in-from-bottom-2 duration-150 flex items-center gap-2">
+        <div className="fixed top-20 right-6 z-50 px-5 py-3 rounded-2xl bg-[#0B1220] text-white text-sm font-bold shadow-2xl flex items-center gap-2 border border-[#14C8B4]/40 animate-in slide-in-from-top-4 duration-200">
           <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
           <span>{toast}</span>
         </div>
       )}
 
-      {/* 1. Header with Title & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-              Supervisor &amp; Workers
-            </h1>
-            <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-              4 Divisions of Power
-            </span>
-            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-              {companyName}
-            </span>
+      {/* 1. Header Banner - Matching Exact Module Hub Layout */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <ShieldCheck className="w-6 h-6 text-[#0B1220]" />
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Strict multi-tier RBAC for plant operations, supervisor roles, and floor staff.
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
+              </h1>
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+                {divisions.length} Operating Units
+              </span>
+            </div>
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
+              Factory leadership hierarchy, department heads, and floor worker roster for {companyName}.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Search Input */}
+        <div className="w-full sm:w-72 md:w-80 relative shrink-0">
+          <div className="relative flex items-center">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search department, head, worker..."
+              className="w-full pl-10 pr-9 py-2 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] rounded-xl outline-none transition-all shadow-2xs"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 p-0.5 text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. ROW 1: Written About the Owner (Tier 1) */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Crown className="w-5 h-5 text-[#0B1220]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-base sm:text-lg font-bold text-[#0B1220]">
+                {owner.name}
+              </span>
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#0B1220] text-white tracking-wider">
+                Tier 1 • Owner
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 font-mono mt-0.5 flex-wrap">
+              {owner.email && (
+                <span className="flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                  {owner.email}
+                </span>
+              )}
+              {owner.phone && (
+                <span className="flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-slate-400" />
+                  +91 {owner.phone}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-end sm:self-center">
+          <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            Full Factory Authority
+          </span>
+        </div>
+      </div>
+
+      {/* 3. ROW 2: Written About the Production Manager (Tier 2) */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Factory className="w-5 h-5 text-[#0B1220]" />
+          </div>
+          <div>
+            {primaryPM ? (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-base sm:text-lg font-bold text-[#0B1220]">
+                    {primaryPM.name}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#0B1220] text-white tracking-wider">
+                    Tier 2 • Production Manager
+                  </span>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    primaryPM.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                  }`}>
+                    {primaryPM.isActive ? 'ACTIVE' : 'INACTIVE'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 font-mono mt-0.5 flex-wrap">
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    +91 {primaryPM.phone}
+                  </span>
+                  {primaryPM.email && !primaryPM.email.endsWith('.local') && (
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      {primaryPM.email}
+                    </span>
+                  )}
+                  <span className="text-slate-400">• Factory-wide authority</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-base sm:text-lg font-bold text-[#0B1220]">
+                    Production Manager
+                  </span>
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 tracking-wider">
+                    Unassigned
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  No Production Manager appointed yet. Owner can delegate factory-wide oversight of department heads and floor workers.
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+          {primaryPM ? (
+            <div className="flex items-center gap-2">
+              {isOwner && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setPasswordModal({
+                      isOpen: true,
+                      userId: primaryPM.id,
+                      userName: primaryPM.name,
+                      username: primaryPM.username
+                    })}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5" />
+                    <span>Reset Password</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleToggleStatus(primaryPM.id, 'PRODUCTION_MANAGER', primaryPM.isActive)}
+                    className="p-2 rounded-xl text-slate-500 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
+                    title={primaryPM.isActive ? 'Deactivate' : 'Activate'}
+                  >
+                    <PowerOff className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirm({
+                      isOpen: true,
+                      id: primaryPM.id,
+                      name: primaryPM.name,
+                      type: 'PRODUCTION_MANAGER'
+                    })}
+                    className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                    title="Remove Production Manager"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            isOwner && (
+              <button
+                type="button"
+                onClick={() => setIsPmModalOpen(true)}
+                className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+              >
+                <Plus className="w-4 h-4 text-[#14C8B4]" />
+                <span>+ Appoint Production Manager</span>
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* 4. SECTION HEADER: Departments & Workers List */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
+            Purchased Operating Departments ({filteredDivisions.length})
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+            Click any department row to expand its assigned Department Head and shop floor worker roster.
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {canAppointPm && (
-            <button
-              type="button"
-              onClick={() => setIsPmModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-            >
-              <Factory className="w-3.5 h-3.5 text-[#14C8B4]" />
-              <span>+ Production Manager</span>
-            </button>
-          )}
-
-          {canAppointHead && (
-            <button
-              type="button"
-              onClick={() => handleOpenAssignHead()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] border border-[#14C8B4]/40 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
-            >
-              <Users className="w-3.5 h-3.5 text-[#0B1220]" />
-              <span>+ Department Head</span>
-            </button>
-          )}
-
-          {canAddWorker && (
-            <button
-              type="button"
-              onClick={() => handleOpenAddWorker()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
-            >
-              <Wrench className="w-3.5 h-3.5 text-slate-500" />
-              <span>+ Worker</span>
-            </button>
-          )}
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <button
+            type="button"
+            onClick={expandAll}
+            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+          >
+            Expand All
+          </button>
+          <button
+            type="button"
+            onClick={collapseAll}
+            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+          >
+            Collapse All
+          </button>
         </div>
       </div>
 
-      {/* 2. Glanceable 4-Tier Power Structure Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {/* Tier 1: Owner */}
-        <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
-            <Crown className="w-5 h-5 stroke-[2]" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-mono uppercase font-bold text-amber-700">Tier 1: Owner</div>
-            <div className="text-xs font-extrabold text-[#0B1220] truncate">{owner.name || 'Company Owner'}</div>
-            <div className="text-[10px] text-slate-400 font-mono">Super Admin</div>
-          </div>
-        </div>
-
-        {/* Tier 2: Production Manager */}
-        <div 
-          onClick={() => setActiveTab('MANAGERS')}
-          className={`p-3.5 rounded-2xl bg-white border shadow-2xs flex items-center gap-3 cursor-pointer transition-all ${
-            activeTab === 'MANAGERS' ? 'border-[#0B1220] ring-1 ring-[#0B1220]/10' : 'border-slate-200/80 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
-            <Factory className="w-5 h-5 stroke-[1.8]" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-mono uppercase font-bold text-teal-700">Tier 2: Production Mgr</div>
-            <div className="text-xs font-extrabold text-[#0B1220]">{productionManagers.length} Appointed</div>
-            <div className="text-[10px] text-slate-400 font-mono">Factory Wide</div>
-          </div>
-        </div>
-
-        {/* Tier 3: Department Heads */}
-        <div 
-          onClick={() => setActiveTab('HEADS')}
-          className={`p-3.5 rounded-2xl bg-white border shadow-2xs flex items-center gap-3 cursor-pointer transition-all ${
-            activeTab === 'HEADS' ? 'border-[#0B1220] ring-1 ring-[#0B1220]/10' : 'border-slate-200/80 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
-            <Users className="w-5 h-5 stroke-[1.8]" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-mono uppercase font-bold text-blue-700">Tier 3: Dept Heads</div>
-            <div className="text-xs font-extrabold text-[#0B1220]">{departmentHeads.length} of {divisions.length} Units</div>
-            <div className="text-[10px] text-slate-400 font-mono">Floor Incharges</div>
-          </div>
-        </div>
-
-        {/* Tier 4: Floor Workers */}
-        <div 
-          onClick={() => setActiveTab('WORKERS')}
-          className={`p-3.5 rounded-2xl bg-white border shadow-2xs flex items-center gap-3 cursor-pointer transition-all ${
-            activeTab === 'WORKERS' ? 'border-[#0B1220] ring-1 ring-[#0B1220]/10' : 'border-slate-200/80 hover:border-slate-300'
-          }`}
-        >
-          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center shrink-0">
-            <Wrench className="w-5 h-5 stroke-[1.8]" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-mono uppercase font-bold text-slate-600">Tier 4: Floor Staff</div>
-            <div className="text-xs font-extrabold text-[#0B1220]">{workers.length} Active Workers</div>
-            <div className="text-[10px] text-slate-400 font-mono">Shop Floor Roster</div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Navigation Controls & Search Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-        {/* View Switcher Pills */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl shrink-0">
-          <button
-            type="button"
-            onClick={() => setActiveTab('HEADS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'HEADS'
-                ? 'bg-white text-[#0B1220] shadow-xs'
-                : 'text-slate-600 hover:text-[#0B1220]'
-            }`}
-          >
-            <span>Department Heads ({divisions.length})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('MANAGERS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'MANAGERS'
-                ? 'bg-white text-[#0B1220] shadow-xs'
-                : 'text-slate-600 hover:text-[#0B1220]'
-            }`}
-          >
-            <span>Production Managers ({productionManagers.length})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('WORKERS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'WORKERS'
-                ? 'bg-white text-[#0B1220] shadow-xs'
-                : 'text-slate-600 hover:text-[#0B1220]'
-            }`}
-          >
-            <span>Shop Floor Workers ({workers.length})</span>
-          </button>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative flex items-center sm:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, phone..."
-            className="w-full pl-10 pr-8 py-2 bg-white text-xs font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#0B1220] rounded-xl outline-none shadow-2xs transition-all"
-          />
-          {searchQuery && (
+      {/* 5. DEPARTMENT ROWS: One by one aligned, expanding downwards on click */}
+      <div className="space-y-3">
+        {filteredDivisions.length === 0 ? (
+          <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-3">
+            <Users className="w-10 h-10 text-slate-300 mx-auto" />
+            <h3 className="text-base font-bold text-[#0B1220]">No Matching Departments</h3>
+            <p className="text-xs sm:text-sm text-slate-500">
+              No division, department head, or worker matches "{searchQuery}".
+            </p>
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-600"
+              className="px-4 py-2 bg-[#0B1220] text-white text-xs font-bold rounded-xl"
             >
-              <X className="w-3.5 h-3.5" />
+              Clear Filter
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* 4. Tab Views */}
-
-      {/* ======================================================== */}
-      {/* VIEW A: DEPARTMENT HEADS                                 */}
-      {/* ======================================================== */}
-      {activeTab === 'HEADS' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredDivisions.map((div) => {
-            const head = div.appointedHead
+          </div>
+        ) : (
+          filteredDivisions.map(div => {
+            const isExpanded = expandedRoutes.has(div.route)
             const IconComponent = DIVISION_ICONS[div.iconName] || Layers
+            const divWorkers = workersByDivision.get(div.route) || []
+            const head = div.appointedHead
 
             return (
               <div
                 key={div.id}
-                className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between transition-all hover:shadow-md"
+                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
               >
-                {/* Division Header */}
-                <div>
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs">
-                        <IconComponent className="w-5 h-5 stroke-[1.8]" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-extrabold text-[#0B1220] tracking-tight">
+                {/* Clickable Row Header - Click anywhere to toggle */}
+                <div
+                  onClick={() => toggleExpand(div.route)}
+                  className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
+                >
+                  {/* Left: Department Icon & Title */}
+                  <div className="flex items-center gap-3.5 min-w-[260px]">
+                    <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                      <IconComponent className="w-5 h-5 text-[#0B1220]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-bold text-[#0B1220] tracking-tight">
                           {div.name}
                         </h3>
-                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
+                        <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
                           {div.code}
                         </span>
                       </div>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {div.defaultDesignation}
+                      </p>
                     </div>
-
-                    {head ? (
-                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border shadow-2xs ${
-                        head.isActive
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
-                      }`}>
-                        {head.isActive ? 'ACTIVE' : 'SUSPENDED'}
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
-                        VACANT
-                      </span>
-                    )}
                   </div>
 
-                  {/* Appointed Head Details or Vacant State */}
-                  {head ? (
-                    <div className="space-y-3 pt-2 border-t border-slate-100">
-                      <div>
-                        <div className="text-xs font-bold text-[#0B1220] flex items-center gap-1.5">
-                          <UserCheck className="w-3.5 h-3.5 text-[#14C8B4]" />
-                          <span>{head.displayName}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                          {head.designation}
-                        </div>
+                  {/* Center: Head Summary & Workers Pill */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {head ? (
+                      <div className="flex items-center gap-2 bg-[#F8FAFC] border border-slate-200/80 px-3 py-1.5 rounded-xl text-xs">
+                        <span className="w-2 h-2 rounded-full bg-[#14C8B4] shrink-0" />
+                        <span className="font-bold text-[#0B1220]">{head.displayName}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="font-mono text-slate-600">+91 {head.phone}</span>
                       </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 bg-slate-100 px-3 py-1 rounded-xl italic">
+                        No Head Assigned
+                      </span>
+                    )}
 
-                      {/* Phone Numbers (1 or 2) */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {head.phone && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-mono text-slate-700 font-medium">
-                            <Phone className="w-3 h-3 text-slate-400" />
-                            <span>{head.phone}</span>
-                          </span>
-                        )}
-                        {head.phone2 && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-mono text-slate-500">
-                            <span>Alt: {head.phone2}</span>
-                          </span>
-                        )}
-                      </div>
+                    <span className="bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-[#0B1220]" />
+                      <span>{divWorkers.length} {divWorkers.length === 1 ? 'Worker' : 'Workers'}</span>
+                    </span>
+                  </div>
 
-                      {/* Permissions Tags */}
-                      <div className="flex items-center gap-2 flex-wrap text-[10px] font-mono">
-                        <span className="px-2 py-0.5 rounded-md bg-[#F0FDFA] text-teal-800 border border-[#14C8B4]/20">
-                          {head.allowedModules.length} Modules Hub
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
-                          {head.allowedTabs.length} Tabs Allowed
-                        </span>
-                      </div>
+                  {/* Right: Expand Indicator */}
+                  <div className="flex items-center gap-2 self-end md:self-center shrink-0">
+                    <span className="text-xs font-bold text-slate-600">
+                      {isExpanded ? 'Hide' : 'View Roster'}
+                    </span>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 text-slate-700 transition-transform duration-200 ${
+                      isExpanded ? 'rotate-180 bg-[#0B1220] text-white' : ''
+                    }`}>
+                      <ChevronDown className="w-4 h-4" />
                     </div>
-                  ) : (
-                    <div className="py-4 text-center space-y-1">
-                      <p className="text-xs text-slate-400 font-medium">No head currently assigned</p>
-                      <p className="text-[11px] text-slate-400">Owner / PM can appoint department lead</p>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Card Bottom Actions */}
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  {head ? (
-                    <>
-                      {/* Left: Password and Status actions */}
-                      <div className="flex items-center gap-1">
-                        {canAppointHead && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setPasswordModal({
-                                isOpen: true,
-                                userId: head.id,
-                                userName: head.displayName,
-                                username: head.username
-                              })}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
-                              title="Reset Password"
-                            >
-                              <KeyRound className="w-4 h-4" />
-                            </button>
+                {/* EXPANDED CONTENT UNDER ROW */}
+                {isExpanded && (
+                  <div className="border-t border-slate-200/80 bg-[#F8FAFC]/70 p-5 sm:p-6 space-y-6 animate-in slide-in-from-top-1 duration-150">
+                    
+                    {/* SECTION A: Department Head Permissions Dossier (Tier 3) */}
+                    <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#0B1220] text-white">
+                            Tier 3
+                          </span>
+                          <h4 className="text-base font-bold text-[#0B1220]">
+                            Department In-charge (Head)
+                          </h4>
+                          {head && (
+                            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                              head.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                            }`}>
+                              {head.isActive ? 'ACTIVE' : 'INACTIVE'}
+                            </span>
+                          )}
+                        </div>
 
-                            <button
-                              type="button"
-                              onClick={() => handleToggleStatus(head.id, 'DEPARTMENT_HEAD', head.isActive)}
-                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                head.isActive
-                                  ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
-                                  : 'text-rose-500 hover:text-emerald-600 hover:bg-emerald-50'
-                              }`}
-                              title={head.isActive ? 'Suspend Head' : 'Activate Head'}
-                            >
-                              <PowerOff className="w-4 h-4" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => setDeleteConfirm({
-                                isOpen: true,
-                                id: head.id,
-                                name: head.displayName,
-                                type: 'DEPARTMENT_HEAD'
-                              })}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                              title="Delete Head"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Right: Edit & Add Worker */}
-                      <div className="flex items-center gap-2">
-                        {canAddWorker && (
+                        {canAppointHeads && (
                           <button
                             type="button"
-                            onClick={() => handleOpenAddWorker(div.route)}
-                            className="px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpenAppointHead(div.route, head || undefined)
+                            }}
+                            className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#0B1220] text-[#0B1220] rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
                           >
-                            + Worker
-                          </button>
-                        )}
-                        {canAppointHead && (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenAssignHead(div.route, head)}
-                            className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                            <span>Edit</span>
+                            <UserCheck className="w-3.5 h-3.5" />
+                            <span>{head ? 'Edit Head Permissions' : '+ Appoint Department Head'}</span>
                           </button>
                         )}
                       </div>
-                    </>
-                  ) : (
-                    <div className="w-full flex items-center justify-between">
-                      {canAddWorker && (
+
+                      {head ? (
+                        <div className="space-y-3.5">
+                          {/* Profile row */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200/60 text-xs">
+                            <div>
+                              <span className="text-slate-400 font-medium block">Head Name &amp; User</span>
+                              <span className="text-sm font-bold text-[#0B1220] block">{head.displayName}</span>
+                              <span className="text-slate-500 font-mono">@{head.username}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 font-medium block">Contact Numbers</span>
+                              <span className="font-mono font-bold text-slate-800 block">+91 {head.phone}</span>
+                              {head.phone2 && (
+                                <span className="font-mono text-slate-600 block">+91 {head.phone2} (Alt)</span>
+                              )}
+                            </div>
+                            <div>
+                              <span className="text-slate-400 font-medium block">System Login</span>
+                              <span className="font-mono text-slate-700 truncate block">{head.email}</span>
+                            </div>
+                          </div>
+
+                          {/* Allowed Modules & Tabs */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="font-bold text-slate-700 block mb-1.5 uppercase font-mono tracking-wider">
+                                Allowed Modules ({head.allowedModules.length})
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {head.allowedModules.map(mRoute => {
+                                  const catItem = divisions.find(d => d.route === mRoute)
+                                  return (
+                                    <span
+                                      key={mRoute}
+                                      className="font-semibold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 px-2.5 py-1 rounded-lg"
+                                    >
+                                      {catItem?.name || mRoute}
+                                    </span>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            <div>
+                              <span className="font-bold text-slate-700 block mb-1.5 uppercase font-mono tracking-wider">
+                                Top Tabs Visibility ({head.allowedTabs.length})
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {head.allowedTabs.map(tab => (
+                                  <span
+                                    key={tab}
+                                    className="font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md"
+                                  >
+                                    {tab}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Head Actions */}
+                          {canAppointHeads && (
+                            <div className="pt-2 flex items-center gap-2 border-t border-slate-100 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => setPasswordModal({
+                                  isOpen: true,
+                                  userId: head.id,
+                                  userName: head.displayName,
+                                  username: head.username
+                                })}
+                                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <KeyRound className="w-3.5 h-3.5" />
+                                <span>Reset Password</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleStatus(head.id, 'DEPARTMENT_HEAD', head.isActive)}
+                                className="p-2 rounded-xl text-slate-500 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
+                                title={head.isActive ? 'Deactivate' : 'Activate'}
+                              >
+                                <PowerOff className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteConfirm({
+                                  isOpen: true,
+                                  id: head.id,
+                                  name: head.displayName,
+                                  type: 'DEPARTMENT_HEAD'
+                                })}
+                                className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer ml-auto"
+                                title="Remove Department Head"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="bg-[#F8FAFC] rounded-xl p-4 border border-dashed border-slate-300 text-center space-y-2">
+                          <p className="text-xs sm:text-sm text-slate-500">
+                            No Department Head assigned for {div.name} yet.
+                          </p>
+                          {canAppointHeads && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenAppointHead(div.route)}
+                              className="px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+                              <span>Assign Head for {div.name}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* SECTION B: Shop Floor Workers Roster (Tier 4) */}
+                    <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#0B1220] text-white">
+                            Tier 4
+                          </span>
+                          <h4 className="text-base font-bold text-[#0B1220]">
+                            Shop Floor Workers ({divWorkers.length})
+                          </h4>
+                        </div>
+
                         <button
                           type="button"
                           onClick={() => handleOpenAddWorker(div.route)}
-                          className="px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          className="px-3 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                         >
-                          + Worker
+                          <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+                          <span>+ Add Worker</span>
                         </button>
-                      )}
-                      {canAppointHead && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenAssignHead(div.route, null)}
-                          className="ml-auto px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white text-[11px] font-bold rounded-xl transition-all shadow-xs cursor-pointer active:scale-95"
-                        >
-                          Assign Head
-                        </button>
+                      </div>
+
+                      {divWorkers.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F8FAFC]">
+                                <th className="py-2.5 px-3 rounded-l-lg">Worker Name</th>
+                                <th className="py-2.5 px-3">Mobile Contact</th>
+                                <th className="py-2.5 px-3">Role</th>
+                                <th className="py-2.5 px-3">Shift</th>
+                                <th className="py-2.5 px-3">Status</th>
+                                <th className="py-2.5 px-3 text-right rounded-r-lg">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                              {divWorkers.map(w => (
+                                <tr key={w.id} className="hover:bg-slate-50/80 transition-colors">
+                                  <td className="py-2.5 px-3 font-bold text-[#0B1220]">
+                                    {w.name}
+                                  </td>
+                                  <td className="py-2.5 px-3 font-mono font-semibold text-slate-700">
+                                    +91 {w.phone}
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <span className="text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                                      {w.role}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <span className="text-[11px] font-mono font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                                      {w.shift}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleStatus(w.id, 'WORKER', w.status === 'ACTIVE', div.route)}
+                                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full cursor-pointer transition-all ${
+                                        w.status === 'ACTIVE'
+                                          ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                          : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
+                                      }`}
+                                    >
+                                      {w.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE'}
+                                    </button>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right">
+                                    <button
+                                      type="button"
+                                      onClick={() => setDeleteConfirm({
+                                        isOpen: true,
+                                        id: w.id,
+                                        name: w.name,
+                                        type: 'WORKER',
+                                        divisionRoute: div.route
+                                      })}
+                                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer inline-flex"
+                                      title="Remove Worker"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="bg-[#F8FAFC] rounded-xl p-6 border border-dashed border-slate-300 text-center space-y-2">
+                          <Users className="w-7 h-7 text-slate-300 mx-auto" />
+                          <p className="text-xs sm:text-sm text-slate-500">
+                            No shop floor workers registered under {div.name} yet.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAddWorker(div.route)}
+                            className="px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+                            <span>Register First Worker</span>
+                          </button>
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
+
+                  </div>
+                )}
+
               </div>
             )
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
 
-      {/* ======================================================== */}
-      {/* VIEW B: PRODUCTION MANAGERS                              */}
-      {/* ======================================================== */}
-      {activeTab === 'MANAGERS' && (
-        <div className="space-y-4">
-          {filteredPms.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] mx-auto shadow-xs">
-                <Factory className="w-6 h-6 stroke-[1.8]" />
-              </div>
-              <h3 className="text-base font-extrabold text-[#0B1220]">
-                No Production Managers Appointed
-              </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Company Owner has super admin authority to appoint a Production Manager to oversee whole-plant operations.
-              </p>
-              {canAppointPm && (
-                <button
-                  type="button"
-                  onClick={() => setIsPmModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-4 h-4 text-[#14C8B4]" />
-                  <span>Appoint Production Manager</span>
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredPms.map((pm) => (
-                <div
-                  key={pm.id}
-                  className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-2xl bg-[#0B1220] text-white flex items-center justify-center shadow-xs">
-                          <Factory className="w-5 h-5 text-[#14C8B4]" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-extrabold text-[#0B1220]">
-                            {pm.name}
-                          </h3>
-                          <span className="text-[10px] font-mono text-slate-400">
-                            {pm.username}
-                          </span>
-                        </div>
-                      </div>
-
-                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
-                        pm.isActive
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
-                      }`}>
-                        {pm.isActive ? 'ACTIVE' : 'SUSPENDED'}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 pt-2 border-t border-slate-100">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-700 font-mono">
-                        <Phone className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{pm.phone || 'No phone'}</span>
-                      </div>
-                      {pm.email && !pm.email.endsWith('.local') && (
-                        <div className="text-xs text-slate-500 truncate">
-                          {pm.email}
-                        </div>
-                      )}
-                      <div className="pt-1">
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#F0FDFA] text-teal-800 border border-[#14C8B4]/20 font-bold">
-                          All Modules &amp; Tabs Permitted
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => setPasswordModal({
-                        isOpen: true,
-                        userId: pm.id,
-                        userName: pm.name,
-                        username: pm.username
-                      })}
-                      className="px-2.5 py-1 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <KeyRound className="w-3.5 h-3.5" />
-                      <span>Password</span>
-                    </button>
-
-                    {canAppointPm && (
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStatus(pm.id, 'PRODUCTION_MANAGER', pm.isActive)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                          title={pm.isActive ? 'Suspend' : 'Activate'}
-                        >
-                          <PowerOff className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteConfirm({
-                            isOpen: true,
-                            id: pm.id,
-                            name: pm.name,
-                            type: 'PRODUCTION_MANAGER'
-                          })}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                          title="Remove Production Manager"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* VIEW C: SHOP FLOOR WORKERS                               */}
-      {/* ======================================================== */}
-      {activeTab === 'WORKERS' && (
-        <div className="space-y-4">
-          {/* Department Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <button
-              type="button"
-              onClick={() => setWorkerDepartmentFilter('ALL')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                workerDepartmentFilter === 'ALL'
-                  ? 'bg-[#0B1220] text-white shadow-xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              All Divisions ({workers.length})
-            </button>
-            {divisions.map((div) => {
-              const count = workers.filter(w => w.departmentRoute === div.route).length
-              return (
-                <button
-                  key={div.route}
-                  type="button"
-                  onClick={() => setWorkerDepartmentFilter(div.route)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                    workerDepartmentFilter === div.route
-                      ? 'bg-[#0B1220] text-white shadow-xs'
-                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                  }`}
-                >
-                  {div.name} ({count})
-                </button>
-              )
-            })}
-          </div>
-
-          {filteredWorkers.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center mx-auto">
-                <Wrench className="w-6 h-6 stroke-[1.8]" />
-              </div>
-              <h3 className="text-base font-extrabold text-[#0B1220]">
-                No Workers Found
-              </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Owner, Production Manager, and Department Heads can register shop floor staff.
-              </p>
-              {canAddWorker && (
-                <button
-                  type="button"
-                  onClick={() => handleOpenAddWorker(workerDepartmentFilter !== 'ALL' ? workerDepartmentFilter : undefined)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-4 h-4 text-[#14C8B4]" />
-                  <span>Add Floor Worker</span>
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50/80 border-b border-slate-100 text-slate-500 font-mono uppercase text-[10px]">
-                    <tr>
-                      <th className="py-3 px-4 font-bold">Worker Name</th>
-                      <th className="py-3 px-4 font-bold">Department</th>
-                      <th className="py-3 px-4 font-bold">Skill / Role</th>
-                      <th className="py-3 px-4 font-bold">Mobile</th>
-                      <th className="py-3 px-4 font-bold">Shift</th>
-                      <th className="py-3 px-4 font-bold">Status</th>
-                      <th className="py-3 px-4 font-bold text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredWorkers.map((worker) => (
-                      <tr key={worker.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-3 px-4 font-bold text-[#0B1220]">
-                          {worker.name}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded-md bg-[#F0FDFA] text-teal-800 border border-[#14C8B4]/20 font-medium">
-                            {worker.departmentName}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-slate-700 font-medium">
-                          {worker.role}
-                        </td>
-                        <td className="py-3 px-4 font-mono text-slate-600">
-                          {worker.phone}
-                        </td>
-                        <td className="py-3 px-4 font-medium text-slate-600">
-                          {worker.shift}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
-                            worker.status === 'ACTIVE'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-slate-100 text-slate-500 border-slate-200'
-                          }`}>
-                            {worker.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleStatus(worker.id, 'WORKER', worker.status === 'ACTIVE', worker.departmentRoute)}
-                              className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
-                              title="Toggle status"
-                            >
-                              <PowerOff className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeleteConfirm({
-                                isOpen: true,
-                                id: worker.id,
-                                name: worker.name,
-                                type: 'WORKER',
-                                divisionRoute: worker.departmentRoute
-                              })}
-                              className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                              title="Remove worker"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODALS                                                   */}
-      {/* ======================================================== */}
-
-      {/* Appoint Production Manager Modal (2 steps max) */}
+      {/* MODALS */}
+      {/* 1. Appoint Production Manager Modal (2 Steps) */}
       <AppointProductionManagerModal
         isOpen={isPmModalOpen}
         onClose={() => setIsPmModalOpen(false)}
         onSuccess={() => {
-          showToast('Production Manager appointed successfully')
+          showToast('Production Manager appointed successfully!')
           router.refresh()
         }}
       />
 
-      {/* Appoint Department Head Modal (2 steps max) */}
+      {/* 2. Appoint Department Head Modal (2 Steps) */}
       <AppointDepartmentHeadModal
         isOpen={isHeadModalOpen}
         onClose={() => {
@@ -914,7 +869,7 @@ export function DepartmentHeadsClient({
           setHeadModalInitialRoute(undefined)
         }}
         onSuccess={() => {
-          showToast(selectedHeadForEdit ? 'Department Head updated' : 'Department Head appointed')
+          showToast(selectedHeadForEdit ? 'Department Head updated successfully!' : 'Department Head appointed successfully!')
           router.refresh()
         }}
         existingHead={selectedHeadForEdit}
@@ -922,7 +877,7 @@ export function DepartmentHeadsClient({
         initialDivisionRoute={headModalInitialRoute}
       />
 
-      {/* Add Worker Modal (1 step) */}
+      {/* 3. Add Worker Modal */}
       <AddWorkerModal
         isOpen={isWorkerModalOpen}
         onClose={() => {
@@ -930,34 +885,37 @@ export function DepartmentHeadsClient({
           setWorkerModalInitialRoute(undefined)
         }}
         onSuccess={() => {
-          showToast('Worker added successfully')
+          showToast('Shop floor worker registered successfully!')
           router.refresh()
         }}
         allowedDivisions={allowedDivisions}
         initialDivisionRoute={workerModalInitialRoute}
       />
 
-      {/* Password Reset Modal */}
+      {/* 4. Reset Password Modal */}
       <ResetPasswordModal
         isOpen={passwordModal.isOpen}
-        onClose={() => setPasswordModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setPasswordModal({ isOpen: false, userId: '', userName: '', username: '' })}
         headId={passwordModal.userId}
         headName={passwordModal.userName}
         username={passwordModal.username}
-        onSuccess={() => showToast('Password updated successfully')}
+        onSuccess={() => {
+          showToast('Password updated successfully!')
+          router.refresh()
+        }}
       />
 
-      {/* Delete Confirmation Dialog */}
+      {/* 5. Delete Confirm Dialog */}
       <ConfirmDialog
         isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, id: '', name: '', type: 'DEPARTMENT_HEAD' })}
+        onConfirm={handleDeleteStaff}
+        isLoading={isDeleting}
         title={`Remove ${deleteConfirm.name}?`}
-        description="This action will revoke login access and remove this staff member from your company roster."
+        description={`Are you sure you want to remove ${deleteConfirm.name}? This action cannot be undone and will revoke their factory access.`}
         confirmText="Yes, Remove"
         cancelText="Cancel"
         variant="danger"
-        isLoading={isDeleting}
-        onConfirm={handleConfirmDelete}
-        onClose={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
       />
 
     </div>
