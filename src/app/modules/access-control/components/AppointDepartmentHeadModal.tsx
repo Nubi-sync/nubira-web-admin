@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User, Phone, Mail, Lock, ArrowRight, ArrowLeft, Loader2, Layers, CheckSquare, Square, Shield, Eye, CheckCircle2 } from 'lucide-react'
+import { X, User, Phone, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckSquare, Square } from 'lucide-react'
 import { appointOrUpdateDepartmentHeadAction, DepartmentHeadItem } from '../actions'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 
@@ -94,11 +94,11 @@ export function AppointDepartmentHeadModal({
     const cleanPhone2 = phone2.replace(/\D/g, '').slice(-10)
 
     if (!name.trim()) {
-      setError('Please enter the full name.')
+      setError('Please enter full name.')
       return
     }
     if (cleanPhone.length !== 10) {
-      setError('Please enter a valid 10-digit primary mobile number.')
+      setError('Please enter a valid 10-digit mobile number.')
       return
     }
     if (phone2 && cleanPhone2.length !== 10) {
@@ -108,7 +108,7 @@ export function AppointDepartmentHeadModal({
 
     if (!isEditing) {
       if (!password || password.length < 6) {
-        setError('Initial password must be at least 6 characters.')
+        setError('Password must be at least 6 characters.')
         return
       }
       if (password !== confirmPassword) {
@@ -139,7 +139,7 @@ export function AppointDepartmentHeadModal({
   }
 
   const toggleTab = (tabId: string) => {
-    if (tabId === 'all-modules') return // all-modules is always present
+    if (tabId === 'all-modules') return
     if (selectedTabs.includes(tabId)) {
       setSelectedTabs(selectedTabs.filter(t => t !== tabId))
     } else {
@@ -192,13 +192,8 @@ export function AppointDepartmentHeadModal({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#F8FAFC] shrink-0">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
-                Tier 3 Authority
-              </span>
-              <span className="text-xs font-mono font-medium text-slate-500">Step {step} of 2</span>
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight mt-1 font-[family-name:var(--font-heading)]">
+            <div className="text-xs font-semibold text-slate-500">Step {step} of 2</div>
+            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight mt-0.5 font-[family-name:var(--font-heading)]">
               {isEditing ? (
                 <>Edit <span className="text-[#1D4ED8]">Department Head</span></>
               ) : (
@@ -242,7 +237,7 @@ export function AppointDepartmentHeadModal({
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Anand Verma"
+                    placeholder="Enter department head name"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -262,11 +257,11 @@ export function AppointDepartmentHeadModal({
                       maxLength={10}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                      placeholder="10-digit number"
+                      placeholder="Enter mobile number"
                       className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                     />
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">Used for mobile login.</p>
+                  <p className="text-xs text-slate-500 mt-1">Used for login.</p>
                 </div>
 
                 <div>
@@ -281,11 +276,11 @@ export function AppointDepartmentHeadModal({
                       maxLength={10}
                       value={phone2}
                       onChange={(e) => setPhone2(e.target.value.replace(/\D/g, ''))}
-                      placeholder="Alternate phone"
+                      placeholder="Enter alternate mobile number"
                       className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                     />
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">Backup contact.</p>
+                  <p className="text-xs text-slate-500 mt-1">Backup number.</p>
                 </div>
               </div>
 
@@ -300,7 +295,7 @@ export function AppointDepartmentHeadModal({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. head@factory.com (optional)"
+                    placeholder="Enter email address (optional)"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -312,7 +307,7 @@ export function AppointDepartmentHeadModal({
                   <label className="text-sm font-bold text-slate-800">
                     {isEditing ? 'New Password' : 'Create Password'} {!isEditing && <span className="text-rose-500">*</span>}
                   </label>
-                  {isEditing && <span className="text-xs text-slate-400 font-mono">Leave blank to keep current</span>}
+                  {isEditing && <span className="text-xs text-slate-400 font-mono">Leave blank to keep unchanged</span>}
                 </div>
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
@@ -322,7 +317,7 @@ export function AppointDepartmentHeadModal({
                     minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={isEditing ? 'Leave blank to keep unchanged' : 'At least 6 characters'}
+                    placeholder="Enter password"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -341,7 +336,7 @@ export function AppointDepartmentHeadModal({
                       minLength={6}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm password"
+                      placeholder="Re-enter password"
                       className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                     />
                   </div>
@@ -353,7 +348,7 @@ export function AppointDepartmentHeadModal({
                   type="submit"
                   className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
-                  <span>Continue to Permissions</span>
+                  <span>Continue to Department Access</span>
                   <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                 </button>
               </div>
@@ -363,7 +358,7 @@ export function AppointDepartmentHeadModal({
               {/* Primary Department */}
               <div>
                 <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Primary Overseeing Department <span className="text-rose-500">*</span>
+                  Primary Department <span className="text-rose-500">*</span>
                 </label>
                 <select
                   required
@@ -373,22 +368,19 @@ export function AppointDepartmentHeadModal({
                 >
                   {purchasedCatalog.map(div => (
                     <option key={div.route} value={div.route}>
-                      {div.name} ({div.defaultDesignation})
+                      {div.name}
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-slate-500 mt-1">
-                  Only divisions purchased by your company are available.
-                </p>
               </div>
 
               {/* Additional Module Visibility */}
               <div>
                 <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Allowed Module Access
+                  Allowed Department Access
                 </label>
                 <p className="text-xs text-slate-500 mb-2.5">
-                  Select which factory modules this head can view and manage.
+                  Select which factory departments this in-charge can view and manage.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
                   {purchasedCatalog.map(div => {
@@ -414,7 +406,7 @@ export function AppointDepartmentHeadModal({
                           {div.name}
                         </span>
                         {isPrimary && (
-                          <span className="text-[10px] font-mono font-bold bg-[#0B1220] text-white px-1.5 py-0.5 rounded-sm ml-auto shrink-0">
+                          <span className="text-[10px] font-bold bg-[#0B1220] text-white px-1.5 py-0.5 rounded-sm ml-auto shrink-0">
                             Primary
                           </span>
                         )}
@@ -427,10 +419,10 @@ export function AppointDepartmentHeadModal({
               {/* Allowed Top Tabs */}
               <div>
                 <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Top Header Tab Access
+                  Navigation Tab Visibility
                 </label>
                 <p className="text-xs text-slate-500 mb-2.5">
-                  Control which navigation tabs appear in this head's top bar.
+                  Select which tabs appear in this in-charge's top navigation bar.
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {ALL_TOP_TABS.map(tab => {
@@ -483,7 +475,7 @@ export function AppointDepartmentHeadModal({
                       <span>Saving...</span>
                     </>
                   ) : (
-                    <span>{isEditing ? 'Update Head Permissions' : 'Appoint Department Head'}</span>
+                    <span>{isEditing ? 'Update In-charge Details' : 'Appoint Department Head'}</span>
                   )}
                 </button>
               </div>

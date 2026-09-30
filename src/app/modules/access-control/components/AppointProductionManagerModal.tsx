@@ -32,7 +32,7 @@ export function AppointProductionManagerModal({
     setError(null)
     const cleanPhone = phone.replace(/\D/g, '').slice(-10)
     if (!name.trim()) {
-      setError('Please enter the full name.')
+      setError('Please enter full name.')
       return
     }
     if (cleanPhone.length !== 10) {
@@ -90,13 +90,8 @@ export function AppointProductionManagerModal({
         {/* Modal Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#F8FAFC]">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
-                Tier 2 Authority
-              </span>
-              <span className="text-xs font-mono font-medium text-slate-500">Step {step} of 2</span>
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight mt-1 font-[family-name:var(--font-heading)]">
+            <div className="text-xs font-semibold text-slate-500">Step {step} of 2</div>
+            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight mt-0.5 font-[family-name:var(--font-heading)]">
               Appoint <span className="text-[#1D4ED8]">Production Manager</span>
             </h3>
           </div>
@@ -136,7 +131,7 @@ export function AppointProductionManagerModal({
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rajesh Kumar"
+                    placeholder="Enter full name"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -154,7 +149,7 @@ export function AppointProductionManagerModal({
                     maxLength={10}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                    placeholder="10-digit mobile number"
+                    placeholder="Enter mobile number"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -172,7 +167,7 @@ export function AppointProductionManagerModal({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. pm@factory.com (optional)"
+                    placeholder="Enter email address"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -202,7 +197,7 @@ export function AppointProductionManagerModal({
                     minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 6 characters"
+                    placeholder="Enter new password"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
@@ -220,21 +215,21 @@ export function AppointProductionManagerModal({
                     minLength={6}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm password"
+                    placeholder="Re-enter password"
                     className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-xs sm:text-sm text-slate-700 space-y-1.5">
-                <div className="font-bold text-[#0B1220]">Authority Scope:</div>
+                <div className="font-bold text-[#0B1220]">Access Rights:</div>
                 <div className="flex items-center gap-2 text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                   <span>Can appoint Department Heads &amp; assign floor workers</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-700 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
-                  <span>Full visibility across all factory modules &amp; top tabs</span>
+                  <span>Full access to all factory departments</span>
                 </div>
               </div>
 

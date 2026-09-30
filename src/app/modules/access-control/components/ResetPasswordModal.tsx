@@ -123,7 +123,7 @@ export function ResetPasswordModal({
                 <input
                   type="text"
                   required
-                  placeholder="Enter new password (min 6 chars)"
+                  placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none"

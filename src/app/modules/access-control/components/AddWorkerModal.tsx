@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User, Phone, Briefcase, Clock, Loader2, ArrowRight } from 'lucide-react'
+import { X, User, Phone, Briefcase, Clock, Loader2 } from 'lucide-react'
 import { addFloorWorkerAction } from '../actions'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 
@@ -51,7 +51,7 @@ export function AddWorkerModal({
 
     const cleanPhone = phone.replace(/\D/g, '').slice(-10)
     if (!name.trim()) {
-      setError('Worker full name is required.')
+      setError('Please enter worker name.')
       return
     }
     if (cleanPhone.length !== 10) {
@@ -84,12 +84,7 @@ export function AddWorkerModal({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#F8FAFC]">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
-                Tier 4 Authority
-              </span>
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight mt-1 font-[family-name:var(--font-heading)]">
+            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
               Register <span className="text-[#1D4ED8]">Shop Floor Worker</span>
             </h3>
           </div>
@@ -132,7 +127,7 @@ export function AddWorkerModal({
           {/* Worker Name */}
           <div>
             <label className="block text-sm font-bold text-slate-800 mb-1.5">
-              Worker Full Name <span className="text-rose-500">*</span>
+              Worker Name <span className="text-rose-500">*</span>
             </label>
             <div className="relative flex items-center">
               <User className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
@@ -141,7 +136,7 @@ export function AddWorkerModal({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Ramesh Chandra"
+                placeholder="Enter worker name"
                 className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
               />
             </div>
@@ -160,7 +155,7 @@ export function AddWorkerModal({
                 maxLength={10}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder="10-digit mobile number"
+                placeholder="Enter mobile number"
                 className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
               />
             </div>
@@ -178,7 +173,7 @@ export function AddWorkerModal({
                   type="text"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  placeholder="e.g. Tailor, Cutter"
+                  placeholder="Enter worker role / designation"
                   className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                 />
               </div>
