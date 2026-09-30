@@ -510,11 +510,16 @@ export default function RegisterFreeTrialPage() {
       {/* Top Header / Navigation Bar */}
       <header className="w-full max-w-5xl flex items-center justify-between py-2 sm:py-3 z-10">
         <div className="flex items-center gap-3">
-          <Link href="/" className="inline-block group">
+          <Link href="/" className="inline-flex items-center gap-2.5 sm:gap-3 group">
             <img 
-              src="/z i g z a (8) 1.png" 
+              src="/new icon.png" 
+              alt="" 
+              className="h-8 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105 shrink-0"
+            />
+            <img 
+              src="/zigza new logo.png" 
               alt="Zigza" 
-              className="h-10 sm:h-12 w-auto object-contain transition-opacity group-hover:opacity-85 mix-blend-multiply"
+              className="h-6 sm:h-7.5 w-auto object-contain transition-opacity group-hover:opacity-85 shrink-0"
             />
           </Link>
           <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black/10 bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] shadow-2xs">

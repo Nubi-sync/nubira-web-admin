@@ -182,11 +182,16 @@ export function CompanyOwnerHeader({
       <header className="w-full bg-[#FAF7F0] text-[#14140F] px-4 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between border-b-2 border-[#14140F]/15">
         {/* Left Section: Login/Register Page Style Zigza Logo + Actual Company Name */}
         <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
-          <Link href="/modules" className="flex items-center shrink-0 group">
+          <Link href="/modules" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
             <img
-              src="/z i g z a (8) 1.png"
+              src="/new icon.png"
+              alt=""
+              className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
+            />
+            <img
+              src="/zigza new logo.png"
               alt="Zigza"
-              className="h-9 sm:h-11 md:h-12 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] mix-blend-multiply"
+              className="h-6 sm:h-7 md:h-7.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
             />
           </Link>
 

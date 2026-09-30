@@ -24,11 +24,16 @@ function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: (
       </button>
 
       {/* Center: Brand Logo */}
-      <Link href={logoHref} className="flex items-center">
+      <Link href={logoHref} className="flex items-center gap-2">
         <img 
-          src="/z i g z a (8).png" 
+          src="/new icon.png" 
+          alt="" 
+          className="h-7 w-auto object-contain shrink-0"
+        />
+        <img 
+          src="/zigza new logo.png" 
           alt="Zigza" 
-          className="h-9 sm:h-10 w-auto object-contain"
+          className="h-5.5 w-auto object-contain shrink-0"
         />
       </Link>
 

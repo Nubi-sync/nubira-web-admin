@@ -989,15 +989,20 @@ export function AdminSidebar({
             </div>
 
             {/* Expanded Full Logo */}
-            <div className={`flex items-center overflow-hidden transition-all ${
+            <div className={`flex items-center gap-2 overflow-hidden transition-all ${
               isHovered 
                 ? 'opacity-100 max-w-[200px] duration-200 ease-out' 
                 : 'opacity-0 max-w-0 duration-500 ease-in-out'
             }`}>
               <img 
-                src="/z i g z a (8).png" 
+                src="/new icon.png" 
+                alt="" 
+                className="h-8 w-auto object-contain shrink-0"
+              />
+              <img 
+                src="/zigza new logo.png" 
                 alt="Zigza" 
-                className="h-9 sm:h-10 w-auto object-contain"
+                className="h-6 w-auto object-contain shrink-0"
               />
             </div>
           </Link>
@@ -1102,11 +1107,16 @@ export function AdminSidebar({
         <div>
           {/* Header */}
           <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between">
-            <Link href={homeHref} className="flex items-center gap-2.5">
+            <Link href={homeHref} className="flex items-center gap-2">
               <img 
-                src="/z i g z a (8).png" 
+                src="/new icon.png" 
+                alt="" 
+                className="h-7 w-auto object-contain shrink-0"
+              />
+              <img 
+                src="/zigza new logo.png" 
                 alt="Zigza" 
-                className="h-9 sm:h-10 w-auto object-contain"
+                className="h-5.5 w-auto object-contain shrink-0"
               />
             </Link>
 
