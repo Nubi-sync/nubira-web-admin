@@ -482,20 +482,20 @@ export function ReportsClient({
       
       {/* 1. Page Header Card */}
       <div 
-        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+        className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
       >
         {/* Left: Badge + Title + Subtitle */}
         <div className="flex items-center gap-3.5">
           <div 
-            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30"
           >
-            <FileText className="w-5 h-5" />
+            <FileText className="w-5 h-5 text-[#14C8B4]" />
           </div>
           <div>
             <h1 
-              className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900"
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220]"
             >
-              Factory Reports & Analytics
+              Factory Reports & <span className="text-[#1D4ED8]">Analytics</span>
             </h1>
             <p className="text-sm sm:text-base text-slate-600 mt-1">
               Real-time multi-department production, QC audit, tailor assignments, and store logs
@@ -510,7 +510,7 @@ export function ReportsClient({
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs cursor-pointer focus:outline-none focus:ring-2"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10"
           >
             <Printer className="w-4 h-4 text-slate-500" />
             <span>Print</span>
@@ -519,7 +519,7 @@ export function ReportsClient({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-xs cursor-pointer bg-[#3A3564] hover:bg-[#2A2649] focus:outline-none focus:ring-2 focus:ring-offset-1"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-xs cursor-pointer bg-[#0B1220] hover:bg-[#162032] focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:ring-offset-1"
           >
             <Download className="w-4 h-4" />
             <span>Export CSV</span>
@@ -552,11 +552,11 @@ export function ReportsClient({
               }}
               className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all border cursor-pointer focus:outline-none focus:ring-2 ${
                 isActive
-                  ? 'bg-[#3A3564] text-white shadow-xs border-transparent'
+                  ? 'bg-[#0B1220] text-white shadow-xs border-transparent'
                   : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
               }`}
             >
-              <TabIcon className="w-4 h-4 shrink-0" />
+              <TabIcon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#14C8B4]' : 'text-slate-500'}`} />
               <span>{cfg.label}</span>
               <span 
                 className={`px-2 py-0.5 rounded-full text-xs font-bold ${
@@ -597,7 +597,7 @@ export function ReportsClient({
                   }}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#3A3564] text-white shadow-xs'
+                      ? 'bg-[#0B1220] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -613,11 +613,11 @@ export function ReportsClient({
             onClick={() => setShowCustomModal(true)}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer shadow-2xs ${
               dateFilter === 'custom'
-                ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564]'
+                ? 'border-[#0B1220] bg-[#F0FDFA] text-[#0B1220]'
                 : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
+            <Calendar className="w-3.5 h-3.5 text-[#14C8B4]" />
             <span>{dateFilter === 'custom' && customStartDate ? `${customStartDate} ~ ${customEndDate}` : 'Custom Range'}</span>
           </button>
         </div>
@@ -633,24 +633,25 @@ export function ReportsClient({
               setSearchTerm(e.target.value)
               setCurrentPage(1)
             }}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all shadow-2xs"
           />
         </div>
       </div>
 
-      {/* 4. NEW — Summary Strip Above Table (Diagonal Gradient Card) */}
+      {/* 4. Summary Strip Above Table (Diagonal Gradient Card) */}
       <div 
-        className="p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all bg-gradient-to-br from-[#FAF7F0] to-white"
+        className="p-5 sm:p-6 rounded-2xl border border-[#14C8B4]/30 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all bg-gradient-to-br from-[#F0FDFA] via-white to-slate-50/50"
       >
         <div className="space-y-1">
           <div 
-            className="text-xs font-bold uppercase tracking-wider text-[#3A3564]"
+            className="text-xs font-bold uppercase tracking-wider text-[#0B1220] flex items-center gap-1.5"
           >
-            Total Output — {rangeLabel}
+            <span className="w-2 h-2 rounded-full bg-[#14C8B4]"></span>
+            <span>Total Output — {rangeLabel}</span>
           </div>
           <div className="flex items-baseline gap-3">
             <span 
-              className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-slate-900"
+              className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#0B1220]"
             >
               {currentPeriodAggregate.toLocaleString()}
             </span>
@@ -681,7 +682,7 @@ export function ReportsClient({
                   </span>
                 ) : (
                   <span 
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30"
                   >
                     <Minus className="w-3.5 h-3.5" />
                     <span>0% vs {prevPeriodLabel}</span>
@@ -701,8 +702,8 @@ export function ReportsClient({
             <svg width="110" height="36" className="overflow-visible">
               <polyline
                 fill="none"
-                stroke="#3A3564"
-                strokeWidth="2"
+                stroke="#14C8B4"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 points={sparklineSvgPath}
@@ -714,7 +715,7 @@ export function ReportsClient({
 
       {/* 5. Main Data Table Card */}
       <div 
-        className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
+        className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden"
       >
         
         {/* Section Header */}
@@ -723,7 +724,7 @@ export function ReportsClient({
         >
           <div>
             <h3 
-              className="text-sm font-bold text-slate-900 font-[family-name:var(--font-heading)]"
+              className="text-sm font-bold text-[#0B1220] font-[family-name:var(--font-heading)]"
             >
               {TAB_CONFIG[activeTab].title}
             </h3>
@@ -731,7 +732,7 @@ export function ReportsClient({
               {TAB_CONFIG[activeTab].subtitle}
             </p>
           </div>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FAF7F0] font-bold text-[#3A3564] border border-black/10 shadow-2xs">
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#F0FDFA] font-bold text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
             {filteredRows.length} entries
           </span>
         </div>
@@ -741,13 +742,13 @@ export function ReportsClient({
           /* Smart Empty State */
           <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
             <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
+              className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs"
             >
-              <FilterX className="w-6 h-6" />
+              <FilterX className="w-6 h-6 text-[#14C8B4]" />
             </div>
             <div className="space-y-1 max-w-sm">
               <h4 
-                className="text-base font-bold font-[family-name:var(--font-heading)] text-slate-900"
+                className="text-base font-bold font-[family-name:var(--font-heading)] text-[#0B1220]"
               >
                 No {TAB_CONFIG[activeTab].label} entries for {rangeLabel}
               </h4>
@@ -769,7 +770,7 @@ export function ReportsClient({
                 <button
                   type="button"
                   onClick={() => setDateFilter('this_week')}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-xs cursor-pointer bg-[#3A3564] hover:bg-[#2A2649]"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-xs cursor-pointer bg-[#0B1220] hover:bg-[#162032]"
                 >
                   Try This Week
                 </button>
@@ -781,7 +782,7 @@ export function ReportsClient({
             <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
               <thead>
                 <tr 
-                  className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700" 
+                  className="bg-[#F0FDFA] border-b border-slate-200 text-xs font-mono uppercase tracking-wider font-bold text-slate-700" 
                 >
                   {activeTab === 'production' && (
                     <>
@@ -840,7 +841,7 @@ export function ReportsClient({
                         <td className="px-5 py-3 font-medium text-slate-900 font-mono text-xs">
                           {row.entry_date}
                         </td>
-                        <td className="px-4 py-3 font-bold text-[#3A3564]">
+                        <td className="px-4 py-3 font-bold text-[#0B1220]">
                           {row.lineman?.username || '-'}
                         </td>
                         <td className="px-4 py-3 font-bold text-slate-900 font-mono">
@@ -870,7 +871,7 @@ export function ReportsClient({
                         <td className="px-4 py-3 font-bold text-slate-900">
                           {row.worker_name || 'Floor Worker'}
                         </td>
-                        <td className="px-4 py-3 font-bold text-[#3A3564]">
+                        <td className="px-4 py-3 font-bold text-[#0B1220]">
                           {row.lineman?.username || '-'}
                         </td>
                         <td className="px-4 py-3 font-bold font-mono text-slate-900">
@@ -909,7 +910,7 @@ export function ReportsClient({
                             {row.stage}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-bold text-[#3A3564]">
+                        <td className="px-4 py-3 font-bold text-[#0B1220]">
                           {row.lineman?.username || '-'}
                         </td>
                         <td className="px-4 py-3 font-bold font-mono text-slate-900">
@@ -942,7 +943,7 @@ export function ReportsClient({
                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
                               row.type === 'INWARD'
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                : 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+                                : 'bg-[#F0FDFA] text-[#0B1220] border-slate-200'
                             }`}
                           >
                             {row.type}
@@ -995,7 +996,7 @@ export function ReportsClient({
                     onClick={() => setCurrentPage(pg)}
                     className={`w-8 h-8 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs ${
                       isActive
-                        ? 'bg-[#3A3564] text-white shadow-xs'
+                        ? 'bg-[#0B1220] text-white shadow-xs'
                         : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
                     }`}
                   >
@@ -1029,14 +1030,14 @@ export function ReportsClient({
           }}
         >
           <div 
-            className="w-full max-w-sm bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 space-y-4 animate-in zoom-in-95 duration-200"
+            className="w-full max-w-sm bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200"
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-                  <Calendar className="w-4 h-4" />
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+                  <Calendar className="w-4 h-4 text-[#14C8B4]" />
                 </div>
-                <h3 className="text-base font-bold font-[family-name:var(--font-heading)] text-slate-900">
+                <h3 className="text-base font-bold font-[family-name:var(--font-heading)] text-[#0B1220]">
                   Custom Date Range
                 </h3>
               </div>
@@ -1056,7 +1057,7 @@ export function ReportsClient({
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-semibold outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-semibold outline-none focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all shadow-2xs"
                 />
               </div>
 
@@ -1066,7 +1067,7 @@ export function ReportsClient({
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-semibold outline-none focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50/70 text-sm font-semibold outline-none focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all shadow-2xs"
                 />
               </div>
             </div>
@@ -1089,7 +1090,7 @@ export function ReportsClient({
                   }
                 }}
                 disabled={!customStartDate || !customEndDate}
-                className="py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50 cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98]"
+                className="py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50 cursor-pointer shadow-xs bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98]"
               >
                 Apply Range
               </button>
