@@ -479,9 +479,9 @@ export function StitchingDashboardClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#14C8B4] rounded-full" />
           </span>
         </h2>
       </div>
@@ -489,15 +489,15 @@ export function StitchingDashboardClient({
       {/* Module Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Scissors className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Stitching &amp; Sewing Floor
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                Stitching &amp; Sewing <span className="text-[#1D4ED8]">Floor</span>
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
                 Division 06 • {workers.length} Tailors Registered
               </span>
             </div>
@@ -511,33 +511,33 @@ export function StitchingDashboardClient({
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
           <Link
             href="/stitching-sewing/store"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
-            <Store className="w-3.5 h-3.5" />
+            <Store className="w-3.5 h-3.5 text-[#14C8B4]" />
             <span>Floor Store</span>
           </Link>
           <Link
             href="/stitching-sewing/notifications"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
-            <Bell className="w-3.5 h-3.5" />
+            <Bell className="w-3.5 h-3.5 text-[#14C8B4]" />
             <span>Notifications</span>
           </Link>
           <Link
             href="/stitching-sewing/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-[#14C8B4]" />
             <span>Zigza AI</span>
           </Link>
           <button
             type="button"
             onClick={handleManualRefresh}
             disabled={isSyncing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
             title="Live Sync"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#14C8B4] ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Live Sync'}</span>
           </button>
         </div>
@@ -554,10 +554,10 @@ export function StitchingDashboardClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-[#F0FDFA] hover:bg-teal-50 text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <Building2 className="w-4 h-4 text-[#14C8B4] shrink-0" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
@@ -572,7 +572,7 @@ export function StitchingDashboardClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers & contracts..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -586,13 +586,13 @@ export function StitchingDashboardClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#F0FDFA]'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-teal-200' : 'text-slate-500'}`}>
                         Show all {tasks.length} sewing task allocations
                       </div>
                     </div>
@@ -614,13 +614,13 @@ export function StitchingDashboardClient({
                         }}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                           activeSelectedBuyerId === b.id
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                            ? 'bg-[#0B1220] text-white font-bold'
+                            : 'text-slate-700 hover:bg-[#F0FDFA]'
                         }`}
                       >
                         <div className="truncate pr-2">
                           <div className="font-bold">{b.buyer_name || b.brand_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-teal-200' : 'text-slate-500'}`}>
                             {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
                           </div>
                         </div>
@@ -635,7 +635,7 @@ export function StitchingDashboardClient({
 
           {/* Article / Style Tag if active */}
           {activeStyleRef && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-[#0B1220] shadow-2xs">
               <span className="text-slate-400 font-normal">Style:</span>
               <span>{activeStyleRef}</span>
             </div>
@@ -646,10 +646,10 @@ export function StitchingDashboardClient({
             <button
               type="button"
               onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] cursor-pointer transition-all shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-[#F0FDFA] text-xs font-mono font-bold text-[#0B1220] cursor-pointer transition-all shadow-2xs"
               title="Click to view or change manufacturing process route"
             >
-              <GitBranch className="w-3.5 h-3.5 text-[#3A3564]" />
+              <GitBranch className="w-3.5 h-3.5 text-[#14C8B4]" />
               <span>{routeDetails.badgeLabel}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -666,13 +666,13 @@ export function StitchingDashboardClient({
                     onClick={() => handleSelectRoute(opt.value)}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
                       activeRoute === opt.value
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#F0FDFA]'
                     }`}
                   >
                     <div>
                       <div className="font-bold">{opt.shortLabel}</div>
-                      <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-indigo-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-teal-200' : 'text-slate-500'}`}>
                         {opt.flowDescription}
                       </div>
                     </div>
@@ -685,11 +685,11 @@ export function StitchingDashboardClient({
 
           {/* Upstream Ready in Hand Badge */}
           <div 
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-mono font-bold text-emerald-800 shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-teal-200 bg-[#F0FDFA] text-xs font-mono font-bold text-teal-900 shadow-2xs"
             title={`Upstream intake ready for sewing line: ${inHandPieces} pcs`}
           >
             <span>Ready in Hand:</span>
-            <span className="font-black text-emerald-900">{inHandPieces.toLocaleString('en-IN')} pcs</span>
+            <span className="font-black text-teal-950">{inHandPieces.toLocaleString('en-IN')} pcs</span>
           </div>
 
         </div>
@@ -699,28 +699,28 @@ export function StitchingDashboardClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-[#F0FDFA] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-[#14C8B4]" />
             <span>Manage Tailors ({workers.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#14C8B4]/30 bg-[#F0FDFA] hover:bg-teal-50 text-xs sm:text-sm font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs shrink-0"
             title="Register a new tailor or sewing operator"
           >
-            <UserPlus className="w-4 h-4 text-[#3A3564]" />
+            <UserPlus className="w-4 h-4 text-[#14C8B4]" />
             <span>+ Add Tailor</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsAddTaskOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer shrink-0"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-[#14C8B4]" />
             <span>+ Assign Sewing Task</span>
           </button>
 
@@ -728,10 +728,10 @@ export function StitchingDashboardClient({
             type="button"
             onClick={handleManualRefresh}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync latest live sewing floor updates"
           >
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-[#14C8B4] ${isSyncing ? 'animate-spin' : ''}`} />
           </button>
         </div>
 
@@ -746,12 +746,12 @@ export function StitchingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/25 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <ShoppingBag className="w-5 h-5 text-[#14C8B4]" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-[#0B1220]">
               {inHandPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -764,7 +764,7 @@ export function StitchingDashboardClient({
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 font-mono flex items-center justify-between">
             <span>{routeDetails.badgeLabel}</span>
-            <span className="text-emerald-700 font-bold">Intake Queue</span>
+            <span className="text-teal-700 font-bold">Intake Queue</span>
           </div>
         </div>
 
@@ -774,12 +774,12 @@ export function StitchingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Pending Sewing
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Clock className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/25 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Clock className="w-5 h-5 text-[#14C8B4]" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-[#0B1220]">
               {totalPendingPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -798,12 +798,12 @@ export function StitchingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Assembled Output
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Scissors className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/25 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Scissors className="w-5 h-5 text-[#14C8B4]" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-[#0B1220]">
               {totalCompletedPieces.toLocaleString('en-IN')}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -830,12 +830,12 @@ export function StitchingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Floor Roster
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-              <Users className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/25 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Users className="w-5 h-5 text-[#14C8B4]" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-slate-900">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-black font-mono text-[#0B1220]">
               {workers.length}
             </div>
             <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -844,7 +844,7 @@ export function StitchingDashboardClient({
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 flex items-center justify-between">
             <span>{matchingStitching.length} allocated lots</span>
-            <span className="font-mono text-[#3A3564] font-bold">Line Active</span>
+            <span className="font-mono text-teal-700 font-bold">Line Active</span>
           </div>
         </div>
 
@@ -869,7 +869,7 @@ export function StitchingDashboardClient({
                   onClick={() => setStatusFilter(tab)}
                   className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer text-xs flex items-center gap-1.5 ${
                     active
-                      ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
+                      ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
                       : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                   }`}
                 >
@@ -892,7 +892,7 @@ export function StitchingDashboardClient({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search lot, article, tailor..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] text-slate-900"
             />
           </div>
         </div>
@@ -901,8 +901,8 @@ export function StitchingDashboardClient({
         <div className="block md:hidden divide-y divide-slate-100">
           {filteredTasks.length === 0 ? (
             <div className="py-10 px-4 text-center text-slate-400">
-              <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto mb-3">
-                <Scissors className="w-6 h-6 text-[#3A3564]" />
+              <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] mx-auto mb-3">
+                <Scissors className="w-6 h-6 text-[#14C8B4]" />
               </div>
               <p className="text-sm font-bold text-slate-800">
                 {searchQuery ? 'No allocations match your filter' : 'No Sewing Tasks Allocated Yet'}
@@ -913,7 +913,7 @@ export function StitchingDashboardClient({
               <button
                 type="button"
                 onClick={() => setIsAddTaskOpen(true)}
-                className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] text-white text-xs font-bold rounded-xl shadow-xs"
+                className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>Assign Sewing Task</span>
@@ -954,7 +954,7 @@ export function StitchingDashboardClient({
                       <span className="text-slate-400">Tailor: </span>
                       <span className="font-semibold text-slate-900">{task.worker_name}</span>
                     </div>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] font-medium text-[11px] border border-black/10">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] font-medium text-[11px] border border-[#14C8B4]/20">
                       {task.source_department || 'Cutting Floor'}
                     </span>
                   </div>
@@ -970,7 +970,7 @@ export function StitchingDashboardClient({
                     <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
-                          pct >= 100 ? 'bg-emerald-500' : 'bg-[#3A3564]'
+                          pct >= 100 ? 'bg-emerald-500' : 'bg-[#0B1220]'
                         }`}
                         style={{ width: `${Math.min(pct, 100)}%` }}
                       />
@@ -1006,7 +1006,7 @@ export function StitchingDashboardClient({
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider bg-[#FAF7F0]">
+              <tr className="border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider bg-[#F0FDFA]">
                 <th className="py-3 px-4">Lot / Task Ref</th>
                 <th className="py-3 px-4">Article & Brand</th>
                 <th className="py-3 px-4">Upstream Source</th>
@@ -1020,8 +1020,8 @@ export function StitchingDashboardClient({
               {filteredTasks.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto mb-3">
-                      <Scissors className="w-6 h-6 text-[#3A3564]" />
+                    <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] mx-auto mb-3">
+                      <Scissors className="w-6 h-6 text-[#14C8B4]" />
                     </div>
                     <p className="text-sm font-bold text-slate-800 font-[family-name:var(--font-heading)]">
                       {searchQuery ? 'No allocations match your filter' : 'No Sewing Tasks Allocated Yet'}
@@ -1032,7 +1032,7 @@ export function StitchingDashboardClient({
                     <button
                       type="button"
                       onClick={() => setIsAddTaskOpen(true)}
-                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#2A2649] transition-all cursor-pointer"
+                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#162032] transition-all cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Assign First Sewing Task</span>
@@ -1084,7 +1084,7 @@ export function StitchingDashboardClient({
                         <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-300 ${
-                              pct >= 100 ? 'bg-emerald-500' : 'bg-[#3A3564]'
+                              pct >= 100 ? 'bg-emerald-500' : 'bg-[#0B1220]'
                             }`}
                             style={{ width: `${Math.min(pct, 100)}%` }}
                           />

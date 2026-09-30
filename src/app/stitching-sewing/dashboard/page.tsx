@@ -448,15 +448,15 @@ export default async function StitchingSewingDashboardPage() {
         {/* Page Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              <LayoutDashboard className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+              <LayoutDashboard className="w-5 h-5 text-[#14C8B4]" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                  Stitching & Sewing Floor
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                  Stitching &amp; Sewing <span className="text-[#1D4ED8]">Floor</span>
                 </h1>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 tracking-wider shadow-2xs">
                   Floor Ops Live
                 </span>
                 <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">
@@ -489,11 +489,11 @@ export default async function StitchingSewingDashboardPage() {
         {isProvisionedTenant && allotmentsData.length === 0 && (
           <div className="p-5 rounded-2xl bg-white border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#3A3564] border border-blue-200/80 flex items-center justify-center shrink-0">
-                <Building2 className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5 text-[#14C8B4]" />
               </div>
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h2 className="text-base font-extrabold text-[#0B1220]">
                   Welcome to {tenant.companyName} Garment Floor
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -503,7 +503,7 @@ export default async function StitchingSewingDashboardPage() {
             </div>
             <Link
               href="/stitching-sewing/production-orders"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs sm:text-sm font-bold shadow-xs hover:bg-[#2c284e] transition-all shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-xs transition-all shrink-0"
             >
               <span>Create First Challan</span>
               <ArrowRight className="w-4 h-4" />
