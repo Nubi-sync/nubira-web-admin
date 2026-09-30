@@ -2884,10 +2884,10 @@ export function ZigzaLandingPageClient({
           <div className="pt-6 sm:pt-8 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-600">
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
               <div className="flex items-center gap-2">
-                <span className="text-proudly-india-black font-semibold text-[13px] sm:text-sm">
+                <span className="text-proudly-india-black">
                   Proudly Made in India
                 </span>
-                <IndiaFlag className="w-4.5 h-3 rounded-xs shrink-0" />
+                <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
               </div>
               <span className="hidden sm:inline text-slate-300">•</span>
               <p className="text-xs sm:text-sm text-slate-500">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
