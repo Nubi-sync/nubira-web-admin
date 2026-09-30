@@ -51,7 +51,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
   }
 
   return (
-    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6">
       {/* 1. Breadcrumb */}
       <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
         <Link href="/store" className="hover:text-[#3A3564] transition-colors flex items-center gap-1.5">

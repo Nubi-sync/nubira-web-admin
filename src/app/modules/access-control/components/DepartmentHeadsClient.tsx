@@ -202,7 +202,7 @@ export function DepartmentHeadsClient({
   const suspendedCount = appointedHeads.filter(h => !h.isActive).length
 
   return (
-    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6 text-[#0B1220]">
+    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6 text-[#0B1220]">
       
       {/* 1. Breadcrumb Hierarchy */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-medium text-slate-500">

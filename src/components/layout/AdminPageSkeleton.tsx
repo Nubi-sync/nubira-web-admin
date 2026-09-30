@@ -15,7 +15,7 @@ export function AdminPageSkeleton({
 }: AdminPageSkeletonProps) {
   return (
     <AdminShell>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6 animate-pulse">
+      <div className="flex-1 p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6 animate-pulse">
         {/* 1. Breadcrumb placeholder */}
         <div className="flex items-center gap-2">
           <div className="h-3 w-16 bg-slate-200 rounded-md" />

@@ -48,7 +48,7 @@ export default async function VendorsPage() {
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={userRole} companyName={tenant.companyName}>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5">
+      <div className="flex-1 p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-5">
         
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">

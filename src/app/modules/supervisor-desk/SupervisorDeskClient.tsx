@@ -562,7 +562,7 @@ export function SupervisorDeskClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-[1536px] w-full mx-auto select-none">
       
       {/* 1. EXECUTIVE BREADCRUMB & HEADER */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-black/10">

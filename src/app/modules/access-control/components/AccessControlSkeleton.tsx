@@ -113,7 +113,7 @@ export function SkeletonCardGrid({ count = 6 }: { count?: number }) {
 
 export function AccessControlPageSkeleton() {
   return (
-    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6">
       {/* Breadcrumb Skeleton */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">

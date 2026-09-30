@@ -3,7 +3,7 @@ import { AdminShell } from '@/components/layout/AdminShell'
 export default function ModulesLoading() {
   return (
     <AdminShell>
-      <div className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6 animate-pulse">
+      <div className="flex-1 p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6 animate-pulse">
         {/* Header Skeleton */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2">

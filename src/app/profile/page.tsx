@@ -130,7 +130,7 @@ export default async function CompanyProfilePage(props: {
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
-      <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-5 sm:space-y-6 select-none">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-5 sm:space-y-6 select-none">
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
           <Link href="/modules" className="hover:text-[#0B1220] transition-colors">

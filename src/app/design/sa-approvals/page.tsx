@@ -28,7 +28,7 @@ export default async function SADesignApprovalsPage() {
 
   return (
     <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
-      <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
+      <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none">
         <SADesignApprovalsClient
           initialSubmissions={submissions}
           companyName={tenant.companyName || 'Nubira Creation'}

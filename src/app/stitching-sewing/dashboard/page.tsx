@@ -443,7 +443,7 @@ export default async function StitchingSewingDashboardPage() {
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
-      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto">
+      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto">
         
         {/* Page Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
