@@ -2,13 +2,13 @@ import React from 'react'
 
 export function SkeletonBlock({ className = '' }: { className?: string }) {
   return (
-    <div className={`bg-black/5 animate-pulse rounded-xl ${className}`} />
+    <div className={`bg-slate-200/70 animate-pulse rounded-xl ${className}`} />
   )
 }
 
 export function SkeletonKpiCard() {
   return (
-    <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+    <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
       <div className="flex items-center justify-between">
         <SkeletonBlock className="h-4 w-28 rounded-md" />
         <SkeletonBlock className="h-8 w-8 rounded-lg" />
@@ -23,7 +23,7 @@ export function SkeletonKpiCard() {
 
 export function SkeletonHeader({ hasButton = true }: { hasButton?: boolean }) {
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div className="flex items-center gap-3.5 w-full sm:w-auto">
         <SkeletonBlock className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0" />
         <div className="space-y-2 w-full sm:w-80">
@@ -38,7 +38,7 @@ export function SkeletonHeader({ hasButton = true }: { hasButton?: boolean }) {
 
 export function SkeletonFilterBar() {
   return (
-    <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row gap-3 items-center justify-between">
+    <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row gap-3 items-center justify-between">
       <SkeletonBlock className="h-9 w-full md:w-80 rounded-xl shrink-0" />
       <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
         {[1, 2, 3, 4].map(i => (
@@ -51,12 +51,12 @@ export function SkeletonFilterBar() {
 
 export function SkeletonTable({ rows = 5, cols = 6 }: { rows?: number; cols?: number }) {
   return (
-    <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-      <div className="p-4 border-b border-black/10 bg-[#FAF7F0]/60 flex items-center justify-between">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+      <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
         <SkeletonBlock className="h-4 w-48 rounded-md" />
         <SkeletonBlock className="h-4 w-24 rounded-md" />
       </div>
-      <div className="divide-y divide-black/5 p-4 space-y-3">
+      <div className="divide-y divide-slate-100 p-4 space-y-3">
         {Array.from({ length: rows }).map((_, r) => (
           <div key={r} className="flex items-center justify-between gap-4 py-2.5">
             {Array.from({ length: cols }).map((_, c) => (
@@ -74,14 +74,14 @@ export function SkeletonTable({ rows = 5, cols = 6 }: { rows?: number; cols?: nu
 
 export function SkeletonTableGrid({ count = 4 }: { count?: number }) {
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
       <div className="flex items-center justify-between">
         <SkeletonBlock className="h-5 w-52 rounded-md" />
         <SkeletonBlock className="h-4 w-32 rounded-md" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
         {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className="p-4 rounded-xl border border-black/10 bg-[#FAF7F0]/40 space-y-3">
+          <div key={i} className="p-4 rounded-xl border border-slate-200/80 bg-[#F0FDFA]/60 space-y-3">
             <div className="flex items-center justify-between">
               <SkeletonBlock className="h-4 w-20 rounded-md" />
               <SkeletonBlock className="h-5 w-16 rounded-md" />
@@ -91,7 +91,7 @@ export function SkeletonTableGrid({ count = 4 }: { count?: number }) {
               <SkeletonBlock className="h-3.5 w-full rounded-md" />
               <SkeletonBlock className="h-3.5 w-2/3 rounded-md" />
             </div>
-            <div className="pt-2 border-t border-black/5">
+            <div className="pt-2 border-t border-slate-100">
               <SkeletonBlock className="h-10 w-full rounded-lg" />
             </div>
           </div>
@@ -105,7 +105,7 @@ export function SkeletonCardGrid({ count = 4 }: { count?: number }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+        <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2 w-3/4">
               <SkeletonBlock className="h-5 w-40 rounded-md" />
@@ -117,7 +117,7 @@ export function SkeletonCardGrid({ count = 4 }: { count?: number }) {
             <SkeletonBlock className="h-3 w-32 rounded-md" />
             <SkeletonBlock className="h-3 w-full rounded-full" />
           </div>
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-black/5">
+          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
             <SkeletonBlock className="h-12 rounded-lg" />
             <SkeletonBlock className="h-12 rounded-lg" />
             <SkeletonBlock className="h-12 rounded-lg" />
@@ -168,7 +168,7 @@ export function CuttingPageSkeleton({
               <SkeletonTable rows={5} cols={5} />
             </div>
             <div>
-              <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+              <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between">
                   <SkeletonBlock className="h-5 w-36 rounded-md" />
                   <SkeletonBlock className="h-4 w-16 rounded-md" />

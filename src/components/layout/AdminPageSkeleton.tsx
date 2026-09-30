@@ -36,7 +36,7 @@ export function AdminPageSkeleton({
               ) : (
                 <div className="h-7 w-56 bg-slate-200 rounded-xl" />
               )}
-              <div className="h-5 w-16 bg-[#FAF7F0] border border-black/10 rounded-full" />
+              <div className="h-5 w-16 bg-[#F0FDFA] border border-[#14C8B4]/20 rounded-full" />
             </div>
             {subtitle ? (
               <p className="text-xs text-slate-400">{subtitle}</p>
@@ -47,7 +47,7 @@ export function AdminPageSkeleton({
 
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-24 bg-slate-100 rounded-xl border border-slate-200" />
-            <div className="h-9 w-28 bg-[#3A3564]/20 rounded-xl" />
+            <div className="h-9 w-28 bg-[#1D4ED8]/15 rounded-xl border border-[#1D4ED8]/20" />
           </div>
         </div>
 

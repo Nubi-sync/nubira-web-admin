@@ -155,8 +155,10 @@ export function AdminSidebar({
     userEmail?.toLowerCase() === 'admin@zigza.in' ||
     userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
     userEmail?.toLowerCase() === 'aj@nubiracreation.com' ||
+    userRole?.toUpperCase() === 'ADMIN' ||
     userRole?.toUpperCase() === 'SUPERADMIN' ||
-    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN'
+    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||
+    userRole?.toUpperCase() === 'ADMINISTRATOR'
   )
 
   const isDesignerUser = (
@@ -370,8 +372,7 @@ export function AdminSidebar({
     pathname === '/modules' || 
     pathname?.startsWith('/modules') || 
     pathname === '/access-control' || 
-    pathname?.startsWith('/access-control') ||
-    pathname?.startsWith('/design/sa-approvals')
+    pathname?.startsWith('/access-control')
   ) {
     activeNavSections = [
       {
@@ -379,7 +380,7 @@ export function AdminSidebar({
         items: [
           { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
-          { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: ShieldCheck },
+          { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
         ],
       },
@@ -413,6 +414,7 @@ export function AdminSidebar({
         items: [
           { label: 'Studio Dashboard', href: '/design', icon: Palette },
           { label: 'Notification', href: '/design/notifications', icon: Bell },
+          ...(isAdmin ? [{ label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles }] : []),
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
           { label: 'Team Management', href: '/design/team', icon: Users },
           { label: 'PH Settings', href: '/design/settings', icon: Settings },

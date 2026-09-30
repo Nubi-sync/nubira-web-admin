@@ -9,7 +9,7 @@ export default function ModulesLoading() {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="h-7 w-64 bg-slate-200 rounded-xl" />
-              <div className="h-5 w-20 bg-[#FAF7F0] border border-black/10 rounded-full" />
+              <div className="h-5 w-20 bg-[#F0FDFA] border border-[#14C8B4]/20 rounded-full" />
             </div>
             <div className="h-3.5 w-80 bg-slate-200/80 rounded-md" />
           </div>

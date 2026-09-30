@@ -8,10 +8,10 @@ export function SkeletonBlock({ className = '' }: { className?: string }) {
 
 export function SkeletonHeader() {
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-          <SkeletonBlock className="w-6 h-6 rounded-lg bg-[#3A3564]/20" />
+        <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/20 flex items-center justify-center shrink-0 shadow-2xs">
+          <SkeletonBlock className="w-6 h-6 rounded-lg bg-[#14C8B4]/20" />
         </div>
         <div className="space-y-2">
           <SkeletonBlock className="h-7 w-64 sm:w-80" />
@@ -19,7 +19,7 @@ export function SkeletonHeader() {
         </div>
       </div>
       <div className="shrink-0">
-        <SkeletonBlock className="h-10 w-44 rounded-xl bg-[#3A3564]/30" />
+        <SkeletonBlock className="h-10 w-44 rounded-xl bg-[#0B1220]/20" />
       </div>
     </div>
   )
@@ -27,13 +27,13 @@ export function SkeletonHeader() {
 
 export function SkeletonKpiCard() {
   return (
-    <div className="bg-white p-4 rounded-xl border border-black/10 shadow-2xs flex items-center justify-between">
+    <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
       <div className="space-y-1.5 flex-1 pr-3">
         <SkeletonBlock className="h-3 w-28" />
         <SkeletonBlock className="h-7 w-36" />
       </div>
-      <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0">
-        <SkeletonBlock className="w-5 h-5 rounded-md bg-[#3A3564]/20" />
+      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/20 flex items-center justify-center shrink-0">
+        <SkeletonBlock className="w-5 h-5 rounded-md bg-[#14C8B4]/20" />
       </div>
     </div>
   )
@@ -41,7 +41,7 @@ export function SkeletonKpiCard() {
 
 export function SkeletonFilterBar() {
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-black/10 shadow-2xs">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs">
       <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl">
         <SkeletonBlock className="h-8 w-28 rounded-lg bg-white" />
         <SkeletonBlock className="h-8 w-24 rounded-lg bg-slate-200/60" />
@@ -54,22 +54,22 @@ export function SkeletonFilterBar() {
 
 export function SkeletonHeadCard() {
   return (
-    <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 flex flex-col justify-between space-y-4">
       <div className="space-y-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0">
-              <SkeletonBlock className="w-6 h-6 rounded-md bg-[#3A3564]/20" />
+            <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/20 flex items-center justify-center shrink-0">
+              <SkeletonBlock className="w-6 h-6 rounded-md bg-[#14C8B4]/20" />
             </div>
             <div className="space-y-1.5">
               <SkeletonBlock className="h-4 w-32" />
-              <SkeletonBlock className="h-3 w-24 bg-[#3A3564]/20" />
+              <SkeletonBlock className="h-3 w-24 bg-slate-200/60" />
             </div>
           </div>
           <SkeletonBlock className="h-5 w-16 rounded-full" />
         </div>
 
-        <div className="p-3 bg-[#FAF7F0]/60 border border-black/10 rounded-xl space-y-2">
+        <div className="p-3 bg-[#F0FDFA]/60 border border-[#14C8B4]/15 rounded-xl space-y-2">
           <div className="flex justify-between items-center">
             <SkeletonBlock className="h-3 w-16" />
             <SkeletonBlock className="h-3 w-24" />
@@ -83,8 +83,8 @@ export function SkeletonHeadCard() {
         <div className="space-y-2">
           <SkeletonBlock className="h-2.5 w-36" />
           <div className="flex flex-wrap gap-1.5">
-            <SkeletonBlock className="h-6 w-28 rounded-lg bg-[#FAF7F0]" />
-            <SkeletonBlock className="h-6 w-24 rounded-lg bg-[#FAF7F0]" />
+            <SkeletonBlock className="h-6 w-28 rounded-lg bg-slate-100" />
+            <SkeletonBlock className="h-6 w-24 rounded-lg bg-slate-100" />
           </div>
         </div>
       </div>

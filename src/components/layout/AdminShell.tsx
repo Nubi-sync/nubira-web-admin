@@ -77,13 +77,6 @@ function AdminShellContent({
     pathname?.startsWith('/supervisor-workers') ||
     pathname === '/modules/access-control' ||
     pathname?.startsWith('/modules/access-control') ||
-    pathname === '/design' ||
-    pathname === '/design/sa-approvals' ||
-    pathname?.startsWith('/design/sa-approvals') ||
-    pathname === '/all-designs' ||
-    pathname?.startsWith('/all-designs') ||
-    pathname === '/store' ||
-    pathname === '/fabric-store' ||
     pathname === '/zigza-ai' ||
     pathname?.startsWith('/zigza-ai') ||
     pathname === '/reports' ||
