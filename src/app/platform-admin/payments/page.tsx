@@ -102,7 +102,7 @@ export default function SubscriptionsAndExpiryPage() {
   }).length
   const expiredCount = tenants.filter(t => isTenantExpired(t)).length
   const totalMrrInr = tenants
-    .filter(t => t.status === 'ACTIVE' && t.accessType === 'FULL_ACCESS')
+  .filter(t => t.status === 'ACTIVE' && t.accessType === 'FULL_ACCESS')
     .reduce((acc, t) => acc + (t.monthlyBillingInr || 4999), 0)
 
   // Filtered tenants
@@ -204,31 +204,31 @@ export default function SubscriptionsAndExpiryPage() {
 
   return (
     <PlatformAdminShell userEmail="admin@zigza.in">
-      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#0B1220]">
         
         {/* Layer 1: Breadcrumb Hierarchy Trail */}
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <Link href="/platform-admin" className="hover:text-[#0B1220] transition-colors">
             Platform Root
           </Link>
           <span>/</span>
           <span>Tenant Management</span>
           <span>/</span>
-          <span className="font-bold text-slate-900">Subscriptions & Expiry Directory</span>
+          <span className="font-bold text-[#0B1220]">Subscriptions & Expiry Directory</span>
         </div>
 
         {/* Layer 2: Encapsulated Top Header Card */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
           <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              <CreditCard className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+              <CreditCard className="w-6 h-6 text-[#0B1220]" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                  Subscriptions & Expiry Management
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                  Subscriptions & <span className="text-[#1D4ED8]">Expiry</span> Management
                 </h1>
-                <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                   {totalTenantsCount} {totalTenantsCount === 1 ? 'tenant factory' : 'tenant factories'}
                 </span>
               </div>
@@ -241,7 +241,7 @@ export default function SubscriptionsAndExpiryPage() {
           <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end">
             <Link
               href="/platform-admin/provisioning"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>+ Provision New Tenant</span>
@@ -251,7 +251,7 @@ export default function SubscriptionsAndExpiryPage() {
 
         {/* Toast Alert */}
         {toastMsg && (
-          <div className={`p-4 rounded-xl border flex items-center justify-between gap-3 shadow-2xs animate-in fade-in duration-200 ${
+          <div className={`p-4 rounded-xl border flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200 ${
             toastMsg.type === 'success'
               ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
               : 'bg-rose-50 border-rose-200 text-rose-900'
@@ -273,13 +273,13 @@ export default function SubscriptionsAndExpiryPage() {
           </div>
         )}
 
-        {/* Layer 3: Executive KPI Metric Cards (Clean 4-Card Grid matching Screenshot 2) */}
+        {/* Layer 3: Executive KPI Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Tenants */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <Building2 className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+                <Building2 className="w-4 h-4 text-[#0B1220]" />
               </div>
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 Directory
@@ -289,7 +289,7 @@ export default function SubscriptionsAndExpiryPage() {
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Total Tenants
               </span>
-              <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 font-mono">
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] mt-1 font-mono">
                 {totalTenantsCount}
               </div>
               <p className="text-xs text-slate-500 mt-1">
@@ -299,9 +299,9 @@ export default function SubscriptionsAndExpiryPage() {
           </div>
 
           {/* Card 2: 7-Day Demo Trials */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+              <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
                 <Clock className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
@@ -312,7 +312,7 @@ export default function SubscriptionsAndExpiryPage() {
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 7-Day Demo Trials
               </span>
-              <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 font-mono">
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] mt-1 font-mono">
                 {demoTrialsCount}
               </div>
               <p className="text-xs text-slate-500 mt-1">
@@ -322,9 +322,9 @@ export default function SubscriptionsAndExpiryPage() {
           </div>
 
           {/* Card 3: Expiring Soon / Expired */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+              <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
@@ -335,7 +335,7 @@ export default function SubscriptionsAndExpiryPage() {
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Expiring Soon
               </span>
-              <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 font-mono">
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] mt-1 font-mono">
                 {expiringSoonCount}
               </div>
               <p className="text-xs text-slate-500 mt-1">
@@ -345,10 +345,10 @@ export default function SubscriptionsAndExpiryPage() {
           </div>
 
           {/* Card 4: Contracted MRR */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <Zap className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#14C8B4]">
+                <Zap className="w-4 h-4 text-[#14C8B4]" />
               </div>
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 Billing
@@ -358,7 +358,7 @@ export default function SubscriptionsAndExpiryPage() {
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Contracted MRR
               </span>
-              <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 font-mono">
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] mt-1 font-mono">
                 ₹{totalMrrInr.toLocaleString('en-IN')}
               </div>
               <p className="text-xs text-slate-500 mt-1">
@@ -371,14 +371,14 @@ export default function SubscriptionsAndExpiryPage() {
         {/* Layer 4: Interactive Control Toolbar (Filter Tabs + Search Bar) */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Status Filter Segment */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             <button
               type="button"
               onClick={() => setActiveTab('ALL')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'ALL'
-                  ? 'bg-[#3A3564] text-white shadow-2xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-black/10'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               All Factories ({tenants.length})
@@ -388,8 +388,8 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('DEMO_TRIAL')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'DEMO_TRIAL'
-                  ? 'bg-[#3A3564] text-white shadow-2xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-black/10'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               Demo Trials ({demoTrialsCount})
@@ -399,8 +399,8 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('EXPIRING_SOON')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'EXPIRING_SOON'
-                  ? 'bg-[#3A3564] text-white shadow-2xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-black/10'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               Expiring Soon ({expiringSoonCount})
@@ -410,8 +410,8 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('EXPIRED')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'EXPIRED'
-                  ? 'bg-[#3A3564] text-white shadow-2xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-black/10'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               Expired / Suspended ({expiredCount})
@@ -421,8 +421,8 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('FULL_ACCESS')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'FULL_ACCESS'
-                  ? 'bg-[#3A3564] text-white shadow-2xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-black/10'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               Full Access ({tenants.filter(t => t.accessType === 'FULL_ACCESS').length})
@@ -437,17 +437,17 @@ export default function SubscriptionsAndExpiryPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search factory, slug, email, city..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-white border border-black/10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-[#0B1220] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220]"
             />
           </div>
         </div>
 
-        {/* Layer 5: Clean Subscriptions Table (Structured like Screenshot 2) */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+        {/* Layer 5: Clean Subscriptions Table */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
                   <th className="py-3.5 px-4 sm:px-6">Factory & Location</th>
                   <th className="py-3.5 px-4">Super Admin</th>
                   <th className="py-3.5 px-4">Plan & Model</th>
@@ -460,7 +460,7 @@ export default function SubscriptionsAndExpiryPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-400">
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#3A3564]" />
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#0B1220]" />
                       Loading tenant subscriptions...
                     </td>
                   </tr>
@@ -489,12 +489,12 @@ export default function SubscriptionsAndExpiryPage() {
                       <tr key={tenant.id} className="hover:bg-slate-50/60 transition-colors">
                         {/* 1. Factory & Location */}
                         <td className="py-4 px-4 sm:px-6">
-                          <div className="font-extrabold text-slate-900 text-sm">{tenant.companyName}</div>
+                          <div className="font-extrabold text-[#0B1220] text-sm">{tenant.companyName}</div>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="font-mono text-[11px] text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                            <span className="font-mono text-[11px] text-slate-600 bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#14C8B4]/30">
                               {tenant.plantSlug || 'factory-slug'}
                             </span>
-                            <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                            <span className="text-[11px] text-slate-500 flex items-center gap-1">
                               • {tenant.cityState || 'India'}
                             </span>
                           </div>
@@ -502,14 +502,14 @@ export default function SubscriptionsAndExpiryPage() {
 
                         {/* 2. Super Admin */}
                         <td className="py-4 px-4">
-                          <div className="font-bold text-slate-800 text-xs">{tenant.adminName || 'Admin'}</div>
+                          <div className="font-bold text-[#0B1220] text-xs">{tenant.adminName || 'Admin'}</div>
                           <div className="text-[11px] font-mono text-slate-500 mt-0.5">{tenant.adminEmail}</div>
                         </td>
 
                         {/* 3. Plan Tier & Model */}
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-[#FAF7F0] text-slate-800 border border-black/10">
+                            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                               {tenant.subscriptionTier === 'FULL_PLANT_AI'
                                 ? 'FULL PLANT AI'
                                 : (tenant.subscriptionTier === 'MODULAR' ? 'MODULAR' : 'CUSTOM')}
@@ -533,7 +533,7 @@ export default function SubscriptionsAndExpiryPage() {
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-1.5 text-xs font-mono">
                             <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            <span className={isExpired ? 'text-rose-600 font-bold' : 'text-slate-800'}>
+                            <span className={isExpired ? 'text-rose-600 font-bold' : 'text-[#0B1220]'}>
                               {expiryDateStr}
                             </span>
                           </div>
@@ -574,14 +574,14 @@ export default function SubscriptionsAndExpiryPage() {
                           )}
                         </td>
 
-                        {/* 6. Action: Clean "View Details / Manage" Button (Matching Screenshot 2) */}
+                        {/* 6. Action Button */}
                         <td className="py-4 px-4 sm:px-6 text-right">
                           <button
                             type="button"
                             onClick={() => openManageModal(tenant)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/30 shadow-xs transition-all cursor-pointer"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-3.5 h-3.5 text-[#0B1220]" />
                             <span>View Details</span>
                           </button>
                         </td>
@@ -599,21 +599,21 @@ export default function SubscriptionsAndExpiryPage() {
       {isManageModalOpen && selectedTenant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
           <div
-            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200 space-y-5"
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200/80 my-auto animate-in zoom-in-95 duration-200 space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-                  <Building2 className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-xs">
+                  <Building2 className="w-6 h-6 text-[#0B1220]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                       {selectedTenant.companyName}
                     </h3>
-                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
                       {selectedTenant.accessType === 'DEMO_TRIAL' ? '7-Day Demo Trial' : 'Active Plan'}
                     </span>
                   </div>
@@ -632,15 +632,15 @@ export default function SubscriptionsAndExpiryPage() {
             </div>
 
             {/* Section 1: Tenant Information Overview */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F0] border border-black/10 grid grid-cols-2 gap-4 text-xs">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 grid grid-cols-2 gap-4 text-xs">
               <div>
                 <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Super Admin</span>
-                <span className="font-bold text-slate-900 mt-1 block text-sm">{selectedTenant.adminName || 'Enterprise SuperAdmin'}</span>
+                <span className="font-bold text-[#0B1220] mt-1 block text-sm">{selectedTenant.adminName || 'Enterprise SuperAdmin'}</span>
                 <span className="text-slate-600 font-mono text-xs mt-0.5 block">{selectedTenant.adminEmail}</span>
               </div>
               <div>
                 <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Current Model</span>
-                <span className="font-bold text-[#3A3564] mt-1 block text-sm">
+                <span className="font-bold text-[#0B1220] mt-1 block text-sm">
                   {selectedTenant.accessType === 'DEMO_TRIAL' ? '7-Day Demo Trial' : 'Full Enterprise Plan'}
                 </span>
                 <span className="text-slate-600 text-xs font-semibold mt-0.5 block font-mono">
@@ -649,7 +649,7 @@ export default function SubscriptionsAndExpiryPage() {
               </div>
               <div>
                 <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Issue / Start Date</span>
-                <span className="font-bold text-slate-900 mt-1 block font-mono text-xs sm:text-sm">
+                <span className="font-bold text-[#0B1220] mt-1 block font-mono text-xs sm:text-sm">
                   {selectedTenant.provisionedAt
                     ? new Date(selectedTenant.provisionedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' })
                     : '15/9/2026'}
@@ -657,7 +657,7 @@ export default function SubscriptionsAndExpiryPage() {
               </div>
               <div>
                 <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">Expiry Date</span>
-                <span className={`font-bold mt-1 block font-mono text-xs sm:text-sm ${isTenantExpired(selectedTenant) ? 'text-rose-600' : 'text-slate-900'}`}>
+                <span className={`font-bold mt-1 block font-mono text-xs sm:text-sm ${isTenantExpired(selectedTenant) ? 'text-rose-600' : 'text-[#0B1220]'}`}>
                   {selectedTenant.expiresAt
                     ? new Date(selectedTenant.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' })
                     : 'Continuous'}
@@ -666,9 +666,9 @@ export default function SubscriptionsAndExpiryPage() {
             </div>
 
             {/* Section 2: Send Reminder Notice */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between gap-3 shadow-xs">
               <div>
-                <span className="text-xs font-bold text-slate-900 block">Dispatch Expiry Notice Email</span>
+                <span className="text-xs font-bold text-[#0B1220] block">Dispatch Expiry Notice Email</span>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                   Sends an automated notification from noreply@zigza.in directing them to their Company Profile.
                 </p>
@@ -682,9 +682,9 @@ export default function SubscriptionsAndExpiryPage() {
                 type="button"
                 onClick={() => handleSendReminder(selectedTenant)}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs shrink-0 cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/30 shadow-xs shrink-0 cursor-pointer transition-colors"
               >
-                <Send className="w-3.5 h-3.5" />
+                <Send className="w-3.5 h-3.5 text-[#0B1220]" />
                 <span>Send Reminder</span>
               </button>
             </div>
@@ -704,7 +704,7 @@ export default function SubscriptionsAndExpiryPage() {
                     type="button"
                     onClick={() => handleQuickExtend(selectedTenant.id, d)}
                     disabled={isPending}
-                    className="py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-[#FAF7F0] hover:border-[#3A3564]/30 hover:text-[#3A3564] text-slate-800 border border-slate-200 transition-all shadow-2xs cursor-pointer text-center active:scale-95"
+                    className="py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-[#F0FDFA] hover:border-[#14C8B4]/50 hover:text-[#0B1220] text-slate-800 border border-slate-200 transition-all shadow-xs cursor-pointer text-center active:scale-95"
                   >
                     +{d} Days
                   </button>
@@ -713,12 +713,12 @@ export default function SubscriptionsAndExpiryPage() {
             </div>
 
             {/* Section 4: Upgrade / Mark Paid Offline */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-3.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564]">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220]">
                   Convert to Full Access / Mark Paid
                 </span>
-                <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+                <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
               </div>
               
               <div className="grid grid-cols-2 gap-3">
@@ -727,7 +727,7 @@ export default function SubscriptionsAndExpiryPage() {
                   <select
                     value={upgradeTier}
                     onChange={(e) => setUpgradeTier(e.target.value as SubscriptionPlanTier)}
-                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs"
+                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-[#0B1220] outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-xs"
                   >
                     <option value="FULL_PLANT_AI">Full Plant AI (₹4,999/mo)</option>
                     <option value="MODULAR">Modular Plan (₹1,999/mo)</option>
@@ -739,7 +739,7 @@ export default function SubscriptionsAndExpiryPage() {
                   <select
                     value={upgradeDurationMonths}
                     onChange={(e) => setUpgradeDurationMonths(Number(e.target.value))}
-                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs"
+                    className="w-full p-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-white text-[#0B1220] outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-xs"
                   >
                     <option value={1}>1 Month</option>
                     <option value={3}>3 Months</option>
@@ -753,7 +753,7 @@ export default function SubscriptionsAndExpiryPage() {
                 type="button"
                 onClick={handleConfirmUpgrade}
                 disabled={isPending}
-                className="w-full py-2.5 sm:py-3 rounded-xl bg-[#3A3564] text-white text-xs sm:text-sm font-bold hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs active:scale-[0.99]"
+                className="w-full py-2.5 sm:py-3 rounded-xl bg-[#0B1220] text-white text-xs sm:text-sm font-bold hover:bg-[#162032] transition-all cursor-pointer shadow-xs active:scale-[0.99]"
               >
                 Mark Paid & Activate Full Access
               </button>
