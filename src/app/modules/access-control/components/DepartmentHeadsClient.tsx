@@ -656,9 +656,9 @@ export function DepartmentHeadsClient({
                               e.stopPropagation()
                               handleOpenAppointHead(div.route, head || undefined)
                             }}
-                            className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#0B1220] text-[#0B1220] rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+                            className="px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer self-start sm:self-center active:scale-[0.98]"
                           >
-                            <UserCheck className="w-3.5 h-3.5" />
+                            <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
                             <span>{head ? 'Edit In-charge Details' : 'Assign Department Head'}</span>
                           </button>
                         )}
@@ -755,20 +755,10 @@ export function DepartmentHeadsClient({
                           </table>
                         </div>
                       ) : (
-                        <div className="bg-[#F8FAFC] rounded-xl p-4 border border-dashed border-slate-300 text-center space-y-2">
-                          <p className="text-xs sm:text-sm text-slate-500">
+                        <div className="bg-[#F8FAFC] rounded-xl p-5 border border-dashed border-slate-300 text-center space-y-1">
+                          <p className="text-xs sm:text-sm text-slate-500 font-medium">
                             No Department Head assigned for {div.name} yet.
                           </p>
-                          {canAppointHeads && (
-                            <button
-                              type="button"
-                              onClick={() => handleOpenAppointHead(div.route)}
-                              className="px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
-                            >
-                              <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
-                              <span>Assign Head for {div.name}</span>
-                            </button>
-                          )}
                         </div>
                       )}
                     </div>
@@ -791,7 +781,7 @@ export function DepartmentHeadsClient({
                           className="px-3 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                         >
                           <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
-                          <span>+ Add Worker</span>
+                          <span>Add Worker</span>
                         </button>
                       </div>
 
@@ -881,19 +871,11 @@ export function DepartmentHeadsClient({
                           </table>
                         </div>
                       ) : (
-                        <div className="bg-[#F8FAFC] rounded-xl p-6 border border-dashed border-slate-300 text-center space-y-2">
-                          <Users className="w-7 h-7 text-slate-300 mx-auto" />
-                          <p className="text-xs sm:text-sm text-slate-500">
+                        <div className="bg-[#F8FAFC] rounded-xl p-5 border border-dashed border-slate-300 text-center space-y-1.5">
+                          <Users className="w-6 h-6 text-slate-300 mx-auto" />
+                          <p className="text-xs sm:text-sm text-slate-500 font-medium">
                             No shop floor workers registered under {div.name} yet.
                           </p>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenAddWorker(div.route)}
-                            className="px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
-                            <span>Register First Worker</span>
-                          </button>
                         </div>
                       )}
                     </div>
