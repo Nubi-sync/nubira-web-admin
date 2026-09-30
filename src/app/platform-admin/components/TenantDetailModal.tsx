@@ -284,23 +284,23 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl border border-black/10 shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden transition-all"
+        className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden transition-all text-[#0B1220]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. Modal Top Banner & Header */}
-        <div className="bg-[#FAF7F0] border-b border-black/10 p-5 sm:p-6 flex items-start justify-between gap-4">
+        <div className="bg-[#F0FDFA] border-b border-slate-200/80 p-5 sm:p-6 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-2xs text-[#3A3564]">
-              <Building2 className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl bg-white border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-xs text-[#0B1220]">
+              <Building2 className="w-6 h-6 text-[#0B1220]" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                   {tenant.companyName}
                 </h2>
                 
                 {/* Status Badge */}
-                <span className={`text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${
+                <span className={`text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-xs ${
                   isSuspended
                     ? 'bg-rose-50 text-rose-800 border-rose-200'
                     : tenant.status === 'ACTIVE'
@@ -311,16 +311,16 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 </span>
 
                 {/* Access Model Badge */}
-                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
                   {isTrial ? '7-Day Demo Trial' : 'Full Enterprise Access'}
                 </span>
 
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-black/10 shadow-2xs">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 shadow-xs">
                   {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'Full Plant AI (12 Div)' : tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500 mt-1.5 flex-wrap">
-                <span>Slug: <strong className="text-slate-800 font-mono font-bold">{tenant.plantSlug}</strong></span>
+                <span>Slug: <strong className="text-[#0B1220] font-mono font-bold">{tenant.plantSlug}</strong></span>
                 <span>•</span>
                 <span className="flex items-center gap-1 font-medium text-slate-600">
                   <Globe className="w-3.5 h-3.5 text-slate-400" />
@@ -345,7 +345,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
           {/* Alert / Notice Banner if reminder was sent */}
           {reminderMessage && (
-            <div className={`p-4 rounded-2xl border flex items-start gap-3 text-xs shadow-2xs transition-all ${
+            <div className={`p-4 rounded-2xl border flex items-start gap-3 text-xs shadow-xs transition-all ${
               reminderMessage.isError
                 ? 'bg-rose-50 border-rose-200 text-rose-900'
                 : 'bg-emerald-50 border-emerald-200 text-emerald-900'
@@ -370,7 +370,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
           {/* Suspended Alert Banner */}
           {isSuspended && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between gap-3 text-xs text-rose-900 shadow-2xs">
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between gap-3 text-xs text-rose-900 shadow-xs">
               <div className="flex items-center gap-2.5">
                 <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
                 <div>
@@ -383,7 +383,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               <button
                 type="button"
                 onClick={() => setShowReactivateModal(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 shadow-2xs cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 shadow-xs cursor-pointer"
               >
                 Reactivate Workspace
               </button>
@@ -393,7 +393,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
           {/* Section A: Plan, Billing & License Expiry Cards */}
           <div>
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-              <CreditCard className="w-4 h-4 text-[#3A3564]" />
+              <CreditCard className="w-4 h-4 text-[#0B1220]" />
               <span>Subscription & Billing Overview</span>
             </h3>
 
@@ -403,7 +403,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Access Model & Tier
                 </span>
-                <span className="text-base font-extrabold text-slate-900 mt-1 block">
+                <span className="text-base font-extrabold text-[#0B1220] mt-1 block">
                   {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'FULL PLANT AI' : tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
                 <span className="text-xs text-slate-600 mt-0.5 block font-mono font-semibold">
@@ -416,7 +416,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Provisioned Date
                 </span>
-                <span className="text-base font-extrabold text-slate-900 mt-1 block font-mono">
+                <span className="text-base font-extrabold text-[#0B1220] mt-1 block font-mono">
                   {provisionDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -429,14 +429,14 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 isSuspended
                   ? 'bg-rose-50/70 border-rose-200'
                   : isTrial
-                  ? 'bg-[#FAF7F0] border-amber-300 ring-2 ring-amber-400/20 shadow-2xs'
-                  : 'bg-white border-slate-200'
+                  ? 'bg-amber-50/80 border-amber-300 ring-2 ring-amber-400/20 shadow-xs'
+                  : 'bg-[#F0FDFA] border-[#14C8B4]/30'
               }`}>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   {isSuspended ? 'Access Status' : isTrial ? 'Trial Expiry Date' : 'Contract Status'}
                 </span>
                 <span className={`text-base font-extrabold mt-1 block font-mono ${
-                  isSuspended ? 'text-rose-700' : isTrial ? 'text-amber-900' : 'text-slate-900'
+                  isSuspended ? 'text-rose-700' : isTrial ? 'text-amber-900' : 'text-[#0B1220]'
                 }`}>
                   {isSuspended
                     ? 'Access Suspended'
@@ -460,7 +460,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             {tenant.lastPaymentReminderAt && (
               <div className="mt-3 px-4 py-2.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 text-xs text-slate-600 flex items-center justify-between">
                 <span>Last Payment Reminder Email:</span>
-                <span className="font-mono font-semibold text-slate-800">
+                <span className="font-mono font-semibold text-[#0B1220]">
                   {new Date(tenant.lastPaymentReminderAt).toLocaleString()} (via noreply@zigza.in)
                 </span>
               </div>
@@ -470,7 +470,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
           {/* Section B: Super Admin Contact & Credentials */}
           <div>
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
               <span>Super Administrator Credentials</span>
             </h3>
 
@@ -481,7 +481,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   <span className="text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">
                     Admin Name
                   </span>
-                  <div className="text-sm font-bold text-slate-900 flex items-center gap-2 mt-1">
+                  <div className="text-sm font-bold text-[#0B1220] flex items-center gap-2 mt-1">
                     <User className="w-4 h-4 text-slate-400" />
                     <span>{tenant.adminName}</span>
                   </div>
@@ -492,7 +492,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   <span className="text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">
                     Login Email
                   </span>
-                  <div className="text-sm font-bold text-slate-900 flex items-center justify-between gap-1.5 mt-1">
+                  <div className="text-sm font-bold text-[#0B1220] flex items-center justify-between gap-1.5 mt-1">
                     <div className="flex items-center gap-1.5 truncate">
                       <Mail className="w-4 h-4 text-slate-400 shrink-0" />
                       <span className="truncate font-mono text-xs">{tenant.adminEmail}</span>
@@ -517,7 +517,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   <span className="text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">
                     Phone Contact
                   </span>
-                  <div className="text-sm font-bold text-slate-900 flex items-center gap-2 mt-1 font-mono text-xs">
+                  <div className="text-sm font-bold text-[#0B1220] flex items-center gap-2 mt-1 font-mono text-xs">
                     <Phone className="w-4 h-4 text-slate-400" />
                     <span>{tenant.phone}</span>
                   </div>
@@ -531,18 +531,18 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-[#3A3564]" />
+                  <Layers className="w-4 h-4 text-[#0B1220]" />
                   <span>Allocated Manufacturing Divisions</span>
                 </h3>
                 {saveSuccess && (
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
                     Saved
                   </span>
                 )}
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-700 border border-black/10 shadow-2xs">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
                   {isEditingDivisions ? selectedDivisions.length : allowedRoutes.length} of {ENTERPRISE_DIVISIONS_CATALOG.length} divisions active
                 </span>
 
@@ -550,7 +550,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   <button
                     type="button"
                     onClick={() => setIsEditingDivisions(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#3A3564] bg-white border border-slate-200 hover:bg-[#FAF7F0] rounded-xl shadow-2xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0B1220] bg-white border border-slate-200 hover:bg-[#F0FDFA] rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit Modules</span>
@@ -560,7 +560,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                     <button
                       type="button"
                       onClick={selectAll}
-                      className="px-2.5 py-1 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg cursor-pointer"
                     >
                       Select All
                     </button>
@@ -570,7 +570,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                         setSelectedDivisions(Array.isArray(tenant?.allowedDivisions) ? tenant.allowedDivisions : [])
                         setIsEditingDivisions(false)
                       }}
-                      className="px-2.5 py-1 text-xs font-medium text-slate-500 hover:text-slate-800 rounded-lg cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-slate-800 rounded-lg cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -578,7 +578,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                       type="button"
                       disabled={isSaving}
                       onClick={handleSaveDivisions}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
                     >
                       {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                       <span>Save Changes</span>
@@ -604,23 +604,23 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                       }
                     }}
                     className={`p-3 rounded-2xl border flex items-center justify-between gap-2.5 transition-all ${
-                      isEditingDivisions ? 'cursor-pointer select-none hover:border-[#3A3564]/50' : ''
+                      isEditingDivisions ? 'cursor-pointer select-none hover:border-[#0B1220]/50' : ''
                     } ${
                       isAssigned
-                        ? 'bg-white border-slate-200 shadow-2xs' + (isEditingDivisions ? ' ring-2 ring-[#3A3564]/20 border-[#3A3564]' : '')
+                        ? 'bg-white border-slate-200 shadow-xs' + (isEditingDivisions ? ' ring-2 ring-[#0B1220]/20 border-[#0B1220]' : '')
                         : 'bg-slate-50/50 border-dashed border-slate-200 opacity-60'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                         isAssigned
-                          ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                          ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
                           : 'bg-slate-100 text-slate-400 border border-slate-200'
                       }`}>
                         <DivIcon className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-900 truncate">
+                        <div className="text-xs font-bold text-[#0B1220] truncate">
                           {div.name}
                         </div>
                         <div className="text-[11px] font-mono text-slate-400 truncate">
@@ -630,9 +630,9 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                     </div>
 
                     {isEditingDivisions ? (
-                      <div className="shrink-0 text-[#3A3564]">
+                      <div className="shrink-0 text-[#0B1220]">
                         {isAssigned ? (
-                          <CheckSquare className="w-4 h-4 text-[#3A3564]" />
+                          <CheckSquare className="w-4 h-4 text-[#0B1220]" />
                         ) : (
                           <Square className="w-4 h-4 text-slate-300" />
                         )}
@@ -655,15 +655,15 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
           {/* Section D: System Telemetry & Metadata */}
           <div>
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+              <Clock className="w-4 h-4 text-[#0B1220]" />
               <span>Platform Registry & Telemetry</span>
             </h3>
 
-            <div className="bg-[#FAF7F0] p-4 rounded-2xl border border-black/10 text-xs font-mono space-y-2">
+            <div className="bg-[#F0FDFA] p-4 rounded-2xl border border-[#14C8B4]/30 text-xs font-mono space-y-2">
               <div className="flex items-center justify-between text-slate-600">
                 <span>Tenant Registry ID:</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-800">{tenant.id}</span>
+                  <span className="font-bold text-[#0B1220]">{tenant.id}</span>
                   <button
                     type="button"
                     onClick={() => handleCopy(tenant.id, 'id')}
@@ -677,14 +677,14 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
               <div className="flex items-center justify-between text-slate-600">
                 <span>Last Activity Sync:</span>
-                <span className="font-bold text-slate-800">
+                <span className="font-bold text-[#0B1220]">
                   {tenant.lastActiveAt ? new Date(tenant.lastActiveAt).toLocaleString() : 'Live'}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-slate-600">
                 <span>Operating Gateway URL:</span>
-                <span className="font-bold text-[#3A3564]">https://app.zigza.in/modules</span>
+                <span className="font-bold text-[#1D4ED8]">https://app.zigza.in/modules</span>
               </div>
             </div>
           </div>
@@ -692,12 +692,12 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
         </div>
 
         {/* 3. Modal Footer Actions */}
-        <div className="bg-[#FAF7F0] border-t border-black/10 p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="bg-slate-50/80 border-t border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => handleCopy(`Factory: ${tenant.companyName}\nAdmin: ${tenant.adminEmail}\nAccess Model: ${isTrial ? '7-Day Demo Trial' : 'Full Access'}\nPlan: ${tenant.subscriptionTier}\nStatus: ${tenant.status}`, 'summary')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
             >
               {copiedField === 'summary' ? (
                 <>
@@ -719,7 +719,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               type="button"
               disabled={isSendingReminder}
               onClick={handleSendPaymentReminder}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#3A3564] bg-white border border-[#3A3564]/30 hover:bg-[#3A3564]/5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-white border border-[#0B1220]/30 hover:bg-[#F0FDFA] transition-all cursor-pointer shadow-xs disabled:opacity-50"
               title="Dispatches official payment reminder from noreply@zigza.in"
             >
               {isSendingReminder ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
@@ -731,7 +731,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               <button
                 type="button"
                 onClick={() => setShowRevokeConfirm(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer shadow-xs"
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
                 <span>Revoke Access</span>
@@ -741,7 +741,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               <button
                 type="button"
                 onClick={() => setShowReactivateModal(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all cursor-pointer shadow-xs"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Reactivate Workspace</span>
@@ -752,7 +752,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300 transition-all cursor-pointer shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300 transition-all cursor-pointer shadow-xs active:scale-95"
               title={`Permanently delete ${tenant.companyName} from the tenant directory`}
             >
               <Trash2 className="w-3.5 h-3.5 text-rose-600" />
@@ -762,7 +762,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
             >
               Close Details
             </button>
@@ -771,10 +771,10 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
         {/* Confirmation Modal: Delete Tenant Permanently */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
             <div className="bg-white rounded-3xl border border-rose-200 p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-4">
               <div className="flex items-start gap-3.5 text-rose-600">
-                <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
                   <Trash2 className="w-6 h-6 text-rose-600" />
                 </div>
                 <div>
@@ -827,7 +827,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
         {/* Confirmation Modal: Revoke Access */}
         {showRevokeConfirm && (
-          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
             <div className="bg-white rounded-2xl border border-rose-200 p-6 max-w-md w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-3 text-rose-600">
                 <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
@@ -868,7 +868,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
         {/* Modal: Reactivate Access with Model Selection */}
         {showReactivateModal && (
-          <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-md w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-3 text-emerald-600">
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
