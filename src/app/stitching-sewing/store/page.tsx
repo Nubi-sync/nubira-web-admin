@@ -85,7 +85,8 @@ export default async function StitchingStoreDashboardPage() {
     { data: activeAllotmentsData },
     { data: readyQcAllotmentsData },
     { data: floorReissuesData },
-    { data: workerAssignmentsData }
+    { data: workerAssignmentsData },
+    { data: challansData }
   ] = await Promise.all([
     // Active styles for quick allocation
     supabase
@@ -172,7 +173,7 @@ export default async function StitchingStoreDashboardPage() {
       .order('created_at', { ascending: false })
       .limit(100),
 
-    // Active Sewing Allotments for BOM Floor Requisitions
+    // Active Sewing Allotments for BOM Floor Requisitions & Goods in Line Tracking
     supabase
       .from('allotments')
       .select(`
@@ -181,6 +182,19 @@ export default async function StitchingStoreDashboardPage() {
         allotment_date,
         status,
         priority,
+        mending_status,
+        mending_total_counted,
+        mending_supervisor_name,
+        handed_to_mending_by,
+        handed_to_mending_at,
+        mending_handover_notes,
+        qc_status,
+        qc_total_passed,
+        qc_total_alter,
+        qc_supervisor_name,
+        handed_to_qc_by,
+        handed_to_qc_at,
+        store_inward_status,
         created_at,
         article:articles(id, art_no, description),
         lineman:profiles!allotments_lineman_id_fkey(id, username, company_name),
@@ -190,7 +204,7 @@ export default async function StitchingStoreDashboardPage() {
       `)
       .in('status', ['IN_PROGRESS', 'PENDING'])
       .order('created_at', { ascending: false })
-      .limit(80),
+      .limit(1000),
 
     // Ready QC Allotments for Production Inward Handshake
     supabase
@@ -216,7 +230,7 @@ export default async function StitchingStoreDashboardPage() {
       .or('qc_status.eq.APPROVED_FOR_STORE,qc_status.eq.READY_FOR_STORE')
       .neq('store_inward_status', 'INWARDED')
       .order('created_at', { ascending: false })
-      .limit(60),
+      .limit(300),
 
     // Floor Accessory Re-issues (Worker Loss & Machine Damage)
     supabase
@@ -240,14 +254,21 @@ export default async function StitchingStoreDashboardPage() {
         created_at
       `)
       .order('created_at', { ascending: false })
-      .limit(150),
+      .limit(300),
 
     // Recent floor worker assignments for quick worker suggestions
     supabase
       .from('worker_assignments')
       .select('id, allotment_id, worker_name, article_id')
       .order('assigned_at', { ascending: false })
-      .limit(200)
+      .limit(500),
+
+    // Delivery Challans (Order Target Pipeline)
+    supabase
+      .from('challans')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500)
   ])
 
   // Multi-tenant scoping: Each account strictly accesses only their company's data
@@ -451,6 +472,7 @@ export default async function StitchingStoreDashboardPage() {
           currentUserName={currentUserName}
           userEmail={user.email || ''}
           articles={articles}
+          challans={challansData || []}
           storeTransactions={storeTransactions}
           accessories={accessories}
           truckInwards={truckInwards}

@@ -345,27 +345,35 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                   }
                   const metaArtNo = (meta.art_no || '').trim().toUpperCase()
 
+                  const isArtMatch = !cleanArtNo || 
+                                    alArtNo === baseArtNo || alArtNo === cleanArtNo || alArtNo === fullArtCode ||
+                                    metaArtNo === baseArtNo || metaArtNo === cleanArtNo || metaArtNo === fullArtCode ||
+                                    (baseArtNo && alArtNo.includes(baseArtNo)) || (cleanArtNo && alArtNo.includes(cleanArtNo)) ||
+                                    (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
+
+                  if (!isArtMatch) return false
+
                   // Check variant color match if variants exist
                   const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
                   if (alVars.length > 0) {
                     const hasColor = alVars.some((v: any) => {
                       const vCol = (v.color || '').trim().toUpperCase()
                       const cp = colorPattern.toUpperCase()
-                      return vCol === cp || vCol.includes(cp) || cp.includes(vCol)
+                      return vCol === cp || vCol.includes(cp) || cp.includes(vCol) || vCol === 'ALL'
                     })
-                    if (hasColor) return true
+                    return hasColor
                   }
 
                   // Fallback: check materials notes color_focus
                   if (meta.color_focus && meta.color_focus.toUpperCase() !== 'ALL') {
                     const cf = meta.color_focus.toUpperCase()
                     const cp = colorPattern.toUpperCase()
-                    if (cf === cp || cf.includes(cp) || cp.includes(cf)) return true
+                    return cf === cp || cf.includes(cp) || cp.includes(cf)
                   }
-                  if (meta.color_pattern) {
+                  if (meta.color_pattern && meta.color_pattern.toUpperCase() !== 'ALL') {
                     const cp1 = meta.color_pattern.toUpperCase()
                     const cp2 = colorPattern.toUpperCase()
-                    if (cp1 === cp2 || cp1.includes(cp2) || cp2.includes(cp1)) return true
+                    return cp1 === cp2 || cp1.includes(cp2) || cp2.includes(cp1)
                   }
 
                   // Check if article number string itself embeds the color (e.g. JOB-744-PINK)
@@ -374,17 +382,8 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                     if (alArtNo.includes(cp) || metaArtNo.includes(cp)) return true
                   }
 
-                  const isArtMatch = !cleanArtNo || 
-                                    alArtNo === baseArtNo || alArtNo === cleanArtNo || alArtNo === fullArtCode ||
-                                    metaArtNo === baseArtNo || metaArtNo === cleanArtNo || metaArtNo === fullArtCode ||
-                                    (baseArtNo && alArtNo.includes(baseArtNo)) || (cleanArtNo && alArtNo.includes(cleanArtNo)) ||
-                                    (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
-
-                  if (isArtMatch) return true
-                  if (chAllotments.length === 1 && al.lineman_id) return true
-
-                  return false
-                }) || (chAllotments.length === 1 ? chAllotments[0] : undefined)
+                  return true
+                })
 
                 let linemanId = ''
                 let linemanName = 'Unassigned (Floor Order)'

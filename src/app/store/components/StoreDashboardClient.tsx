@@ -42,7 +42,11 @@ import {
   Store,
   UserCheck,
   Hash,
-  Camera
+  Camera,
+  Activity,
+  TrendingDown,
+  PackageSearch,
+  Palette
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { 
@@ -149,9 +153,23 @@ export type ActiveAllotment = {
   target_qty: number
   allotment_date?: string | null
   status: string
+  priority?: string | null
+  mending_status?: string | null
+  mending_total_counted?: number | null
+  mending_supervisor_name?: string | null
+  handed_to_mending_by?: string | null
+  handed_to_mending_at?: string | null
+  mending_handover_notes?: string | null
+  qc_status?: string | null
+  qc_total_passed?: number | null
+  qc_total_alter?: number | null
+  qc_supervisor_name?: string | null
+  handed_to_qc_by?: string | null
+  handed_to_qc_at?: string | null
+  store_inward_status?: string | null
   created_at: string
   article?: Article | null
-  lineman?: { id: string; username: string } | null
+  lineman?: { id: string; username: string; company_name?: string | null } | null
   challans?: { id: string; challan_no: string; brand: string; fabric_type: string } | null
   allotment_variants?: Array<{ id: string; color: string; size: string; quantity: number }> | null
   allotment_materials?: Array<{
@@ -208,6 +226,7 @@ interface StoreDashboardClientProps {
   currentUserName: string
   userEmail: string
   articles: Article[]
+  challans?: any[]
   storeTransactions: StoreTransaction[]
   accessories: Accessory[]
   truckInwards: TruckInward[]
@@ -221,6 +240,7 @@ export function StoreDashboardClient({
   currentUserName,
   userEmail,
   articles,
+  challans = [],
   storeTransactions,
   accessories,
   truckInwards,
@@ -247,6 +267,7 @@ export function StoreDashboardClient({
   const [isReissueModalOpen, setIsReissueModalOpen] = useState(false)
   const [isInwardModalOpen, setIsInwardModalOpen] = useState(false)
   const [isOutwardModalOpen, setIsOutwardModalOpen] = useState(false)
+  const [isGoodsInLineDrawerOpen, setIsGoodsInLineDrawerOpen] = useState(false)
   const [activePhoto, setActivePhoto] = useState<{ url: string; title: string } | null>(null)
   const [attachPhotoTarget, setAttachPhotoTarget] = useState<TruckInward | null>(null)
   const [prefilledLotForInward, setPrefilledLotForInward] = useState<ReadyQcAllotment | null>(null)
@@ -336,16 +357,209 @@ export function StoreDashboardClient({
     }
   }, [storeTransactions, truckInwards, todayStr])
 
-  // Count pending allotments awaiting BOM material handover
-  const pendingBomAllotments = useMemo(() => {
-    return activeAllotments.filter(al => {
+  // Count articles awaiting BOM material handover to linemen
+  const { 
+    pendingArticlesCount, 
+    totalArticlesCount, 
+    pendingLotsCount, 
+    issuedLotsCount, 
+    totalLotsCount 
+  } = useMemo(() => {
+    const artMap = new Map<string, { totalLots: number; pendingLots: number }>()
+
+    activeAllotments.forEach(al => {
+      const art = (al.article?.art_no || '').trim().toUpperCase() || 'GENERAL'
+      if (!artMap.has(art)) {
+        artMap.set(art, { totalLots: 0, pendingLots: 0 })
+      }
+      const entry = artMap.get(art)!
+      entry.totalLots += 1
+
       const mats = al.allotment_materials || []
-      if (mats.length === 0) return true
-      return mats.some(m => !m.admin_issued)
+      const isFullyIssued = mats.length > 0 && mats.every(m => (m as any).admin_issued)
+      if (!isFullyIssued) {
+        entry.pendingLots += 1
+      }
     })
+
+    let pendingArticles = 0
+    let totalLots = 0
+    let pendingLots = 0
+
+    artMap.forEach(v => {
+      totalLots += v.totalLots
+      pendingLots += v.pendingLots
+      if (v.pendingLots > 0) {
+        pendingArticles += 1
+      }
+    })
+
+    return {
+      pendingArticlesCount: pendingArticles,
+      totalArticlesCount: artMap.size,
+      pendingLotsCount: pendingLots,
+      issuedLotsCount: totalLots - pendingLots,
+      totalLotsCount: totalLots
+    }
   }, [activeAllotments])
 
-  const pendingHandoverCount = pendingBomAllotments.length
+  // 1. Total Store Pipeline Stocks (Challans & Orders)
+  const challanTotalPcs = useMemo(() => {
+    return (challans || []).reduce((sum: number, c: any) => sum + (c.total_pcs || 0), 0)
+  }, [challans])
+
+  const totalAllotmentTargetPcs = useMemo(() => {
+    return activeAllotments
+      .filter(al => al.status !== 'CANCELLED')
+      .reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+  }, [activeAllotments])
+
+  const storeMetrics = useMemo(() => {
+    const totalStocks = Math.max(challanTotalPcs, totalAllotmentTargetPcs)
+    const goodsInLine = totalAllotmentTargetPcs
+    const unallottedStocks = Math.max(0, totalStocks - goodsInLine)
+    return {
+      totalStocks,
+      goodsInLine,
+      unallottedStocks,
+    }
+  }, [challanTotalPcs, totalAllotmentTargetPcs])
+
+  // 2. Low Stock & Critical Trims Inventory Analysis
+  const inventoryRiskRadar = useMemo(() => {
+    const itemMap = new Map<string, {
+      name: string
+      unit: string
+      inward: number
+      issued: number
+      balance: number
+      minSafety: number
+      category: 'TAG' | 'LABEL' | 'THREAD' | 'PACKAGING' | 'FABRIC' | 'ACCESSORY'
+      status: 'OUT_OF_STOCK' | 'LOW_STOCK' | 'OPTIMAL'
+    }>()
+
+    // Inward from Truck Inward Items
+    truckInwards.forEach(t => {
+      (t.items || []).forEach(it => {
+        const name = (it.item_name || '').trim()
+        if (!name) return
+        const unit = it.unit || 'pcs'
+        const qty = Number(it.quantity) || 0
+        if (!itemMap.has(name)) {
+          let cat: 'TAG' | 'LABEL' | 'THREAD' | 'PACKAGING' | 'FABRIC' | 'ACCESSORY' = 'ACCESSORY'
+          const lower = name.toLowerCase()
+          if (lower.includes('tag')) cat = 'TAG'
+          else if (lower.includes('label')) cat = 'LABEL'
+          else if (lower.includes('thread') || lower.includes('dhaga')) cat = 'THREAD'
+          else if (lower.includes('poly') || lower.includes('pack') || lower.includes('box')) cat = 'PACKAGING'
+          else if (lower.includes('fabric') || lower.includes('roll')) cat = 'FABRIC'
+
+          const minSafety = cat === 'THREAD' ? 10 : cat === 'PACKAGING' ? 500 : cat === 'TAG' || cat === 'LABEL' ? 300 : 50
+
+          itemMap.set(name, {
+            name,
+            unit,
+            inward: 0,
+            issued: 0,
+            balance: 0,
+            minSafety,
+            category: cat,
+            status: 'OPTIMAL'
+          })
+        }
+        itemMap.get(name)!.inward += qty
+      })
+    })
+
+    // Inward and Issue from Accessories
+    accessories.forEach(acc => {
+      const name = (acc.item_name || '').trim()
+      if (!name) return
+      const unit = acc.unit || 'pcs'
+      const qty = Number(acc.quantity) || 0
+      const isIssue = (acc.action as string) === 'OUT' || (acc.action as string) === 'ISSUE' || (acc.notes || '').includes('BOM Handover')
+      if (!itemMap.has(name)) {
+        let cat: 'TAG' | 'LABEL' | 'THREAD' | 'PACKAGING' | 'FABRIC' | 'ACCESSORY' = 'ACCESSORY'
+        const lower = name.toLowerCase()
+        if (lower.includes('tag')) cat = 'TAG'
+        else if (lower.includes('label')) cat = 'LABEL'
+        else if (lower.includes('thread') || lower.includes('dhaga')) cat = 'THREAD'
+        else if (lower.includes('poly') || lower.includes('pack') || lower.includes('box')) cat = 'PACKAGING'
+        else if (lower.includes('fabric') || lower.includes('roll')) cat = 'FABRIC'
+
+        const minSafety = cat === 'THREAD' ? 10 : cat === 'PACKAGING' ? 500 : cat === 'TAG' || cat === 'LABEL' ? 300 : 50
+
+        itemMap.set(name, {
+          name,
+          unit,
+          inward: 0,
+          issued: 0,
+          balance: 0,
+          minSafety,
+          category: cat,
+          status: 'OPTIMAL'
+        })
+      }
+
+      if (isIssue) {
+        itemMap.get(name)!.issued += qty
+      } else {
+        itemMap.get(name)!.inward += qty
+      }
+    })
+
+    // Standard baseline trims always tracked
+    const defaultMonitoredItems = [
+      { name: 'Main Brand Neck Tag', unit: 'pcs', minSafety: 500, category: 'TAG' as const },
+      { name: 'Matching Sewing Thread', unit: 'cones', minSafety: 15, category: 'THREAD' as const },
+      { name: 'Washing Care & Size Label', unit: 'pcs', minSafety: 500, category: 'LABEL' as const },
+      { name: 'Master Polybag (Self Adhesive)', unit: 'pcs', minSafety: 1000, category: 'PACKAGING' as const }
+    ]
+
+    defaultMonitoredItems.forEach(d => {
+      if (!itemMap.has(d.name)) {
+        const totalReq = activeAllotments.reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+        const issuedQty = activeAllotments.filter(al => (al.allotment_materials || []).some(m => m.admin_issued)).reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+        itemMap.set(d.name, {
+          name: d.name,
+          unit: d.unit,
+          inward: Math.round(totalReq * 1.05),
+          issued: issuedQty,
+          balance: 0,
+          minSafety: d.minSafety,
+          category: d.category,
+          status: 'OPTIMAL'
+        })
+      }
+    })
+
+    const allItems = Array.from(itemMap.values()).map(it => {
+      const balance = Math.max(0, it.inward - it.issued)
+      let status: 'OUT_OF_STOCK' | 'LOW_STOCK' | 'OPTIMAL' = 'OPTIMAL'
+      if (balance === 0) {
+        status = 'OUT_OF_STOCK'
+      } else if (balance <= it.minSafety) {
+        status = 'LOW_STOCK'
+      }
+      return {
+        ...it,
+        balance,
+        status
+      }
+    })
+
+    const criticalItems = allItems.filter(it => it.status !== 'OPTIMAL')
+    const outOfStockCount = allItems.filter(it => it.status === 'OUT_OF_STOCK').length
+    const lowStockCount = allItems.filter(it => it.status === 'LOW_STOCK').length
+
+    return {
+      allItems,
+      criticalItems,
+      outOfStockCount,
+      lowStockCount,
+      totalAlerts: criticalItems.length
+    }
+  }, [truckInwards, accessories, activeAllotments])
 
   // Helper to extract variants for an article from active allotments
   const getVariantsForArticle = (articleId?: string | null) => {
@@ -721,195 +935,243 @@ export function StoreDashboardClient({
       </div>
 
       {/* ============================================================ */}
-      {/* 2. HERO KPI CARDS & 4-COLUMN TELEMETRY STRIP                 */}
+      {/* 2. 5 STORE & GODOWN OPERATIONAL KPI CARDS                    */}
       {/* ============================================================ */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          {/* Card 1: Finished Stock */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex items-start justify-between">
-            <div className="space-y-1">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                Finished Garments Stock
-              </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 font-mono">
-                  {totalFinishedStock.toLocaleString()}
-                </span>
-                <span className="text-xs font-bold text-slate-500 font-mono">pcs</span>
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-4">
+        
+        {/* Card 1: Total Store Stocks */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                <Warehouse className="w-5 h-5" />
               </div>
-              <p className="text-xs text-slate-600 font-semibold flex items-center gap-1.5 pt-1.5">
-                <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
-                <span>Ready in Godown Warehouse</span>
-              </p>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                STORE 01
+              </span>
             </div>
-            <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Warehouse className="w-5 h-5" />
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                1. Total Store Stocks
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Cutting & Inward Target
+              </p>
             </div>
           </div>
-
-          {/* Card 2: Floor Handover Lots */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex items-start justify-between">
-            <div className="space-y-1">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                Lineman BOM Handover
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+              {storeMetrics.totalStocks.toLocaleString()}
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
+                Total Pipeline
               </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black font-mono text-slate-900 tabular-nums">
-                  {pendingHandoverCount}
-                </span>
-                <span className="text-xs font-bold text-slate-500 font-mono">active lots</span>
-              </div>
-              <p className="text-xs font-semibold flex items-center gap-1.5 pt-1.5 text-slate-600">
-                {pendingHandoverCount > 0 ? (
-                  <>
-                    <Clock className="w-4 h-4 text-slate-500" />
-                    <span>Awaiting store raw material issue</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
-                    <span>All active lots issued</span>
-                  </>
-                )}
-              </p>
-            </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border border-black/10 bg-[#FAF7F0] text-[#3A3564]">
-              <Boxes className="w-5 h-5" />
+              <span className="text-[10px] font-mono text-slate-400 font-medium">pcs</span>
             </div>
           </div>
         </div>
 
-        {/* 4-Column Unified Telemetry Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 bg-white p-3.5 sm:p-4 rounded-2xl border border-black/10 shadow-2xs divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-          <div className="p-2.5 text-center">
-            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Godown Stock</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1 tabular-nums">
-              {totalFinishedStock.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
-            </p>
+        {/* Card 2: Goods In Line (Issued to Floor) - Interactive Drilldown */}
+        <div 
+          role="button"
+          tabIndex={0}
+          onClick={() => setIsGoodsInLineDrawerOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setIsGoodsInLineDrawerOpen(true)
+            }
+          }}
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564] hover:shadow-lg transition-all flex flex-col justify-between group relative shadow-2xs cursor-pointer ring-0 hover:ring-2 hover:ring-[#3A3564]/10 text-left select-none"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                <Activity className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors flex items-center gap-1">
+                <span>INSPECT WIP</span>
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform text-[#3A3564]" />
+              </span>
+            </div>
+            <div className="mt-3.5">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate group-hover:text-[#3A3564] transition-colors">
+                  2. Goods in Line
+                </span>
+                <span className="text-[9px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  Drawer
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Lineman, Mending & QC Floor Live WIP
+              </p>
+            </div>
           </div>
-          <div className="p-2.5 text-center">
-            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Pending Issue</p>
-            <p className="text-lg sm:text-xl font-black font-mono mt-1 text-slate-900 tabular-nums">
-              {pendingHandoverCount} <span className="text-xs font-medium text-slate-500">lots</span>
-            </p>
-          </div>
-          <div className="p-2.5 text-center">
-            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Truck Inward (Today)</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1 tabular-nums">
-              +{todayTruckCount} <span className="text-xs font-medium text-slate-500">slips</span>
-            </p>
-          </div>
-          <div className="p-2.5 text-center">
-            <p className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">Dispatched (Today)</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-1 tabular-nums">
-              -{todayOutward} <span className="text-xs font-medium text-slate-500">pcs</span>
-            </p>
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none group-hover:text-[#3A3564] transition-colors">
+              {storeMetrics.goodsInLine.toLocaleString()}
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                {activeAllotments.length} Active Lots →
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 font-medium">
+                {storeMetrics.totalStocks > 0 ? `${Math.round((storeMetrics.goodsInLine / storeMetrics.totalStocks) * 100)}% on floor` : '0%'}
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Card 3: Pending to Issue (Store Balance) */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                <Boxes className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+                STORE 03
+              </span>
+            </div>
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                3. Pending to Issue
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Store Godown Balance
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
+              {storeMetrics.unallottedStocks.toLocaleString()}
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
+                In Godown
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 font-medium">unallotted</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Lineman BOM Handover Pending */}
+        <div 
+          onClick={() => setIsBomModalOpen(true)}
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs cursor-pointer select-none hover:-translate-y-0.5"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                <Boxes className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                  HANDOVER
+                </span>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors hidden sm:inline">
+                  ISSUE BOM
+                </span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#3A3564] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </div>
+            </div>
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                4. BOM Handover to Lineman
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Inspect raw materials & issue BOM lot
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none flex items-baseline">
+              {pendingArticlesCount}
+              <span className="text-xs sm:text-sm font-bold text-slate-500 font-sans ml-1.5">
+                Articles
+              </span>
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border tracking-wider shadow-2xs ${
+                pendingArticlesCount > 0 
+                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}>
+                {pendingArticlesCount > 0 ? `${pendingArticlesCount} Pending Styles` : 'All Articles Issued'}
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 font-medium">
+                {pendingLotsCount} lots queue
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 5: Low Stock & Out-of-Stock Alert */}
+        <div className={`rounded-2xl p-4 sm:p-5 border transition-all flex flex-col justify-between group relative shadow-2xs ${
+          inventoryRiskRadar.totalAlerts > 0
+            ? 'bg-rose-50/40 border-rose-200 hover:border-rose-400'
+            : 'bg-white border-black/10 hover:border-[#3A3564]/40 hover:shadow-md'
+        }`}>
+          <div>
+            <div className="flex items-center justify-between">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border ${
+                inventoryRiskRadar.totalAlerts > 0
+                  ? 'bg-rose-100 text-rose-700 border-rose-300'
+                  : 'bg-[#FAF7F0] text-[#3A3564] border-black/10 group-hover:bg-[#3A3564] group-hover:text-white transition-colors'
+              }`}>
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                inventoryRiskRadar.totalAlerts > 0 ? 'text-rose-600' : 'text-slate-400'
+              }`}>
+                RISK RADAR
+              </span>
+            </div>
+            <div className="mt-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+                5. Low Stock Alerts
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                Trims Safety Radar
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100/80">
+            <h3 className={`text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] leading-none ${
+              inventoryRiskRadar.totalAlerts > 0 ? 'text-rose-700' : 'text-slate-900'
+            }`}>
+              {inventoryRiskRadar.totalAlerts}
+            </h3>
+            <div className="mt-2.5 flex items-center justify-between">
+              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border tracking-wider shadow-2xs ${
+                inventoryRiskRadar.totalAlerts > 0
+                  ? 'bg-rose-100 text-rose-800 border-rose-300'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}>
+                {inventoryRiskRadar.totalAlerts > 0 ? `${inventoryRiskRadar.totalAlerts} Critical` : 'Stock Healthy'}
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 font-medium">trims</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      {/* ============================================================ */}
-      {/* 3. READY FROM QC TABLE QUEUE (HANDSHAKE WITH QC FLOOR)       */}
-      {/* ============================================================ */}
-      {readyQcAllotments.length > 0 && (
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                  Ready from QC Finishing Table
-                </h3>
-                <p className="text-xs text-slate-600">
-                  Garments inspected, passed & approved for Store Godown Inward
-                </p>
-              </div>
-            </div>
-            <span className="px-3 py-1 text-xs font-bold font-mono bg-[#FAF7F0] text-[#3A3564] rounded-xl border border-black/10 shadow-2xs">
-              {readyQcAllotments.length} lots waiting
-            </span>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {readyQcAllotments.map(lot => {
-              const artNo = lot.article?.art_no || 'Garment'
-              const passedQty = lot.qc_total_passed || lot.target_qty || 0
-              const linemanName = lot.lineman?.username || 'Lineman'
-              const qcSupervisor = lot.qc_supervisor_name || 'QC Supervisor'
-              const challanNo = lot.challans?.challan_no || '-'
-              const colors = lot.allotment_variants?.map(v => v.color).filter(Boolean) || []
-              const distinctColors = Array.from(new Set(colors)).join(', ') || 'Standard'
-
-              return (
-                <div 
-                  key={lot.id}
-                  className="bg-[#FAF7F0]/40 p-4 sm:p-5 rounded-2xl border border-black/10 hover:border-black/20 shadow-2xs hover:shadow-md transition-all space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-sm font-black text-slate-900">
-                          Art #{artNo}
-                        </span>
-                        <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-lg">
-                          Challan #{challanNo}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-600 font-medium mt-1">
-                        Color: <span className="font-bold text-slate-900">{distinctColors}</span>
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-base font-black font-mono text-slate-900 tabular-nums">
-                        {passedQty} pcs
-                      </span>
-                      <p className="text-[10px] font-mono text-slate-500">QC Passed</p>
-                    </div>
-                  </div>
-
-                  {/* Custody Meta Chips */}
-                  <div className="flex flex-wrap gap-1.5 text-xs font-semibold text-slate-600">
-                    <span className="px-2.5 py-1 bg-white border border-black/10 rounded-lg flex items-center gap-1.5 shadow-2xs">
-                      <User className="w-3.5 h-3.5 text-[#3A3564]" />
-                      <span>{linemanName}</span>
-                    </span>
-                    <span className="px-2.5 py-1 bg-[#FAF7F0] border border-black/10 text-[#3A3564] rounded-lg flex items-center gap-1.5 shadow-2xs">
-                      <Check className="w-3.5 h-3.5 text-[#3A3564]" />
-                      <span>{qcSupervisor}</span>
-                    </span>
-                  </div>
-
-                  {/* 1-Click Receive Action */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPrefilledLotForInward(lot)
-                      setIsInwardModalOpen(true)
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all cursor-pointer"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Receive into Godown ({passedQty} pcs)</span>
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
 
 
       {/* ============================================================ */}
       {/* 4.5 LIVE ARTICLE MATERIAL CONSUMPTION LEDGER                  */}
       {/* ============================================================ */}
-      <ArticleConsumptionLedger 
-        activeAllotments={activeAllotments} 
-        truckInwards={truckInwards} 
-      />
+      <div id="material-consumption-ledger">
+        <ArticleConsumptionLedger 
+          activeAllotments={activeAllotments} 
+          truckInwards={truckInwards} 
+        />
+      </div>
 
       {/* ============================================================ */}
       {/* 5. RECENT SUPPLIER CHALLANS (GRN) FEED                       */}
@@ -1789,6 +2051,18 @@ export function StoreDashboardClient({
           </div>
         </div>
       )}
+
+      {/* ============================================================ */}
+      {/* SLIDE-OVER DRAWER: GOODS IN LINE (LIVE FLOOR WIP BREAKDOWN) */}
+      {/* ============================================================ */}
+      {isGoodsInLineDrawerOpen && (
+        <GoodsInLineDrawer
+          onClose={() => setIsGoodsInLineDrawerOpen(false)}
+          activeAllotments={activeAllotments}
+          readyQcAllotments={readyQcAllotments}
+        />
+      )}
+
 
     </div>
   )
@@ -2875,6 +3149,30 @@ function BomHandoverModal({
   )
 }
 
+interface BomGroupItem {
+  groupId: string
+  artNo: string
+  rawArtNos: string[]
+  description: string
+  linemanName: string
+  challanNo: string
+  lotsCount: number
+  totalTargetQty: number
+  allotmentIds: string[]
+  variants: Array<{
+    size?: string
+    color?: string
+    quantity?: number
+  }>
+  materials: Array<{
+    id: string
+    item_name: string
+    required_qty: string | number
+    allotment_id: string
+    admin_issued: boolean
+  }>
+}
+
 function BomHandoverForm({
   onClose,
   activeAllotments,
@@ -2885,24 +3183,130 @@ function BomHandoverForm({
   currentUserName: string
 }) {
   const router = useRouter()
-  const [selectedAllotmentId, setSelectedAllotmentId] = useState(activeAllotments[0]?.id || '')
+  const [allotmentSearchQuery, setAllotmentSearchQuery] = useState('')
   const [supplierChallan, setSupplierChallan] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const selectedAllotment = activeAllotments.find(a => a.id === selectedAllotmentId) || activeAllotments[0]
-  const linemanName = selectedAllotment?.lineman?.username || 'Lineman'
-  const artNo = selectedAllotment?.article?.art_no || '-'
-  const materials = selectedAllotment?.allotment_materials || []
+  // Group multiple lots into single consolidated entries by Article + Lineman + Challan
+  const allotmentGroups: BomGroupItem[] = useMemo(() => {
+    const map = new Map<string, BomGroupItem>()
 
-  const buildInitialStates = (mats: typeof materials) => {
+    activeAllotments.forEach(al => {
+      const rawArt = (al.article?.art_no || '').trim().toUpperCase() || 'GENERAL'
+      const baseArt = getBaseMasterArticleNo(rawArt)
+      const desc = al.article?.description || ''
+      const lineman = al.lineman?.username || 'Lineman'
+      const challan = (al.challans as any)?.challan_no || '-'
+      const targetQty = Number(al.target_qty) || 0
+      const key = `${baseArt}__${lineman}__${challan}`
+
+      if (!map.has(key)) {
+        map.set(key, {
+          groupId: key,
+          artNo: baseArt,
+          rawArtNos: [rawArt],
+          description: desc,
+          linemanName: lineman,
+          challanNo: challan,
+          lotsCount: 0,
+          totalTargetQty: 0,
+          allotmentIds: [],
+          variants: [],
+          materials: []
+        })
+      }
+
+      const group = map.get(key)!
+      if (!group.rawArtNos.includes(rawArt)) {
+        group.rawArtNos.push(rawArt)
+      }
+      if (!group.description && desc) {
+        group.description = desc
+      }
+      group.lotsCount += 1
+      group.totalTargetQty += targetQty
+      group.allotmentIds.push(al.id)
+
+      const alVars = al.allotment_variants || []
+      alVars.forEach(v => group.variants.push(v))
+
+      const mats = al.allotment_materials || []
+      mats.forEach(m => {
+        group.materials.push({
+          id: m.id,
+          item_name: m.item_name,
+          required_qty: m.required_qty,
+          allotment_id: al.id,
+          admin_issued: Boolean((m as any).admin_issued)
+        })
+      })
+    })
+
+    return Array.from(map.values()).sort((a, b) => b.totalTargetQty - a.totalTargetQty)
+  }, [activeAllotments])
+
+  const [selectedGroupId, setSelectedGroupId] = useState(allotmentGroups[0]?.groupId || '')
+
+  // Filter groups by Article #, Lineman, Challan #, or Description
+  const filteredGroups = useMemo(() => {
+    if (!allotmentSearchQuery.trim()) return allotmentGroups
+    const q = allotmentSearchQuery.toLowerCase().trim()
+    return allotmentGroups.filter(g => {
+      const art = g.artNo.toLowerCase()
+      const desc = (g.description || '').toLowerCase()
+      const lineman = g.linemanName.toLowerCase()
+      const challan = g.challanNo.toLowerCase()
+      const rawMatch = g.rawArtNos.some(r => r.toLowerCase().includes(q))
+      return art.includes(q) || rawMatch || desc.includes(q) || lineman.includes(q) || challan.includes(q)
+    })
+  }, [allotmentGroups, allotmentSearchQuery])
+
+  const selectedGroup = allotmentGroups.find(g => g.groupId === selectedGroupId) || filteredGroups[0] || allotmentGroups[0]
+  const linemanName = selectedGroup?.linemanName || 'Lineman'
+  const artNo = selectedGroup?.artNo || '-'
+
+  // Distinct unique materials in this selected style group
+  const uniqueMaterialList = useMemo(() => {
+    if (!selectedGroup) return []
+    const matMap = new Map<string, {
+      itemName: string
+      totalRequiredNumber: number
+      unit: string
+      materialIds: string[]
+    }>()
+
+    selectedGroup.materials.forEach(m => {
+      const name = m.item_name.trim()
+      const reqMatch = String(m.required_qty || '').match(/^([\d.]+)\s*(.*)$/)
+      const num = reqMatch ? parseFloat(reqMatch[1]) : (parseFloat(String(m.required_qty)) || 0)
+      const unit = reqMatch ? reqMatch[2] : ''
+
+      if (!matMap.has(name)) {
+        matMap.set(name, {
+          itemName: name,
+          totalRequiredNumber: 0,
+          unit: unit || 'pcs',
+          materialIds: []
+        })
+      }
+      const entry = matMap.get(name)!
+      entry.totalRequiredNumber += isNaN(num) ? 0 : num
+      entry.materialIds.push(m.id)
+    })
+
+    return Array.from(matMap.values())
+  }, [selectedGroup])
+
+  const buildInitialStates = (matList: typeof uniqueMaterialList) => {
     const states: Record<string, BomMaterialItemState> = {}
-    mats.forEach(m => {
-      states[m.id] = {
-        id: m.id,
-        item_name: m.item_name,
-        required_qty: m.required_qty,
-        received_qty: m.required_qty,
+    matList.forEach(m => {
+      const qtyStr = `${m.totalRequiredNumber} ${m.unit}`.trim()
+      states[m.itemName] = {
+        id: m.itemName,
+        item_name: m.itemName,
+        required_qty: qtyStr,
+        received_qty: qtyStr,
         status: 'VERIFIED',
         shortage_qty: 0,
         remarks: ''
@@ -2912,28 +3316,69 @@ function BomHandoverForm({
   }
 
   const [itemStates, setItemStates] = useState<Record<string, BomMaterialItemState>>(() =>
-    buildInitialStates(materials)
+    buildInitialStates(uniqueMaterialList)
   )
 
-  const handleAllotmentChange = (allotmentId: string) => {
-    setSelectedAllotmentId(allotmentId)
-    const target = activeAllotments.find(a => a.id === allotmentId)
+  const handleGroupChange = (groupId: string) => {
+    setSelectedGroupId(groupId)
+    const target = allotmentGroups.find(g => g.groupId === groupId)
     if (target) {
-      setItemStates(buildInitialStates(target.allotment_materials || []))
+      // Re-build material list and states
+      const matMap = new Map<string, {
+        itemName: string
+        totalRequiredNumber: number
+        unit: string
+        materialIds: string[]
+      }>()
+
+      target.materials.forEach(m => {
+        const name = m.item_name.trim()
+        const reqMatch = String(m.required_qty || '').match(/^([\d.]+)\s*(.*)$/)
+        const num = reqMatch ? parseFloat(reqMatch[1]) : (parseFloat(String(m.required_qty)) || 0)
+        const unit = reqMatch ? reqMatch[2] : ''
+
+        if (!matMap.has(name)) {
+          matMap.set(name, {
+            itemName: name,
+            totalRequiredNumber: 0,
+            unit: unit || 'pcs',
+            materialIds: []
+          })
+        }
+        const entry = matMap.get(name)!
+        entry.totalRequiredNumber += isNaN(num) ? 0 : num
+        entry.materialIds.push(m.id)
+      })
+
+      setItemStates(buildInitialStates(Array.from(matMap.values())))
     }
   }
 
   const handleSubmit = async () => {
-    if (!selectedAllotment) return
+    if (!selectedGroup) return
     setIsSubmitting(true)
     setError(null)
 
+    // Build payload items for all allotment materials across all lots in this group
+    const itemsToSubmit: BomMaterialItemState[] = selectedGroup.materials.map(m => {
+      const state = itemStates[m.item_name.trim()]
+      return {
+        id: m.id,
+        item_name: m.item_name,
+        required_qty: m.required_qty,
+        received_qty: state?.received_qty ?? m.required_qty,
+        status: state?.status ?? 'VERIFIED',
+        shortage_qty: state?.shortage_qty ?? 0,
+        remarks: state?.remarks ?? ''
+      }
+    })
+
     const res = await issueBomMaterials({
-      allotment_id: selectedAllotment.id,
-      lineman_name: linemanName,
+      allotment_id: selectedGroup.allotmentIds[0] || '',
+      lineman_name: selectedGroup.linemanName,
       supplier_challan_no: supplierChallan,
-      article_no: artNo,
-      items: Object.values(itemStates),
+      article_no: selectedGroup.artNo,
+      items: itemsToSubmit,
     })
 
     setIsSubmitting(false)
@@ -2977,22 +3422,79 @@ function BomHandoverForm({
             </div>
           )}
 
-          {/* Select Target Allotment */}
-          <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Select Active Target Allotment *
-            </label>
-            <select
-              value={selectedAllotmentId}
-              onChange={e => handleAllotmentChange(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
-            >
-              {activeAllotments.map(al => (
-                <option key={al.id} value={al.id}>
-                  Art #{al.article?.art_no || '-'} ({al.target_qty} pcs) · Lineman: {al.lineman?.username || 'Lineman'} · Challan #{al.challans?.challan_no || '-'}
-                </option>
-              ))}
-            </select>
+          {/* Select Target Lot Group with Quick Search */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                Select Target Article &amp; Lineman *
+              </label>
+              <span className="text-[10px] font-mono font-bold text-slate-400">
+                {filteredGroups.length} of {allotmentGroups.length} unique style groups
+              </span>
+            </div>
+
+            {/* Live Search Input Bar */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={allotmentSearchQuery}
+                onChange={e => {
+                  const q = e.target.value
+                  setAllotmentSearchQuery(q)
+                  const filtered = allotmentGroups.filter(g => {
+                    const art = g.artNo.toLowerCase()
+                    const desc = (g.description || '').toLowerCase()
+                    const lineman = g.linemanName.toLowerCase()
+                    const challan = g.challanNo.toLowerCase()
+                    const query = q.toLowerCase().trim()
+                    return art.includes(query) || desc.includes(query) || lineman.includes(query) || challan.includes(query)
+                  })
+                  if (filtered.length > 0 && !filtered.some(g => g.groupId === selectedGroupId)) {
+                    handleGroupChange(filtered[0].groupId)
+                  }
+                }}
+                placeholder="Type Article, Lineman, or Challan (e.g. 9494, NAWAZ)..."
+                className="w-full pl-9.5 pr-8 py-2 text-xs font-semibold bg-[#FAF7F0]/60 border border-black/10 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all placeholder:text-slate-400 text-slate-900"
+              />
+              {allotmentSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAllotmentSearchQuery('')
+                    if (allotmentGroups.length > 0) {
+                      handleGroupChange(allotmentGroups[0].groupId)
+                    }
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Consolidated Dropdown List */}
+            {filteredGroups.length === 0 ? (
+              <div className="p-3 text-center text-xs font-semibold text-amber-800 bg-amber-50 rounded-xl border border-amber-200">
+                No style groups found matching &quot;{allotmentSearchQuery}&quot;
+              </div>
+            ) : (
+              <select
+                value={selectedGroup?.groupId || ''}
+                onChange={e => handleGroupChange(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] shadow-2xs cursor-pointer"
+              >
+                {filteredGroups.map(group => {
+                  const challanLabel = group.challanNo && group.challanNo !== '-' ? ` · Challan ${group.challanNo}` : ''
+                  return (
+                    <option key={group.groupId} value={group.groupId}>
+                      Article {group.artNo} ({group.totalTargetQty.toLocaleString()} pcs · {group.lotsCount} {group.lotsCount > 1 ? 'Lots' : 'Lot'}) · Lineman: {group.linemanName}{challanLabel}
+                    </option>
+                  )
+                })}
+              </select>
+            )}
           </div>
 
           {/* Lineman & Challan Info Strip */}
@@ -3000,16 +3502,19 @@ function BomHandoverForm({
             <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
               <span>Lineman: {linemanName}</span>
+              {selectedGroup?.challanNo && selectedGroup.challanNo !== '-' && (
+                <span className="font-mono text-slate-500 font-normal">· Challan {selectedGroup.challanNo}</span>
+              )}
             </div>
             <div className="font-mono">
-              <span>Target: {selectedAllotment?.target_qty || 0} pcs</span>
+              <span>Target: {selectedGroup?.totalTargetQty.toLocaleString() || 0} pcs ({selectedGroup?.lotsCount || 1} {selectedGroup?.lotsCount === 1 ? 'Lot' : 'Lots'})</span>
             </div>
           </div>
 
           {/* Supplier Challan # */}
           <div>
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Supplier Raw Material Challan # (Optional)
+              Supplier Raw Material Challan No. (Optional)
             </label>
             <input
               type="text"
@@ -3023,16 +3528,16 @@ function BomHandoverForm({
           {/* Material Checklist */}
           <div className="space-y-3 pt-1">
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
-              Raw Materials Inspection Checklist ({materials.length} items)
+              Raw Materials Inspection Checklist ({uniqueMaterialList.length} items)
             </label>
-            {materials.length === 0 ? (
+            {uniqueMaterialList.length === 0 ? (
               <p className="text-xs text-slate-500 italic p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                No BOM materials defined for this allotment. You can still confirm handover.
+                No BOM materials defined for this style group. You can still confirm handover.
               </p>
             ) : (
-              materials.map(mat => {
-                const breakdown = getDetailedItemBreakdown(mat.item_name, Number(mat.required_qty) || 0)
-                const lotVariants = selectedAllotment?.allotment_variants || []
+              uniqueMaterialList.map(mat => {
+                const breakdown = getDetailedItemBreakdown(mat.itemName, mat.totalRequiredNumber)
+                const lotVariants = selectedGroup?.variants || []
                 const lotSizes = Array.from(new Set(lotVariants.map(v => v.size?.trim().toUpperCase()).filter(Boolean)))
                 const matchingSizes = breakdown.isMultiSize ? breakdown.sizes.filter(s => lotSizes.includes(s)) : []
                 const netSizeQuota = matchingSizes.length > 0
@@ -3041,21 +3546,22 @@ function BomHandoverForm({
                       .reduce((acc, v) => acc + (Number(v.quantity) || 0), 0)
                   : 0
 
-                const st = itemStates[mat.id] || {
-                  id: mat.id,
-                  item_name: mat.item_name,
-                  required_qty: mat.required_qty,
-                  received_qty: mat.required_qty,
+                const requiredStr = `${mat.totalRequiredNumber} ${mat.unit}`.trim()
+                const st = itemStates[mat.itemName] || {
+                  id: mat.itemName,
+                  item_name: mat.itemName,
+                  required_qty: requiredStr,
+                  received_qty: requiredStr,
                   status: 'VERIFIED',
                   shortage_qty: 0,
                   remarks: ''
                 }
 
                 return (
-                  <div key={mat.id} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
+                  <div key={mat.itemName} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold text-slate-900">{mat.item_name}</span>
-                      <span className="text-xs font-mono font-bold text-slate-600">Required: {mat.required_qty}</span>
+                      <span className="text-xs font-extrabold text-slate-900">{mat.itemName}</span>
+                      <span className="text-xs font-mono font-bold text-slate-600">Required: {requiredStr}</span>
                     </div>
 
                     {/* Size-Specific Quota Helper for Multi-size trims */}
@@ -3072,9 +3578,9 @@ function BomHandoverForm({
                           onClick={() => {
                             setItemStates(prev => ({
                               ...prev,
-                              [mat.id]: {
+                              [mat.itemName]: {
                                 ...st,
-                                received_qty: netSizeQuota,
+                                received_qty: `${netSizeQuota} ${mat.unit}`.trim(),
                                 status: 'VERIFIED',
                                 shortage_qty: 0,
                                 remarks: `Size ${matchingSizes.join(', ')} Net Quota (${netSizeQuota} pcs) issued. Remaining sizes stay in Store.`
@@ -3099,9 +3605,8 @@ function BomHandoverForm({
                           value={st.received_qty}
                           onChange={e => {
                             const val = e.target.value
-                            const reqMatch = String(mat.required_qty || '').match(/^([\d.]+)\s*(.*)$/)
-                            const reqNum = reqMatch ? parseFloat(reqMatch[1]) : parseFloat(String(mat.required_qty))
-                            const unit = reqMatch ? reqMatch[2] : ''
+                            const reqNum = mat.totalRequiredNumber
+                            const unit = mat.unit
                             const recMatch = val.match(/^([\d.]+)/)
                             const recNum = recMatch ? parseFloat(recMatch[1]) : 0
 
@@ -3119,7 +3624,7 @@ function BomHandoverForm({
 
                             setItemStates({
                               ...itemStates,
-                              [mat.id]: { 
+                              [mat.itemName]: { 
                                 ...st, 
                                 received_qty: val,
                                 status: newStatus,
@@ -3136,9 +3641,8 @@ function BomHandoverForm({
                           value={st.status}
                           onChange={e => {
                             const newStatus = e.target.value as any
-                            const reqMatch = String(mat.required_qty || '').match(/^([\d.]+)\s*(.*)$/)
-                            const reqNum = reqMatch ? parseFloat(reqMatch[1]) : parseFloat(String(mat.required_qty))
-                            const unit = reqMatch ? reqMatch[2] : ''
+                            const reqNum = mat.totalRequiredNumber
+                            const unit = mat.unit
                             const recMatch = String(st.received_qty).match(/^([\d.]+)/)
                             const recNum = recMatch ? parseFloat(recMatch[1]) : 0
 
@@ -3152,7 +3656,7 @@ function BomHandoverForm({
 
                             setItemStates({
                               ...itemStates,
-                              [mat.id]: { 
+                              [mat.itemName]: { 
                                 ...st, 
                                 status: newStatus,
                                 shortage_qty: sQty
@@ -3189,7 +3693,7 @@ function BomHandoverForm({
                               )}
                             </span>
                             <span className="font-semibold text-slate-700">
-                              Required: <strong className="text-slate-900 font-mono">{mat.required_qty}</strong> | 
+                              Required: <strong className="text-slate-900 font-mono">{requiredStr}</strong> | 
                               Issued: <strong className="text-emerald-700 font-mono">{st.received_qty}</strong> | 
                               Issue: <strong className="text-rose-700 font-mono">{st.shortage_qty || 0}</strong>
                             </span>
@@ -3205,7 +3709,7 @@ function BomHandoverForm({
                               onChange={e => {
                                 setItemStates({
                                   ...itemStates,
-                                  [mat.id]: { ...st, shortage_qty: e.target.value }
+                                  [mat.itemName]: { ...st, shortage_qty: e.target.value }
                                 })
                               }}
                               className="w-24 px-2.5 py-1 text-xs font-mono font-bold bg-white border border-amber-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20"
@@ -3219,7 +3723,7 @@ function BomHandoverForm({
                           onChange={e => {
                             setItemStates({
                               ...itemStates,
-                              [mat.id]: { ...st, remarks: e.target.value }
+                              [mat.itemName]: { ...st, remarks: e.target.value }
                             })
                           }}
                           className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
@@ -3239,7 +3743,7 @@ function BomHandoverForm({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
+            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
           >
             Cancel
           </button>
@@ -3247,9 +3751,9 @@ function BomHandoverForm({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
           >
-            {isSubmitting ? 'Issuing...' : `Handover to ${linemanName}`}
+            {isSubmitting ? 'Issuing...' : `Handover to ${linemanName} (${selectedGroup?.totalTargetQty.toLocaleString() || 0} pcs)`}
           </button>
         </div>
       </div>
@@ -4476,3 +4980,732 @@ function AccessoryReissueModal({
     </div>
   )
 }
+
+// ====================================================================
+// HELPER: NORMALIZE BASE MASTER ARTICLE NUMBER
+// (Combines suffix splits like 3293 & 3293A -> 3293)
+// ====================================================================
+function getBaseMasterArticleNo(rawArtNo?: string | null): string {
+  if (!rawArtNo) return 'Garment'
+  const trimmed = rawArtNo.trim().toUpperCase()
+  // 1. Direct number with trailing letters or delimiters (e.g., 3293A, 3293AA, 3293-A, 3293/A, 3293_1, 3293 A)
+  const match = trimmed.match(/^(\d+)[A-Z_\-\/\s]/) || trimmed.match(/^(\d+)[A-Z]+$/)
+  if (match) return match[1]
+  // 2. Pure digits (e.g. 3293)
+  const numOnly = trimmed.match(/^(\d+)$/)
+  if (numOnly) return numOnly[1]
+  // 3. Fallback for strings like "ART-3293" or "ART 3293A"
+  const artPrefix = trimmed.match(/^(?:ART|ARTICLE|STYLE)?\s*[-#:]?\s*(\d+)/i)
+  if (artPrefix) return artPrefix[1]
+  return trimmed
+}
+
+// ====================================================================
+// COMPONENT: GOODS IN LINE (LIVE FLOOR WIP) SLIDE-OVER DRAWER
+// ====================================================================
+interface GoodsInLineDrawerProps {
+  onClose: () => void
+  activeAllotments: ActiveAllotment[]
+  readyQcAllotments?: ReadyQcAllotment[]
+}
+
+interface LinemanConsolidatedSummary {
+  linemanName: string
+  challans: string[]
+  totalPcs: number
+  lotsCount: number
+  stageKey: 'STITCHING' | 'MENDING' | 'QC' | 'READY_STORE'
+  stageLabel: string
+  badgeClass: string
+  supervisor: string
+  details: string
+  latestDate: string
+  colorSizes: Array<{ label: string; qty: number }>
+}
+
+interface MasterArticleGroup {
+  artNo: string
+  rawArtNos?: string[]
+  description: string
+  totalPcs: number
+  totalLots: number
+  stitchingPcs: number
+  mendingPcs: number
+  qcPcs: number
+  readyPcs: number
+  linemenSummary: LinemanConsolidatedSummary[]
+}
+
+function GoodsInLineDrawer({ onClose, activeAllotments }: GoodsInLineDrawerProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedStage, setSelectedStage] = useState<'ALL' | 'STITCHING' | 'MENDING' | 'QC' | 'READY_STORE'>('ALL')
+
+  // Close on ESC
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
+  // Resolve floor stage information for each lot
+  const resolveStage = (al: ActiveAllotment) => {
+    if (al.store_inward_status === 'INWARDED') {
+      return {
+        stageKey: 'READY_STORE' as const,
+        label: 'Store Inward Done',
+        badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+        details: 'Verified and inwarded into Godown stock.',
+        supervisor: al.qc_supervisor_name || 'Store Inward',
+      }
+    }
+    if (al.qc_status === 'APPROVED_FOR_STORE' || al.qc_status === 'READY_FOR_STORE') {
+      return {
+        stageKey: 'READY_STORE' as const,
+        label: 'Ready for Store Inward',
+        badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+        details: `QC Passed (${al.qc_total_passed || al.target_qty} pcs). Ready for store inward.`,
+        supervisor: al.qc_supervisor_name || 'QC Supervisor',
+      }
+    }
+    if (
+      al.qc_status === 'IN_INSPECTION' || 
+      al.qc_status === 'IN_PROGRESS' || 
+      al.handed_to_qc_at || 
+      (al.qc_total_passed && al.qc_total_passed > 0)
+    ) {
+      return {
+        stageKey: 'QC' as const,
+        label: 'In QC Inspection',
+        badgeClass: 'bg-purple-100 text-purple-900 border-purple-300',
+        details: `Passed: ${al.qc_total_passed || 0} pcs • Alterations: ${al.qc_total_alter || 0} pcs`,
+        supervisor: al.qc_supervisor_name || 'QC Inspector',
+      }
+    }
+    if (
+      al.mending_status === 'IN_MENDING' || 
+      al.mending_status === 'IN_PROGRESS' || 
+      al.handed_to_mending_at || 
+      (al.mending_total_counted && al.mending_total_counted > 0)
+    ) {
+      return {
+        stageKey: 'MENDING' as const,
+        label: 'In Mending & Alteration',
+        badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+        details: `Under repair & checking (${al.mending_total_counted || al.target_qty} pcs).`,
+        supervisor: al.mending_supervisor_name || 'Mending Table',
+      }
+    }
+    return {
+      stageKey: 'STITCHING' as const,
+      label: 'Stitching in Progress',
+      badgeClass: 'bg-blue-100 text-blue-900 border-blue-300',
+      details: `Active sewing on machines under Lineman ${al.lineman?.username || 'Floor'}.`,
+      supervisor: al.lineman?.username || 'Lineman',
+    }
+  }
+
+
+  // Master Article Aggregation with Lineman Consolidation
+  const masterArticleGroups = useMemo(() => {
+    const artMap = new Map<string, {
+      artNo: string
+      rawArtSet: Set<string>
+      description: string
+      totalPcs: number
+      totalLots: number
+      stitchingPcs: number
+      mendingPcs: number
+      qcPcs: number
+      readyPcs: number
+      linemanMap: Map<string, {
+        linemanName: string
+        challanSet: Set<string>
+        totalPcs: number
+        lotsCount: number
+        stageKey: 'STITCHING' | 'MENDING' | 'QC' | 'READY_STORE'
+        stageLabel: string
+        badgeClass: string
+        supervisor: string
+        details: string
+        latestDate: string
+        variantsMap: Map<string, number>
+      }>
+    }>()
+
+    activeAllotments.forEach(al => {
+      const rawArt = al.article?.art_no || 'Garment'
+      const artNo = getBaseMasterArticleNo(rawArt)
+      const desc = al.article?.description ? al.article.description.replace(/\[.*?\]/g, '').trim() : ''
+      const stageInfo = resolveStage(al)
+      const targetQty = Number(al.target_qty) || 0
+      const linemanName = al.lineman?.username || 'Lineman'
+      const challanNo = al.challans?.challan_no || ''
+      const allotmentDate = al.allotment_date || (al.created_at ? al.created_at.split('T')[0] : 'Recent')
+
+      const createdAtMs = new Date(al.created_at || al.allotment_date || 0).getTime()
+      const validCreated = isNaN(createdAtMs) ? 0 : createdAtMs
+
+      if (!artMap.has(artNo)) {
+        artMap.set(artNo, {
+          artNo,
+          rawArtSet: new Set(),
+          description: desc,
+          totalPcs: 0,
+          totalLots: 0,
+          stitchingPcs: 0,
+          mendingPcs: 0,
+          qcPcs: 0,
+          readyPcs: 0,
+          latestCreatedAt: validCreated,
+          linemanMap: new Map()
+        })
+      }
+
+      const artGroup = artMap.get(artNo)!
+      artGroup.rawArtSet.add(rawArt)
+      if (!artGroup.description && desc) artGroup.description = desc
+      artGroup.totalPcs += targetQty
+      artGroup.totalLots += 1
+      artGroup.latestCreatedAt = Math.max(artGroup.latestCreatedAt, validCreated)
+      if (stageInfo.stageKey === 'STITCHING') artGroup.stitchingPcs += targetQty
+      else if (stageInfo.stageKey === 'MENDING') artGroup.mendingPcs += targetQty
+      else if (stageInfo.stageKey === 'QC') artGroup.qcPcs += targetQty
+      else if (stageInfo.stageKey === 'READY_STORE') artGroup.readyPcs += targetQty
+
+      // Group inside Master Article by (Lineman + Stage)
+      const linemanKey = `${linemanName}_${stageInfo.stageKey}`
+      if (!artGroup.linemanMap.has(linemanKey)) {
+        artGroup.linemanMap.set(linemanKey, {
+          linemanName,
+          challanSet: new Set(),
+          totalPcs: 0,
+          lotsCount: 0,
+          stageKey: stageInfo.stageKey,
+          stageLabel: stageInfo.label,
+          badgeClass: stageInfo.badgeClass,
+          supervisor: stageInfo.supervisor,
+          details: stageInfo.details,
+          latestDate: allotmentDate,
+          variantsMap: new Map()
+        })
+      }
+
+      const lEntry = artGroup.linemanMap.get(linemanKey)!
+      lEntry.totalPcs += targetQty
+      lEntry.lotsCount += 1
+      if (challanNo && challanNo !== '-') lEntry.challanSet.add(challanNo)
+      if (allotmentDate > lEntry.latestDate) lEntry.latestDate = allotmentDate
+
+      // Aggregate variants
+      const variants = al.allotment_variants || []
+      if (variants.length > 0) {
+        variants.forEach(v => {
+          const vKey = `${v.color || ''} ${v.size || ''}`.trim() || 'Standard'
+          lEntry.variantsMap.set(vKey, (lEntry.variantsMap.get(vKey) || 0) + (Number(v.quantity) || 0))
+        })
+      } else {
+        lEntry.variantsMap.set('Standard', (lEntry.variantsMap.get('Standard') || 0) + targetQty)
+      }
+    })
+
+    // Convert map to array
+    const result: (MasterArticleGroup & { latestCreatedAt: number })[] = []
+    artMap.forEach(g => {
+      const linemenSummary: LinemanConsolidatedSummary[] = []
+      g.linemanMap.forEach(l => {
+        const colorSizes: Array<{ label: string; qty: number }> = []
+        l.variantsMap.forEach((qty, label) => {
+          colorSizes.push({ label, qty })
+        })
+
+        linemenSummary.push({
+          linemanName: l.linemanName,
+          challans: Array.from(l.challanSet),
+          totalPcs: l.totalPcs,
+          lotsCount: l.lotsCount,
+          stageKey: l.stageKey,
+          stageLabel: l.stageLabel,
+          badgeClass: l.badgeClass,
+          supervisor: l.supervisor,
+          details: l.details,
+          latestDate: l.latestDate,
+          colorSizes
+        })
+      })
+
+      // Sort linemen by totalPcs descending
+      linemenSummary.sort((a, b) => b.totalPcs - a.totalPcs)
+
+      result.push({
+        artNo: g.artNo,
+        rawArtNos: Array.from(g.rawArtSet),
+        description: g.description,
+        totalPcs: g.totalPcs,
+        totalLots: g.totalLots,
+        stitchingPcs: g.stitchingPcs,
+        mendingPcs: g.mendingPcs,
+        qcPcs: g.qcPcs,
+        readyPcs: g.readyPcs,
+        latestCreatedAt: g.latestCreatedAt,
+        linemenSummary
+      })
+    })
+
+    return result.sort((a, b) => {
+      if (b.latestCreatedAt !== a.latestCreatedAt) {
+        return b.latestCreatedAt - a.latestCreatedAt
+      }
+      return b.totalPcs - a.totalPcs
+    })
+  }, [activeAllotments])
+
+  // Overall Totals
+  const { totalPcs, stitchingPcs, mendingPcs, qcPcs, readyPcs, stitchingLotsCount, mendingLotsCount, qcLotsCount, readyLotsCount } = useMemo(() => {
+    let tPcs = 0
+    let sPcs = 0
+    let mPcs = 0
+    let qPcs = 0
+    let rPcs = 0
+    let sCount = 0
+    let mCount = 0
+    let qCount = 0
+    let rCount = 0
+
+    masterArticleGroups.forEach(g => {
+      tPcs += g.totalPcs
+      sPcs += g.stitchingPcs
+      mPcs += g.mendingPcs
+      qPcs += g.qcPcs
+      rPcs += g.readyPcs
+      g.linemenSummary.forEach(l => {
+        if (l.stageKey === 'STITCHING') sCount += l.lotsCount
+        else if (l.stageKey === 'MENDING') mCount += l.lotsCount
+        else if (l.stageKey === 'QC') qCount += l.lotsCount
+        else if (l.stageKey === 'READY_STORE') rCount += l.lotsCount
+      })
+    })
+
+    return {
+      totalPcs: tPcs,
+      stitchingPcs: sPcs,
+      mendingPcs: mPcs,
+      qcPcs: qPcs,
+      readyPcs: rPcs,
+      stitchingLotsCount: sCount,
+      mendingLotsCount: mCount,
+      qcLotsCount: qCount,
+      readyLotsCount: rCount
+    }
+  }, [masterArticleGroups])
+
+  // Filtered master articles
+  const filteredMasterArticles = useMemo(() => {
+    return masterArticleGroups.map(group => {
+      const matchingLinemen = group.linemenSummary.filter(l => {
+        if (selectedStage !== 'ALL' && l.stageKey !== selectedStage) {
+          return false
+        }
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim()
+          const matchesArt = group.artNo.toLowerCase().includes(q) || Boolean(group.rawArtNos?.some((r: string) => r.toLowerCase().includes(q)))
+          const matchesLineman = l.linemanName.toLowerCase().includes(q)
+          const matchesChallan = l.challans.some(c => c.toLowerCase().includes(q))
+          const matchesSupervisor = l.supervisor.toLowerCase().includes(q)
+          const matchesDesc = group.description.toLowerCase().includes(q)
+          if (!matchesArt && !matchesLineman && !matchesChallan && !matchesSupervisor && !matchesDesc) {
+            return false
+          }
+        }
+        return true
+      })
+
+      if (matchingLinemen.length === 0) return null
+
+      const currentTotalPcs = matchingLinemen.reduce((sum, l) => sum + l.totalPcs, 0)
+      const currentTotalLots = matchingLinemen.reduce((sum, l) => sum + l.lotsCount, 0)
+
+      return {
+        ...group,
+        totalPcs: currentTotalPcs,
+        totalLots: currentTotalLots,
+        linemenSummary: matchingLinemen
+      }
+    }).filter(Boolean) as MasterArticleGroup[]
+  }, [masterArticleGroups, selectedStage, searchQuery])
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200">
+      {/* Backdrop */}
+      <div 
+        onClick={onClose}
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+      />
+
+      {/* Slide-over Panel */}
+      <div className="fixed inset-y-0 right-0 max-w-3xl w-full bg-white shadow-2xl flex flex-col z-10 border-l border-black/10">
+        
+        {/* Drawer Header */}
+        <div className="p-5 sm:p-6 bg-[#FAF7F0] border-b border-black/10 space-y-4 shrink-0">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-md">
+                <Activity className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-lg sm:text-xl font-black text-slate-900 font-[family-name:var(--font-heading)]">
+                    Goods in Line (Live Floor WIP)
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                    {totalPcs.toLocaleString()} pcs • {masterArticleGroups.length} Master Articles
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Consolidated floor summary by Master Article across Linemen, Mending & QC tables
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-colors cursor-pointer"
+              title="Close Drawer (ESC)"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Top Stage Telemetry Counters */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+            <button
+              type="button"
+              onClick={() => setSelectedStage(selectedStage === 'STITCHING' ? 'ALL' : 'STITCHING')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                selectedStage === 'STITCHING'
+                  ? 'bg-blue-500 text-white border-blue-600 shadow-sm'
+                  : 'bg-white border-black/10 hover:border-blue-400 shadow-2xs'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                  selectedStage === 'STITCHING' ? 'text-blue-100' : 'text-slate-500'
+                }`}>
+                  🧵 1. Stitching
+                </span>
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                  selectedStage === 'STITCHING' ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-800'
+                }`}>
+                  {stitchingLotsCount} lots
+                </span>
+              </div>
+              <p className={`text-lg font-black font-mono mt-1 leading-none ${
+                selectedStage === 'STITCHING' ? 'text-white' : 'text-slate-900'
+              }`}>
+                {stitchingPcs.toLocaleString()} <span className="text-xs font-medium">pcs</span>
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedStage(selectedStage === 'MENDING' ? 'ALL' : 'MENDING')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                selectedStage === 'MENDING'
+                  ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                  : 'bg-white border-black/10 hover:border-amber-400 shadow-2xs'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                  selectedStage === 'MENDING' ? 'text-amber-100' : 'text-slate-500'
+                }`}>
+                  🔧 2. Mending
+                </span>
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                  selectedStage === 'MENDING' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-800'
+                }`}>
+                  {mendingLotsCount} lots
+                </span>
+              </div>
+              <p className={`text-lg font-black font-mono mt-1 leading-none ${
+                selectedStage === 'MENDING' ? 'text-white' : 'text-slate-900'
+              }`}>
+                {mendingPcs.toLocaleString()} <span className="text-xs font-medium">pcs</span>
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedStage(selectedStage === 'QC' ? 'ALL' : 'QC')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                selectedStage === 'QC'
+                  ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
+                  : 'bg-white border-black/10 hover:border-purple-400 shadow-2xs'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                  selectedStage === 'QC' ? 'text-purple-100' : 'text-slate-500'
+                }`}>
+                  🔍 3. QC Table
+                </span>
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                  selectedStage === 'QC' ? 'bg-purple-700 text-white' : 'bg-purple-50 text-purple-800'
+                }`}>
+                  {qcLotsCount} lots
+                </span>
+              </div>
+              <p className={`text-lg font-black font-mono mt-1 leading-none ${
+                selectedStage === 'QC' ? 'text-white' : 'text-slate-900'
+              }`}>
+                {qcPcs.toLocaleString()} <span className="text-xs font-medium">pcs</span>
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedStage(selectedStage === 'READY_STORE' ? 'ALL' : 'READY_STORE')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                selectedStage === 'READY_STORE'
+                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
+                  : 'bg-white border-black/10 hover:border-emerald-400 shadow-2xs'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                  selectedStage === 'READY_STORE' ? 'text-emerald-100' : 'text-slate-500'
+                }`}>
+                  📦 4. Store Inward
+                </span>
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                  selectedStage === 'READY_STORE' ? 'bg-emerald-700 text-white' : 'bg-emerald-50 text-emerald-800'
+                }`}>
+                  {readyLotsCount} lots
+                </span>
+              </div>
+              <p className={`text-lg font-black font-mono mt-1 leading-none ${
+                selectedStage === 'READY_STORE' ? 'text-white' : 'text-slate-900'
+              }`}>
+                {readyPcs.toLocaleString()} <span className="text-xs font-medium">pcs</span>
+              </p>
+            </button>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="p-4 bg-white border-b border-slate-200 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search by Master Article #, Lineman name, Challan #, Mending/QC supervisor..."
+                className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm font-semibold bg-[#FAF7F0] border border-black/10 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] shadow-2xs"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {(selectedStage !== 'ALL' || searchQuery) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedStage('ALL')
+                  setSearchQuery('')
+                }}
+                className="px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all shrink-0 cursor-pointer"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Master Articles List */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50">
+          {filteredMasterArticles.length === 0 ? (
+            <div className="p-12 text-center bg-white rounded-2xl border border-black/10 space-y-3">
+              <PackageSearch className="w-10 h-10 text-slate-300 mx-auto" />
+              <h3 className="text-sm font-bold text-slate-900">No Master Articles Match Your Search</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try searching with a different Article #, Lineman name, or reset active stage filter.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedStage('ALL')
+                  setSearchQuery('')
+                }}
+                className="px-4 py-2 text-xs font-bold bg-[#3A3564] text-white rounded-xl shadow-2xs hover:bg-[#2F2B52] transition-colors cursor-pointer"
+              >
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            filteredMasterArticles.map(group => {
+              return (
+                <div 
+                  key={group.artNo}
+                  className="bg-white rounded-2xl border border-black/10 hover:border-black/20 shadow-2xs transition-all overflow-hidden"
+                >
+                  {/* Master Article Card Header */}
+                  <div className="p-4 sm:p-5 bg-gradient-to-r from-[#FAF7F0] to-white border-b border-black/10 flex items-start justify-between gap-3 flex-wrap">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                          Article {group.artNo}
+                        </span>
+                        {group.totalLots > 1 && (
+                          <span className="px-2.5 py-0.5 text-xs font-mono font-bold bg-[#3A3564] text-white rounded-lg shadow-2xs">
+                            {group.totalLots} Lots
+                          </span>
+                        )}
+                      </div>
+                      {group.description && (
+                        <p className="text-xs text-slate-600 font-medium mt-1">
+                          {group.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      {/* Mini Stage Split Pills */}
+                      <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono font-bold">
+                        {group.stitchingPcs > 0 && (
+                          <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200">
+                            🧵 {group.stitchingPcs.toLocaleString()} pcs Stitching
+                          </span>
+                        )}
+                        {group.mendingPcs > 0 && (
+                          <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200">
+                            🔧 {group.mendingPcs.toLocaleString()} pcs Mending
+                          </span>
+                        )}
+                        {group.qcPcs > 0 && (
+                          <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-900 border border-purple-200">
+                            🔍 {group.qcPcs.toLocaleString()} pcs QC
+                          </span>
+                        )}
+                        {group.readyPcs > 0 && (
+                          <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-900 border border-emerald-200">
+                            📦 {group.readyPcs.toLocaleString()} pcs Ready
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-right pl-3 border-l border-slate-200">
+                        <span className="text-lg sm:text-xl font-black font-mono text-slate-900 tabular-nums">
+                          {group.totalPcs.toLocaleString()}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 block leading-tight">Total WIP</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Consolidated Linemen Rows */}
+                  <div className="divide-y divide-slate-100">
+                    {group.linemenSummary.map((linemanEntry, idx) => {
+                      return (
+                        <div key={idx} className="p-4 hover:bg-slate-50/70 transition-colors space-y-3">
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-[#3A3564] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                                {linemanEntry.linemanName.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-bold text-slate-900">
+                                    {linemanEntry.linemanName}
+                                  </span>
+                                  {linemanEntry.challans.length > 0 && (
+                                    <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded">
+                                      {linemanEntry.challans.map(c => `Challan #${c}`).join(', ')}
+                                    </span>
+                                  )}
+                                  {linemanEntry.lotsCount > 1 && (
+                                    <span className="text-[11px] font-mono text-slate-400 font-medium">
+                                      ({linemanEntry.lotsCount} batches)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold uppercase tracking-wider border shadow-2xs ${linemanEntry.badgeClass}`}>
+                                {linemanEntry.stageLabel}
+                              </span>
+                              <span className="text-base font-black font-mono text-slate-900 tabular-nums pl-2">
+                                {linemanEntry.totalPcs.toLocaleString()} pcs
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Stage details & Current Table */}
+                          <div className="flex items-center justify-between gap-2 flex-wrap text-xs bg-[#FAF7F0]/60 px-3 py-2 rounded-xl border border-black/5">
+                            <div className="text-slate-600 text-[11px]">
+                              <span className="font-bold text-slate-900">Table / Supervisor:</span> {linemanEntry.supervisor}
+                              {linemanEntry.details && (
+                                <span className="text-slate-500 ml-1.5">• {linemanEntry.details}</span>
+                              )}
+                            </div>
+                            <div className="text-[10px] font-mono text-slate-400">
+                              Allotted: {linemanEntry.latestDate}
+                            </div>
+                          </div>
+
+                          {/* Consolidated Variants Pills */}
+                          {linemanEntry.colorSizes.length > 0 && (
+                            <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase mr-1">
+                                Sizes:
+                              </span>
+                              {linemanEntry.colorSizes.map((v, vIdx) => (
+                                <span key={vIdx} className="px-2 py-0.5 text-[10px] font-mono font-semibold bg-white text-slate-700 rounded border border-slate-200">
+                                  {v.label} ({v.qty.toLocaleString()} pcs)
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* Drawer Footer */}
+        <div className="p-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
+            <span>Showing:</span>
+            <span className="font-bold text-slate-900">{filteredMasterArticles.length} of {masterArticleGroups.length} Master Articles</span>
+            <span className="text-slate-400 hidden sm:inline">• Live Factory Floor Sync</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+          >
+            Close Drawer
+          </button>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+
