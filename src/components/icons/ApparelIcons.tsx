@@ -305,7 +305,7 @@ export function CompanyProfileNavIcon({ className = "w-5 h-5", strokeWidth = 1.7
 
 /**
  * 10. FloorReadyWorkflowsIcon
- * Industrial assembly floor pipeline with progressive multi-station stages and flow transitions.
+ * Clean 3-step connected workflow process flowchart.
  */
 export function FloorReadyWorkflowsIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -320,27 +320,19 @@ export function FloorReadyWorkflowsIcon({ className = "w-5 h-5", strokeWidth = 1
       aria-hidden="true"
       {...props}
     >
-      {/* Assembly Conveyor Pipeline Base */}
-      <path d="M2 19h20" />
-      {/* Station 1: Inward Store */}
-      <rect x="3" y="12" width="4.5" height="7" rx="1" />
-      {/* Station 2: High-Speed Cutting & Sewing */}
-      <rect x="9.75" y="7" width="4.5" height="12" rx="1" />
-      {/* Station 3: Final QC Packing */}
-      <rect x="16.5" y="10" width="4.5" height="9" rx="1" />
-      {/* Progression Flow Curve Accents */}
-      <path d="M5.25 8a2.5 2.5 0 0 1 4.5-1.5" />
-      <path d="M12 4a2.5 2.5 0 0 1 4.5 1.5" />
-      {/* Arrow Heads */}
-      <polyline points="9.5 5 10.5 6.5 8.5 7.5" />
-      <polyline points="16.5 4.5 17.2 6.5 15.2 7" />
+      <rect x="3" y="3" width="6" height="6" rx="1.5" />
+      <rect x="15" y="3" width="6" height="6" rx="1.5" />
+      <rect x="9" y="15" width="6" height="6" rx="1.5" />
+      <path d="M9 6h6" />
+      <path d="M18 9v3a2 2 0 0 1-2 2h-1" />
+      <path d="M6 9v3a2 2 0 0 0 2 2h1" />
     </svg>
   )
 }
 
 /**
  * 11. StrictDataPrivacyIcon
- * Fortified enterprise security shield with a cryptographic vault padlock.
+ * Enterprise security shield with a clean vault lock.
  */
 export function StrictDataPrivacyIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -355,20 +347,16 @@ export function StrictDataPrivacyIcon({ className = "w-5 h-5", strokeWidth = 1.7
       aria-hidden="true"
       {...props}
     >
-      {/* Fortress Security Shield */}
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      {/* Secure Vault Padlock */}
-      <path d="M9 10.5V8.5a3 3 0 0 1 6 0v2" />
-      <rect x="8" y="10.5" width="8" height="6.5" rx="1.5" />
-      <circle cx="12" cy="13.5" r="1" fill="currentColor" />
-      <line x1="12" y1="14.5" x2="12" y2="15.5" />
+      <rect x="9" y="11" width="6" height="5" rx="1" />
+      <path d="M10 11V9a2 2 0 1 1 4 0v2" />
     </svg>
   )
 }
 
 /**
  * 12. OfflineFirstSyncIcon
- * Edge device cloud caching with continuous dual circular synchronization loop.
+ * Edge continuous dual-arrow synchronization cycle.
  */
 export function OfflineFirstSyncIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -383,21 +371,17 @@ export function OfflineFirstSyncIcon({ className = "w-5 h-5", strokeWidth = 1.75
       aria-hidden="true"
       {...props}
     >
-      {/* Cloud Store Envelope */}
-      <path d="M17.5 19H6.5A4.5 4.5 0 0 1 4 11.5a5.5 5.5 0 0 1 10.5-2.5 4.5 4.5 0 0 1 5 4 3.5 3.5 0 0 1-2 6z" />
-      {/* Upper Sync Arrow */}
-      <path d="M9.5 13a2.5 2.5 0 0 1 4.5-.8" />
-      <polyline points="14.5 9.8 15 12.2 12.5 12" />
-      {/* Lower Sync Arrow */}
-      <path d="M14.5 15.5a2.5 2.5 0 0 1-4.5.8" />
-      <polyline points="9.5 18.2 9 15.8 11.5 16" />
+      <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+      <path d="M3 21v-5h5" />
     </svg>
   )
 }
 
 /**
  * 13. ZeroGhostPiecesIcon
- * 100% Zero Ghost Piece Guarantee with QR bundle ticket and verified alignment crosshairs.
+ * 100% verified discrepancy-free check badge.
  */
 export function ZeroGhostPiecesIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -412,15 +396,8 @@ export function ZeroGhostPiecesIcon({ className = "w-5 h-5", strokeWidth = 1.75,
       aria-hidden="true"
       {...props}
     >
-      {/* Precision 100% Target Reconciliation Brackets */}
-      <path d="M3 8V5a2 2 0 0 1 2-2h3" />
-      <path d="M16 3h3a2 2 0 0 1 2 2v3" />
-      <path d="M3 16v3a2 2 0 0 0 2 2h3" />
-      <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-      {/* Cut Bundle QR Ticket */}
-      <rect x="7" y="7" width="10" height="10" rx="1.5" />
-      {/* 100% Zero Discrepancy Checkmark */}
-      <polyline points="9.5 12 11.2 13.7 14.5 10.3" strokeWidth={2} />
+      <circle cx="12" cy="12" r="9" />
+      <polyline points="8.5 12 11 14.5 15.5 9.5" />
     </svg>
   )
 }
@@ -431,7 +408,7 @@ export function ZeroGhostPiecesIcon({ className = "w-5 h-5", strokeWidth = 1.75,
 
 /**
  * 14. FabricInwardTrimsStoreIcon
- * Supplier gate delivery truck carrying inward fabric rolls with barcode reception signal.
+ * Clean logistics delivery truck for gate roll and trims inwarding.
  */
 export function FabricInwardTrimsStoreIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -446,25 +423,18 @@ export function FabricInwardTrimsStoreIcon({ className = "w-5 h-5", strokeWidth 
       aria-hidden="true"
       {...props}
     >
-      {/* Logistics Delivery Truck */}
-      <path d="M1 5h10v11H1z" />
-      <path d="M11 8h4.5l3 3.5V16H11" />
-      <circle cx="5" cy="18" r="2" />
-      <circle cx="16" cy="18" r="2" />
-      <line x1="7" y1="18" x2="14" y2="18" />
-      {/* Loaded Fabric Rolls in Truck Bed */}
-      <ellipse cx="6" cy="8.5" rx="2.5" ry="1.2" />
-      <ellipse cx="6" cy="12" rx="2.5" ry="1.2" />
-      {/* Gate Inward Signal */}
-      <path d="M19 6l2-2" />
-      <path d="M21 8.5h2" />
+      <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+      <path d="M15 18H9" />
+      <path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-4h-4v10" />
+      <circle cx="7" cy="18" r="2" />
+      <circle cx="17" cy="18" r="2" />
     </svg>
   )
 }
 
 /**
  * 15. BuyerOrdersTechPacksIcon
- * Technical garment tech pack spec document with buyer PO size ratio matrix table.
+ * Clean technical garment spec sheet and purchase order document.
  */
 export function BuyerOrdersTechPacksIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -479,22 +449,18 @@ export function BuyerOrdersTechPacksIcon({ className = "w-5 h-5", strokeWidth = 
       aria-hidden="true"
       {...props}
     >
-      {/* Tech Pack Specification Document */}
-      <path d="M5 3h10l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-      <polyline points="15 3 15 8 20 8" />
-      {/* Garment Header Spec Notch */}
-      <line x1="7.5" y1="7" x2="11.5" y2="7" />
-      {/* PO Matrix Grid Table */}
-      <rect x="7" y="11" width="10" height="8" rx="0.8" />
-      <line x1="12" y1="11" x2="12" y2="19" />
-      <line x1="7" y1="15" x2="17" y2="15" />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <line x1="10" y1="9" x2="8" y2="9" />
     </svg>
   )
 }
 
 /**
  * 16. CuttingRoomLayMatrixIcon
- * Industrial tailor cutting shears slicing multi-ply fabric lay matrix along marker line.
+ * Clean precision tailor cutting shears.
  */
 export function CuttingRoomLayMatrixIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -509,24 +475,18 @@ export function CuttingRoomLayMatrixIcon({ className = "w-5 h-5", strokeWidth = 
       aria-hidden="true"
       {...props}
     >
-      {/* Precision Tailor Shears cutting Fabric Lay Matrix */}
-      <circle cx="6" cy="6.5" r="2.5" />
-      <circle cx="6" cy="13.5" r="2.5" />
-      <path d="M8.2 7.8L19 15.5" />
-      <path d="M8.2 12.2L19 4.5" />
-      <circle cx="11.5" cy="10" r="0.9" fill="currentColor" />
-      {/* Multi-Ply Fabric Spread Below */}
-      <path d="M3 18.5h18" />
-      <path d="M3 21h18" />
-      {/* Laser Alignment Guide */}
-      <line x1="19.5" y1="10" x2="22" y2="10" strokeDasharray="1 1" />
+      <circle cx="6" cy="6" r="3" />
+      <circle cx="6" cy="18" r="3" />
+      <line x1="20" y1="4" x2="8.12" y2="15.88" />
+      <line x1="14.47" y1="14.48" x2="20" y2="20" />
+      <line x1="8.12" y1="8.12" x2="12" y2="12" />
     </svg>
   )
 }
 
 /**
  * 17. StitchingLinesWagesIcon
- * Industrial sewing machine with thread spool, needle bar, and dynamic stitch line for piece-rate wages.
+ * Clean industrial sewing machine for piece-rate stitching lines.
  */
 export function StitchingLinesWagesIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -541,23 +501,18 @@ export function StitchingLinesWagesIcon({ className = "w-5 h-5", strokeWidth = 1
       aria-hidden="true"
       {...props}
     >
-      {/* Industrial Sewing Machine Frame */}
-      <path d="M3 18h18v-2.5h-3.5V8a2.5 2.5 0 0 0-2.5-2.5H7.5A3.5 3.5 0 0 0 4 9v6.5H3V18z" />
-      {/* Needle Bar & Foot */}
-      <line x1="7.5" y1="9" x2="7.5" y2="15" />
-      <path d="M6.5 15h2" />
-      {/* Spool of Thread on Top */}
-      <rect x="12.5" y="3.5" width="2.5" height="2" rx="0.5" />
-      <path d="M13.7 3.5V2.5H7.5v3" />
-      {/* Stitch Dash line on the bed */}
-      <line x1="9.5" y1="15.5" x2="14.5" y2="15.5" strokeDasharray="1.2 1.2" strokeWidth={2} />
+      <path d="M3 19h18" />
+      <path d="M19 19V8a2 2 0 0 0-2-2H8a3 3 0 0 0-3 3v10" />
+      <line x1="9" y1="9" x2="9" y2="14" />
+      <line x1="7" y1="14" x2="11" y2="14" />
+      <circle cx="15" cy="10" r="1.5" />
     </svg>
   )
 }
 
 /**
  * 18. QualityChecksAlterationIcon
- * Quality assurance inspection clipboard with garment seam magnifying audit lens and QA PASS stamp.
+ * Clean quality audit inspection clipboard with verified checkmark.
  */
 export function QualityChecksAlterationIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -572,21 +527,16 @@ export function QualityChecksAlterationIcon({ className = "w-5 h-5", strokeWidth
       aria-hidden="true"
       {...props}
     >
-      {/* Quality Inspection Clipboard */}
-      <rect x="4" y="4" width="16" height="17" rx="2" />
-      <path d="M8.5 4V2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5V4" />
-      {/* Magnifier Seam Inspection Lens */}
-      <circle cx="11" cy="12" r="3.5" />
-      <line x1="13.5" y1="14.5" x2="17.5" y2="18.5" strokeWidth={2} />
-      {/* QA Passed Checkmark */}
-      <polyline points="9.3 12 10.7 13.4 12.8 10.6" strokeWidth={1.8} />
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <polyline points="9 14 11 16 15 11" />
     </svg>
   )
 }
 
 /**
  * 19. CartonPackingDispatchIcon
- * Heavy-duty 3D export shipping carton with strapping tape, barcode label, and outbound motion streaks.
+ * Clean 3D master shipping carton box.
  */
 export function CartonPackingDispatchIcon({ className = "w-5 h-5", strokeWidth = 1.75, ...props }: IconProps) {
   return (
@@ -601,18 +551,9 @@ export function CartonPackingDispatchIcon({ className = "w-5 h-5", strokeWidth =
       aria-hidden="true"
       {...props}
     >
-      {/* 3D Master Export Carton Box */}
-      <path d="M12 2.5L20 7l-8 4.5L4 7z" />
-      <path d="M4 7v10l8 4.5V11.5z" />
-      <path d="M20 7v10l-8 4.5V11.5z" />
-      {/* Sealing Tape Spine */}
-      <path d="M12 2.5v9" />
-      {/* Shipping Barcode Label on front face */}
-      <line x1="14.5" y1="13" x2="17.5" y2="14.7" />
-      <line x1="14.5" y1="15" x2="17.5" y2="16.7" />
-      {/* Fast Dispatch motion streaks */}
-      <line x1="1" y1="10" x2="2.5" y2="10" />
-      <line x1="0.5" y1="13" x2="2" y2="13" />
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
     </svg>
   )
 }

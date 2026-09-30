@@ -1705,14 +1705,14 @@ export function ZigzaLandingPageClient({
                       <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                         {engine.title}
                       </h3>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
-                        <Icon className="w-6 h-6 text-[#0B1220] shrink-0 md:group-hover:scale-110 md:group-hover:text-[#14C8B4] transition-all duration-300" strokeWidth={1.6} />
+                      <div className="w-11 h-11 rounded-xl bg-[#E6FFFA] border border-[#0B1220] flex items-center justify-center shrink-0">
+                        <Icon className="w-6 h-6 text-[#0B1220] shrink-0 md:group-hover:scale-105 transition-all duration-300" strokeWidth={1.75} />
                       </div>
                     </div>
 
                     {/* Expanding Seam Line */}
                     <div className="w-full h-[2.5px] bg-slate-200 rounded-full overflow-hidden relative">
-                      <div className="h-full bg-[#0B1220] w-full md:w-9 md:group-hover:w-full md:group-hover:bg-[#14C8B4] transition-all duration-420 ease-out rounded-full" />
+                      <div className="h-full bg-[#0B1220] w-full md:w-9 md:group-hover:w-full transition-all duration-420 ease-out rounded-full" />
                     </div>
                   </div>
 
@@ -2018,8 +2018,8 @@ export function ZigzaLandingPageClient({
                 className="bg-white rounded-2xl border border-slate-200 hover:border-[#0B1220] p-4 sm:p-5 flex items-start gap-4 transition-all duration-200 hover:shadow-xs group"
               >
                 {/* Outline Icon Badge */}
-                <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] group-hover:text-[#14C8B4] group-hover:scale-105 flex items-center justify-center shrink-0 mt-0.5 transition-all">
-                  <pillar.icon className="w-7 h-7" strokeWidth={1.6} />
+                <div className="w-12 h-12 rounded-xl bg-[#E6FFFA] border border-[#0B1220] text-[#0B1220] group-hover:scale-105 flex items-center justify-center shrink-0 mt-0.5 transition-all">
+                  <pillar.icon className="w-7 h-7 text-[#0B1220]" strokeWidth={1.75} />
                 </div>
 
                 <div className="flex-1">
