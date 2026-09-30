@@ -168,7 +168,7 @@ export function TermsClient() {
   const [activeSection, setActiveSection] = useState<string>('section-1')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isCopied, setIsCopied] = useState<boolean>(false)
-  const lastUpdated = "September 2, 2026"
+  const lastUpdated = "October 2026"
 
   // Scrollspy to update active section in sidebar
   useEffect(() => {
@@ -216,10 +216,10 @@ export function TermsClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-slate-900 selection:bg-[#3A3564] selection:text-white flex flex-col justify-between font-[family-name:var(--font-sans)]">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#0B1220] selection:text-[#14C8B4] flex flex-col justify-between font-sans">
       
-      {/* 1. TOP ENTERPRISE NAVIGATION BAR (Matches Zigza Homepage) */}
-      <header className="sticky top-0 z-40 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#57564E]/15">
+      {/* 1. TOP ENTERPRISE NAVIGATION BAR (Matches Zigza System) */}
+      <header className="sticky top-0 z-40 bg-[#F8FAFC]/90 backdrop-blur-md border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
           {/* Brand Logo */}
@@ -236,20 +236,20 @@ export function TermsClient() {
             />
           </Link>
 
-          {/* Action: Sign In text link + Try For Free Indigo button */}
+          {/* Action: Sign In text link + Try For Free button */}
           <div className="flex items-center gap-4 shrink-0">
             <Link
               href="/login"
-              className="text-[15px] font-medium text-[#57564E] hover:text-[#14140F] transition-colors cursor-pointer py-1"
+              className="text-[15px] font-semibold text-slate-600 hover:text-[#0B1220] transition-colors cursor-pointer py-1"
             >
               Sign In
             </Link>
             <Link
               href="/register"
-              className="px-5 py-2.5 rounded-md text-[15px] font-medium bg-[#3A3564] text-white hover:bg-[#2F2B52] transition-colors cursor-pointer flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-all cursor-pointer flex items-center gap-2 shadow-xs active:scale-95"
             >
               <span>Try For Free</span>
-              <ArrowRight className="w-4 h-4 text-white/70" />
+              <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
             </Link>
           </div>
 
@@ -257,11 +257,11 @@ export function TermsClient() {
       </header>
 
       {/* 2. HERO DOCUMENT HEADER */}
-      <section className="bg-white border-b border-[#57564E]/15 py-12 sm:py-16">
+      <section className="bg-white border-b border-slate-200/80 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="space-y-3 max-w-4xl">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-              Terms of Service
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+              Terms &amp; <span className="text-[#1D4ED8]">Conditions</span>
             </h1>
             <p className="text-sm sm:text-base font-medium text-slate-500">
               Effective Date: <strong className="text-slate-800 font-semibold">{lastUpdated}</strong> · Commercial SaaS Agreement for Apparel Manufacturing
@@ -280,7 +280,7 @@ export function TermsClient() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search terms (e.g. billing, export, ownership, offline, support, cancel)..."
-                className="w-full pl-11 pr-14 py-3 rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564] text-sm shadow-2xs font-mono transition-all"
+                className="w-full pl-11 pr-14 py-3 rounded-xl border border-slate-300 bg-slate-50/70 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#0B1220] focus:border-transparent text-sm shadow-2xs font-mono transition-all"
               />
               {searchQuery && (
                 <button
@@ -303,8 +303,8 @@ export function TermsClient() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2 hover:border-[#3A3564]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">You Own All Factory Data</h3>
@@ -313,8 +313,8 @@ export function TermsClient() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2 hover:border-[#3A3564]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
               <DownloadCloud className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Zero Software Lock-In</h3>
@@ -323,8 +323,8 @@ export function TermsClient() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2 hover:border-[#3A3564]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
               <Server className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">99.9% Uptime Commitment</h3>
@@ -333,11 +333,11 @@ export function TermsClient() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-2 hover:border-[#3A3564]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
               <CreditCard className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900">Clear & Fair Pricing</h3>
+            <h3 className="text-sm font-bold text-slate-900">Clear &amp; Fair Pricing</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
               Simple subscription billing based on active factory lines. No surprise fees, no hidden penalties, and easy cancellation.
             </p>
@@ -352,8 +352,8 @@ export function TermsClient() {
           
           {/* A. STICKY SIDEBAR NAVIGATION (Desktop) */}
           <aside className="lg:col-span-4 sticky top-20 hidden lg:block space-y-4">
-            <div className="bg-white p-5 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between border-b border-black/5 pb-3">
+            <div className="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
                   Table of Contents
                 </div>
@@ -372,12 +372,12 @@ export function TermsClient() {
                       href={`#${s.id}`}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                         isActive
-                          ? 'bg-[#3A3564] text-white font-bold shadow-2xs'
-                          : 'text-slate-600 hover:bg-[#FAF7F0] hover:text-slate-900'
+                          ? 'bg-[#0B1220] text-white font-bold shadow-2xs'
+                          : 'text-slate-600 hover:bg-[#F0FDFA] hover:text-[#0B1220]'
                       }`}
                     >
                       <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                        isActive ? 'bg-[#14C8B4] text-[#0B1220]' : 'bg-slate-100 text-slate-500'
                       }`}>
                         {s.number}
                       </span>
@@ -388,22 +388,22 @@ export function TermsClient() {
               </nav>
 
               {/* Quick Actions: Share & Print Buttons */}
-              <div className="pt-4 border-t border-black/10 grid grid-cols-2 gap-2.5">
+              <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="inline-flex items-center justify-center gap-2 py-3 px-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs sm:text-sm font-semibold text-slate-800 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 py-3 px-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[#F0FDFA] text-xs sm:text-sm font-semibold text-slate-800 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                 >
-                  {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-[#3A3564]" />}
+                  {isCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-[#0B1220]" />}
                   <span>{isCopied ? 'Copied' : 'Share Terms'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center justify-center gap-2 py-3 px-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs sm:text-sm font-semibold text-slate-800 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 py-3 px-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[#F0FDFA] text-xs sm:text-sm font-semibold text-slate-800 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                 >
-                  <Printer className="w-4 h-4 text-[#3A3564]" />
+                  <Printer className="w-4 h-4 text-[#0B1220]" />
                   <span>Print / PDF</span>
                 </button>
               </div>
@@ -414,14 +414,14 @@ export function TermsClient() {
           <div className="lg:col-span-8 space-y-8">
 
             {/* SECTION 1 */}
-            <article id="section-1" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-1" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   01
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 1.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     What These Terms Cover
                   </h2>
                 </div>
@@ -434,9 +434,9 @@ export function TermsClient() {
                 <p>
                   By creating an account, accessing our supervisor web portals, installing our Android companion app, or deploying line tablets on your production floor, you agree to these Terms. If you are entering into this agreement on behalf of a garment factory, processing mill, or export company, you confirm that you have the authority to bind that entity.
                 </p>
-                <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-2 mt-3">
+                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-2 mt-3">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
                     <span>Purpose of the Service</span>
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -447,14 +447,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 2 */}
-            <article id="section-2" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-2" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   02
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 2.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Factory Accounts &amp; User Logins
                   </h2>
                 </div>
@@ -473,14 +473,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 3 */}
-            <article id="section-3" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-3" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   03
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 3.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Subscription Plans &amp; Fair Billing
                   </h2>
                 </div>
@@ -491,13 +491,13 @@ export function TermsClient() {
                   Zigza is provided as a software subscription service. Our pricing plans are straightforward and structured around the size of your factory:
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="p-3.5 rounded-xl border border-black/10 bg-slate-50 space-y-1">
+                  <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
                     <div className="font-bold text-slate-900 text-xs">Transparent Pricing</div>
                     <p className="text-[11px] text-slate-600">
                       Fees are billed in Indian Rupees (INR) on a monthly or annual cycle. Applicable Goods and Services Tax (GST) is clearly listed on every invoice.
                     </p>
                   </div>
-                  <div className="p-3.5 rounded-xl border border-black/10 bg-slate-50 space-y-1">
+                  <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
                     <div className="font-bold text-slate-900 text-xs">No Sneaky Penalties</div>
                     <p className="text-[11px] text-slate-600">
                       You can upgrade, downgrade, or cancel your subscription plan at any time. There are no surprise termination penalties or hidden setup fees.
@@ -511,14 +511,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 4 */}
-            <article id="section-4" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-4" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   04
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 4.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Your Factory Data Belongs to You
                   </h2>
                 </div>
@@ -537,14 +537,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 5 */}
-            <article id="section-5" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-5" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   05
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 5.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Floor Companion &amp; Offline Mobile Use
                   </h2>
                 </div>
@@ -563,14 +563,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 6 */}
-            <article id="section-6" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-6" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   06
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 6.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     System Uptime &amp; Support Service Levels
                   </h2>
                 </div>
@@ -581,24 +581,24 @@ export function TermsClient() {
                   Garment factories run on tight production deadlines, so software reliability is critical.
                 </p>
                 <div className="space-y-2 pt-1">
-                  <div className="p-3 rounded-xl border border-black/10 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">99.9% Uptime Commitment</div>
                       <p className="text-[11px] text-slate-600">We target continuous 99.9% availability for all cloud production endpoints, excluding scheduled maintenance.</p>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-black/10 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Scheduled Maintenance Notice</div>
                       <p className="text-[11px] text-slate-600">Routine server updates are scheduled during off-shift hours (typically Sunday nights) with advance notice in your dashboard.</p>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-black/10 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Fast Technical Support</div>
                       <p className="text-[11px] text-slate-600">Our customer engineering team provides priority assistance for floor-critical questions within standard business hours.</p>
@@ -609,14 +609,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 7 */}
-            <article id="section-7" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-7" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   07
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 7.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Fair Use on the Factory Floor
                   </h2>
                 </div>
@@ -635,14 +635,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 8 */}
-            <article id="section-8" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-8" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   08
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 8.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Third-Party Services &amp; Integrations
                   </h2>
                 </div>
@@ -660,14 +660,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 9 */}
-            <article id="section-9" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-9" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   09
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 9.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Exporting Data &amp; Closing Your Account
                   </h2>
                 </div>
@@ -686,14 +686,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 10 */}
-            <article id="section-10" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-10" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   10
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 10.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Warranties &amp; Clear Limits of Liability
                   </h2>
                 </div>
@@ -712,14 +712,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 11 */}
-            <article id="section-11" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-11" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   11
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 11.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Indian Law &amp; Dispute Resolution
                   </h2>
                 </div>
@@ -736,14 +736,14 @@ export function TermsClient() {
             </article>
 
             {/* SECTION 12 */}
-            <article id="section-12" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs space-y-4 scroll-mt-24">
+            <article id="section-12" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   12
                 </div>
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">Clause 12.0</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight">
                     Questions &amp; Customer Support
                   </h2>
                 </div>
@@ -755,11 +755,11 @@ export function TermsClient() {
                 </p>
 
                 {/* Contact Card */}
-                <div className="p-5 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-3 font-mono text-xs shadow-2xs">
+                <div className="p-5 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-3 font-mono text-xs shadow-2xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700">
                     <div>
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Official Support &amp; Billing Email:</span>
-                      <a href="mailto:support@zigza.in" className="font-bold text-[#3A3564] text-base hover:underline block pt-0.5">
+                      <a href="mailto:support@zigza.in" className="font-bold text-[#1D4ED8] text-base hover:underline block pt-0.5">
                         support@zigza.in
                       </a>
                     </div>
@@ -769,7 +769,7 @@ export function TermsClient() {
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-black/10 flex items-center justify-between text-[11px] text-slate-500 flex-wrap gap-2">
+                  <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500 flex-wrap gap-2">
                     <span>Support SLA: <strong>Within 48 hours</strong></span>
                     <span>Billing Assistance: <strong>Available Monday to Saturday</strong></span>
                   </div>
@@ -781,7 +781,7 @@ export function TermsClient() {
             <div className="pt-4 flex items-center justify-between">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-2xs font-mono"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs font-mono active:scale-95"
               >
                 <span>&larr; Return to Workspace Hub</span>
               </Link>
@@ -789,9 +789,9 @@ export function TermsClient() {
               <button
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-700 shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-[#F0FDFA] text-xs font-mono font-bold text-slate-700 shadow-2xs cursor-pointer active:scale-95 transition-all"
               >
-                <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" />
+                <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" />
                 <span>Back to Top</span>
               </button>
             </div>
@@ -801,8 +801,8 @@ export function TermsClient() {
         </div>
       </main>
 
-      {/* 5. ENTERPRISE FOOTER (MATCHES HOMEPAGE EXACTLY) */}
-      <footer className="bg-[#FDFBF7] text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 mt-16">
+      {/* 5. ENTERPRISE FOOTER (LIGHT MODERN PALETTE) */}
+      <footer className="bg-white text-slate-600 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200/80 mt-16">
         <div className="max-w-7xl mx-auto">
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
@@ -902,7 +902,7 @@ export function TermsClient() {
           <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
               <div className="flex items-center gap-2">
-                <span className="text-proudly-india-black">
+                <span className="text-slate-900 font-bold">
                   Proudly Made in India
                 </span>
                 <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
@@ -911,7 +911,7 @@ export function TermsClient() {
             </div>
             <div className="flex items-center gap-6 text-xs text-slate-500">
               <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="text-[#3A3564] font-medium hover:underline">Terms of Service</Link>
+              <Link href="/terms" className="text-[#1D4ED8] font-bold hover:underline">Terms of Service</Link>
               <Link href="/security" className="hover:text-slate-900 transition-colors">Security Standards</Link>
             </div>
           </div>
