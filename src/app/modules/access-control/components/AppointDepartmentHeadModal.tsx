@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User, Phone, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckSquare, Square } from 'lucide-react'
-import { appointOrUpdateDepartmentHeadAction, DepartmentHeadItem } from '../actions'
+import { X, User, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckSquare, Square, Eye, EyeOff, Check } from 'lucide-react'
+import { appointOrUpdateDepartmentHeadAction, checkPhoneNumberAvailabilityAction, DepartmentHeadItem } from '../actions'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 
 interface AppointDepartmentHeadModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (head?: DepartmentHeadItem) => void
   existingHead?: DepartmentHeadItem | null
   allowedDivisions: string[]
   initialDivisionRoute?: string
@@ -43,6 +43,8 @@ export function AppointDepartmentHeadModal({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Step 2: Department & Permissions
   const [primaryRoute, setPrimaryRoute] = useState('')
@@ -50,10 +52,13 @@ export function AppointDepartmentHeadModal({
   const [selectedTabs, setSelectedTabs] = useState<string[]>(['all-modules'])
 
   const [error, setError] = useState<string | null>(null)
+  const [isCheckingPhone, setIsCheckingPhone] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Only allow divisions the company has purchased
   const purchasedCatalog = DEPARTMENT_HEADS_CATALOG.filter(d => allowedDivisions.includes(d.route))
+
+  const isPasswordMatch = Boolean(password && confirmPassword && password.length >= 6 && password === confirmPassword)
 
   useEffect(() => {
     if (existingHead) {
@@ -63,6 +68,8 @@ export function AppointDepartmentHeadModal({
       setEmail(existingHead.email?.endsWith('.local') ? '' : (existingHead.email || ''))
       setPassword('')
       setConfirmPassword('')
+      setShowPassword(false)
+      setShowConfirmPassword(false)
       const primary = existingHead.primaryDivisionRoute || existingHead.allowedModules[0] || purchasedCatalog[0]?.route || '/cutting'
       setPrimaryRoute(primary)
       setSelectedModules(existingHead.allowedModules.length > 0 ? existingHead.allowedModules : [primary])
@@ -74,6 +81,8 @@ export function AppointDepartmentHeadModal({
       setEmail('')
       setPassword('')
       setConfirmPassword('')
+      setShowPassword(false)
+      setShowConfirmPassword(false)
       const defaultRoute = initialDivisionRoute && allowedDivisions.includes(initialDivisionRoute)
         ? initialDivisionRoute
         : (purchasedCatalog[0]?.route || '/cutting')
@@ -87,7 +96,7 @@ export function AppointDepartmentHeadModal({
 
   if (!isOpen) return null
 
-  const handleStep1Next = (e: React.FormEvent) => {
+  const handleStep1Next = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     const cleanPhone = phone.replace(/\D/g, '').slice(-10)
@@ -125,6 +134,24 @@ export function AppointDepartmentHeadModal({
         return
       }
     }
+
+    setIsCheckingPhone(true)
+    const checkRes1 = await checkPhoneNumberAvailabilityAction(cleanPhone, existingHead?.id)
+    if (!checkRes1.isAvailable) {
+      setIsCheckingPhone(false)
+      setError(checkRes1.message || 'Primary mobile number is already registered in the system.')
+      return
+    }
+
+    if (cleanPhone2) {
+      const checkRes2 = await checkPhoneNumberAvailabilityAction(cleanPhone2, existingHead?.id)
+      if (!checkRes2.isAvailable) {
+        setIsCheckingPhone(false)
+        setError(checkRes2.message || 'Secondary mobile number is already registered in the system.')
+        return
+      }
+    }
+    setIsCheckingPhone(false)
 
     setStep(2)
   }
@@ -178,7 +205,7 @@ export function AppointDepartmentHeadModal({
     setIsSubmitting(false)
 
     if (res.success) {
-      onSuccess()
+      onSuccess(res.head)
       onClose()
     } else {
       setError(res.error || 'Failed to save Department Head')
@@ -316,33 +343,75 @@ export function AppointDepartmentHeadModal({
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required={!isEditing}
                     minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                    placeholder="Enter password (min 6 characters)"
+                    className="w-full pl-10 pr-10 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
               {(password || !isEditing) && (
                 <div>
-                  <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                    Retype Password <span className="text-rose-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-bold text-slate-800">
+                      Retype Password <span className="text-rose-500">*</span>
+                    </label>
+                    {confirmPassword && (
+                      <span className="flex items-center gap-1 text-xs font-semibold">
+                        {isPasswordMatch ? (
+                          <span className="text-emerald-600 flex items-center gap-1">
+                            <Check className="w-3.5 h-3.5" /> Passwords match
+                          </span>
+                        ) : (
+                          <span className="text-rose-500">Passwords do not match</span>
+                        )}
+                      </span>
+                    )}
+                  </div>
                   <div className="relative flex items-center">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                     <input
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       required={!isEditing || Boolean(password)}
                       minLength={6}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter password"
-                      className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                      className={`w-full pl-10 pr-16 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border rounded-xl outline-none transition-all ${
+                        confirmPassword && isPasswordMatch
+                          ? 'border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/10'
+                          : confirmPassword && !isPasswordMatch
+                          ? 'border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
+                          : 'border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10'
+                      }`}
                     />
+                    <div className="absolute right-3 flex items-center gap-1">
+                      {isPasswordMatch && (
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -350,10 +419,20 @@ export function AppointDepartmentHeadModal({
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                  disabled={isCheckingPhone}
+                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
-                  <span>Continue to Department Access</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                  {isCheckingPhone ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Verifying Mobile Numbers...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Continue to Department Access</span>
+                      <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>

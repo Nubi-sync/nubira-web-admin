@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, KeyRound, Loader2, Check, Copy } from 'lucide-react'
+import { X, KeyRound, Loader2, Check, Copy, Eye, EyeOff } from 'lucide-react'
 import { resetDepartmentHeadPasswordAction } from '../actions'
 
 interface ResetPasswordModalProps {
@@ -22,6 +22,7 @@ export function ResetPasswordModal({
   onSuccess
 }: ResetPasswordModalProps) {
   const [newPassword, setNewPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -119,25 +120,35 @@ export function ResetPasswordModal({
                   Generate Strong
                 </button>
               </div>
-              <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#0B1220] focus-within:border-[#0B1220] overflow-hidden bg-white shadow-2xs">
+              <div className="relative flex items-center rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#0B1220] focus-within:border-[#0B1220] overflow-hidden bg-white shadow-2xs">
                 <input
-                  type="text"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none"
+                  className="w-full pl-3.5 pr-20 py-2.5 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none"
                 />
-                {newPassword && (
+                <div className="absolute right-0 top-0 bottom-0 flex items-center bg-white">
                   <button
                     type="button"
-                    onClick={handleCopy}
-                    className="px-3 border-l border-slate-200 text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1 cursor-pointer"
-                    title="Copy to clipboard"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="px-2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    tabIndex={-1}
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                )}
+                  {newPassword && (
+                    <button
+                      type="button"
+                      onClick={handleCopy}
+                      className="px-3 border-l border-slate-200 text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1 cursor-pointer h-full"
+                      title="Copy to clipboard"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User, Briefcase, Clock, Loader2, Lock } from 'lucide-react'
-import { addFloorWorkerAction } from '../actions'
+import { X, User, Briefcase, Clock, Loader2, Lock, Eye, EyeOff, Check } from 'lucide-react'
+import { addFloorWorkerAction, checkPhoneNumberAvailabilityAction, FloorWorkerItem } from '../actions'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 
 interface AddWorkerModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (worker?: FloorWorkerItem) => void
   allowedDivisions: string[]
   initialDivisionRoute?: string
 }
@@ -27,11 +27,15 @@ export function AddWorkerModal({
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [role, setRole] = useState('')
   const [shift, setShift] = useState('General')
 
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const isPasswordMatch = Boolean(password && confirmPassword && password.length >= 6 && password === confirmPassword)
 
   useEffect(() => {
     const defaultRoute = initialDivisionRoute && allowedDivisions.includes(initialDivisionRoute)
@@ -42,6 +46,8 @@ export function AddWorkerModal({
     setPhone('')
     setPassword('')
     setConfirmPassword('')
+    setShowPassword(false)
+    setShowConfirmPassword(false)
     setRole('')
     setShift('General')
     setError(null)
@@ -72,6 +78,13 @@ export function AddWorkerModal({
     }
 
     setIsSubmitting(true)
+    const phoneCheck = await checkPhoneNumberAvailabilityAction(cleanPhone)
+    if (!phoneCheck.isAvailable) {
+      setIsSubmitting(false)
+      setError(phoneCheck.message || 'This mobile number is already registered in the system.')
+      return
+    }
+
     const res = await addFloorWorkerAction({
       divisionRoute,
       worker_name: name.trim(),
@@ -83,7 +96,7 @@ export function AddWorkerModal({
     setIsSubmitting(false)
 
     if (res.success) {
-      onSuccess()
+      onSuccess(res.worker)
       onClose()
     } else {
       setError(res.error || 'Failed to add floor worker')
@@ -186,32 +199,74 @@ export function AddWorkerModal({
               <div className="relative flex items-center">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters"
-                  className="w-full pl-10 pr-3.5 py-3 bg-[#F8FAFC] focus:bg-white text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                  className="w-full pl-10 pr-10 py-3 bg-[#F8FAFC] focus:bg-white text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                Retype Password <span className="text-rose-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-sm font-bold text-slate-800">
+                  Retype Password <span className="text-rose-500">*</span>
+                </label>
+                {confirmPassword && (
+                  <span className="flex items-center gap-1 text-xs font-semibold">
+                    {isPasswordMatch ? (
+                      <span className="text-emerald-600 flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" /> Passwords match
+                      </span>
+                    ) : (
+                      <span className="text-rose-500">Passwords do not match</span>
+                    )}
+                  </span>
+                )}
+              </div>
               <div className="relative flex items-center">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   required
                   minLength={6}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter password"
-                  className="w-full pl-10 pr-3.5 py-3 bg-[#F8FAFC] focus:bg-white text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                  className={`w-full pl-10 pr-16 py-3 bg-[#F8FAFC] focus:bg-white text-sm font-medium text-[#0B1220] border rounded-xl outline-none transition-all ${
+                    confirmPassword && isPasswordMatch
+                      ? 'border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/10'
+                      : confirmPassword && !isPasswordMatch
+                      ? 'border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
+                      : 'border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10'
+                  }`}
                 />
+                <div className="absolute right-3 flex items-center gap-1">
+                  {isPasswordMatch && (
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -168,7 +168,7 @@ export async function fetchSupervisorAndWorkersHubAction(): Promise<SupervisorHu
         // Fetch auth users to get user metadata (display name, login username, phones, allowed_tabs)
         const authUserMap = new Map<string, any>()
         try {
-          const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 300 })
+          const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
           if (authUsers?.users) {
             authUsers.users.forEach(u => authUserMap.set(u.id, u))
           }
@@ -347,6 +347,111 @@ export async function fetchCompanyDepartmentHeadsAction() {
 }
 
 /**
+ * Check if a mobile phone number is already registered across any company/staff in the database.
+ */
+export async function checkPhoneNumberAvailabilityAction(
+  phoneNumber: string,
+  excludeUserId?: string
+): Promise<{ isAvailable: boolean; message?: string }> {
+  try {
+    const cleanPhone = (phoneNumber || '').replace(/\D/g, '').slice(-10)
+    if (cleanPhone.length !== 10) {
+      return { isAvailable: false, message: 'Please enter a valid 10-digit mobile number' }
+    }
+
+    // 1. Check in profiles table across all companies
+    let profQuery = supabaseAdmin
+      .from('profiles')
+      .select('id, username, phone, role, company_name')
+      .ilike('phone', `%${cleanPhone}%`)
+
+    if (excludeUserId) {
+      profQuery = profQuery.neq('id', excludeUserId)
+    }
+
+    const { data: matchedProfiles } = await profQuery
+    if (matchedProfiles && matchedProfiles.length > 0) {
+      const match = matchedProfiles.find(p => {
+        const pDigits = (p.phone || '').replace(/\D/g, '')
+        return pDigits.includes(cleanPhone)
+      })
+      if (match) {
+        return {
+          isAvailable: false,
+          message: 'This mobile number is already registered to another staff member.'
+        }
+      }
+    }
+
+    // 2. Check auth.users
+    try {
+      const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+      if (authUsers?.users) {
+        const match = authUsers.users.find(u => {
+          if (excludeUserId && u.id === excludeUserId) return false
+          const uPhone = (u.phone || '').replace(/\D/g, '')
+          const metaPhone = (u.user_metadata?.phone || '').replace(/\D/g, '')
+          const metaPhone2 = (u.user_metadata?.phone2 || '').replace(/\D/g, '')
+          const metaPhoneNum = (u.user_metadata?.phone_number || '').replace(/\D/g, '')
+          return (
+            uPhone.includes(cleanPhone) ||
+            metaPhone.includes(cleanPhone) ||
+            metaPhone2.includes(cleanPhone) ||
+            metaPhoneNum.includes(cleanPhone)
+          )
+        })
+        if (match) {
+          return {
+            isAvailable: false,
+            message: 'This mobile number is already registered to another staff member.'
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 3. Check worker tables
+    const workerTables = [
+      'cutting_workers',
+      'stitching_workers',
+      'printing_workers',
+      'embroidery_workers',
+      'washing_workers',
+      'iron_workers',
+      'design_team_members',
+      'ready_goods_workers',
+      'packing_workers'
+    ]
+
+    for (const tbl of workerTables) {
+      try {
+        let q = supabaseAdmin.from(tbl).select('id, phone_number')
+        if (excludeUserId) {
+          q = q.neq('id', excludeUserId)
+        }
+        const { data: wData } = await q
+        if (wData && Array.isArray(wData)) {
+          const matchedWorker = wData.find((w: any) => {
+            const wp = (w.phone_number || w.phone || '').replace(/\D/g, '')
+            return wp.includes(cleanPhone)
+          })
+          if (matchedWorker) {
+            return {
+              isAvailable: false,
+              message: 'This mobile number is already registered to another staff member.'
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    return { isAvailable: true }
+  } catch (err: any) {
+    console.error('[checkPhoneNumberAvailabilityAction] Error:', err)
+    return { isAvailable: true }
+  }
+}
+
+/**
  * 1. Appoint Production Manager
  * Strictly restricted to Company Owner (Super Admin).
  * Requires at max 2 steps:
@@ -358,7 +463,7 @@ export async function appointProductionManagerAction(payload: {
   phone: string
   email?: string
   password: string
-}): Promise<{ success: boolean; error?: string; pmId?: string }> {
+}): Promise<{ success: boolean; error?: string; pmId?: string; pm?: ProductionManagerItem }> {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -378,6 +483,12 @@ export async function appointProductionManagerAction(payload: {
     if (!cleanName) return { success: false, error: 'Full name is required' }
     if (cleanPhone.length !== 10) return { success: false, error: 'Please enter a valid 10-digit mobile number' }
     if (!payload.password || payload.password.length < 6) return { success: false, error: 'Password must be at least 6 characters' }
+
+    // Phone uniqueness check
+    const phoneCheck = await checkPhoneNumberAvailabilityAction(cleanPhone)
+    if (!phoneCheck.isAvailable) {
+      return { success: false, error: phoneCheck.message || 'This mobile number is already registered' }
+    }
 
     const company = tenant.companyName.trim()
     const companySlug = company.toLowerCase().replace(/[^a-z0-9]/g, '') || 'factory'
@@ -450,11 +561,26 @@ export async function appointProductionManagerAction(payload: {
       console.error('[appointProductionManagerAction] Profile error:', profileErr.message)
     }
 
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
     await CacheManager.invalidateTag('tenant')
+    await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+    await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
     revalidatePath('/access-control')
     revalidatePath('/modules')
-    return { success: true, pmId: authUserId }
+
+    const savedPm: ProductionManagerItem = {
+      id: authUserId,
+      name: cleanName,
+      username: cleanUsername,
+      phone: cleanPhone,
+      email: loginEmail,
+      isActive: true,
+      createdAt: new Date().toISOString()
+    }
+
+    return { success: true, pmId: authUserId, pm: savedPm }
   } catch (err: any) {
     console.error('[appointProductionManagerAction] Error:', err)
     return { success: false, error: err?.message || 'Failed to appoint Production Manager' }
@@ -483,7 +609,7 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
   allowedModules: string[]
   allowedTabs?: string[]
   designation?: string
-}): Promise<{ success: boolean; error?: string; headId?: string }> {
+}): Promise<{ success: boolean; error?: string; headId?: string; head?: DepartmentHeadItem }> {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -505,6 +631,19 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
     if (!cleanName) return { success: false, error: 'Head Full Name is required' }
     if (cleanPhone.length !== 10) return { success: false, error: 'Please enter a valid 10-digit primary mobile number' }
     if (cleanPhone2 && cleanPhone2.length !== 10) return { success: false, error: 'Secondary mobile number must be 10 digits' }
+
+    // Phone uniqueness check
+    const phoneCheck1 = await checkPhoneNumberAvailabilityAction(cleanPhone, payload.headId)
+    if (!phoneCheck1.isAvailable) {
+      return { success: false, error: phoneCheck1.message || 'Primary mobile number is already registered' }
+    }
+
+    if (cleanPhone2) {
+      const phoneCheck2 = await checkPhoneNumberAvailabilityAction(cleanPhone2, payload.headId)
+      if (!phoneCheck2.isAvailable) {
+        return { success: false, error: phoneCheck2.message || 'Secondary mobile number is already registered' }
+      }
+    }
 
     const company = tenant.companyName.trim()
     const companySlug = company.toLowerCase().replace(/[^a-z0-9]/g, '') || 'factory'
@@ -573,11 +712,32 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
       }
       await supabaseAdmin.auth.admin.updateUserById(payload.headId, authUpdates)
 
+      const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+      await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
       await CacheManager.invalidateTag('access_control')
       await CacheManager.invalidateTag('tenant')
+      await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+      await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
       revalidatePath('/access-control')
       revalidatePath('/modules')
-      return { success: true, headId: payload.headId }
+
+      const updatedHead: DepartmentHeadItem = {
+        id: payload.headId,
+        displayName: cleanName,
+        username: `${cleanName.toLowerCase().replace(/\s+/g, '_')}_head`,
+        email: loginEmail,
+        role: 'DEPARTMENT_HEAD',
+        designation: defaultDesignation,
+        primaryDivisionRoute: modulesToAssign[0] || payload.primaryDivisionRoute,
+        allowedModules: modulesToAssign,
+        allowedTabs: tabsToAssign,
+        isActive: true,
+        phone: cleanPhone,
+        phone2: cleanPhone2 || undefined,
+        createdAt: new Date().toISOString()
+      }
+
+      return { success: true, headId: payload.headId, head: updatedHead }
     }
 
     // CASE B: CREATE NEW DEPARTMENT HEAD
@@ -655,11 +815,32 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
         phone: compositePhone
       })
 
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
     await CacheManager.invalidateTag('tenant')
+    await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+    await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
     revalidatePath('/access-control')
     revalidatePath('/modules')
-    return { success: true, headId: authUserId }
+
+    const newHead: DepartmentHeadItem = {
+      id: authUserId,
+      displayName: cleanName,
+      username: cleanUsername,
+      email: loginEmail,
+      role: 'DEPARTMENT_HEAD',
+      designation: defaultDesignation,
+      primaryDivisionRoute: modulesToAssign[0] || payload.primaryDivisionRoute,
+      allowedModules: modulesToAssign,
+      allowedTabs: tabsToAssign,
+      isActive: true,
+      phone: cleanPhone,
+      phone2: cleanPhone2 || undefined,
+      createdAt: new Date().toISOString()
+    }
+
+    return { success: true, headId: authUserId, head: newHead }
   } catch (err: any) {
     console.error('[appointOrUpdateDepartmentHeadAction] Error:', err)
     return { success: false, error: err?.message || 'Failed to appoint Department Head' }
@@ -680,7 +861,7 @@ export async function addFloorWorkerAction(payload: {
   password?: string
   role?: string
   shift?: string
-}): Promise<{ success: boolean; error?: string; workerId?: string }> {
+}): Promise<{ success: boolean; error?: string; workerId?: string; worker?: FloorWorkerItem }> {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -718,6 +899,12 @@ export async function addFloorWorkerAction(payload: {
     if (cleanPhone.length !== 10) return { success: false, error: '10-digit mobile number required' }
     if (payload.password && payload.password.length < 6) {
       return { success: false, error: 'Worker password must be at least 6 characters long' }
+    }
+
+    // Phone uniqueness check
+    const phoneCheck = await checkPhoneNumberAvailabilityAction(cleanPhone)
+    if (!phoneCheck.isAvailable) {
+      return { success: false, error: phoneCheck.message || 'This mobile number is already registered' }
     }
 
     const tableConfig = DIVISION_WORKER_MAP[route]
@@ -807,9 +994,28 @@ export async function addFloorWorkerAction(payload: {
     const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
     await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
+    await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+    await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
     revalidatePath('/access-control')
     revalidatePath('/supervisor-workers')
-    return { success: true, workerId: data?.id }
+
+    const divCatalogItem = DEPARTMENT_HEADS_CATALOG.find(d => d.route === route)
+    const divName = divCatalogItem?.name || route.replace('/', '').toUpperCase()
+
+    const savedWorker: FloorWorkerItem = {
+      id: data?.id || String(Date.now()),
+      name: cleanName,
+      phone: cleanPhone,
+      departmentRoute: route,
+      departmentName: divName,
+      role: payload.role || tableConfig.defaultRole,
+      shift: payload.shift || 'General',
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString()
+    }
+
+    return { success: true, workerId: data?.id, worker: savedWorker }
   } catch (err: any) {
     console.error('[addFloorWorkerAction] Error:', err)
     return { success: false, error: err?.message || 'Failed to add worker' }
@@ -949,7 +1155,12 @@ export async function toggleStaffStatusAction(payload: {
         .eq('company_name', company)
     }
 
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
+    await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+    await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
     revalidatePath('/access-control')
     return { success: true }
   } catch (err: any) {
@@ -993,7 +1204,12 @@ export async function resetStaffPasswordAction(
 
     if (error) throw error
 
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
+    await CacheManager.invalidateTag('tenant')
+    await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+    await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
     revalidatePath('/access-control')
     return { success: true }
   } catch (err: any) {

@@ -165,10 +165,8 @@ export function DepartmentHeadsClient({
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Clean Toast: White bg, black font, green tick
-  const [toastMsg, setToastMsg] = useState<string | null>(null)
+  // Clean Toast: White bg, black font, green tick (Single Notification)
   const showToast = (msg: string) => {
-    setToastMsg(msg)
     try {
       toast.success(msg, {
         style: {
@@ -179,10 +177,9 @@ export function DepartmentHeadsClient({
           borderRadius: '16px',
           fontWeight: '600'
         },
-        icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+        icon: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
       })
     } catch (_) {}
-    setTimeout(() => setToastMsg(null), 3500)
   }
 
   // Action handlers
@@ -305,13 +302,6 @@ export function DepartmentHeadsClient({
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* Toast Notification (Green tick, white background, black font) */}
-      {toastMsg && (
-        <div className="fixed top-20 right-6 z-50 px-5 py-3.5 rounded-2xl bg-white text-[#0B1220] border border-slate-200 shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-top-4 duration-200">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span className="text-sm font-bold text-[#0B1220]">{toastMsg}</span>
-        </div>
-      )}
 
       {/* 1. Header Banner - Clean with Department Pill */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
@@ -927,7 +917,10 @@ export function DepartmentHeadsClient({
       <AppointProductionManagerModal
         isOpen={isPmModalOpen}
         onClose={() => setIsPmModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={(savedPm?: ProductionManagerItem) => {
+          if (savedPm) {
+            setProductionManagersList([savedPm])
+          }
           showToast('Production Manager appointed successfully!')
           router.refresh()
         }}
@@ -941,7 +934,16 @@ export function DepartmentHeadsClient({
           setSelectedHeadForEdit(null)
           setHeadModalInitialRoute(undefined)
         }}
-        onSuccess={() => {
+        onSuccess={(savedHead?: DepartmentHeadItem) => {
+          if (savedHead) {
+            setDepartmentHeadsList(prev => {
+              const exists = prev.some(h => h.id === savedHead.id)
+              if (exists) {
+                return prev.map(h => h.id === savedHead.id ? savedHead : h)
+              }
+              return [savedHead, ...prev]
+            })
+          }
           showToast(selectedHeadForEdit ? 'Department Head updated successfully!' : 'Department Head appointed successfully!')
           router.refresh()
         }}
@@ -957,7 +959,16 @@ export function DepartmentHeadsClient({
           setIsWorkerModalOpen(false)
           setWorkerModalInitialRoute(undefined)
         }}
-        onSuccess={() => {
+        onSuccess={(savedWorker?: FloorWorkerItem) => {
+          if (savedWorker) {
+            setWorkersList(prev => {
+              const exists = prev.some(w => w.id === savedWorker.id)
+              if (exists) {
+                return prev.map(w => w.id === savedWorker.id ? savedWorker : w)
+              }
+              return [savedWorker, ...prev]
+            })
+          }
           showToast('Shop floor worker registered successfully!')
           router.refresh()
         }}

@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, User, Phone, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react'
-import { appointProductionManagerAction } from '../actions'
+import { X, User, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff, Check } from 'lucide-react'
+import { appointProductionManagerAction, checkPhoneNumberAvailabilityAction, ProductionManagerItem } from '../actions'
 
 interface AppointProductionManagerModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (pm?: ProductionManagerItem) => void
 }
 
 export function AppointProductionManagerModal({
@@ -21,13 +21,18 @@ export function AppointProductionManagerModal({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [error, setError] = useState<string | null>(null)
+  const [isCheckingPhone, setIsCheckingPhone] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
 
-  const handleStep1Next = (e: React.FormEvent) => {
+  const isPasswordMatch = password.length >= 6 && password === confirmPassword
+
+  const handleStep1Next = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     const cleanPhone = phone.replace(/\D/g, '').slice(-10)
@@ -39,6 +44,16 @@ export function AppointProductionManagerModal({
       setError('Please enter a valid 10-digit mobile number.')
       return
     }
+
+    setIsCheckingPhone(true)
+    const checkRes = await checkPhoneNumberAvailabilityAction(cleanPhone)
+    setIsCheckingPhone(false)
+
+    if (!checkRes.isAvailable) {
+      setError(checkRes.message || 'This mobile number is already registered in the system.')
+      return
+    }
+
     setStep(2)
   }
 
@@ -65,7 +80,7 @@ export function AppointProductionManagerModal({
     setIsSubmitting(false)
 
     if (res.success) {
-      onSuccess()
+      onSuccess(res.pm)
       handleClose()
     } else {
       setError(res.error || 'Failed to appoint Production Manager')
@@ -79,6 +94,8 @@ export function AppointProductionManagerModal({
     setEmail('')
     setPassword('')
     setConfirmPassword('')
+    setShowPassword(false)
+    setShowConfirmPassword(false)
     setError(null)
     onClose()
   }
@@ -178,10 +195,20 @@ export function AppointProductionManagerModal({
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                  disabled={isCheckingPhone}
+                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
-                  <span>Continue to Password</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                  {isCheckingPhone ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Verifying Mobile Number...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Continue to Password</span>
+                      <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -194,32 +221,74 @@ export function AppointProductionManagerModal({
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
                     minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                    placeholder="Enter new password (min 6 characters)"
+                    className="w-full pl-10 pr-10 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Retype New Password <span className="text-rose-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-bold text-slate-800">
+                    Retype New Password <span className="text-rose-500">*</span>
+                  </label>
+                  {confirmPassword && (
+                    <span className="flex items-center gap-1 text-xs font-semibold">
+                      {isPasswordMatch ? (
+                        <span className="text-emerald-600 flex items-center gap-1">
+                          <Check className="w-3.5 h-3.5" /> Passwords match
+                        </span>
+                      ) : (
+                        <span className="text-rose-500">Passwords do not match</span>
+                      )}
+                    </span>
+                  )}
+                </div>
                 <div className="relative flex items-center">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                   <input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     required
                     minLength={6}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter password"
-                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                    className={`w-full pl-10 pr-16 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border rounded-xl outline-none transition-all ${
+                      confirmPassword && isPasswordMatch
+                        ? 'border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/10'
+                        : confirmPassword && !isPasswordMatch
+                        ? 'border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
+                        : 'border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10'
+                    }`}
                   />
+                  <div className="absolute right-3 flex items-center gap-1">
+                    {isPasswordMatch && (
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
