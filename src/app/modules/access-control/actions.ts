@@ -472,14 +472,16 @@ export async function appointProductionManagerAction(payload: {
  */
 export async function appointOrUpdateDepartmentHeadAction(payload: {
   headId?: string
-  name: string
+  name?: string
+  displayName?: string
+  username?: string
   phone: string
   phone2?: string
   email?: string
   password?: string
   primaryDivisionRoute: string
   allowedModules: string[]
-  allowedTabs: string[]
+  allowedTabs?: string[]
   designation?: string
 }): Promise<{ success: boolean; error?: string; headId?: string }> {
   try {
@@ -496,7 +498,7 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
       return { success: false, error: 'Unauthorized: Only Owner or Production Manager can assign a Department Head' }
     }
 
-    const cleanName = payload.name.trim()
+    const cleanName = (payload.name || payload.displayName || '').trim()
     const cleanPhone = payload.phone.trim().replace(/\D/g, '').slice(-10)
     const cleanPhone2 = payload.phone2 ? payload.phone2.trim().replace(/\D/g, '').slice(-10) : ''
 

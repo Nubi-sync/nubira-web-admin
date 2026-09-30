@@ -83,12 +83,12 @@ export function ResetPasswordModal({
         </button>
 
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-            <KeyRound className="w-5 h-5 stroke-[2.2]" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <KeyRound className="w-5 h-5 stroke-[2.2] text-[#0B1220]" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-              Reset Head Password
+              Reset Staff Password
             </h3>
             <p className="text-xs text-slate-500 font-mono">
               {headName} ({username})
@@ -98,8 +98,8 @@ export function ResetPasswordModal({
 
         {success ? (
           <div className="py-6 text-center space-y-2">
-            <div className="w-12 h-12 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto shadow-2xs">
-              <Check className="w-6 h-6 stroke-[2.5]" />
+            <div className="w-12 h-12 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center mx-auto shadow-2xs">
+              <Check className="w-6 h-6 stroke-[2.5] text-emerald-600" />
             </div>
             <p className="text-sm font-bold text-slate-900">Password Updated Successfully!</p>
             <p className="text-xs text-slate-500 font-mono">New credentials are now active.</p>
@@ -114,12 +114,12 @@ export function ResetPasswordModal({
                 <button
                   type="button"
                   onClick={generateRandomPassword}
-                  className="text-[11px] text-[#3A3564] hover:underline font-bold cursor-pointer"
+                  className="text-[11px] text-[#1D4ED8] hover:underline font-bold cursor-pointer"
                 >
                   Generate Strong
                 </button>
               </div>
-              <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#3A3564] focus-within:border-[#3A3564] overflow-hidden bg-white shadow-2xs">
+              <div className="relative flex rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#0B1220] focus-within:border-[#0B1220] overflow-hidden bg-white shadow-2xs">
                 <input
                   type="text"
                   required
@@ -135,7 +135,7 @@ export function ResetPasswordModal({
                     className="px-3 border-l border-slate-200 text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1 cursor-pointer"
                     title="Copy to clipboard"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-[#3A3564]" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 )}
               </div>
@@ -158,7 +158,7 @@ export function ResetPasswordModal({
               <button
                 type="submit"
                 disabled={isSubmitting || !newPassword}
-                className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
