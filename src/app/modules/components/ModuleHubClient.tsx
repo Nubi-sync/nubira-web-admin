@@ -195,20 +195,24 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
     : `Central manufacturing execution hub across ${visibleModules.length === MODULES.length ? 'all 11 apparel production divisions' : 'your authorized division modules'}`
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#0B1220]">
       
-      {/* 1. Page Header Card (Standard Zigza Admin Card) */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      {/* 1. Page Header Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564]">
-            <LayoutGrid className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <LayoutGrid className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                {headingTitle}
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                {resolvedCompany ? (
+                  <>Welcome, <span className="text-[#1D4ED8]">{resolvedCompany}</span></>
+                ) : (
+                  <>Enterprise <span className="text-[#1D4ED8]">Workspace</span> Hub</>
+                )}
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
                 {visibleModules.length} Operating Units
               </span>
             </div>
@@ -219,19 +223,19 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Department Heads & Incharges RBAC Button (For Company SuperAdmin) */}
+          {/* Department Heads & Incharges RBAC Button */}
           <Link
             href="/modules/access-control"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
             title="Appoint and manage Division Heads across all 11 manufacturing units"
           >
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4 text-[#14C8B4]" />
             <span>Department Heads</span>
           </Link>
 
           <Link
             href="/modules/profile"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#F0FDFA] hover:bg-[#E6FAF7] text-[#0B1220] border border-[#14C8B4]/30 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer"
           >
             <span>Company Profile</span>
           </Link>
@@ -239,7 +243,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           <form action="/auth/signout" method="post">
             <button 
               type="submit"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-xs cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
@@ -261,38 +265,39 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
               href={mod.href}
               onClick={(e) => handleCardClick(e, mod)}
               aria-disabled={isOtherLaunching}
-              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white border shadow-2xs transition-all duration-200 cursor-pointer ${
+              className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
                 isLaunching
-                  ? 'border-2 border-[#3A3564] ring-2 ring-[#3A3564]/20 shadow-md bg-[#FAF7F0]/40 -translate-y-0.5'
+                  ? 'border-2 border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md bg-[#F0FDFA]/40 -translate-y-0.5'
                   : isOtherLaunching
-                    ? 'border-black/30 opacity-50 pointer-events-none'
-                    : 'border-black hover:border-black hover:shadow-lg hover:-translate-y-1'
+                    ? 'border-slate-200 opacity-50 pointer-events-none'
+                    : 'border-slate-200/80 hover:border-[#0B1220]/40 hover:shadow-md hover:-translate-y-1'
               }`}
             >
               {/* Top animated progress bar when launching */}
               {isLaunching && (
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#3A3564] overflow-hidden rounded-t-3xl z-20">
-                  <div className="w-full h-full bg-gradient-to-r from-[#3A3564] via-[#FAF7F0] to-[#3A3564] animate-pulse" />
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0B1220] overflow-hidden rounded-t-3xl z-20">
+                  <div className="w-full h-full bg-gradient-to-r from-[#0B1220] via-[#14C8B4] to-[#0B1220] animate-pulse" />
                 </div>
               )}
 
-              {/* Top Section: Icon Glyph + Category Tag, Title, Subtitle, 2 Bullets */}
+              {/* Top Section */}
               <div>
                 {/* Row 1: Bare Outline Icon + Category Tag */}
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  {/* Icon: Plain outline glyph directly on card background */}
                   {isLaunching ? (
-                    <Loader2 className="w-7 h-7 text-[#3A3564] stroke-[2] animate-spin" />
+                    <Loader2 className="w-7 h-7 text-[#0B1220] stroke-[2] animate-spin" />
                   ) : (
-                    <Icon className="w-7 h-7 text-[#3A3564] stroke-[1.75] transition-transform duration-200 group-hover:scale-105" />
+                    <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
+                      <Icon className="w-6 h-6 text-[#0B1220] stroke-[1.75]" />
+                    </div>
                   )}
 
                   {/* Single Top-Right Category Tag */}
                   <span
                     className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider transition-colors ${
                       isLaunching
-                        ? 'bg-[#3A3564] text-white'
-                        : 'bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs'
+                        ? 'bg-[#0B1220] text-white'
+                        : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs'
                     }`}
                   >
                     {isLaunching ? 'OPENING...' : mod.badge}
@@ -302,7 +307,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 {/* Card Title */}
                 <h2
                   className={`text-lg sm:text-xl font-extrabold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
-                    isLaunching ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                    isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#1D4ED8]'
                   }`}
                 >
                   {mod.title}
@@ -313,30 +318,28 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                   {mod.subtitle}
                 </p>
 
-                {/* 2 Feature Bullets with Simple Flat Dot (Whitespace separation, no divider line) */}
+                {/* 2 Feature Bullets */}
                 <div className="mt-4 flex flex-col gap-2">
                   {mod.features.slice(0, 2).map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                        isLaunching ? 'bg-[#3A3564]' : 'bg-[#3A3564]/50 group-hover:bg-[#3A3564]'
-                      }`} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] shrink-0" />
                       <span>{feat}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Bottom Section: Solid Filled Indigo Launch Button (Rounded Rectangle) */}
+              {/* Bottom Section: Solid Filled Launch Button */}
               <div className="mt-6 flex items-center justify-end">
                 {isLaunching ? (
-                  <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#3A3564] text-white shadow-xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#14C8B4]" />
                     <span>Opening...</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#3A3564] text-white shadow-xs group-hover:bg-[#2A2649] transition-all cursor-pointer">
+                  <div className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] transition-all cursor-pointer">
                     <span>Launch</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[#14C8B4] transition-transform group-hover:translate-x-0.5" />
                   </div>
                 )}
               </div>

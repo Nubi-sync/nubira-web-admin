@@ -12,12 +12,12 @@ import { AiCopilotWidget } from '../chat/AiCopilotWidget'
 
 function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: () => void; logoHref?: string }) {
   return (
-    <header className="lg:hidden sticky top-0 z-30 w-full bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between shadow-xs">
+    <header className="lg:hidden sticky top-0 z-30 w-full bg-white border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between shadow-xs">
       {/* Hamburger Button */}
       <button
         type="button"
         onClick={onMenuToggle}
-        className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+        className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-[#0B1220] hover:bg-slate-50 transition-colors cursor-pointer shadow-xs"
         aria-label="Open navigation menu"
       >
         <Menu className="w-5 h-5" />
@@ -38,7 +38,7 @@ function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: (
       </Link>
 
       {/* Right: ERP Badge */}
-      <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
+      <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
         ERP MES
       </span>
     </header>
@@ -47,7 +47,7 @@ function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: (
 
 function AdminShellContent({ 
   children, 
-  userEmail,
+  userEmail, 
   userRole,
   companyName
 }: { 
@@ -145,7 +145,7 @@ function AdminShellContent({
   }, [isMobileMenuOpen])
 
   return (
-    <div className={`min-h-screen w-full flex flex-col ${!isWorkspaceHubPage ? 'lg:flex-row' : ''} bg-[#FAFAF8] text-slate-900 font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
+    <div className={`min-h-screen w-full flex flex-col ${!isWorkspaceHubPage ? 'lg:flex-row' : ''} bg-[#F8FAFC] text-[#0B1220] font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
       {/* Sidebar — ONLY rendered when NOT in TV mode and NOT on Workspace Hub pages */}
       {!isTvMode && !isWorkspaceHubPage && (
         <AdminSidebar 
@@ -193,7 +193,7 @@ function AdminShellContent({
 
 export function AdminShell({ 
   children, 
-  userEmail,
+  userEmail, 
   userRole,
   companyName
 }: { 

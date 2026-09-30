@@ -91,7 +91,7 @@ export function CompanyOwnerHeader({
     ? companyName.trim()
     : 'Apparel Factory'
 
-  // Exact 9 Tabs in the user's requested order:
+  // Exact 9 Tabs:
   // 1. Dashboard
   // 2. All Modules
   // 3. Buyers & Vendors
@@ -177,10 +177,10 @@ export function CompanyOwnerHeader({
   ]
 
   return (
-    <div className="w-full select-none z-30 sticky top-0 font-[family-name:var(--font-public-sans)] bg-[#FAF7F0] shadow-xs">
-      {/* 1. TOP BRAND NAVBAR (Warm canvas with prominent login/register brand logo & enlarged action buttons) */}
-      <header className="w-full bg-[#FAF7F0] text-[#14140F] px-4 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between border-b-2 border-[#14140F]/15">
-        {/* Left Section: Login/Register Page Style Zigza Logo + Actual Company Name */}
+    <div className="w-full select-none z-30 sticky top-0 font-[family-name:var(--font-public-sans)] bg-white shadow-xs">
+      {/* 1. TOP BRAND NAVBAR */}
+      <header className="w-full bg-white text-[#0B1220] px-4 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between border-b border-slate-200/80">
+        {/* Left Section: Brand Logo + Company Name */}
         <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
           <Link href="/modules" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
             <img
@@ -195,58 +195,58 @@ export function CompanyOwnerHeader({
             />
           </Link>
 
-          <span className="h-7 sm:h-8 w-px bg-[#14140F]/20 hidden sm:inline-block" />
+          <span className="h-7 sm:h-8 w-px bg-slate-200 hidden sm:inline-block" />
 
           <div className="flex items-center min-w-0">
-            <h1 className="text-base sm:text-lg md:text-xl font-bold text-[#14140F] tracking-tight truncate font-[family-name:var(--font-heading)]">
+            <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] tracking-tight truncate font-[family-name:var(--font-heading)]">
               {resolvedCompany}
             </h1>
           </div>
         </div>
 
-        {/* Right Section: Enlarged Actions (+ Create, Notification Bell, User Account) */}
+        {/* Right Section: Actions (+ Create, Notification Bell, User Account) */}
         <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
           {/* + Create Dropdown */}
           <div className="relative" ref={createRef}>
             <button
               type="button"
               onClick={() => setIsCreateOpen(!isCreateOpen)}
-              className="bg-[#3A3564] text-white hover:bg-[#2F2B52] px-4 sm:px-5 py-2.5 rounded-xl text-sm sm:text-[15px] font-bold shadow-xs hover:shadow-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95"
+              className="bg-[#0B1220] text-white hover:bg-[#162032] px-4 sm:px-5 py-2.5 rounded-xl text-sm sm:text-[15px] font-bold shadow-xs hover:shadow-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95"
             >
-              <Plus className="w-5 h-5 stroke-[2.5]" />
+              <Plus className="w-5 h-5 stroke-[2.5] text-[#14C8B4]" />
               <span className="hidden sm:inline">Create</span>
               <ChevronDown className="w-4 h-4 text-white/80" />
             </button>
 
             {isCreateOpen && (
-              <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-[#14140F]/15 py-2 z-50 text-[#14140F] text-xs font-medium animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50 text-[#0B1220] text-xs font-medium animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-4 py-1.5 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                   Quick Actions
                 </div>
                 <Link
                   href="/access-control"
-                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors font-semibold text-slate-800 hover:text-[#3A3564]"
+                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#F0FDFA] transition-colors font-semibold text-slate-800 hover:text-[#0B1220]"
                 >
                   <Users className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
                   <span className="text-[13px]">Appoint Department Head</span>
                 </Link>
                 <Link
                   href="/design/sa-approvals"
-                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors font-semibold text-slate-800 hover:text-[#3A3564]"
+                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#F0FDFA] transition-colors font-semibold text-slate-800 hover:text-[#0B1220]"
                 >
-                  <Sparkles className="w-4.5 h-4.5 text-purple-600 shrink-0" />
+                  <Sparkles className="w-4.5 h-4.5 text-[#1D4ED8] shrink-0" />
                   <span className="text-[13px]">Review Design Approvals</span>
                 </Link>
                 <Link
                   href="/cutting"
-                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F]"
+                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#F0FDFA] transition-colors text-slate-700 hover:text-[#0B1220]"
                 >
                   <Scissors className="w-4.5 h-4.5 text-slate-500 shrink-0" />
                   <span className="text-[13px]">Open Cutting Floor</span>
                 </Link>
                 <Link
                   href="/stitching-sewing/dashboard"
-                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F]"
+                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#F0FDFA] transition-colors text-slate-700 hover:text-[#0B1220]"
                 >
                   <Layers className="w-4.5 h-4.5 text-slate-500 shrink-0" />
                   <span className="text-[13px]">Open Sewing Dashboard</span>
@@ -254,7 +254,7 @@ export function CompanyOwnerHeader({
                 <div className="border-t border-slate-100 my-1" />
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F]"
+                  className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-[#F0FDFA] transition-colors text-slate-700 hover:text-[#0B1220]"
                 >
                   <Building2 className="w-4.5 h-4.5 text-slate-500 shrink-0" />
                   <span className="text-[13px]">Company Profile &amp; Units</span>
@@ -263,37 +263,37 @@ export function CompanyOwnerHeader({
             )}
           </div>
 
-          {/* Notification Bell (Larger Size) */}
+          {/* Notification Bell */}
           <Link
             href="/stitching-sewing/notifications"
-            className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white hover:bg-[#FAF7F0] border border-[#14140F]/20 flex items-center justify-center text-[#14140F] transition-colors shadow-2xs"
+            className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-colors shadow-xs"
             title="Floor Notifications"
           >
-            <Bell className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <Bell className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#0B1220]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#EA580C] text-white text-[10px] font-mono font-bold flex items-center justify-center shadow-2xs">
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-mono font-bold flex items-center justify-center shadow-xs">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </Link>
 
-          {/* Profile Dropdown (Larger Size) */}
+          {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>
             <button
               type="button"
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white hover:bg-[#FAF7F0] border border-[#14140F]/20 flex items-center justify-center text-[#3A3564] font-bold transition-all cursor-pointer shadow-2xs overflow-hidden"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] font-bold transition-all cursor-pointer shadow-xs overflow-hidden"
               aria-label="User Account"
             >
-              <User className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+              <User className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#0B1220]" />
             </button>
 
             {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-[#14140F]/15 py-2 z-50 text-[#14140F] text-xs animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50 text-[#0B1220] text-xs animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-4 py-2.5 border-b border-slate-100">
-                  <p className="font-bold text-[#14140F] text-sm truncate">{resolvedCompany}</p>
+                  <p className="font-bold text-[#0B1220] text-sm truncate">{resolvedCompany}</p>
                   <p className="text-[11px] text-slate-500 truncate font-mono mt-0.5">{userEmail}</p>
-                  <span className="inline-block mt-2 text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-[#3A3564]/15">
+                  <span className="inline-block mt-2 text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                     {userRole}
                   </span>
                 </div>
@@ -301,14 +301,14 @@ export function CompanyOwnerHeader({
                 <div className="py-1.5">
                   <Link
                     href="/profile"
-                    className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F] font-medium"
+                    className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#F0FDFA] transition-colors text-slate-700 hover:text-[#0B1220] font-semibold"
                   >
                     <Building2 className="w-4 h-4 text-slate-500" />
                     <span>Company Profile &amp; Settings</span>
                   </Link>
                   <Link
                     href="/access-control"
-                    className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF7F0] transition-colors text-slate-700 hover:text-[#14140F] font-medium"
+                    className="flex items-center gap-2.5 px-4 py-2 hover:bg-[#F0FDFA] transition-colors text-slate-700 hover:text-[#0B1220] font-semibold"
                   >
                     <Users className="w-4 h-4 text-slate-500" />
                     <span>Appointed Department Heads</span>
@@ -332,8 +332,8 @@ export function CompanyOwnerHeader({
         </div>
       </header>
 
-      {/* 2. RECTANGULAR HORIZONTAL SUB-NAVBAR (Bold text bigger than icons, high-contrast, zero locks, grey dividers) */}
-      <nav className="w-full bg-white border-y border-[#D1D5DB] overflow-x-auto no-scrollbar shadow-2xs">
+      {/* 2. RECTANGULAR HORIZONTAL SUB-NAVBAR */}
+      <nav className="w-full bg-white border-b border-slate-200/80 overflow-x-auto scrollbar-none shadow-2xs">
         <div className="w-full min-w-[860px] md:min-w-full grid grid-cols-9">
           {navTabs.map((tab, idx) => {
             const Icon = tab.icon
@@ -344,16 +344,16 @@ export function CompanyOwnerHeader({
                 <Icon
                   className={`w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 transition-transform ${
                     tab.isActive
-                      ? 'text-[#3A3564] stroke-[2.5] scale-110'
-                      : 'text-[#475569] group-hover:text-[#3A3564] stroke-[2] group-hover:scale-105'
+                      ? 'text-[#0B1220] stroke-[2.5] scale-110'
+                      : 'text-slate-500 group-hover:text-[#0B1220] stroke-[2] group-hover:scale-105'
                   }`}
                 />
                 <div className="w-full px-1 text-center">
                   <div
                     className={`text-[12.5px] sm:text-[13.5px] md:text-[14px] tracking-tight leading-tight truncate ${
                       tab.isActive
-                        ? 'font-extrabold text-[#3A3564]'
-                        : 'font-bold text-[#1E293B] group-hover:text-[#3A3564]'
+                        ? 'font-extrabold text-[#0B1220]'
+                        : 'font-bold text-slate-700 group-hover:text-[#0B1220]'
                     }`}
                   >
                     {tab.lines[0]}
@@ -362,8 +362,8 @@ export function CompanyOwnerHeader({
                     <div
                       className={`text-[11px] sm:text-[12px] tracking-tight leading-tight truncate mt-0.5 ${
                         tab.isActive
-                          ? 'font-bold text-[#3A3564]'
-                          : 'font-semibold text-[#475569] group-hover:text-[#3A3564]'
+                          ? 'font-bold text-[#0B1220]'
+                          : 'font-semibold text-slate-500 group-hover:text-[#0B1220]'
                       }`}
                     >
                       {tab.lines[1]}
@@ -374,8 +374,8 @@ export function CompanyOwnerHeader({
             )
 
             const sharedStyle = {
-              borderRight: isLast ? 'none' : '1px solid #D1D5DB',
-              borderBottom: tab.isActive ? '3.5px solid #3A3564' : '3.5px solid transparent'
+              borderRight: isLast ? 'none' : '1px solid #E2E8F0',
+              borderBottom: tab.isActive ? '3.5px solid #0B1220' : '3.5px solid transparent'
             }
 
             if (tab.href) {
@@ -385,7 +385,7 @@ export function CompanyOwnerHeader({
                   href={tab.href}
                   className={`group relative w-full py-2.5 sm:py-3 px-1.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all cursor-pointer ${
                     tab.isActive
-                      ? 'bg-white shadow-2xs'
+                      ? 'bg-[#F0FDFA]/50 shadow-2xs'
                       : 'bg-white hover:bg-slate-50'
                   }`}
                   style={sharedStyle}
@@ -412,10 +412,3 @@ export function CompanyOwnerHeader({
     </div>
   )
 }
-
-
-
-
-
-
-
