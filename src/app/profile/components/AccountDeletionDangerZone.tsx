@@ -195,7 +195,7 @@ export function AccountDeletionDangerZone({
                   <button
                     type="button"
                     onClick={handleOpenMailClient}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2d294e] shadow-2xs transition-all cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-2xs transition-all cursor-pointer"
                   >
                     <Mail className="w-4 h-4" />
                     <span>Open in Mail App</span>
