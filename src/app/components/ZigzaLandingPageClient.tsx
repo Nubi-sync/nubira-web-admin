@@ -44,6 +44,18 @@ import {
   ChevronLeft,
   Wifi
 } from 'lucide-react'
+import {
+  FloorReadyWorkflowsIcon,
+  StrictDataPrivacyIcon,
+  OfflineFirstSyncIcon,
+  ZeroGhostPiecesIcon,
+  FabricInwardTrimsStoreIcon,
+  BuyerOrdersTechPacksIcon,
+  CuttingRoomLayMatrixIcon,
+  StitchingLinesWagesIcon,
+  QualityChecksAlterationIcon,
+  CartonPackingDispatchIcon
+} from '@/components/icons/ApparelIcons'
 import { toast } from 'sonner'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
 import { submitDemoRequestAction, checkContactInUseAction, submitCustomerQueryAction } from '../platform-admin/actions'
@@ -1623,7 +1635,7 @@ export function ZigzaLandingPageClient({
           const engines = [
             {
               title: 'Fabric Inward & Trims Store',
-              icon: Truck,
+              icon: FabricInwardTrimsStoreIcon,
               features: [
                 'Photo capture of supplier challans right at the gate',
                 'Digital roll inwarding with lot and shade records',
@@ -1632,7 +1644,7 @@ export function ZigzaLandingPageClient({
             },
             {
               title: 'Buyer Orders & Tech Packs',
-              icon: FileSpreadsheet,
+              icon: BuyerOrdersTechPacksIcon,
               features: [
                 'Store digital patterns, measurement specs, and tech packs',
                 'Import buyer purchase orders and size tables in 1 click',
@@ -1641,7 +1653,7 @@ export function ZigzaLandingPageClient({
             },
             {
               title: 'Cutting Room & Lay Matrix',
-              icon: Scissors,
+              icon: CuttingRoomLayMatrixIcon,
               features: [
                 '1-Click lay ratios based on actual fabric roll length',
                 'Automatic bundle creation with printable cut-piece tags',
@@ -1650,7 +1662,7 @@ export function ZigzaLandingPageClient({
             },
             {
               title: 'Stitching Lines & Wages',
-              icon: Users,
+              icon: StitchingLinesWagesIcon,
               features: [
                 'Smooth line loading with daily targets by color and size',
                 'Quick mobile piece logging on standard Android smartphones',
@@ -1659,7 +1671,7 @@ export function ZigzaLandingPageClient({
             },
             {
               title: 'Quality Checks & Alteration',
-              icon: ClipboardCheck,
+              icon: QualityChecksAlterationIcon,
               features: [
                 'Quick defect tagging directly at table and end-of-line checks',
                 'Instant routing of rejected pieces back to the original tailor',
@@ -1668,7 +1680,7 @@ export function ZigzaLandingPageClient({
             },
             {
               title: 'Carton Packing & Dispatch',
-              icon: PackageCheck,
+              icon: CartonPackingDispatchIcon,
               features: [
                 'Auto-generated carton packing lists with piece-count audits',
                 'Zero-error buyer delivery challans and transport invoices',
@@ -1693,8 +1705,8 @@ export function ZigzaLandingPageClient({
                       <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                         {engine.title}
                       </h3>
-                      <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
-                        <Icon className="w-4.5 h-4.5 text-[#0B1220] shrink-0 md:group-hover:scale-110 md:group-hover:text-[#14C8B4] transition-all duration-300" />
+                      <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
+                        <Icon className="w-6 h-6 text-[#0B1220] shrink-0 md:group-hover:scale-110 md:group-hover:text-[#14C8B4] transition-all duration-300" strokeWidth={1.6} />
                       </div>
                     </div>
 
@@ -1978,25 +1990,25 @@ export function ZigzaLandingPageClient({
             {[
               {
                 id: 0,
-                icon: Building2,
+                icon: FloorReadyWorkflowsIcon,
                 title: 'Floor-Ready Workflows',
                 desc: 'Pre-built for fabric lay ratios, job-work challans, and contractor piece rates.'
               },
               {
                 id: 1,
-                icon: ShieldCheck,
+                icon: StrictDataPrivacyIcon,
                 title: 'Strict Data Privacy',
                 desc: 'Buyer margins, worker payouts, and tech packs stay 100% confidential.'
               },
               {
                 id: 2,
-                icon: Zap,
+                icon: OfflineFirstSyncIcon,
                 title: 'Offline-First Sync',
                 desc: 'Log daily cuts and sewing handovers continuously, even during Wi-Fi drops.'
               },
               {
                 id: 3,
-                icon: CheckCircle2,
+                icon: ZeroGhostPiecesIcon,
                 title: 'Zero Ghost Pieces',
                 desc: 'Every piece accounted for from cutting table to buyer carton with zero discrepancy.'
               }
@@ -2006,8 +2018,8 @@ export function ZigzaLandingPageClient({
                 className="bg-white rounded-2xl border border-slate-200 hover:border-[#0B1220] p-4 sm:p-5 flex items-start gap-4 transition-all duration-200 hover:shadow-xs group"
               >
                 {/* Outline Icon Badge */}
-                <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] group-hover:text-[#14C8B4] group-hover:scale-105 flex items-center justify-center shrink-0 mt-0.5 transition-all">
-                  <pillar.icon className="w-5 h-5" strokeWidth={1.8} />
+                <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] group-hover:text-[#14C8B4] group-hover:scale-105 flex items-center justify-center shrink-0 mt-0.5 transition-all">
+                  <pillar.icon className="w-7 h-7" strokeWidth={1.6} />
                 </div>
 
                 <div className="flex-1">

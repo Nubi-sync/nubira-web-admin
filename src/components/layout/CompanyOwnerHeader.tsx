@@ -4,23 +4,28 @@ import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard,
-  LayoutGrid,
-  Building2,
-  Users,
-  Palette,
-  Warehouse,
-  Bot,
-  FileText,
-  User,
   Plus,
   ChevronDown,
   Bell,
   LogOut,
   Layers,
   Scissors,
-  Sparkles
+  Sparkles,
+  Users,
+  Building2,
+  User
 } from 'lucide-react'
+import {
+  DashboardNavIcon,
+  AllModulesNavIcon,
+  BuyersVendorsNavIcon,
+  SupervisorWorkersNavIcon,
+  AllDesignsNavIcon,
+  FabricStoreNavIcon,
+  ZigzaAiNavIcon,
+  ReportsNavIcon,
+  CompanyProfileNavIcon
+} from '@/components/icons/ApparelIcons'
 import { toast } from 'sonner'
 import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 
@@ -35,7 +40,7 @@ interface NavTabItem {
   label: string
   lines: [string, string?]
   href?: string
-  icon: React.ComponentType<{ className?: string }>
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>
   isActive: boolean
 }
 
@@ -91,23 +96,23 @@ export function CompanyOwnerHeader({
     ? companyName.trim()
     : 'Apparel Factory'
 
-  // Exact 9 Tabs:
-  // 1. Dashboard
-  // 2. All Modules
-  // 3. Buyers & Vendors
-  // 4. Supervisor & Workers
-  // 5. All Designs
-  // 6. Fabric & Store
-  // 7. Zigza AI
-  // 8. Reports
-  // 9. Company Profile
+  // Exact 9 Tabs with Bespoke Domain-Accurate Icons:
+  // 1. Dashboard -> DashboardNavIcon
+  // 2. All Modules -> AllModulesNavIcon
+  // 3. Buyers & Vendors -> BuyersVendorsNavIcon
+  // 4. Supervisor & Workers -> SupervisorWorkersNavIcon
+  // 5. All Designs -> AllDesignsNavIcon
+  // 6. Fabric & Store -> FabricStoreNavIcon
+  // 7. Zigza AI -> ZigzaAiNavIcon
+  // 8. Reports -> ReportsNavIcon
+  // 9. Company Profile -> CompanyProfileNavIcon
   const navTabs: NavTabItem[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
       lines: ['Dashboard'],
       href: '/dashboard',
-      icon: LayoutDashboard,
+      icon: DashboardNavIcon,
       isActive: pathname === '/dashboard' || pathname?.startsWith('/dashboard') || pathname === '/stitching-sewing/dashboard'
     },
     {
@@ -115,7 +120,7 @@ export function CompanyOwnerHeader({
       label: 'All Modules',
       lines: ['All Modules'],
       href: '/modules',
-      icon: LayoutGrid,
+      icon: AllModulesNavIcon,
       isActive: pathname === '/modules' || pathname === '/modules/'
     },
     {
@@ -123,7 +128,7 @@ export function CompanyOwnerHeader({
       label: 'Buyers & Vendors',
       lines: ['Buyers &', 'Vendors'],
       href: '/vendors',
-      icon: Building2,
+      icon: BuyersVendorsNavIcon,
       isActive: pathname === '/vendors' || pathname?.startsWith('/vendors') || pathname === '/buyers-vendors'
     },
     {
@@ -131,7 +136,7 @@ export function CompanyOwnerHeader({
       label: 'Supervisor & Workers',
       lines: ['Supervisor &', 'Workers'],
       href: '/access-control',
-      icon: Users,
+      icon: SupervisorWorkersNavIcon,
       isActive: pathname === '/access-control' || pathname?.startsWith('/access-control') || pathname === '/modules/access-control' || pathname === '/supervisor-workers'
     },
     {
@@ -139,7 +144,7 @@ export function CompanyOwnerHeader({
       label: 'All Designs',
       lines: ['All Designs'],
       href: '/all-designs',
-      icon: Palette,
+      icon: AllDesignsNavIcon,
       isActive: pathname === '/all-designs' || pathname?.startsWith('/all-designs') || pathname === '/design/sa-approvals' || pathname?.startsWith('/design/sa-approvals')
     },
     {
@@ -147,7 +152,7 @@ export function CompanyOwnerHeader({
       label: 'Fabric & Store',
       lines: ['Fabric &', 'Store'],
       href: '/store',
-      icon: Warehouse,
+      icon: FabricStoreNavIcon,
       isActive: pathname === '/store' || pathname?.startsWith('/store') || pathname === '/fabric-store'
     },
     {
@@ -155,7 +160,7 @@ export function CompanyOwnerHeader({
       label: 'Zigza AI',
       lines: ['Zigza AI'],
       href: '/zigza-ai',
-      icon: Bot,
+      icon: ZigzaAiNavIcon,
       isActive: pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
     },
     {
@@ -163,7 +168,7 @@ export function CompanyOwnerHeader({
       label: 'Reports',
       lines: ['Reports'],
       href: '/reports',
-      icon: FileText,
+      icon: ReportsNavIcon,
       isActive: pathname === '/reports' || pathname?.startsWith('/reports')
     },
     {
@@ -171,7 +176,7 @@ export function CompanyOwnerHeader({
       label: 'Company Profile',
       lines: ['Company', 'Profile'],
       href: '/profile',
-      icon: User,
+      icon: CompanyProfileNavIcon,
       isActive: pathname === '/profile' || pathname?.startsWith('/profile') || pathname === '/modules/profile' || pathname === '/company-profile'
     }
   ]
@@ -341,29 +346,32 @@ export function CompanyOwnerHeader({
 
             const content = (
               <>
-                <Icon
-                  className={`w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 transition-transform ${
-                    tab.isActive
-                      ? 'text-[#0B1220] stroke-[2.5] scale-110'
-                      : 'text-slate-500 group-hover:text-[#0B1220] stroke-[2] group-hover:scale-105'
-                  }`}
-                />
-                <div className="w-full px-1 text-center">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center shrink-0">
+                  <Icon
+                    className={`w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] shrink-0 transition-colors ${
+                      tab.isActive
+                        ? 'text-[#0B1220]'
+                        : 'text-slate-400 group-hover:text-[#0B1220]'
+                    }`}
+                    strokeWidth={tab.isActive ? 2 : 1.6}
+                  />
+                </div>
+                <div className="w-full px-0.5 text-center h-[30px] flex flex-col items-center justify-center">
                   <div
-                    className={`text-[12.5px] sm:text-[13.5px] md:text-[14px] tracking-tight leading-tight truncate ${
+                    className={`text-[12px] sm:text-[13px] md:text-[13.5px] tracking-tight leading-[1.15] truncate ${
                       tab.isActive
                         ? 'font-extrabold text-[#0B1220]'
-                        : 'font-bold text-slate-700 group-hover:text-[#0B1220]'
+                        : 'font-bold text-slate-600 group-hover:text-[#0B1220]'
                     }`}
                   >
                     {tab.lines[0]}
                   </div>
                   {tab.lines[1] ? (
                     <div
-                      className={`text-[11px] sm:text-[12px] tracking-tight leading-tight truncate mt-0.5 ${
+                      className={`text-[10.5px] sm:text-[11.5px] tracking-tight leading-[1.15] truncate mt-[2px] ${
                         tab.isActive
                           ? 'font-bold text-[#0B1220]'
-                          : 'font-semibold text-slate-500 group-hover:text-[#0B1220]'
+                          : 'font-semibold text-slate-400 group-hover:text-[#0B1220]'
                       }`}
                     >
                       {tab.lines[1]}
@@ -375,7 +383,7 @@ export function CompanyOwnerHeader({
 
             const sharedStyle = {
               borderRight: isLast ? 'none' : '1px solid #E2E8F0',
-              borderBottom: tab.isActive ? '3.5px solid #0B1220' : '3.5px solid transparent'
+              borderBottom: tab.isActive ? '3px solid #0B1220' : '3px solid transparent'
             }
 
             if (tab.href) {
@@ -383,7 +391,7 @@ export function CompanyOwnerHeader({
                 <Link
                   key={tab.id}
                   href={tab.href}
-                  className={`group relative w-full py-2.5 sm:py-3 px-1.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all cursor-pointer ${
+                  className={`group relative w-full py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center text-center gap-1 transition-all cursor-pointer ${
                     tab.isActive
                       ? 'bg-[#F0FDFA]/50 shadow-2xs'
                       : 'bg-white hover:bg-slate-50'
@@ -400,7 +408,7 @@ export function CompanyOwnerHeader({
                 key={tab.id}
                 type="button"
                 onClick={() => toast.info(`${tab.label} module is scheduled for the upcoming release.`)}
-                className="group relative w-full py-2.5 sm:py-3 px-1.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all cursor-pointer bg-white hover:bg-slate-50"
+                className="group relative w-full py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center text-center gap-1 transition-all cursor-pointer bg-white hover:bg-slate-50"
                 style={sharedStyle}
               >
                 {content}
