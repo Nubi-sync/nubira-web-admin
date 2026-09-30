@@ -353,15 +353,15 @@ export function CompanyOwnerHeader({
                         ? 'text-[#0B1220]'
                         : 'text-slate-400 group-hover:text-[#0B1220]'
                     }`}
-                    strokeWidth={tab.isActive ? 2 : 1.6}
+                    strokeWidth={1.75}
                   />
                 </div>
                 <div className="w-full px-0.5 text-center h-[30px] flex flex-col items-center justify-center">
                   <div
                     className={`text-[12px] sm:text-[13px] md:text-[13.5px] tracking-tight leading-[1.15] truncate ${
                       tab.isActive
-                        ? 'font-extrabold text-[#0B1220]'
-                        : 'font-bold text-slate-600 group-hover:text-[#0B1220]'
+                        ? 'font-medium text-[#0B1220]'
+                        : 'font-normal text-slate-600 group-hover:text-[#0B1220]'
                     }`}
                   >
                     {tab.lines[0]}
@@ -370,8 +370,8 @@ export function CompanyOwnerHeader({
                     <div
                       className={`text-[10.5px] sm:text-[11.5px] tracking-tight leading-[1.15] truncate mt-[2px] ${
                         tab.isActive
-                          ? 'font-bold text-[#0B1220]'
-                          : 'font-semibold text-slate-400 group-hover:text-[#0B1220]'
+                          ? 'font-normal text-[#0B1220]'
+                          : 'font-normal text-slate-400 group-hover:text-[#0B1220]'
                       }`}
                     >
                       {tab.lines[1]}
@@ -383,7 +383,7 @@ export function CompanyOwnerHeader({
 
             const sharedStyle = {
               borderRight: isLast ? 'none' : '1px solid #E2E8F0',
-              borderBottom: tab.isActive ? '3px solid #0B1220' : '3px solid transparent'
+              borderBottom: tab.isActive ? '3px solid #0D9488' : '3px solid transparent'
             }
 
             if (tab.href) {
@@ -393,7 +393,7 @@ export function CompanyOwnerHeader({
                   href={tab.href}
                   className={`group relative w-full py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center text-center gap-1 transition-all cursor-pointer ${
                     tab.isActive
-                      ? 'bg-[#F0FDFA]/50 shadow-2xs'
+                      ? 'bg-[#E6FFFA] shadow-2xs'
                       : 'bg-white hover:bg-slate-50'
                   }`}
                   style={sharedStyle}
