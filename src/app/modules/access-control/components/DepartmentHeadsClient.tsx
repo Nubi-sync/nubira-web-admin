@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import {
   Crown,
   Factory,
@@ -84,14 +85,22 @@ export function DepartmentHeadsClient({
   const companyName = hubData?.tenantName || legacyTenantName || 'Apparel Factory'
   const allowedDivisions = hubData?.allowedDivisions || legacyAllowedDivisions || []
   const divisions = hubData?.divisions || initialDivisions || []
-  const productionManagers = hubData?.productionManagers || []
-  const departmentHeads = hubData?.departmentHeads || []
-  const workers = hubData?.workers || []
   const owner = hubData?.owner || { name: 'Company Owner', email: '' }
 
   const isOwner = callerPowerLevel === 'OWNER'
   const isPM = callerPowerLevel === 'PRODUCTION_MANAGER'
   const canAppointHeads = isOwner || isPM
+
+  // Local state for optimistic instant updates
+  const [departmentHeadsList, setDepartmentHeadsList] = useState<DepartmentHeadItem[]>(() => hubData?.departmentHeads || [])
+  const [productionManagersList, setProductionManagersList] = useState<ProductionManagerItem[]>(() => hubData?.productionManagers || [])
+  const [workersList, setWorkersList] = useState<FloorWorkerItem[]>(() => hubData?.workers || [])
+
+  useEffect(() => {
+    if (hubData?.departmentHeads) setDepartmentHeadsList(hubData.departmentHeads)
+    if (hubData?.productionManagers) setProductionManagersList(hubData.productionManagers)
+    if (hubData?.workers) setWorkersList(hubData.workers)
+  }, [hubData])
 
   // Search query
   const [searchQuery, setSearchQuery] = useState('')
@@ -156,11 +165,24 @@ export function DepartmentHeadsClient({
   })
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Toast Notification
-  const [toast, setToast] = useState<string | null>(null)
+  // Clean Toast: White bg, black font, green tick
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
   const showToast = (msg: string) => {
-    setToast(msg)
-    setTimeout(() => setToast(null), 3000)
+    setToastMsg(msg)
+    try {
+      toast.success(msg, {
+        style: {
+          backgroundColor: '#FFFFFF',
+          color: '#0B1220',
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+          borderRadius: '16px',
+          fontWeight: '600'
+        },
+        icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+      })
+    } catch (_) {}
+    setTimeout(() => setToastMsg(null), 3500)
   }
 
   // Action handlers
@@ -183,6 +205,13 @@ export function DepartmentHeadsClient({
   ) => {
     const res = await toggleStaffStatusAction({ id, type, currentStatus, divisionRoute })
     if (res.success) {
+      if (type === 'DEPARTMENT_HEAD') {
+        setDepartmentHeadsList(prev => prev.map(h => h.id === id ? { ...h, isActive: !currentStatus } : h))
+      } else if (type === 'PRODUCTION_MANAGER') {
+        setProductionManagersList(prev => prev.map(pm => pm.id === id ? { ...pm, isActive: !currentStatus } : pm))
+      } else if (type === 'WORKER') {
+        setWorkersList(prev => prev.map(w => w.id === id ? { ...w, status: currentStatus ? 'INACTIVE' : 'ACTIVE' } : w))
+      }
       showToast(`Status updated to ${currentStatus ? 'Inactive' : 'Active'}`)
       router.refresh()
     } else {
@@ -193,20 +222,46 @@ export function DepartmentHeadsClient({
   const handleDeleteStaff = async () => {
     if (!deleteConfirm.id) return
     setIsDeleting(true)
+    const targetId = deleteConfirm.id
+    const targetName = deleteConfirm.name
+    const targetType = deleteConfirm.type
+
     const res = await deleteStaffMemberAction({
-      id: deleteConfirm.id,
-      type: deleteConfirm.type,
+      id: targetId,
+      type: targetType,
       divisionRoute: deleteConfirm.divisionRoute
     })
     setIsDeleting(false)
+
     if (res.success) {
-      showToast(`${deleteConfirm.name} removed successfully`)
+      // Optimistically remove immediately from local state
+      if (targetType === 'DEPARTMENT_HEAD') {
+        setDepartmentHeadsList(prev => prev.filter(h => h.id !== targetId))
+      } else if (targetType === 'PRODUCTION_MANAGER') {
+        setProductionManagersList(prev => prev.filter(pm => pm.id !== targetId))
+      } else if (targetType === 'WORKER') {
+        setWorkersList(prev => prev.filter(w => w.id !== targetId))
+      }
+
       setDeleteConfirm({ isOpen: false, id: '', name: '', type: 'DEPARTMENT_HEAD' })
+      showToast(`${targetName} removed successfully`)
       router.refresh()
     } else {
       showToast(res.error || 'Failed to remove member')
     }
   }
+
+  // Dynamic divisions with live heads
+  const divisionsWithHeads = useMemo(() => {
+    return divisions.map(div => {
+      const headsForDivision = departmentHeadsList.filter(h => h.allowedModules.includes(div.route))
+      return {
+        ...div,
+        appointedHead: headsForDivision[0] || null,
+        secondaryHeads: headsForDivision.slice(1)
+      }
+    })
+  }, [divisions, departmentHeadsList])
 
   // Group workers by division
   const workersByDivision = useMemo(() => {
@@ -214,20 +269,20 @@ export function DepartmentHeadsClient({
     divisions.forEach(div => {
       map.set(div.route, [])
     })
-    workers.forEach(w => {
+    workersList.forEach(w => {
       const existing = map.get(w.departmentRoute) || []
       existing.push(w)
       map.set(w.departmentRoute, existing)
     })
     return map
-  }, [divisions, workers])
+  }, [divisions, workersList])
 
   // Filtered divisions based on search
   const filteredDivisions = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
-    if (!q) return divisions
+    if (!q) return divisionsWithHeads
 
-    return divisions.filter(div => {
+    return divisionsWithHeads.filter(div => {
       const nameMatch = div.name.toLowerCase().includes(q)
       const headNameMatch = div.appointedHead?.displayName.toLowerCase().includes(q) ||
         div.appointedHead?.username.toLowerCase().includes(q) ||
@@ -243,22 +298,22 @@ export function DepartmentHeadsClient({
 
       return nameMatch || headNameMatch || workerMatch
     })
-  }, [divisions, searchQuery, workersByDivision])
+  }, [divisionsWithHeads, searchQuery, workersByDivision])
 
-  const primaryPM = productionManagers[0] || null
+  const primaryPM = productionManagersList[0] || null
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-20 right-6 z-50 px-5 py-3 rounded-2xl bg-[#0B1220] text-white text-sm font-bold shadow-2xl flex items-center gap-2 border border-[#14C8B4]/40 animate-in slide-in-from-top-4 duration-200">
-          <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
-          <span>{toast}</span>
+      {/* Toast Notification (Green tick, white background, black font) */}
+      {toastMsg && (
+        <div className="fixed top-20 right-6 z-50 px-5 py-3.5 rounded-2xl bg-white text-[#0B1220] border border-slate-200 shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-top-4 duration-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span className="text-sm font-bold text-[#0B1220]">{toastMsg}</span>
         </div>
       )}
 
-      {/* 1. Header Banner - Clean and without arbitrary pills */}
+      {/* 1. Header Banner - Clean with Department Pill */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
@@ -269,8 +324,8 @@ export function DepartmentHeadsClient({
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
               </h1>
-              <span className="text-xs font-semibold text-slate-500">
-                • {divisions.length} Departments
+              <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+                {divisions.length} Departments
               </span>
             </div>
             <p className="text-sm sm:text-base text-slate-600 mt-0.5 font-medium font-[family-name:var(--font-public-sans)]">
@@ -453,13 +508,13 @@ export function DepartmentHeadsClient({
 
       {/* 4. SECTION HEADER: Departments & Staff */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-        <div>
+        <div className="flex items-center gap-2.5 flex-wrap">
           <h2 className="text-lg sm:text-xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
-            Factory Departments ({filteredDivisions.length})
+            Factory Departments
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            Click any department row to view assigned department head and shop floor staff.
-          </p>
+          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            {filteredDivisions.length}
+          </span>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-center">
@@ -511,7 +566,7 @@ export function DepartmentHeadsClient({
             const IconComponent = DIVISION_ICONS[div.iconName] || Layers
             const divWorkers = workersByDivision.get(div.route) || []
             const head = div.appointedHead
-            const allHeadsForDiv = departmentHeads.filter(h => h.allowedModules.includes(div.route))
+            const allHeadsForDiv = departmentHeadsList.filter(h => h.allowedModules.includes(div.route))
             const totalHeadsCount = allHeadsForDiv.length
 
             return (
@@ -539,7 +594,7 @@ export function DepartmentHeadsClient({
                     </div>
                   </div>
 
-                  {/* Column 2: Department In-charge (4 columns) - Perfectly vertically aligned */}
+                  {/* Column 2: Department In-charge (4 columns) - Strictly aligned */}
                   <div className="col-span-6 md:col-span-4 min-w-0">
                     <span className="text-[11px] font-semibold uppercase text-slate-400 block md:hidden mb-0.5">
                       In-Charge
@@ -566,7 +621,7 @@ export function DepartmentHeadsClient({
                     )}
                   </div>
 
-                  {/* Column 3: Floor Staff Count (2 columns) - Perfectly vertically aligned */}
+                  {/* Column 3: Floor Staff Count (2 columns) - Strictly aligned */}
                   <div className="col-span-4 md:col-span-2 text-left md:text-center">
                     <span className="text-[11px] font-semibold uppercase text-slate-400 block md:hidden mb-0.5">
                       Floor Staff
@@ -619,7 +674,7 @@ export function DepartmentHeadsClient({
 
                       {totalHeadsCount > 0 ? (
                         <div className="space-y-4">
-                          {allHeadsForDiv.map((h, idx) => (
+                          {allHeadsForDiv.map((h) => (
                             <div key={h.id} className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/60 space-y-3">
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                 <div>
@@ -930,7 +985,7 @@ export function DepartmentHeadsClient({
         onConfirm={handleDeleteStaff}
         isLoading={isDeleting}
         title={`Remove ${deleteConfirm.name}?`}
-        description={`Are you sure you want to remove ${deleteConfirm.name}? This action cannot be undone and will revoke their factory access.`}
+        description={`Are you sure you want to remove ${deleteConfirm.name}? This action will revoke their access to the factory.`}
         confirmText="Yes, Remove"
         cancelText="Cancel"
         variant="danger"

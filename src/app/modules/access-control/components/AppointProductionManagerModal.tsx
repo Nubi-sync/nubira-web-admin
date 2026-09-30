@@ -141,16 +141,18 @@ export function AppointProductionManagerModal({
                 <label className="block text-sm font-bold text-slate-800 mb-1.5">
                   Mobile Number <span className="text-rose-500">*</span>
                 </label>
-                <div className="relative flex items-center">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+                <div className="flex rounded-xl border border-slate-200 focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10 overflow-hidden bg-[#F8FAFC] transition-all">
+                  <div className="px-3.5 py-3 bg-slate-100/90 border-r border-slate-200/80 text-sm font-mono font-bold text-slate-700 flex items-center select-none">
+                    +91
+                  </div>
                   <input
                     type="tel"
                     required
                     maxLength={10}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                    placeholder="Enter mobile number"
-                    className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-mono font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                    placeholder="Enter 10-digit number"
+                    className="w-full px-3.5 py-3 bg-transparent text-sm sm:text-base font-mono font-medium text-[#0B1220] outline-none"
                   />
                 </div>
                 <p className="text-xs text-slate-500 mt-1">Used for mobile number login.</p>

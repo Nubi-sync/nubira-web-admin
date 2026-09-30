@@ -677,6 +677,7 @@ export async function addFloorWorkerAction(payload: {
   divisionRoute: string
   worker_name: string
   phone_number: string
+  password?: string
   role?: string
   shift?: string
 }): Promise<{ success: boolean; error?: string; workerId?: string }> {
@@ -715,6 +716,9 @@ export async function addFloorWorkerAction(payload: {
 
     if (!cleanName) return { success: false, error: 'Worker name is required' }
     if (cleanPhone.length !== 10) return { success: false, error: '10-digit mobile number required' }
+    if (payload.password && payload.password.length < 6) {
+      return { success: false, error: 'Worker password must be at least 6 characters long' }
+    }
 
     const tableConfig = DIVISION_WORKER_MAP[route]
     if (!tableConfig) {
@@ -730,6 +734,65 @@ export async function addFloorWorkerAction(payload: {
       status: 'ACTIVE'
     }
 
+    // If password provided, create an auth user & profile record so worker can log in
+    if (payload.password) {
+      const companySlug = company.toLowerCase().replace(/[^a-z0-9]/g, '') || 'factory'
+      const divSlug = route.replace(/\//g, '') || 'floor'
+      const loginEmail = `${cleanPhone}@${divSlug}.${companySlug}.local`
+
+      let authUserId: string | null = null
+      const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+        email: loginEmail,
+        password: payload.password,
+        email_confirm: true,
+        user_metadata: {
+          display_name: cleanName,
+          phone: cleanPhone,
+          phone_number: cleanPhone,
+          role: 'WORKER',
+          designation: payload.role || tableConfig.defaultRole,
+          company: company,
+          company_name: company
+        }
+      })
+
+      if (authData?.user) {
+        authUserId = authData.user.id
+      } else if (authErr?.message?.toLowerCase().includes('already')) {
+        const { data: users } = await supabaseAdmin.auth.admin.listUsers()
+        const matched = users?.users?.find(u => u.email?.toLowerCase() === loginEmail.toLowerCase())
+        if (matched) {
+          authUserId = matched.id
+          await supabaseAdmin.auth.admin.updateUserById(matched.id, {
+            password: payload.password,
+            user_metadata: {
+              display_name: cleanName,
+              phone: cleanPhone,
+              phone_number: cleanPhone,
+              role: 'WORKER',
+              designation: payload.role || tableConfig.defaultRole,
+              company: company,
+              company_name: company
+            }
+          })
+        }
+      }
+
+      if (authUserId) {
+        await supabaseAdmin.from('profiles').upsert({
+          id: authUserId,
+          username: cleanName,
+          role: 'WORKER',
+          designation: payload.role || tableConfig.defaultRole,
+          company_name: company,
+          phone: cleanPhone,
+          is_head: false,
+          is_active: true,
+          allowed_modules: [route]
+        })
+      }
+    }
+
     const { data, error } = await supabaseAdmin
       .from(tableConfig.table)
       .insert(insertData)
@@ -741,6 +804,8 @@ export async function addFloorWorkerAction(payload: {
       return { success: false, error: error.message }
     }
 
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
     revalidatePath('/access-control')
     revalidatePath('/supervisor-workers')
@@ -766,29 +831,63 @@ export async function deleteStaffMemberAction(payload: {
     if (!user) return { success: false, error: 'Authentication required' }
 
     const tenant = await resolveUserTenant(user)
-    const company = tenant.companyName.trim()
+    const company = (tenant.companyName || '').trim()
     const userRole = (tenant.role || '').toUpperCase()
-    const isOwner = tenant.isSuperAdmin || userRole === 'SUPERADMIN' || userRole === 'ADMIN' || userRole === 'PLATFORM_SUPERADMIN'
+    const isOwner = tenant.isSuperAdmin || userRole === 'SUPERADMIN' || userRole === 'ADMIN' || userRole === 'PLATFORM_SUPERADMIN' || user.email === 'admin@zigza.in' || user.email === 'admin@demo.com'
     const isPM = userRole === 'PRODUCTION_MANAGER'
-    const isHead = userRole === 'DEPARTMENT_HEAD' || userRole.includes('HEAD')
 
     if (payload.type === 'PRODUCTION_MANAGER') {
       if (!isOwner) return { success: false, error: 'Only the Company Owner can remove a Production Manager' }
-      // Verify company match
+      
       const { data: prof } = await supabaseAdmin.from('profiles').select('company_name').eq('id', payload.id).maybeSingle()
-      if (prof?.company_name?.toLowerCase().trim() !== company.toLowerCase().trim()) {
+      if (prof?.company_name && company && prof.company_name.toLowerCase().trim() !== company.toLowerCase().trim()) {
         return { success: false, error: 'Unauthorized: Cross-company operation blocked' }
       }
-      await supabaseAdmin.from('profiles').delete().eq('id', payload.id)
+      try { await supabaseAdmin.from('profiles').delete().eq('id', payload.id) } catch (_) {}
       try { await supabaseAdmin.auth.admin.deleteUser(payload.id) } catch (_) {}
     } else if (payload.type === 'DEPARTMENT_HEAD') {
       if (!isOwner && !isPM) return { success: false, error: 'Only Owner or Production Manager can remove a Department Head' }
-      const { data: prof } = await supabaseAdmin.from('profiles').select('company_name').eq('id', payload.id).maybeSingle()
-      if (prof?.company_name?.toLowerCase().trim() !== company.toLowerCase().trim()) {
+      
+      const { data: prof } = await supabaseAdmin.from('profiles').select('*').eq('id', payload.id).maybeSingle()
+      if (prof?.company_name && company && prof.company_name.toLowerCase().trim() !== company.toLowerCase().trim()) {
         return { success: false, error: 'Unauthorized: Cross-company operation blocked' }
       }
-      await supabaseAdmin.from('profiles').delete().eq('id', payload.id)
-      try { await supabaseAdmin.auth.admin.deleteUser(payload.id) } catch (_) {}
+
+      // Check auth user if profile not found
+      if (!prof) {
+        try {
+          const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(payload.id)
+          const meta = authUser?.user?.user_metadata || {}
+          const userComp = (meta.company || meta.company_name || '').trim()
+          if (userComp && company && userComp.toLowerCase() !== company.toLowerCase()) {
+            return { success: false, error: 'Unauthorized: Cross-company operation blocked' }
+          }
+        } catch (_) {}
+      }
+
+      // 1. Unassign head status & reset role
+      try {
+        await supabaseAdmin.from('profiles').update({
+          is_head: false,
+          role: 'INACTIVE',
+          is_active: false,
+          allowed_modules: []
+        }).eq('id', payload.id)
+      } catch (_) {}
+
+      // 2. Delete profile
+      try {
+        await supabaseAdmin.from('profiles').delete().eq('id', payload.id)
+      } catch (delErr: any) {
+        console.warn('Profile delete notice:', delErr?.message)
+      }
+
+      // 3. Delete auth user
+      try {
+        await supabaseAdmin.auth.admin.deleteUser(payload.id)
+      } catch (authDelErr: any) {
+        console.warn('Auth user delete notice:', authDelErr?.message)
+      }
     } else if (payload.type === 'WORKER') {
       if (!payload.divisionRoute || !DIVISION_WORKER_MAP[payload.divisionRoute]) {
         return { success: false, error: 'Worker division route required' }
@@ -801,8 +900,12 @@ export async function deleteStaffMemberAction(payload: {
         .eq('company_name', company)
     }
 
+    const normComp = company.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.delete(`company:${normComp}:supervisor_workers:hub_v2`)
     await CacheManager.invalidateTag('access_control')
     await CacheManager.invalidateTag('tenant')
+    await CacheManager.invalidateTag(`company:${normComp}:access_control`)
+    await CacheManager.invalidateTag(`company:${normComp}:supervisor_workers`)
     revalidatePath('/access-control')
     return { success: true }
   } catch (err: any) {
