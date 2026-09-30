@@ -90,7 +90,7 @@ export default function RegisterFreeTrialPage() {
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'checking' | 'available' | 'error'>('idle')
   const [phoneErrorMsg, setPhoneErrorMsg] = useState<string | null>(null)
   
-  // Step 2 Fields: Pre-select all 12 modules
+  // Step 2 Fields: Pre-select all modules
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>(
     ALL_12_MODULES.map(m => m.route)
   )
@@ -185,14 +185,6 @@ export default function RegisterFreeTrialPage() {
   const hasNumber = /[0-9]/.test(password)
   const hasSymbol = /[^A-Za-z0-9]/.test(password)
 
-  const passwordCriteria = [
-    { id: 'len', label: '6+ characters', met: hasMinLength },
-    { id: 'upper', label: 'Uppercase', met: hasUppercase },
-    { id: 'lower', label: 'Lowercase', met: hasLowercase },
-    { id: 'num', label: 'Number', met: hasNumber },
-    { id: 'sym', label: 'Symbol', met: hasSymbol },
-  ]
-
   let strengthScore = 0
   if (password.length > 0) {
     if (!hasMinLength) {
@@ -228,7 +220,7 @@ export default function RegisterFreeTrialPage() {
     strengthBarColor = 'bg-emerald-600'
   }
 
-  // Exactly 5-word recommendations telling user what to add to make it better
+  // Exactly 5-word recommendations
   const get5WordRecommendation = () => {
     if (password.length === 0) return 'Use at least 6 characters'
     if (!hasMinLength) return 'Needs at least 6 characters'
@@ -247,10 +239,8 @@ export default function RegisterFreeTrialPage() {
 
   // Live Password Matching
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
-  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword
 
-  // Restore cached Step 1 draft from localStorage on initial mount.
-  // If Step 1 is filled or step was 2, automatically jump directly to Step 2 upon refresh.
+  // Restore cached Step 1 draft from localStorage on initial mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STEP1_CACHE_KEY)
@@ -278,7 +268,7 @@ export default function RegisterFreeTrialPage() {
     } catch (_) {}
   }, [])
 
-  // Auto-sync form data to localStorage as user enters credentials
+  // Auto-sync form data to localStorage
   useEffect(() => {
     if (fullName || email || phone || password || confirmPassword) {
       try {
@@ -338,7 +328,6 @@ export default function RegisterFreeTrialPage() {
       return
     }
 
-    // Check if marked with error
     if (emailStatus === 'error') {
       setErrorMsg(emailErrorMsg || 'Please use a different work email.')
       return
@@ -349,7 +338,6 @@ export default function RegisterFreeTrialPage() {
       return
     }
 
-    // Perform live check if not yet checked
     if (emailStatus !== 'available') {
       setEmailStatus('checking')
       const emailRes = await checkEmailAvailabilityAction(cleanEmail)
@@ -376,7 +364,6 @@ export default function RegisterFreeTrialPage() {
 
     setUserNavigatedBack(false)
 
-    // Cache valid step 1 data and mark step as 2
     try {
       const draft = {
         fullName: fullName.trim(),
@@ -394,7 +381,6 @@ export default function RegisterFreeTrialPage() {
     setCurrentStep(2)
   }
 
-  // Handle Back to Step 1 (updating cache so user isn't forced forward on refresh)
   const handleBackToStep1 = () => {
     setErrorMsg(null)
     setUserNavigatedBack(true)
@@ -410,7 +396,6 @@ export default function RegisterFreeTrialPage() {
     } catch (_) {}
   }
 
-  // Toggle Module Selection
   const toggleDivision = (route: string) => {
     setSelectedDivisions(prev => 
       prev.includes(route) 
@@ -456,12 +441,10 @@ export default function RegisterFreeTrialPage() {
       setCreatedCompany(res.companyName || derivedIndustryName)
       setTrialExpiresAt(res.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
       
-      // Clear Step 1 draft cache upon successful trial activation
       try {
         localStorage.removeItem(STEP1_CACHE_KEY)
       } catch (_) {}
 
-      // Broadcast update to sync local admin tenant directory if viewed in this browser session
       try {
         if (typeof window !== 'undefined') {
           const rawTenants = localStorage.getItem('zigza_platform_tenants_v1')
@@ -499,11 +482,11 @@ export default function RegisterFreeTrialPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-3 sm:p-5 lg:px-8 lg:py-3.5 font-sans selection:bg-[#3A3564] selection:text-white">
+    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#F8FAFC] text-slate-900 relative overflow-x-hidden p-3 sm:p-5 lg:px-8 lg:py-3.5 font-sans selection:bg-[#0B1220] selection:text-[#14C8B4]">
       
       {/* Background Layer: Authentic Indian Factory Floor Line-Art Sketch (identical to /login) */}
       <div 
-        className="fixed inset-0 pointer-events-none z-0 opacity-60 mix-blend-multiply bg-center bg-cover"
+        className="fixed inset-0 pointer-events-none z-0 opacity-40 mix-blend-multiply bg-center bg-cover"
         style={{ backgroundImage: "url('/factory_bg_tinted_sketch.jpg')" }}
       />
 
@@ -522,14 +505,14 @@ export default function RegisterFreeTrialPage() {
               className="h-6 sm:h-7.5 w-auto object-contain transition-opacity group-hover:opacity-85 shrink-0"
             />
           </Link>
-          <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black/10 bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] shadow-2xs">
+          <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-[#14C8B4]/30 bg-[#F0FDFA] text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] shadow-2xs">
             7-DAY FREE TRIAL
           </span>
         </div>
 
         <Link 
           href="/" 
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-xs transition-all cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back<span className="hidden sm:inline"> to zigza.in</span></span>
@@ -538,20 +521,20 @@ export default function RegisterFreeTrialPage() {
 
       {/* Centered Modal Card with Vertical Single-Card Layout */}
       <main className="z-10 w-full max-w-xl my-auto py-3 sm:py-6 flex items-center justify-center">
-        <div className="w-full bg-white rounded-3xl border border-black/10 shadow-xl overflow-hidden p-4 sm:p-8 relative">
+        <div className="w-full bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden p-4 sm:p-8 relative">
           
           {/* Multi-Step Stepper Header */}
           <div className="mb-4 sm:mb-6 pb-3 sm:pb-5 border-b border-slate-100">
             {/* Desktop / Tablet Stepper with Step Circles */}
             <div className="hidden sm:block">
-              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] mb-3">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0B1220] mb-3">
                 STEP {currentStep} OF 3
               </div>
               <div className="flex items-center justify-between relative px-2">
                 {/* Stepper Connecting Line */}
                 <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200 -z-0" />
                 <div 
-                  className="absolute top-4 left-6 h-0.5 bg-[#3A3564] transition-all duration-500 -z-0"
+                  className="absolute top-4 left-6 h-0.5 bg-[#0B1220] transition-all duration-500 -z-0"
                   style={{
                     width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%'
                   }}
@@ -560,11 +543,11 @@ export default function RegisterFreeTrialPage() {
                 {/* Step 1 Pill */}
                 <div className="flex flex-col items-center gap-1.5 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    currentStep >= 1 ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                    currentStep >= 1 ? 'bg-[#0B1220] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
                   }`}>
                     1
                   </div>
-                  <span className={`text-[11px] font-bold ${currentStep === 1 ? 'text-[#3A3564]' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-bold ${currentStep === 1 ? 'text-[#0B1220]' : 'text-slate-500'}`}>
                     Account Setup
                   </span>
                 </div>
@@ -572,11 +555,11 @@ export default function RegisterFreeTrialPage() {
                 {/* Step 2 Pill */}
                 <div className="flex flex-col items-center gap-1.5 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    currentStep >= 2 ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                    currentStep >= 2 ? 'bg-[#0B1220] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
                   }`}>
                     2
                   </div>
-                  <span className={`text-[11px] font-bold ${currentStep === 2 ? 'text-[#3A3564]' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-bold ${currentStep === 2 ? 'text-[#0B1220]' : 'text-slate-500'}`}>
                     Choose Modules
                   </span>
                 </div>
@@ -584,11 +567,11 @@ export default function RegisterFreeTrialPage() {
                 {/* Step 3 Pill */}
                 <div className="flex flex-col items-center gap-1.5 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    currentStep === 3 ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                    currentStep === 3 ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {currentStep === 3 ? <Check className="w-4 h-4 stroke-[3]" /> : '3'}
                   </div>
-                  <span className={`text-[11px] font-bold ${currentStep === 3 ? 'text-emerald-700' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-bold ${currentStep === 3 ? 'text-[#0B1220]' : 'text-slate-500'}`}>
                     Trial Ready
                   </span>
                 </div>
@@ -598,7 +581,7 @@ export default function RegisterFreeTrialPage() {
             {/* Mobile View Stepper: Compact 1-Line Progress Bar */}
             <div className="sm:hidden">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564]">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0B1220]">
                   STEP {currentStep} OF 3
                 </span>
                 <span className="text-xs font-bold text-slate-800">
@@ -611,7 +594,7 @@ export default function RegisterFreeTrialPage() {
               {/* Sleek Stepper Progress Bar */}
               <div className="relative h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-[#3A3564] rounded-full transition-all duration-500"
+                  className="h-full bg-[#0B1220] rounded-full transition-all duration-500"
                   style={{ width: currentStep === 1 ? '33.33%' : currentStep === 2 ? '66.66%' : '100%' }}
                 />
               </div>
@@ -622,10 +605,10 @@ export default function RegisterFreeTrialPage() {
           {currentStep === 1 && (
             <form onSubmit={handleStep1Next} className="space-y-3 sm:space-y-3.5 animate-in fade-in duration-300">
               <div className="mb-2 sm:mb-3">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-tight">
-                  Create Factory Account
+                <h1 className="text-xl sm:text-2xl font-bold text-[#0B1220] tracking-tight leading-tight">
+                  Create <span className="text-[#1D4ED8]">Factory Account</span>
                 </h1>
-                <p className="text-xs sm:text-[13px] text-slate-500 mt-0.5">
+                <p className="text-xs sm:text-[13px] text-slate-600 mt-0.5">
                   Enter your details to begin your 7-day free trial.
                 </p>
               </div>
@@ -649,7 +632,7 @@ export default function RegisterFreeTrialPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    className="w-full pl-10 pr-3 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                   />
                 </div>
               </div>
@@ -661,8 +644,8 @@ export default function RegisterFreeTrialPage() {
                     Mobile Number *
                   </label>
                   {phoneStatus === 'checking' && (
-                    <span className="text-[10.5px] text-[#3A3564] font-medium flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                    <span className="text-[10.5px] text-[#0B1220] font-medium flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin text-[#14C8B4]" /> Checking...
                     </span>
                   )}
                 </div>
@@ -671,9 +654,9 @@ export default function RegisterFreeTrialPage() {
                     ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-500/10'
                     : phoneStatus === 'available'
                     ? 'border-emerald-400 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/10'
-                    : 'border-slate-200 focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10'
+                    : 'border-slate-200 focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10'
                 }`}>
-                  <div className="flex items-center gap-1.5 px-3 bg-[#FAF7F0] border-r border-slate-200 text-[#3A3564] font-mono font-bold text-xs select-none shrink-0">
+                  <div className="flex items-center gap-1.5 px-3 bg-[#F0FDFA] border-r border-slate-200 text-[#0B1220] font-mono font-bold text-xs select-none shrink-0">
                     <IndiaFlag className="w-4 h-3 rounded-xs shrink-0" />
                     <span>+91</span>
                   </div>
@@ -688,7 +671,7 @@ export default function RegisterFreeTrialPage() {
                   />
                   <div className="flex items-center pr-3 shrink-0">
                     {phoneStatus === 'checking' && (
-                      <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+                      <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin" />
                     )}
                     {phoneStatus === 'available' && (
                       <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
@@ -713,8 +696,8 @@ export default function RegisterFreeTrialPage() {
                     Work Email *
                   </label>
                   {emailStatus === 'checking' ? (
-                    <span className="text-[10.5px] text-[#3A3564] font-medium flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                    <span className="text-[10.5px] text-[#0B1220] font-medium flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin text-[#14C8B4]" /> Checking...
                     </span>
                   ) : (
                     <span className="text-[10.5px] text-slate-400 font-medium hidden sm:inline">
@@ -736,12 +719,12 @@ export default function RegisterFreeTrialPage() {
                         ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
                         : emailStatus === 'available'
                         ? 'border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10'
-                        : 'border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10'
+                        : 'border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10'
                     }`}
                   />
                   <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
                     {emailStatus === 'checking' && (
-                      <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+                      <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin" />
                     )}
                     {emailStatus === 'available' && (
                       <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
@@ -779,7 +762,7 @@ export default function RegisterFreeTrialPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Min 6 characters"
-                    className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                   />
                   <button
                     type="button"
@@ -812,7 +795,7 @@ export default function RegisterFreeTrialPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter password"
-                    className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                   />
                   <button
                     type="button"
@@ -845,17 +828,17 @@ export default function RegisterFreeTrialPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 sm:py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
+                  className="w-full py-3 sm:py-3.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
                 >
                   <span>Next: Choose Modules</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
 
               <div className="text-center pt-1.5">
                 <span className="text-xs text-slate-500">
                   Already have an account?{' '}
-                  <Link href="/login" className="font-bold text-[#3A3564] hover:underline cursor-pointer">
+                  <Link href="/login" className="font-bold text-[#1D4ED8] hover:underline cursor-pointer">
                     Sign in
                   </Link>
                 </span>
@@ -869,10 +852,10 @@ export default function RegisterFreeTrialPage() {
           {currentStep === 2 && (
             <div className="space-y-3.5 animate-in fade-in duration-300">
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                  Choose Modules to Try Out
+                <h2 className="text-2xl font-bold text-[#0B1220] tracking-tight">
+                  Choose Modules to <span className="text-[#1D4ED8]">Try Out</span>
                 </h2>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-600 mt-1">
                   All {ALL_12_MODULES.length} enterprise units are pre-selected for your trial. Click any to toggle.
                 </p>
               </div>
@@ -884,11 +867,11 @@ export default function RegisterFreeTrialPage() {
               )}
 
               {/* Unified Factory Workspace Strip & Active Counter */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 bg-[#F0FDFA] border border-[#14C8B4]/30 rounded-xl text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+                  <Building2 className="w-4 h-4 text-[#0B1220] shrink-0" />
                   <div className="flex items-baseline gap-1.5 min-w-0 truncate">
-                    <span className="font-extrabold text-slate-900 truncate">
+                    <span className="font-bold text-slate-900 truncate">
                       {derivedIndustryName}
                     </span>
                     <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">
@@ -898,7 +881,7 @@ export default function RegisterFreeTrialPage() {
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end gap-3 text-xs shrink-0">
-                  <span className="font-mono text-[11px] font-bold text-[#3A3564]">
+                  <span className="font-mono text-[11px] font-bold text-[#0B1220]">
                     {selectedDivisions.length} of {ALL_12_MODULES.length} Active
                   </span>
                   <span className="text-slate-300">|</span>
@@ -906,7 +889,7 @@ export default function RegisterFreeTrialPage() {
                     <button
                       type="button"
                       onClick={selectAllDivisions}
-                      className="text-[#3A3564] hover:underline cursor-pointer"
+                      className="text-[#0B1220] hover:text-[#1D4ED8] hover:underline cursor-pointer"
                     >
                       Select All
                     </button>
@@ -932,12 +915,12 @@ export default function RegisterFreeTrialPage() {
                       onClick={() => toggleDivision(mod.route)}
                       className={`px-3 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-2.5 select-none ${
                         isSelected
-                          ? 'border-[#3A3564] bg-[#FAF7F0] text-slate-900 shadow-2xs'
+                          ? 'border-[#0B1220] bg-[#F0FDFA] text-slate-900 shadow-2xs'
                           : 'border-slate-200 bg-white hover:border-slate-300 text-slate-400 opacity-60'
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 border transition-all ${
-                        isSelected ? 'bg-[#3A3564] border-[#3A3564] text-white' : 'border-slate-300 bg-white'
+                        isSelected ? 'bg-[#0B1220] border-[#0B1220] text-[#14C8B4]' : 'border-slate-300 bg-white'
                       }`}>
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                       </div>
@@ -967,17 +950,17 @@ export default function RegisterFreeTrialPage() {
                   type="button"
                   onClick={handleFinalSubmit}
                   disabled={isPending}
-                  className="flex-1 py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
+                  className="flex-1 py-3.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99] group"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
                       <span>Activating 7-Day Trial...</span>
                     </>
                   ) : (
                     <>
                       <span>Continue & Start 7-Day Trial</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
@@ -990,16 +973,16 @@ export default function RegisterFreeTrialPage() {
           {/* ============================================================== */}
           {currentStep === 3 && (
             <div className="text-center py-2 space-y-5 animate-in fade-in zoom-in-95 duration-400">
-              <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-700 border border-emerald-300 mx-auto flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
+              <div className="w-16 h-16 rounded-3xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 mx-auto flex items-center justify-center shadow-xs">
+                <CheckCircle2 className="w-8 h-8 text-[#14C8B4] stroke-[2.2]" />
               </div>
 
               <div>
                 <p className="text-xs font-semibold text-emerald-600 mb-1">
                   7 Days Activated
                 </p>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                  Welcome, {createdCompany}!
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#0B1220] tracking-tight">
+                  Welcome, <span className="text-[#1D4ED8]">{createdCompany}</span>!
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto">
                   Your enterprise apparel MES account is now active with full access to your selected divisions.
@@ -1007,14 +990,14 @@ export default function RegisterFreeTrialPage() {
               </div>
 
               {/* Minimal Account Confirmation Slip (Only Necessary Info) */}
-              <div className="p-3.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-left text-xs space-y-2">
-                <div className="flex items-center justify-between pb-1.5 border-b border-black/5">
+              <div className="p-3.5 bg-[#F0FDFA] border border-[#14C8B4]/30 rounded-xl text-left text-xs space-y-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
                   <span className="text-slate-500 font-medium">Admin Email</span>
                   <span className="font-mono font-bold text-slate-900">{email}</span>
                 </div>
-                <div className="flex items-center justify-between pb-1.5 border-b border-black/5">
+                <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
                   <span className="text-slate-500 font-medium">Active Divisions</span>
-                  <span className="font-bold text-[#3A3564]">{selectedDivisions.length} of {ALL_12_MODULES.length} Units Live</span>
+                  <span className="font-bold text-[#0B1220]">{selectedDivisions.length} of {ALL_12_MODULES.length} Units Live</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 font-medium">Trial Validity</span>
@@ -1026,15 +1009,15 @@ export default function RegisterFreeTrialPage() {
               <div className="pt-2 space-y-2">
                 <Link
                   href="/cutting"
-                  className="w-full py-3.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer group"
                 >
                   <span>Launch Floor Workspace</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
                 </Link>
 
                 <Link
                   href="/login"
-                  className="w-full py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all flex items-center justify-center cursor-pointer"
+                  className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all flex items-center justify-center cursor-pointer"
                 >
                   Sign in with Credentials
                 </Link>
@@ -1046,22 +1029,22 @@ export default function RegisterFreeTrialPage() {
       </main>
 
       {/* Minimal Footer Signature Bar (matching login page exactly) */}
-      <footer className="w-full max-w-5xl py-4 border-t border-slate-300/90 z-10">
+      <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 sm:text-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-proudly-india-black font-bold">
+            <span className="text-slate-900 font-bold">
               Proudly Made in India
             </span>
             <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
           </div>
 
           <div className="flex items-center gap-6 text-xs text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">
-            <Link href="/privacy" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Terms</Link>
-            <Link href="/security" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Security</Link>
+            <Link href="/privacy" className="hover:text-slate-900 hover:underline transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 hover:underline transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-slate-900 hover:underline transition-colors">Security</Link>
           </div>
 
-          <p suppressHydrationWarning className="text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
+          <p suppressHydrationWarning className="text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
         </div>
       </footer>
 

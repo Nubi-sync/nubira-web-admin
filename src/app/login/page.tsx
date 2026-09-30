@@ -219,11 +219,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#FAFAF8] text-[#14140F] relative overflow-x-hidden p-4 sm:p-6 lg:p-8 font-sans selection:bg-[#3A3564] selection:text-white">
+    <div className="min-h-screen w-full flex flex-col justify-between items-center bg-[#F8FAFC] text-slate-900 relative overflow-x-hidden p-4 sm:p-6 lg:p-8 font-sans selection:bg-[#0B1220] selection:text-[#14C8B4]">
 
       {/* Background Layer: Indian Factory Floor Line-Art Sketch with subtle watercolor tints (Web Login exclusive) */}
       <div
-        className="fixed inset-0 pointer-events-none z-0 opacity-60 mix-blend-multiply bg-center bg-cover"
+        className="fixed inset-0 pointer-events-none z-0 opacity-40 mix-blend-multiply bg-center bg-cover"
         style={{ backgroundImage: "url('/factory_bg_tinted_sketch.jpg')" }}
       />
 
@@ -242,14 +242,14 @@ export default function LoginPage() {
               className="h-6 sm:h-7.5 w-auto object-contain transition-opacity group-hover:opacity-85 shrink-0"
             />
           </Link>
-          <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-black/10 bg-white text-xs font-mono font-bold uppercase tracking-wider text-[#3A3564] shadow-2xs">
+          <span className="hidden sm:inline-block px-3 py-1 rounded-full border border-[#14C8B4]/30 bg-[#F0FDFA] text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] shadow-2xs">
             STAFF PORTAL
           </span>
         </div>
 
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 shadow-xs transition-all cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back<span className="hidden sm:inline"> to zigza.in</span></span>
@@ -258,11 +258,11 @@ export default function LoginPage() {
 
       {/* Centered Login Card: Crisp Refined Border, Compact Layout */}
       <main className="z-10 w-full max-w-5xl my-auto py-3 sm:py-6 flex items-center justify-center">
-        <div className="w-full bg-white rounded-3xl border border-black/10 shadow-xl overflow-hidden p-4 sm:p-7 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center">
+        <div className="w-full bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden p-4 sm:p-7 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center">
 
-          {/* Left Column: Vintage Indian Factory Newspaper / Editorial Handshake Artwork */}
+          {/* Left Column: Vintage Indian Factory Artwork */}
           <div className="lg:col-span-6 w-full flex flex-col justify-center">
-            <div className="relative w-full h-[165px] sm:h-[240px] lg:h-[450px] rounded-2xl overflow-hidden border border-black/10 bg-[#FAF7F0] shadow-2xs group">
+            <div className="relative w-full h-[165px] sm:h-[240px] lg:h-[450px] rounded-2xl overflow-hidden border border-slate-200/80 bg-[#F0FDFA] shadow-2xs group">
               <img
                 src="/factory_handshake_art.jpg"
                 alt="Indian Garment Manufacturing Floor Partnership"
@@ -274,10 +274,10 @@ export default function LoginPage() {
           {/* Right Column: High-Contrast Email & Password Form */}
           <div className="lg:col-span-6 w-full flex flex-col justify-center">
             <div className="mb-3.5 sm:mb-6">
-              <h1 className="text-xl sm:text-[32px] font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)] leading-tight">
-                Staff Portal
+              <h1 className="text-xl sm:text-[32px] font-bold text-[#0B1220] tracking-tight leading-tight">
+                Staff <span className="text-[#1D4ED8]">Portal</span>
               </h1>
-              <p className="text-xs sm:text-[13.5px] text-slate-500 mt-1 leading-snug sm:leading-normal">
+              <p className="text-xs sm:text-[13.5px] text-slate-600 mt-1 leading-snug sm:leading-normal">
                 <span className="sm:hidden">Access your factory floor allotments and live logs.</span>
                 <span className="hidden sm:inline">Sign in with your work email or mobile to access production logs, job cards, and floor allotments.</span>
               </p>
@@ -300,7 +300,7 @@ export default function LoginPage() {
                       setLoginMode(loginMode === 'PHONE' ? 'EMAIL' : 'PHONE')
                       setError(null)
                     }}
-                    className="text-[11.5px] sm:text-xs font-semibold text-[#3A3564] hover:text-[#2A2649] underline underline-offset-3 cursor-pointer transition-colors inline-flex items-center gap-1.5"
+                    className="text-[11.5px] sm:text-xs font-semibold text-[#0B1220] hover:text-[#1D4ED8] underline underline-offset-3 cursor-pointer transition-colors inline-flex items-center gap-1.5"
                   >
                     {loginMode === 'PHONE' ? (
                       <>
@@ -317,8 +317,8 @@ export default function LoginPage() {
                 </div>
 
                 {loginMode === 'PHONE' ? (
-                  <div key="phone-mode-wrapper" className="flex items-center rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 shadow-2xs overflow-hidden transition-all">
-                    <div className="px-3.5 py-2.5 sm:py-3 bg-[#FAF7F0] border-r border-slate-200 text-xs font-mono font-bold text-[#3A3564] select-none flex items-center gap-1.5 shrink-0">
+                  <div key="phone-mode-wrapper" className="flex items-center rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10 shadow-2xs overflow-hidden transition-all">
+                    <div className="px-3.5 py-2.5 sm:py-3 bg-[#F0FDFA] border-r border-slate-200 text-xs font-mono font-bold text-[#0B1220] select-none flex items-center gap-1.5 shrink-0">
                       <IndiaFlag className="w-4 h-3 rounded-xs shrink-0" />
                       <span>+91</span>
                     </div>
@@ -337,7 +337,7 @@ export default function LoginPage() {
                   </div>
                 ) : (
                   <div key="email-mode-wrapper" className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#3A3564] transition-colors">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#0B1220] transition-colors">
                       <Mail className="w-4 h-4" />
                     </div>
                     <input
@@ -349,7 +349,7 @@ export default function LoginPage() {
                       value={emailInput ?? ''}
                       onChange={e => setEmailInput(e.target.value)}
                       placeholder="Enter your email"
-                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                     />
                   </div>
                 )}
@@ -364,7 +364,7 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#3A3564] transition-colors">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#0B1220] transition-colors">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -375,7 +375,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full pl-10 pr-11 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    className="w-full pl-10 pr-11 py-2.5 sm:py-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                   />
                   <button
                     type="button"
@@ -397,7 +397,7 @@ export default function LoginPage() {
                     name="remember"
                     checked={rememberMe}
                     onChange={e => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-[#3A3564] accent-[#3A3564] cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-[#0B1220] accent-[#0B1220] cursor-pointer"
                   />
                   <span className="text-xs sm:text-[13px] text-slate-600 font-medium">
                     Keep me signed in
@@ -412,7 +412,7 @@ export default function LoginPage() {
                     setForgotStep(1)
                     setShowForgotModal(true)
                   }}
-                  className="text-xs sm:text-[13px] font-bold text-[#3A3564] hover:text-[#2A2649] hover:underline transition-colors bg-transparent border-none p-0 cursor-pointer"
+                  className="text-xs sm:text-[13px] font-bold text-[#0B1220] hover:text-[#1D4ED8] hover:underline transition-colors bg-transparent border-none p-0 cursor-pointer"
                 >
                   Forgot password?
                 </button>
@@ -430,23 +430,23 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isPending || isSuccess}
-                className="w-full py-3 sm:py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.99] flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-sm disabled:opacity-85 disabled:cursor-not-allowed mt-1 cursor-pointer group"
+                className="w-full py-3 sm:py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.99] flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-sm disabled:opacity-85 disabled:cursor-not-allowed mt-1 cursor-pointer group"
               >
                 {isSuccess ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
                     <span>Continue to Dashboard</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
                   </>
                 ) : isPending ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
                     <span>Signing in...</span>
                   </>
                 ) : (
                   <>
                     <span>Sign In to Dashboard</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
               </button>
@@ -457,10 +457,10 @@ export default function LoginPage() {
                   New to Zigza?{' '}
                   <Link
                     href="/register"
-                    className="text-[#3A3564] font-bold hover:text-[#2A2649] hover:underline transition-colors inline-flex items-center gap-1 group/trial"
+                    className="text-[#1D4ED8] font-bold hover:underline transition-colors inline-flex items-center gap-1 group/trial"
                   >
                     <span>Start 7-Day Free Trial</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover/trial:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[#14C8B4] group-hover/trial:translate-x-0.5 transition-transform" />
                   </Link>
                 </p>
               </div>
@@ -474,7 +474,7 @@ export default function LoginPage() {
       {/* 3-Step OTP & Password Reset Modal (100% Functionality Preserved) */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-[420px] bg-white rounded-2xl p-6 sm:p-7 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-[420px] bg-white rounded-2xl p-6 sm:p-7 shadow-2xl border border-slate-200/80 relative space-y-4 animate-in zoom-in-95 duration-200">
 
             {/* Close Button */}
             <button
@@ -486,13 +486,13 @@ export default function LoginPage() {
 
             {/* Modal Header */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs">
                 {forgotStep === 1 && <KeyRound className="w-5 h-5" />}
                 {forgotStep === 2 && <ShieldCheck className="w-5 h-5" />}
                 {forgotStep === 3 && <Lock className="w-5 h-5" />}
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] leading-tight">
+                <h3 className="text-base sm:text-lg font-bold text-[#0B1220] leading-tight">
                   {forgotStep === 1 && 'Reset Password'}
                   {forgotStep === 2 && 'Verify OTP'}
                   {forgotStep === 3 && 'New Password'}
@@ -530,13 +530,13 @@ export default function LoginPage() {
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     placeholder="Enter your registered factory email"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isForgotPending}
-                  className="w-full py-3 bg-[#3A3564] text-white rounded-xl text-sm font-bold hover:bg-[#2A2649] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
+                  className="w-full py-3 bg-[#0B1220] text-white rounded-xl text-sm font-bold hover:bg-[#162032] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
                 >
                   {isForgotPending ? 'Sending OTP...' : 'Send Verification OTP'}
                 </button>
@@ -557,13 +557,13 @@ export default function LoginPage() {
                     value={otpToken}
                     onChange={(e) => setOtpToken(e.target.value.trim())}
                     placeholder="123456"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-base text-center tracking-widest font-mono font-bold text-[#3A3564] focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-base text-center tracking-widest font-mono font-bold text-[#0B1220] focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isForgotPending}
-                  className="w-full py-3 bg-[#3A3564] text-white rounded-xl text-sm font-bold hover:bg-[#2A2649] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
+                  className="w-full py-3 bg-[#0B1220] text-white rounded-xl text-sm font-bold hover:bg-[#162032] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
                 >
                   {isForgotPending ? 'Verifying OTP...' : 'Verify OTP'}
                 </button>
@@ -575,7 +575,7 @@ export default function LoginPage() {
               <form onSubmit={handleSetNewPassword} className="space-y-4">
                 {isResetSuccess ? (
                   <div className="py-6 text-center space-y-2">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto animate-bounce" />
+                    <CheckCircle2 className="w-10 h-10 text-[#14C8B4] mx-auto animate-bounce" />
                     <h4 className="font-bold text-slate-900">Password Updated!</h4>
                     <p className="text-xs text-slate-500">Redirecting to login dashboard...</p>
                   </div>
@@ -591,7 +591,7 @@ export default function LoginPage() {
                         value={newPassword}
                         onChange={(e) => setNewPasswordVal(e.target.value)}
                         placeholder="At least 6 characters"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                       />
                     </div>
                     <div>
@@ -604,13 +604,13 @@ export default function LoginPage() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter password"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 shadow-2xs transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 shadow-2xs transition-all"
                       />
                     </div>
                     <button
                       type="submit"
                       disabled={isForgotPending}
-                      className="w-full py-3 bg-[#3A3564] text-white rounded-xl text-sm font-bold hover:bg-[#2A2649] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
+                      className="w-full py-3 bg-[#0B1220] text-white rounded-xl text-sm font-bold hover:bg-[#162032] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
                     >
                       {isForgotPending ? 'Saving Password...' : 'Set New Password'}
                     </button>
@@ -624,22 +624,22 @@ export default function LoginPage() {
       )}
 
       {/* Minimal Footer Signature Bar */}
-      <footer className="w-full max-w-5xl py-4 border-t border-slate-300/90 z-10">
+      <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 sm:text-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-proudly-india-black font-bold">
+            <span className="text-slate-900 font-bold">
               Proudly Made in India
             </span>
             <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
           </div>
 
           <div className="flex items-center gap-6 text-xs text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">
-            <Link href="/privacy" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Terms</Link>
-            <Link href="/security" className="hover:text-slate-900 sm:hover:text-black hover:underline transition-colors">Security</Link>
+            <Link href="/privacy" className="hover:text-slate-900 hover:underline transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 hover:underline transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-slate-900 hover:underline transition-colors">Security</Link>
           </div>
 
-          <p suppressHydrationWarning className="text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">© {new Date().getFullYear()} Zigza MES. All rights reserved.</p>
+          <p suppressHydrationWarning className="text-slate-500 sm:text-slate-900 font-medium sm:font-semibold">© {new Date().getFullYear()} Zigza. All rights reserved.</p>
         </div>
       </footer>
 
