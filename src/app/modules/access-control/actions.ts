@@ -234,6 +234,78 @@ export async function fetchSupervisorAndWorkersHubAction(): Promise<SupervisorHu
           }
         })
 
+        // Reconcile department heads and PMs from auth users (in case profile record was not created or pending sync)
+        const existingProfileIds = new Set(profilesList.map(p => p.id))
+        authUserMap.forEach((authUser, authId) => {
+          if (authId === user.id && callerPowerLevel === 'OWNER') return
+          if (existingProfileIds.has(authId)) return
+
+          const meta = authUser.user_metadata || {}
+          const userComp = (meta.company || meta.company_name || '').trim()
+          if (!userComp || userComp.toLowerCase() !== company.toLowerCase()) return
+
+          const isPM = (meta.role || '').toUpperCase() === 'PRODUCTION_MANAGER'
+          if (isPM) {
+            productionManagers.push({
+              id: authId,
+              name: meta.display_name || meta.displayName || meta.username || 'Production Manager',
+              username: meta.username || 'pm_user',
+              phone: meta.phone || meta.phone_number || '',
+              email: authUser.email || undefined,
+              isActive: true,
+              createdAt: authUser.created_at
+            })
+            return
+          }
+
+          const isHead = meta.is_head === true || (meta.role || '').toUpperCase() === 'DEPARTMENT_HEAD'
+          if (isHead) {
+            const rawModules = Array.isArray(meta.allowed_modules) ? meta.allowed_modules : []
+            const rawTabs = Array.isArray(meta.allowed_tabs) ? meta.allowed_tabs : ['all-modules']
+            const rawPhone = meta.phone || meta.phone_number || ''
+            let primaryPhone = rawPhone
+            let secondaryPhone = meta.phone2 || ''
+            if (rawPhone.includes('/')) {
+              const parts = rawPhone.split('/').map((s: string) => s.trim())
+              primaryPhone = parts[0] || ''
+              secondaryPhone = parts[1] || secondaryPhone
+            }
+
+            departmentHeads.push({
+              id: authId,
+              displayName: meta.display_name || meta.displayName || meta.username || 'Department Head',
+              username: meta.username || 'dept_head',
+              email: authUser.email || `${(meta.username || 'head').toLowerCase().replace(/\s+/g, '_')}@${company.toLowerCase().replace(/[^a-z0-9]/g, '')}.local`,
+              role: 'DEPARTMENT_HEAD',
+              designation: meta.designation || 'Department In-charge',
+              primaryDivisionRoute: rawModules[0] || '',
+              allowedModules: rawModules,
+              allowedTabs: rawTabs,
+              isActive: true,
+              phone: primaryPhone,
+              phone2: secondaryPhone || undefined,
+              createdAt: authUser.created_at
+            })
+
+            // Self-heal: ensure profiles row exists in background
+            void (async () => {
+              try {
+                await supabaseAdmin.from('profiles').upsert({
+                  id: authId,
+                  username: meta.display_name || meta.username || 'Department Head',
+                  role: 'DEPARTMENT_HEAD',
+                  designation: meta.designation || 'Department In-charge',
+                  allowed_modules: rawModules,
+                  company_name: company,
+                  is_head: true,
+                  is_active: true,
+                  phone: rawPhone
+                })
+              } catch (_) {}
+            })()
+          }
+        })
+
         // 2. Purchased / Allowed Divisions
         const isPlatformSuperAdmin = tenant.isPlatformAdmin || user.email === 'admin@zigza.in'
         const configuredDivisions = (!isPlatformSuperAdmin && Array.isArray(tenant.allowedDivisions) && tenant.allowedDivisions.length > 0 && !tenant.allowedDivisions.includes('/platform-admin'))
@@ -684,7 +756,6 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
         role: 'DEPARTMENT_HEAD',
         designation: defaultDesignation,
         allowed_modules: modulesToAssign,
-        allowed_tabs: tabsToAssign,
         company_name: company,
         is_head: true,
         is_active: true,
@@ -808,7 +879,6 @@ export async function appointOrUpdateDepartmentHeadAction(payload: {
         role: 'DEPARTMENT_HEAD',
         designation: defaultDesignation,
         allowed_modules: modulesToAssign,
-        allowed_tabs: tabsToAssign,
         company_name: company,
         is_head: true,
         is_active: true,
@@ -1169,11 +1239,13 @@ export async function toggleStaffStatusAction(payload: {
 }
 
 /**
- * Reset password for a Production Manager or Department Head.
+ * Reset password for a Production Manager, Department Head, or Floor Worker.
+ * Strictly restricted to Company Owner (Super Admin).
  */
 export async function resetStaffPasswordAction(
   userId: string,
-  newPassword: string
+  newPassword: string,
+  userPhone?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!newPassword || newPassword.length < 6) {
@@ -1185,7 +1257,14 @@ export async function resetStaffPasswordAction(
     if (!user) return { success: false, error: 'Authentication required' }
 
     const tenant = await resolveUserTenant(user)
+    const userRole = (tenant.role || '').toUpperCase()
+    const isOwner = tenant.isSuperAdmin || userRole === 'SUPERADMIN' || userRole === 'ADMIN' || userRole === 'PLATFORM_SUPERADMIN' || user.email === 'admin@zigza.in'
+    if (!isOwner) {
+      return { success: false, error: 'Unauthorized: Only the Company Owner can reset passwords' }
+    }
+
     const company = tenant.companyName.trim()
+    let targetAuthId = userId
 
     // Verify target user belongs to this company
     const { data: prof } = await supabaseAdmin
@@ -1194,11 +1273,37 @@ export async function resetStaffPasswordAction(
       .eq('id', userId)
       .maybeSingle()
 
-    if (prof?.company_name?.toLowerCase().trim() !== company.toLowerCase().trim()) {
-      return { success: false, error: 'Unauthorized: Cross-company operation blocked' }
+    if (prof) {
+      if (prof.company_name?.toLowerCase().trim() !== company.toLowerCase().trim()) {
+        return { success: false, error: 'Unauthorized: Cross-company operation blocked' }
+      }
+    } else {
+      // Check auth user directly or resolve by phone
+      try {
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId)
+        if (authUser?.user) {
+          const meta = authUser.user.user_metadata || {}
+          const userComp = (meta.company || meta.company_name || '').trim()
+          if (userComp && userComp.toLowerCase() !== company.toLowerCase()) {
+            return { success: false, error: 'Unauthorized: Cross-company operation blocked' }
+          }
+        } else if (userPhone) {
+          const cleanPhone = userPhone.replace(/\D/g, '').slice(-10)
+          const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+          const matched = allUsers?.users?.find(u => {
+            const m = u.user_metadata || {}
+            const uComp = (m.company || m.company_name || '').trim()
+            const uPhone = (u.phone || m.phone || m.phone_number || '').replace(/\D/g, '').slice(-10)
+            return uComp.toLowerCase() === company.toLowerCase() && uPhone === cleanPhone
+          })
+          if (matched) {
+            targetAuthId = matched.id
+          }
+        }
+      } catch (_) {}
     }
 
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(targetAuthId, {
       password: newPassword
     })
 

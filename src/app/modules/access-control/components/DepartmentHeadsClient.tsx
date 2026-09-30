@@ -137,17 +137,19 @@ export function DepartmentHeadsClient({
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false)
   const [workerModalInitialRoute, setWorkerModalInitialRoute] = useState<string | undefined>(undefined)
 
-  // Password reset modal
+  // Password reset modal (strictly Owner-only access)
   const [passwordModal, setPasswordModal] = useState<{
     isOpen: boolean
     userId: string
     userName: string
-    username: string
+    username?: string
+    phone?: string
   }>({
     isOpen: false,
     userId: '',
     userName: '',
-    username: ''
+    username: '',
+    phone: ''
   })
 
   // Delete confirm dialog
@@ -663,120 +665,94 @@ export function DepartmentHeadsClient({
                       </div>
 
                       {totalHeadsCount > 0 ? (
-                        <div className="space-y-4">
-                          {allHeadsForDiv.map((h) => (
-                            <div key={h.id} className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200/60 space-y-3">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-base font-bold text-[#0B1220]">{h.displayName}</span>
-                                    <span className={`text-xs font-semibold ${h.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
-                                      • {h.isActive ? 'Active' : 'Inactive'}
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500 bg-[#F8FAFC]">
+                                <th className="py-2.5 px-3 rounded-l-lg">Head Name</th>
+                                <th className="py-2.5 px-3">Mobile Contact</th>
+                                <th className="py-2.5 px-3">Designation</th>
+                                <th className="py-2.5 px-3">Status</th>
+                                <th className="py-2.5 px-3 text-right rounded-r-lg">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                              {allHeadsForDiv.map((h) => (
+                                <tr key={h.id} className="hover:bg-slate-50/80 transition-colors">
+                                  <td className="py-2.5 px-3 font-bold text-[#0B1220]">
+                                    {h.displayName}
+                                  </td>
+                                  <td className="py-2.5 px-3 font-mono font-semibold text-slate-700">
+                                    +91 {h.phone} {h.phone2 ? `• +91 ${h.phone2}` : ''}
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <span className="text-xs text-slate-700 font-medium">
+                                      {h.designation}
                                     </span>
-                                  </div>
-                                  <div className="text-xs text-slate-500 font-mono mt-0.5">
-                                    @{h.username}
-                                  </div>
-                                </div>
-
-                                <div className="text-xs sm:text-sm font-mono text-slate-700 font-semibold flex items-center gap-3 flex-wrap">
-                                  <span>+91 {h.phone}</span>
-                                  {h.phone2 && (
-                                    <span className="text-slate-500">• +91 {h.phone2} (Alt)</span>
-                                  )}
-                                  {h.email && !h.email.endsWith('.local') && (
-                                    <span className="text-slate-500">• {h.email}</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Allowed Modules & Tabs */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1 border-t border-slate-200/50">
-                                <div>
-                                  <span className="font-semibold text-slate-500 block mb-1">
-                                    Department Access:
-                                  </span>
-                                  <div className="flex flex-wrap gap-1">
-                                    {h.allowedModules.map(mRoute => {
-                                      const catItem = divisions.find(d => d.route === mRoute)
-                                      return (
-                                        <span
-                                          key={mRoute}
-                                          className="bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700 text-xs font-medium"
+                                  </td>
+                                  <td className="py-2.5 px-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
+                                      className={`text-xs font-semibold cursor-pointer transition-colors ${
+                                        h.isActive
+                                          ? 'text-emerald-600 hover:text-emerald-700'
+                                          : 'text-rose-500 hover:text-rose-600'
+                                      }`}
+                                    >
+                                      {h.isActive ? 'Active' : 'Inactive'}
+                                    </button>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right">
+                                    <div className="flex items-center justify-end gap-1.5">
+                                      {isOwner && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setPasswordModal({
+                                            isOpen: true,
+                                            userId: h.id,
+                                            userName: h.displayName,
+                                            username: h.username,
+                                            phone: h.phone
+                                          })}
+                                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                                          title="Reset Password"
                                         >
-                                          {catItem?.name || mRoute}
-                                        </span>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <span className="font-semibold text-slate-500 block mb-1">
-                                    Header Tabs:
-                                  </span>
-                                  <div className="flex flex-wrap gap-1">
-                                    {h.allowedTabs.map(tab => (
-                                      <span
-                                        key={tab}
-                                        className="bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700 text-xs font-mono"
-                                      >
-                                        {tab}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Head Actions */}
-                              {canAppointHeads && (
-                                <div className="pt-2 flex items-center gap-2 border-t border-slate-200/50 flex-wrap">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenAppointHead(div.route, h)}
-                                    className="px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-[#0B1220] rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <Edit2 className="w-3 h-3" />
-                                    <span>Edit</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setPasswordModal({
-                                      isOpen: true,
-                                      userId: h.id,
-                                      userName: h.displayName,
-                                      username: h.username
-                                    })}
-                                    className="px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-[#0B1220] rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <KeyRound className="w-3 h-3" />
-                                    <span>Reset Password</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
-                                    className="p-1.5 rounded-lg text-slate-500 hover:text-[#0B1220] hover:bg-slate-200/60 transition-colors cursor-pointer"
-                                    title={h.isActive ? 'Deactivate' : 'Activate'}
-                                  >
-                                    <PowerOff className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setDeleteConfirm({
-                                      isOpen: true,
-                                      id: h.id,
-                                      name: h.displayName,
-                                      type: 'DEPARTMENT_HEAD'
-                                    })}
-                                    className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer ml-auto"
-                                    title="Remove Head"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                                          <KeyRound className="w-3.5 h-3.5" />
+                                          <span className="hidden sm:inline">Reset Password</span>
+                                        </button>
+                                      )}
+                                      {canAppointHeads && (
+                                        <>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleOpenAppointHead(div.route, h)}
+                                            className="p-1.5 rounded-lg text-slate-500 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
+                                            title="Edit Details"
+                                          >
+                                            <Edit2 className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setDeleteConfirm({
+                                              isOpen: true,
+                                              id: h.id,
+                                              name: h.displayName,
+                                              type: 'DEPARTMENT_HEAD'
+                                            })}
+                                            className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                                            title="Remove Head"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       ) : (
                         <div className="bg-[#F8FAFC] rounded-xl p-4 border border-dashed border-slate-300 text-center space-y-2">
@@ -865,20 +841,39 @@ export function DepartmentHeadsClient({
                                     </button>
                                   </td>
                                   <td className="py-2.5 px-3 text-right">
-                                    <button
-                                      type="button"
-                                      onClick={() => setDeleteConfirm({
-                                        isOpen: true,
-                                        id: w.id,
-                                        name: w.name,
-                                        type: 'WORKER',
-                                        divisionRoute: div.route
-                                      })}
-                                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer inline-flex"
-                                      title="Remove Worker"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    <div className="flex items-center justify-end gap-1.5">
+                                      {isOwner && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setPasswordModal({
+                                            isOpen: true,
+                                            userId: w.id,
+                                            userName: w.name,
+                                            username: w.phone,
+                                            phone: w.phone
+                                          })}
+                                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                                          title="Reset Password"
+                                        >
+                                          <KeyRound className="w-3.5 h-3.5" />
+                                          <span className="hidden sm:inline">Reset Password</span>
+                                        </button>
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={() => setDeleteConfirm({
+                                          isOpen: true,
+                                          id: w.id,
+                                          name: w.name,
+                                          type: 'WORKER',
+                                          divisionRoute: div.route
+                                        })}
+                                        className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer inline-flex"
+                                        title="Remove Worker"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               ))}
@@ -976,13 +971,14 @@ export function DepartmentHeadsClient({
         initialDivisionRoute={workerModalInitialRoute}
       />
 
-      {/* 4. Reset Password Modal */}
+      {/* 4. Reset Password Modal (strictly Owner-only) */}
       <ResetPasswordModal
         isOpen={passwordModal.isOpen}
-        onClose={() => setPasswordModal({ isOpen: false, userId: '', userName: '', username: '' })}
+        onClose={() => setPasswordModal({ isOpen: false, userId: '', userName: '', username: '', phone: '' })}
         headId={passwordModal.userId}
         headName={passwordModal.userName}
-        username={passwordModal.username}
+        username={passwordModal.username || ''}
+        phone={passwordModal.phone}
         onSuccess={() => {
           showToast('Password updated successfully!')
           router.refresh()

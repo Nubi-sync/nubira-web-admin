@@ -2,14 +2,15 @@
 
 import React, { useState } from 'react'
 import { X, KeyRound, Loader2, Check, Copy, Eye, EyeOff } from 'lucide-react'
-import { resetDepartmentHeadPasswordAction } from '../actions'
+import { resetStaffPasswordAction } from '../actions'
 
 interface ResetPasswordModalProps {
   isOpen: boolean
   onClose: () => void
   headId: string
   headName: string
-  username: string
+  username?: string
+  phone?: string
   onSuccess: () => void
 }
 
@@ -19,6 +20,7 @@ export function ResetPasswordModal({
   headId,
   headName,
   username,
+  phone,
   onSuccess
 }: ResetPasswordModalProps) {
   const [newPassword, setNewPassword] = useState('')
@@ -48,7 +50,7 @@ export function ResetPasswordModal({
     setError(null)
 
     try {
-      const res = await resetDepartmentHeadPasswordAction(headId, newPassword)
+      const res = await resetStaffPasswordAction(headId, newPassword, phone)
       if (res.success) {
         setSuccess(true)
         setTimeout(() => {
@@ -92,7 +94,7 @@ export function ResetPasswordModal({
               Reset Staff Password
             </h3>
             <p className="text-xs text-slate-500 font-mono">
-              {headName} ({username})
+              {headName} {phone ? `(+91 ${phone})` : username ? `(${username})` : ''}
             </p>
           </div>
         </div>
