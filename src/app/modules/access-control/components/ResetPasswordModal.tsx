@@ -129,13 +129,13 @@ export function ResetPasswordModal({
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full pl-3.5 pr-20 py-2.5 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none"
+                  className="w-full pl-4 pr-20 py-3 text-base font-mono font-bold text-[#0B1220] placeholder-slate-400 focus:outline-none"
                 />
                 <div className="absolute right-0 top-0 bottom-0 flex items-center bg-white">
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="px-2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    className="px-2.5 text-slate-400 hover:text-slate-700 cursor-pointer"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -144,7 +144,7 @@ export function ResetPasswordModal({
                     <button
                       type="button"
                       onClick={handleCopy}
-                      className="px-3 border-l border-slate-200 text-slate-500 hover:text-slate-900 text-xs flex items-center gap-1 cursor-pointer h-full"
+                      className="px-3 border-l border-slate-200 text-slate-600 hover:text-slate-900 text-xs font-bold flex items-center gap-1 cursor-pointer h-full"
                       title="Copy to clipboard"
                     >
                       {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -155,27 +155,27 @@ export function ResetPasswordModal({
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs sm:text-sm text-rose-700 font-semibold">
                 {error}
               </div>
             )}
 
-            <div className="pt-2 flex items-center justify-end gap-2">
+            <div className="pt-3 flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                className="min-h-[44px] px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || !newPassword}
-                className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                className="min-h-[44px] px-6 py-2.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white rounded-xl text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Updating...</span>
                   </>
                 ) : (

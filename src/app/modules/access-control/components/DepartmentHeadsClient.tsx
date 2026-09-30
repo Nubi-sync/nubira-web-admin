@@ -302,48 +302,49 @@ export function DepartmentHeadsClient({
   const primaryPM = productionManagersList[0] || null
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
 
       {/* 1. Header Banner - Clean with Department Pill */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <ShieldCheck className="w-6 h-6 text-[#0B1220]" />
+      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
+        <div className="flex items-center gap-4">
+          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
                 {divisions.length} Departments
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-0.5 font-medium font-[family-name:var(--font-public-sans)]">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Factory leadership hierarchy, department heads, and floor worker roster for {companyName}.
             </p>
           </div>
         </div>
 
-        {/* Right Search Input */}
-        <div className="w-full sm:w-72 md:w-80 relative shrink-0">
+        {/* Right Search Input - Generous touch target & clear readability */}
+        <div className="w-full sm:w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search departments or staff..."
-              className="w-full pl-10 pr-9 py-2 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] rounded-xl outline-none transition-all shadow-2xs"
+              className="w-full pl-11 pr-10 py-3 sm:py-3.5 bg-slate-50 focus:bg-white text-sm sm:text-base font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 p-0.5 text-slate-400 hover:text-slate-700"
+                className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                aria-label="Clear search"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -351,73 +352,77 @@ export function DepartmentHeadsClient({
       </div>
 
       {/* 2. ROW 1: Written About the Owner - No pill clutter */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Crown className="w-5 h-5 text-[#0B1220]" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-all">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Crown className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-base sm:text-lg font-bold text-[#0B1220]">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
                 {owner.name}
               </span>
-              <span className="text-xs font-semibold text-slate-500">
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">
                 (Company Owner)
               </span>
             </div>
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 font-mono mt-0.5 flex-wrap">
+            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-base text-slate-700 font-mono mt-1 flex-wrap">
               {owner.email && (
-                <span className="flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                <span className="flex items-center gap-1.5 font-sans font-medium text-slate-600">
+                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
                   {owner.email}
                 </span>
               )}
               {owner.phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
+                <a href={`tel:+91${owner.phone}`} className="flex items-center gap-1.5 font-bold hover:underline text-[#0B1220]">
+                  <Phone className="w-4 h-4 text-slate-400 shrink-0" />
                   +91 {owner.phone}
-                </span>
+                </a>
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-center">
-          <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+        <div className="flex items-center gap-2 self-start sm:self-center">
+          <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             Full Factory Authority
           </span>
         </div>
       </div>
 
-      {/* 3. ROW 2: Written About the Production Manager - No pill clutter */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Factory className="w-5 h-5 text-[#0B1220]" />
+      {/* 3. ROW 2: Written About the Production Manager - High Contrast & Large Touch Buttons */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-all">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Factory className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
             {primaryPM ? (
               <>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-base sm:text-lg font-bold text-[#0B1220]">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
                     {primaryPM.name}
                   </span>
-                  <span className="text-xs font-semibold text-slate-500">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">
                     (Production Manager)
                   </span>
-                  <span className={`text-xs font-semibold ${primaryPM.isActive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                  <span className={`text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full border ${
+                    primaryPM.isActive 
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                      : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
                     • {primaryPM.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 font-mono mt-0.5 flex-wrap">
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-base text-slate-700 font-mono mt-1 flex-wrap">
+                  <a href={`tel:+91${primaryPM.phone}`} className="flex items-center gap-1.5 font-bold hover:underline text-[#0B1220]">
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
                     +91 {primaryPM.phone}
-                  </span>
+                  </a>
                   {primaryPM.email && !primaryPM.email.endsWith('.local') && (
-                    <span className="flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="flex items-center gap-1.5 font-sans font-medium text-slate-600">
+                      <Mail className="w-4 h-4 text-slate-400 shrink-0" />
                       {primaryPM.email}
                     </span>
                   )}
@@ -426,14 +431,14 @@ export function DepartmentHeadsClient({
             ) : (
               <>
                 <div className="flex items-center gap-2">
-                  <span className="text-base sm:text-lg font-bold text-[#0B1220]">
+                  <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
                     Production Manager
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
+                  <span className="text-xs sm:text-sm text-slate-400 font-medium">
                     (Not Assigned)
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
                   No Production Manager appointed yet. Owner can delegate factory-wide oversight.
                 </p>
               </>
@@ -441,9 +446,9 @@ export function DepartmentHeadsClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end shrink-0">
           {primaryPM ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               {isOwner && (
                 <>
                   <button
@@ -452,17 +457,18 @@ export function DepartmentHeadsClient({
                       isOpen: true,
                       userId: primaryPM.id,
                       userName: primaryPM.name,
-                      username: primaryPM.username
+                      username: primaryPM.username,
+                      phone: primaryPM.phone
                     })}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                   >
-                    <KeyRound className="w-3.5 h-3.5" />
+                    <KeyRound className="w-4 h-4" />
                     <span>Reset Password</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleToggleStatus(primaryPM.id, 'PRODUCTION_MANAGER', primaryPM.isActive)}
-                    className="p-2 rounded-xl text-slate-500 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
+                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
                     title={primaryPM.isActive ? 'Deactivate' : 'Activate'}
                   >
                     <PowerOff className="w-4 h-4" />
@@ -475,7 +481,7 @@ export function DepartmentHeadsClient({
                       name: primaryPM.name,
                       type: 'PRODUCTION_MANAGER'
                     })}
-                    className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
                     title="Remove Production Manager"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -488,7 +494,7 @@ export function DepartmentHeadsClient({
               <button
                 type="button"
                 onClick={() => setIsPmModalOpen(true)}
-                className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                className="w-full sm:w-auto min-h-[46px] px-6 py-2.5 sm:py-3 bg-[#0B1220] hover:bg-[#162032] text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 <Plus className="w-4 h-4 text-[#14C8B4]" />
                 <span>Appoint Production Manager</span>
@@ -501,34 +507,34 @@ export function DepartmentHeadsClient({
       {/* 4. SECTION HEADER: Departments & Staff */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
         <div className="flex items-center gap-2.5 flex-wrap">
-          <h2 className="text-lg sm:text-xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
             Factory Departments
           </h2>
-          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+          <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
             {filteredDivisions.length}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center">
+        <div className="flex items-center gap-2.5 self-start sm:self-center">
           <button
             type="button"
             onClick={expandAll}
-            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            className="min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
           >
             Expand All
           </button>
           <button
             type="button"
             onClick={collapseAll}
-            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            className="min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
           >
             Collapse All
           </button>
         </div>
       </div>
 
-      {/* Table Column Header Guide for Perfect Vertical Alignment */}
-      <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+      {/* Table Column Header Guide for Perfect Vertical Alignment (Desktop) */}
+      <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2.5 text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
         <div className="col-span-5">Department</div>
         <div className="col-span-4">Department In-Charge</div>
         <div className="col-span-2 text-center">Floor Staff</div>
@@ -536,18 +542,18 @@ export function DepartmentHeadsClient({
       </div>
 
       {/* 5. DEPARTMENT ROWS: One by one aligned strictly in grid columns */}
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {filteredDivisions.length === 0 ? (
           <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-3">
-            <Users className="w-10 h-10 text-slate-300 mx-auto" />
-            <h3 className="text-base font-bold text-[#0B1220]">No Matching Departments</h3>
+            <Users className="w-12 h-12 text-slate-300 mx-auto" />
+            <h3 className="text-base sm:text-lg font-bold text-[#0B1220]">No Matching Departments</h3>
             <p className="text-xs sm:text-sm text-slate-500">
               No department, head, or worker matches "{searchQuery}".
             </p>
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="px-4 py-2 bg-[#0B1220] text-white text-xs font-bold rounded-xl"
+              className="min-h-[44px] px-6 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs inline-flex items-center justify-center cursor-pointer active:scale-[0.98]"
             >
               Clear Filter
             </button>
@@ -566,35 +572,32 @@ export function DepartmentHeadsClient({
                 key={div.id}
                 className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
               >
-                {/* Clickable Row Header - Strict 12-column CSS Grid Alignment */}
+                {/* 1. Desktop Clickable Row Header - Strict 12-column CSS Grid Alignment */}
                 <div
                   onClick={() => toggleExpand(div.route)}
-                  className="grid grid-cols-12 items-center gap-4 p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
+                  className="hidden md:grid grid-cols-12 items-center gap-4 p-5 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
                 >
                   {/* Column 1: Department Info (5 columns) */}
-                  <div className="col-span-12 md:col-span-5 flex items-center gap-3.5 min-w-0">
-                    <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
-                      <IconComponent className="w-5 h-5 text-[#0B1220]" />
+                  <div className="col-span-5 flex items-center gap-3.5 min-w-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                      <IconComponent className="w-6 h-6 text-[#0B1220]" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-base font-bold text-[#0B1220] truncate">
+                      <div className="text-base lg:text-lg font-bold text-[#0B1220] truncate">
                         {div.name}
                       </div>
-                      <div className="text-xs text-slate-500 truncate">
+                      <div className="text-xs sm:text-sm font-semibold text-slate-500 truncate">
                         {div.defaultDesignation}
                       </div>
                     </div>
                   </div>
 
                   {/* Column 2: Department In-charge (4 columns) - Strictly aligned */}
-                  <div className="col-span-6 md:col-span-4 min-w-0">
-                    <span className="text-[11px] font-semibold uppercase text-slate-400 block md:hidden mb-0.5">
-                      In-Charge
-                    </span>
+                  <div className="col-span-4 min-w-0">
                     {totalHeadsCount > 0 && head ? (
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-[#0B1220] truncate flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#14C8B4] shrink-0" />
+                        <div className="text-sm sm:text-base font-bold text-[#0B1220] truncate flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#14C8B4] shrink-0" />
                           <span className="truncate">{head.displayName}</span>
                           {totalHeadsCount > 1 && (
                             <span className="text-xs text-slate-500 shrink-0 font-normal">
@@ -602,30 +605,27 @@ export function DepartmentHeadsClient({
                             </span>
                           )}
                         </div>
-                        <div className="text-xs font-mono text-slate-500 truncate pl-3.5">
+                        <div className="text-xs sm:text-sm font-mono font-bold text-slate-700 truncate pl-4.5">
                           +91 {head.phone} {head.phone2 ? `• +91 ${head.phone2}` : ''}
                         </div>
                       </div>
                     ) : (
-                      <div className="text-sm text-slate-400 font-medium">
+                      <div className="text-sm font-semibold text-slate-400">
                         Not Assigned
                       </div>
                     )}
                   </div>
 
                   {/* Column 3: Floor Staff Count (2 columns) - Strictly aligned */}
-                  <div className="col-span-4 md:col-span-2 text-left md:text-center">
-                    <span className="text-[11px] font-semibold uppercase text-slate-400 block md:hidden mb-0.5">
-                      Floor Staff
-                    </span>
-                    <div className="text-sm font-bold text-[#0B1220]">
+                  <div className="col-span-2 text-center">
+                    <div className="text-sm sm:text-base font-bold text-[#0B1220]">
                       {divWorkers.length} {divWorkers.length === 1 ? 'Worker' : 'Workers'}
                     </div>
                   </div>
 
                   {/* Column 4: Details / Chevron (1 column) */}
-                  <div className="col-span-2 md:col-span-1 flex items-center justify-end">
-                    <div className={`p-1.5 rounded-lg text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
+                  <div className="col-span-1 flex items-center justify-end">
+                    <div className={`p-2 rounded-xl text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
                       isExpanded ? 'rotate-180 text-[#0B1220]' : ''
                     }`}>
                       <ChevronDown className="w-5 h-5" />
@@ -633,18 +633,76 @@ export function DepartmentHeadsClient({
                   </div>
                 </div>
 
+                {/* 2. Mobile Clickable Row Header (390px Viewport Ergonomics) */}
+                <div
+                  onClick={() => toggleExpand(div.route)}
+                  className="block md:hidden p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                        <IconComponent className="w-5 h-5 text-[#0B1220]" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-base font-bold text-[#0B1220] truncate">
+                          {div.name}
+                        </div>
+                        <div className="text-xs font-semibold text-slate-500 truncate">
+                          {div.defaultDesignation}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+                        {divWorkers.length} {divWorkers.length === 1 ? 'Worker' : 'Workers'}
+                      </span>
+                      <div className={`p-1.5 rounded-lg text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180 text-[#0B1220]' : ''
+                      }`}>
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Sub-strip with In-charge details */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                    <div className="min-w-0 flex items-center gap-2">
+                      <span className="font-semibold text-slate-400 uppercase tracking-wide text-[11px] shrink-0">In-Charge:</span>
+                      {totalHeadsCount > 0 && head ? (
+                        <span className="font-bold text-[#0B1220] truncate flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#14C8B4] shrink-0" />
+                          <span className="truncate">{head.displayName}</span>
+                          {totalHeadsCount > 1 && (
+                            <span className="text-slate-500 font-normal shrink-0">
+                              (+{totalHeadsCount - 1})
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 font-medium">Not Assigned</span>
+                      )}
+                    </div>
+                    {totalHeadsCount > 0 && head && (
+                      <span className="font-mono font-bold text-slate-700 shrink-0">
+                        +91 {head.phone}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 {/* EXPANDED CONTENT UNDER ROW */}
                 {isExpanded && (
-                  <div className="border-t border-slate-200/80 bg-[#F8FAFC]/70 p-5 sm:p-6 space-y-5 animate-in slide-in-from-top-1 duration-150">
+                  <div className="border-t border-slate-200/80 bg-[#F8FAFC]/70 p-4 sm:p-6 space-y-5 animate-in slide-in-from-top-1 duration-150">
                     
                     {/* SECTION A: Department In-charge Details */}
-                    <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
-                          <h4 className="text-base font-bold text-[#0B1220]">
+                          <h4 className="text-base sm:text-lg font-bold text-[#0B1220]">
                             Department In-charge ({totalHeadsCount})
                           </h4>
-                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                          <p className="text-xs sm:text-sm text-slate-600 font-medium mt-0.5">
                             Supervisors and heads managing operations for {div.name}.
                           </p>
                         </div>
@@ -656,107 +714,196 @@ export function DepartmentHeadsClient({
                               e.stopPropagation()
                               handleOpenAppointHead(div.route, head || undefined)
                             }}
-                            className="px-3.5 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer self-start sm:self-center active:scale-[0.98]"
+                            className="w-full sm:w-auto min-h-[46px] px-5 py-2.5 sm:px-6 sm:py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                           >
-                            <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+                            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
                             <span>{head ? 'Edit In-charge Details' : 'Assign Department Head'}</span>
                           </button>
                         )}
                       </div>
 
                       {totalHeadsCount > 0 ? (
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse">
-                            <thead>
-                              <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500 bg-[#F8FAFC]">
-                                <th className="py-2.5 px-3 rounded-l-lg">Head Name</th>
-                                <th className="py-2.5 px-3">Mobile Contact</th>
-                                <th className="py-2.5 px-3">Designation</th>
-                                <th className="py-2.5 px-3">Status</th>
-                                <th className="py-2.5 px-3 text-right rounded-r-lg">Action</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
-                              {allHeadsForDiv.map((h) => (
-                                <tr key={h.id} className="hover:bg-slate-50/80 transition-colors">
-                                  <td className="py-2.5 px-3 font-bold text-[#0B1220]">
-                                    {h.displayName}
-                                  </td>
-                                  <td className="py-2.5 px-3 font-mono font-semibold text-slate-700">
-                                    +91 {h.phone} {h.phone2 ? `• +91 ${h.phone2}` : ''}
-                                  </td>
-                                  <td className="py-2.5 px-3">
-                                    <span className="text-xs text-slate-700 font-medium">
+                        <>
+                          {/* Desktop Table View */}
+                          <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="border-b border-slate-200 text-xs sm:text-sm font-bold text-slate-500 bg-[#F8FAFC]">
+                                  <th className="py-3 px-4 rounded-l-xl">Head Name</th>
+                                  <th className="py-3 px-4">Mobile Contact</th>
+                                  <th className="py-3 px-4">Designation</th>
+                                  <th className="py-3 px-4">Status</th>
+                                  <th className="py-3 px-4 text-right rounded-r-xl">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100 text-sm">
+                                {allHeadsForDiv.map((h) => (
+                                  <tr key={h.id} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="py-3.5 px-4 font-bold text-[#0B1220]">
+                                      {h.displayName}
+                                    </td>
+                                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
+                                      +91 {h.phone} {h.phone2 ? `• +91 ${h.phone2}` : ''}
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <span className="text-xs sm:text-sm text-slate-700 font-semibold">
+                                        {h.designation}
+                                      </span>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
+                                        className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                          h.isActive
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                            : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                        }`}
+                                      >
+                                        • {h.isActive ? 'Active' : 'Inactive'}
+                                      </button>
+                                    </td>
+                                    <td className="py-3.5 px-4 text-right">
+                                      <div className="flex items-center justify-end gap-2">
+                                        {isOwner && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setPasswordModal({
+                                              isOpen: true,
+                                              userId: h.id,
+                                              userName: h.displayName,
+                                              username: h.username,
+                                              phone: h.phone
+                                            })}
+                                            className="min-h-[40px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#0B1220] border border-slate-300/80 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-[0.98]"
+                                            title="Reset Password"
+                                          >
+                                            <KeyRound className="w-4 h-4" />
+                                            <span>Reset Password</span>
+                                          </button>
+                                        )}
+                                        {canAppointHeads && (
+                                          <>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleOpenAppointHead(div.route, h)}
+                                              className="min-w-[40px] min-h-[40px] p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                              title="Edit Details"
+                                            >
+                                              <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => setDeleteConfirm({
+                                                isOpen: true,
+                                                id: h.id,
+                                                name: h.displayName,
+                                                type: 'DEPARTMENT_HEAD'
+                                              })}
+                                              className="min-w-[40px] min-h-[40px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                              title="Remove Head"
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          {/* Mobile Dedicated Card List (No cramped tables on 390px screens) */}
+                          <div className="block md:hidden space-y-3.5">
+                            {allHeadsForDiv.map((h) => (
+                              <div key={h.id} className="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <div className="text-base font-bold text-[#0B1220]">
+                                      {h.displayName}
+                                    </div>
+                                    <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-0.5">
                                       {h.designation}
-                                    </span>
-                                  </td>
-                                  <td className="py-2.5 px-3">
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                      h.isActive
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                                    }`}
+                                  >
+                                    • {h.isActive ? 'Active' : 'Inactive'}
+                                  </button>
+                                </div>
+
+                                <div className="text-sm font-mono font-bold text-slate-800 space-y-1">
+                                  <a href={`tel:+91${h.phone}`} className="flex items-center gap-2 hover:underline text-[#0B1220]">
+                                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                                    +91 {h.phone}
+                                  </a>
+                                  {h.phone2 && (
+                                    <a href={`tel:+91${h.phone2}`} className="flex items-center gap-2 text-xs text-slate-600 hover:underline">
+                                      <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                      +91 {h.phone2} (Secondary)
+                                    </a>
+                                  )}
+                                </div>
+
+                                <div className="pt-2.5 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                                  {isOwner && (
                                     <button
                                       type="button"
-                                      onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
-                                      className={`text-xs font-semibold cursor-pointer transition-colors ${
-                                        h.isActive
-                                          ? 'text-emerald-600 hover:text-emerald-700'
-                                          : 'text-rose-500 hover:text-rose-600'
-                                      }`}
+                                      onClick={() => setPasswordModal({
+                                        isOpen: true,
+                                        userId: h.id,
+                                        userName: h.displayName,
+                                        username: h.username,
+                                        phone: h.phone
+                                      })}
+                                      className="flex-1 min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                                     >
-                                      {h.isActive ? 'Active' : 'Inactive'}
+                                      <KeyRound className="w-4 h-4" />
+                                      <span>Reset Password</span>
                                     </button>
-                                  </td>
-                                  <td className="py-2.5 px-3 text-right">
-                                    <div className="flex items-center justify-end gap-1.5">
-                                      {isOwner && (
-                                        <button
-                                          type="button"
-                                          onClick={() => setPasswordModal({
-                                            isOpen: true,
-                                            userId: h.id,
-                                            userName: h.displayName,
-                                            username: h.username,
-                                            phone: h.phone
-                                          })}
-                                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-                                          title="Reset Password"
-                                        >
-                                          <KeyRound className="w-3.5 h-3.5" />
-                                          <span className="hidden sm:inline">Reset Password</span>
-                                        </button>
-                                      )}
-                                      {canAppointHeads && (
-                                        <>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleOpenAppointHead(div.route, h)}
-                                            className="p-1.5 rounded-lg text-slate-500 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
-                                            title="Edit Details"
-                                          >
-                                            <Edit2 className="w-3.5 h-3.5" />
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setDeleteConfirm({
-                                              isOpen: true,
-                                              id: h.id,
-                                              name: h.displayName,
-                                              type: 'DEPARTMENT_HEAD'
-                                            })}
-                                            className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
-                                            title="Remove Head"
-                                          >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                          </button>
-                                        </>
-                                      )}
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                                  )}
+                                  {canAppointHeads && (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenAppointHead(div.route, h)}
+                                        className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                        title="Edit Details"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setDeleteConfirm({
+                                          isOpen: true,
+                                          id: h.id,
+                                          name: h.displayName,
+                                          type: 'DEPARTMENT_HEAD'
+                                        })}
+                                        className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                        title="Remove Head"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
                       ) : (
-                        <div className="bg-[#F8FAFC] rounded-xl p-5 border border-dashed border-slate-300 text-center space-y-1">
-                          <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                        <div className="bg-[#F8FAFC] rounded-2xl p-6 border border-dashed border-slate-300 text-center space-y-1.5">
+                          <p className="text-sm font-semibold text-slate-600">
                             No Department Head assigned for {div.name} yet.
                           </p>
                         </div>
@@ -764,13 +911,13 @@ export function DepartmentHeadsClient({
                     </div>
 
                     {/* SECTION B: Shop Floor Workers Roster */}
-                    <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs space-y-4">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
-                          <h4 className="text-base font-bold text-[#0B1220]">
+                          <h4 className="text-base sm:text-lg font-bold text-[#0B1220]">
                             Shop Floor Workers ({divWorkers.length})
                           </h4>
-                          <p className="text-xs text-slate-500 font-medium mt-0.5">
+                          <p className="text-xs sm:text-sm text-slate-600 font-medium mt-0.5">
                             Staff assigned to {div.name}.
                           </p>
                         </div>
@@ -778,102 +925,179 @@ export function DepartmentHeadsClient({
                         <button
                           type="button"
                           onClick={() => handleOpenAddWorker(div.route)}
-                          className="px-3 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                          className="w-full sm:w-auto min-h-[46px] px-5 py-2.5 sm:px-6 sm:py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                         >
-                          <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+                          <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
                           <span>Add Worker</span>
                         </button>
                       </div>
 
                       {divWorkers.length > 0 ? (
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse">
-                            <thead>
-                              <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500 bg-[#F8FAFC]">
-                                <th className="py-2.5 px-3 rounded-l-lg">Worker Name</th>
-                                <th className="py-2.5 px-3">Mobile Contact</th>
-                                <th className="py-2.5 px-3">Role</th>
-                                <th className="py-2.5 px-3">Shift</th>
-                                <th className="py-2.5 px-3">Status</th>
-                                <th className="py-2.5 px-3 text-right rounded-r-lg">Action</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
-                              {divWorkers.map(w => (
-                                <tr key={w.id} className="hover:bg-slate-50/80 transition-colors">
-                                  <td className="py-2.5 px-3 font-bold text-[#0B1220]">
-                                    {w.name}
-                                  </td>
-                                  <td className="py-2.5 px-3 font-mono font-semibold text-slate-700">
-                                    +91 {w.phone}
-                                  </td>
-                                  <td className="py-2.5 px-3">
-                                    <span className="text-xs text-slate-700">
-                                      {w.role}
-                                    </span>
-                                  </td>
-                                  <td className="py-2.5 px-3">
-                                    <span className="text-xs font-mono text-slate-600">
-                                      {w.shift}
-                                    </span>
-                                  </td>
-                                  <td className="py-2.5 px-3">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleToggleStatus(w.id, 'WORKER', w.status === 'ACTIVE', div.route)}
-                                      className={`text-xs font-semibold cursor-pointer transition-colors ${
-                                        w.status === 'ACTIVE'
-                                          ? 'text-emerald-600 hover:text-emerald-700'
-                                          : 'text-rose-500 hover:text-rose-600'
-                                      }`}
-                                    >
-                                      {w.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-                                    </button>
-                                  </td>
-                                  <td className="py-2.5 px-3 text-right">
-                                    <div className="flex items-center justify-end gap-1.5">
-                                      {isOwner && (
-                                        <button
-                                          type="button"
-                                          onClick={() => setPasswordModal({
-                                            isOpen: true,
-                                            userId: w.id,
-                                            userName: w.name,
-                                            username: w.phone,
-                                            phone: w.phone
-                                          })}
-                                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#0B1220] rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-                                          title="Reset Password"
-                                        >
-                                          <KeyRound className="w-3.5 h-3.5" />
-                                          <span className="hidden sm:inline">Reset Password</span>
-                                        </button>
-                                      )}
+                        <>
+                          {/* Desktop Table View */}
+                          <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="border-b border-slate-200 text-xs sm:text-sm font-bold text-slate-500 bg-[#F8FAFC]">
+                                  <th className="py-3 px-4 rounded-l-xl">Worker Name</th>
+                                  <th className="py-3 px-4">Mobile Contact</th>
+                                  <th className="py-3 px-4">Role</th>
+                                  <th className="py-3 px-4">Shift</th>
+                                  <th className="py-3 px-4">Status</th>
+                                  <th className="py-3 px-4 text-right rounded-r-xl">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100 text-sm">
+                                {divWorkers.map(w => (
+                                  <tr key={w.id} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="py-3.5 px-4 font-bold text-[#0B1220]">
+                                      {w.name}
+                                    </td>
+                                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
+                                      +91 {w.phone}
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <span className="text-xs sm:text-sm text-slate-700 font-semibold">
+                                        {w.role}
+                                      </span>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-md border border-slate-200">
+                                        {w.shift}
+                                      </span>
+                                    </td>
+                                    <td className="py-3.5 px-4">
                                       <button
                                         type="button"
-                                        onClick={() => setDeleteConfirm({
-                                          isOpen: true,
-                                          id: w.id,
-                                          name: w.name,
-                                          type: 'WORKER',
-                                          divisionRoute: div.route
-                                        })}
-                                        className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer inline-flex"
-                                        title="Remove Worker"
+                                        onClick={() => handleToggleStatus(w.id, 'WORKER', w.status === 'ACTIVE', div.route)}
+                                        className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                          w.status === 'ACTIVE'
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                            : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                        }`}
                                       >
-                                        <Trash2 className="w-4 h-4" />
+                                        • {w.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                                       </button>
+                                    </td>
+                                    <td className="py-3.5 px-4 text-right">
+                                      <div className="flex items-center justify-end gap-2">
+                                        {isOwner && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setPasswordModal({
+                                              isOpen: true,
+                                              userId: w.id,
+                                              userName: w.name,
+                                              username: w.phone,
+                                              phone: w.phone
+                                            })}
+                                            className="min-h-[40px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#0B1220] border border-slate-300/80 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-[0.98]"
+                                            title="Reset Password"
+                                          >
+                                            <KeyRound className="w-4 h-4" />
+                                            <span>Reset Password</span>
+                                          </button>
+                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => setDeleteConfirm({
+                                            isOpen: true,
+                                            id: w.id,
+                                            name: w.name,
+                                            type: 'WORKER',
+                                            divisionRoute: div.route
+                                          })}
+                                          className="min-w-[40px] min-h-[40px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                          title="Remove Worker"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          {/* Mobile Dedicated Card List (No cramped tables on 390px screens) */}
+                          <div className="block md:hidden space-y-3.5">
+                            {divWorkers.map(w => (
+                              <div key={w.id} className="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <div className="text-base font-bold text-[#0B1220]">
+                                      {w.name}
                                     </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                      <span className="text-xs sm:text-sm font-semibold text-slate-700">
+                                        {w.role}
+                                      </span>
+                                      <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
+                                        {w.shift}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleStatus(w.id, 'WORKER', w.status === 'ACTIVE', div.route)}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                      w.status === 'ACTIVE'
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                                    }`}
+                                  >
+                                    • {w.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                                  </button>
+                                </div>
+
+                                <div className="text-sm font-mono font-bold text-slate-800">
+                                  <a href={`tel:+91${w.phone}`} className="flex items-center gap-2 hover:underline text-[#0B1220]">
+                                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                                    +91 {w.phone}
+                                  </a>
+                                </div>
+
+                                <div className="pt-2.5 border-t border-slate-100 flex items-center gap-2">
+                                  {isOwner && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setPasswordModal({
+                                        isOpen: true,
+                                        userId: w.id,
+                                        userName: w.name,
+                                        username: w.phone,
+                                        phone: w.phone
+                                      })}
+                                      className="flex-1 min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                                    >
+                                      <KeyRound className="w-4 h-4" />
+                                      <span>Reset Password</span>
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => setDeleteConfirm({
+                                      isOpen: true,
+                                      id: w.id,
+                                      name: w.name,
+                                      type: 'WORKER',
+                                      divisionRoute: div.route
+                                    })}
+                                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                    title="Remove Worker"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
                       ) : (
-                        <div className="bg-[#F8FAFC] rounded-xl p-5 border border-dashed border-slate-300 text-center space-y-1.5">
-                          <Users className="w-6 h-6 text-slate-300 mx-auto" />
-                          <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                        <div className="bg-[#F8FAFC] rounded-2xl p-6 border border-dashed border-slate-300 text-center space-y-1.5">
+                          <Users className="w-7 h-7 text-slate-300 mx-auto" />
+                          <p className="text-sm font-semibold text-slate-600">
                             No shop floor workers registered under {div.name} yet.
                           </p>
                         </div>

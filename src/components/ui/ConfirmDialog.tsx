@@ -104,12 +104,12 @@ export function ConfirmDialog({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-[#FAF7F0]/60 border-t border-black/10 flex items-center justify-end gap-2.5">
+        <div className="px-6 py-4 bg-[#F8FAFC] border-t border-slate-200 flex items-center justify-end gap-3">
           <button
             type="button"
             disabled={isLoading}
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-black/5 rounded-xl border border-black/10 bg-white transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+            className="min-h-[44px] px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-xl border border-slate-300 bg-white transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
           >
             {cancelText}
           </button>
@@ -118,12 +118,12 @@ export function ConfirmDialog({
             type="button"
             disabled={isLoading}
             onClick={onConfirm}
-            className={`inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer font-[family-name:var(--font-heading)] disabled:opacity-50 ${btnBg}`}
+            className={`min-h-[44px] inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer font-[family-name:var(--font-heading)] disabled:opacity-50 active:scale-[0.98] ${btnBg}`}
           >
             {isLoading ? (
               <>
-                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Deleting...</span>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Processing...</span>
               </>
             ) : (
               <span>{confirmText}</span>
