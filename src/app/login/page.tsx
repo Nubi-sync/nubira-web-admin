@@ -627,7 +627,7 @@ export default function LoginPage() {
       <footer className="w-full max-w-5xl py-4 border-t border-slate-200/80 z-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 sm:text-slate-900">
           <div className="flex items-center gap-2">
-            <span className="text-slate-900 font-bold">
+            <span className="text-proudly-india-black">
               Proudly Made in India
             </span>
             <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />

@@ -902,7 +902,7 @@ export function TermsClient() {
           <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
               <div className="flex items-center gap-2">
-                <span className="text-slate-900 font-bold">
+                <span className="text-proudly-india-black">
                   Proudly Made in India
                 </span>
                 <IndiaFlag className="w-5 h-3.5 rounded-xs shrink-0" />
