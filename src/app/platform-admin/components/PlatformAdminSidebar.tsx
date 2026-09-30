@@ -103,20 +103,20 @@ export function PlatformAdminSidebar({
         prefetch={true}
         onClick={() => onMobileClose?.()}
         title={!isExpanded ? item.label : undefined}
-        className={`relative flex items-center rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] cursor-pointer ${
+        className={`relative flex items-center rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220] cursor-pointer ${
           isExpanded
             ? 'px-3 py-2.5 justify-between w-full transition-all duration-200 ease-out'
             : 'w-10 h-10 mx-auto justify-center transition-all duration-500 ease-in-out'
         } ${
           isActive
-            ? 'bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10 shadow-2xs'
+            ? 'bg-[#F0FDFA] text-[#0B1220] font-bold border border-[#14C8B4]/30 shadow-2xs'
             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium'
         }`}
       >
-        {/* Left active accent bar matching AdminSidebar */}
+        {/* Left active accent bar */}
         {isActive && (
           <div 
-            className={`absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[#3A3564] transition-all ${
+            className={`absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[#0B1220] transition-all ${
               isExpanded ? 'w-[3.5px] h-6 duration-200' : 'w-[3px] h-5 duration-500'
             }`}
           />
@@ -127,14 +127,14 @@ export function PlatformAdminSidebar({
         }`}>
           <Icon
             className={`w-[18px] h-[18px] shrink-0 transition-colors ${
-              isActive ? 'text-[#3A3564]' : 'text-slate-500'
+              isActive ? 'text-[#0B1220]' : 'text-slate-500'
             }`}
           />
           <span className={`overflow-hidden whitespace-nowrap transition-all text-sm ${
             isExpanded 
               ? 'max-w-[170px] opacity-100 truncate duration-200 ease-out font-medium' 
               : 'max-w-0 opacity-0 duration-400 ease-in-out'
-          } ${isActive ? 'font-bold text-[#3A3564]' : 'text-slate-700'}`}>
+          } ${isActive ? 'font-bold text-[#0B1220]' : 'text-slate-700'}`}>
             {item.label}
           </span>
         </div>
@@ -146,7 +146,7 @@ export function PlatformAdminSidebar({
             : 'max-w-0 opacity-0 duration-400 ease-in-out'
         }`}>
           {item.badge ? (
-            <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] border border-black/15 px-2 py-0.5 rounded-md shadow-2xs whitespace-nowrap">
+            <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/30 px-2 py-0.5 rounded-md shadow-2xs whitespace-nowrap">
               {item.badge}
             </span>
           ) : null}
@@ -161,7 +161,7 @@ export function PlatformAdminSidebar({
       <aside
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`hidden lg:flex fixed top-0 left-0 z-40 h-screen bg-white border-r border-slate-200 flex-col justify-between shadow-xs select-none ${
+        className={`hidden lg:flex fixed top-0 left-0 z-40 h-screen bg-white border-r border-slate-200/80 flex-col justify-between shadow-xs select-none ${
           isHovered
             ? 'w-[264px] shadow-2xl transition-all duration-200 ease-out'
             : 'w-[72px] shadow-xs transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]'
@@ -169,7 +169,7 @@ export function PlatformAdminSidebar({
       >
         {/* Top Branding / Logo Block */}
         <div>
-          <div className="border-b border-slate-200 h-[65px] flex items-center px-4 overflow-hidden">
+          <div className="border-b border-slate-200/80 h-[65px] flex items-center px-4 overflow-hidden">
             <Link href="/platform-admin" className="flex items-center gap-2.5 min-w-0 w-full">
               {/* Collapsed Favicon (Shown when sidebar is closed) */}
               <div className={`shrink-0 flex items-center justify-center transition-all ${
@@ -178,7 +178,7 @@ export function PlatformAdminSidebar({
                   : 'w-10 h-10 opacity-100 mx-auto duration-500 ease-in-out'
               }`}>
                 <img 
-                  src="/zigza_icon.png" 
+                  src="/new icon.png" 
                   alt="Zigza" 
                   className="w-9 h-9 object-contain"
                 />
@@ -202,7 +202,7 @@ export function PlatformAdminSidebar({
                     className="h-5.5 w-auto object-contain shrink-0"
                   />
                 </div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3A3564] text-white shrink-0 shadow-2xs ml-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0B1220] text-white shrink-0 shadow-2xs ml-2">
                   ROOT
                 </span>
               </div>
@@ -233,18 +233,18 @@ export function PlatformAdminSidebar({
         {/* Bottom Root Profile & Sign Out */}
         <div className={`p-3.5 border-t transition-colors flex items-center overflow-hidden h-[65px] ${
           pathname === '/platform-admin/profile'
-            ? 'bg-[#FAF7F0] border-[#3A3564]/30 shadow-2xs'
-            : 'border-slate-200 bg-[#FAFAF8] hover:bg-slate-50'
+            ? 'bg-[#F0FDFA] border-[#14C8B4]/30 shadow-2xs'
+            : 'border-slate-200/80 bg-[#F8FAFC] hover:bg-slate-50'
         }`}>
           <Link
             href="/platform-admin/profile"
             className="flex items-center min-w-0 flex-1 group"
             title="SuperAdmin Profile"
           >
-            <div className={`w-9 h-9 rounded-full bg-[#3A3564] text-white flex items-center justify-center text-[13px] font-bold font-mono shrink-0 shadow-xs mx-auto transition-all ${
+            <div className={`w-9 h-9 rounded-full bg-[#0B1220] text-white flex items-center justify-center text-[13px] font-bold font-mono shrink-0 shadow-xs mx-auto transition-all ${
               pathname === '/platform-admin/profile'
-                ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
-                : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
+                ? 'ring-2 ring-[#0B1220] ring-offset-2 ring-offset-[#F0FDFA]'
+                : 'group-hover:ring-2 group-hover:ring-[#0B1220]/20'
             }`}>
               RA
             </div>
@@ -257,13 +257,13 @@ export function PlatformAdminSidebar({
               <div className="flex flex-col min-w-0 flex-1">
                 <span 
                   className={`text-[13px] font-bold truncate leading-tight transition-colors ${
-                    pathname === '/platform-admin/profile' ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                    pathname === '/platform-admin/profile' ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#0B1220]'
                   }`}
                   title={userEmail}
                 >
                   {userEmail}
                 </span>
-                <span className="text-[11px] font-mono text-[#3A3564] font-semibold leading-tight">
+                <span className="text-[11px] font-mono text-[#0B1220] font-semibold leading-tight">
                   Root SuperAdmin
                 </span>
               </div>
@@ -302,7 +302,7 @@ export function PlatformAdminSidebar({
         }`}
       >
         <div>
-          <div className="p-4 pb-3.5 border-b border-slate-200 flex items-center justify-between h-[65px]">
+          <div className="p-4 pb-3.5 border-b border-slate-200/80 flex items-center justify-between h-[65px]">
             <Link href="/platform-admin" className="flex items-center gap-2">
               <img 
                 src="/new icon.png" 
@@ -316,13 +316,13 @@ export function PlatformAdminSidebar({
               />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#3A3564] text-white">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#0B1220] text-white">
                 ROOT
               </span>
               <button
                 type="button"
                 onClick={onMobileClose}
-                className="w-8 h-8 rounded-lg border border-black/10 flex items-center justify-center text-slate-500 hover:bg-slate-50 cursor-pointer"
+                className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -343,16 +343,16 @@ export function PlatformAdminSidebar({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-200 bg-[#FAF7F0] flex items-center justify-between gap-3">
+        <div className="p-4 border-t border-slate-200/80 bg-[#F0FDFA] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-9 h-9 rounded-full bg-[#3A3564] text-white flex items-center justify-center text-[13px] font-bold font-mono shrink-0 shadow-xs">
+            <div className="w-9 h-9 rounded-full bg-[#0B1220] text-white flex items-center justify-center text-[13px] font-bold font-mono shrink-0 shadow-xs">
               RA
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-[13px] font-bold text-slate-900 truncate font-[family-name:var(--font-heading)]">
+              <span className="text-[13px] font-bold text-slate-900 truncate">
                 {userEmail}
               </span>
-              <span className="text-[11px] font-mono text-[#3A3564] font-semibold">
+              <span className="text-[11px] font-mono text-[#0B1220] font-semibold">
                 Root SuperAdmin
               </span>
             </div>

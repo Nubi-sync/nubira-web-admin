@@ -97,7 +97,6 @@ export function PlatformDashboardClient() {
   }
 
   useEffect(() => {
-    // Purge any lingering old mock entries from client localStorage
     if (typeof window !== 'undefined') {
       try {
         const rawDemos = localStorage.getItem('zigza_platform_demo_requests_v1')
@@ -146,35 +145,35 @@ export function PlatformDashboardClient() {
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-slate-900 font-sans">
       
       {/* Layer 1: Breadcrumb Hierarchy Trail */}
       <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
+        <Link href="/platform-admin" className="hover:text-[#0B1220] transition-colors">
           Platform Root
         </Link>
         <span>/</span>
         <span>Platform Command</span>
         <span>/</span>
-        <span className="font-bold text-slate-900">Demo Leads & Access Provisioning</span>
+        <span className="font-bold text-[#0B1220]">Demo Leads &amp; Access Provisioning</span>
       </div>
 
       {/* Layer 2: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Inbox className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <Inbox className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Demo Leads & Inquiries
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0B1220]">
+                Demo Leads &amp; <span className="text-[#1D4ED8]">Inquiries</span>
               </h1>
-              <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                 {demos.length} {demos.length === 1 ? 'lead recorded' : 'leads recorded'}
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-normal">
               Review incoming factory inquiries and provision access to the 11-division MES
             </p>
           </div>
@@ -184,9 +183,9 @@ export function PlatformDashboardClient() {
           <button
             type="button"
             onClick={openNewProvisionModal}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Key className="w-4 h-4" />
+            <Key className="w-4 h-4 text-[#14C8B4]" />
             <span>Provision New Factory</span>
           </button>
         </div>
@@ -196,10 +195,10 @@ export function PlatformDashboardClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Metric 01: Total Leads */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Inbox className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+              <Inbox className="w-5 h-5 text-[#0B1220]" />
             </div>
             <span className="text-xs text-slate-500 font-medium">Inbound</span>
           </div>
@@ -207,7 +206,7 @@ export function PlatformDashboardClient() {
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Total Inquiries
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
+            <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
               {metrics.totalDemoLeads}
             </div>
           </div>
@@ -217,10 +216,10 @@ export function PlatformDashboardClient() {
         </div>
 
         {/* Metric 02: Awaiting Contact */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Clock className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+              <Clock className="w-5 h-5 text-[#0B1220]" />
             </div>
             <span className="text-xs text-slate-500 font-medium">Pending</span>
           </div>
@@ -228,7 +227,7 @@ export function PlatformDashboardClient() {
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Awaiting Contact
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
+            <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
               {metrics.pendingReviewCount}
             </div>
           </div>
@@ -238,10 +237,10 @@ export function PlatformDashboardClient() {
         </div>
 
         {/* Metric 03: Active Factory Tenants */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Building2 className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+              <Building2 className="w-5 h-5 text-[#0B1220]" />
             </div>
             <span className="text-xs text-slate-500 font-medium">Active</span>
           </div>
@@ -249,7 +248,7 @@ export function PlatformDashboardClient() {
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Active Factories
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
+            <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
               {metrics.activeTenantsCount}
             </div>
           </div>
@@ -259,10 +258,10 @@ export function PlatformDashboardClient() {
         </div>
 
         {/* Metric 04: Contracted MRR */}
-        <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-              <Zap className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+              <Zap className="w-5 h-5 text-[#0B1220]" />
             </div>
             <span className="text-xs text-slate-500 font-medium">Billing</span>
           </div>
@@ -270,7 +269,7 @@ export function PlatformDashboardClient() {
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Contracted MRR
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
               ₹{metrics.totalProjectedMrrInr.toLocaleString()}
             </div>
           </div>
@@ -282,7 +281,7 @@ export function PlatformDashboardClient() {
       </div>
 
       {/* Layer 4 & 5: Unified Toolbar & Primary Data Table Container */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         
         {/* Layer 4: Toolbar Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
@@ -298,7 +297,7 @@ export function PlatformDashboardClient() {
                   onClick={() => setStatusFilter(tab)}
                   className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm ${
                     active
-                      ? 'bg-[#3A3564] text-white shadow-2xs font-semibold'
+                      ? 'bg-[#0B1220] text-white shadow-xs font-semibold'
                       : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                   }`}
                 >
@@ -316,7 +315,7 @@ export function PlatformDashboardClient() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search leads, plant, email, phone..."
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 focus:border-[#0B1220] text-slate-900 transition-all font-mono"
             />
           </div>
         </div>
@@ -325,8 +324,8 @@ export function PlatformDashboardClient() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-[#FAF7F0]">
-                <th className="py-3.5 px-4">Applicant & Company</th>
+              <tr className="border-b border-slate-200/80 text-xs font-semibold text-slate-700 uppercase tracking-wider bg-[#F0FDFA]">
+                <th className="py-3.5 px-4">Applicant &amp; Company</th>
                 <th className="py-3.5 px-4">Contact Channels</th>
                 <th className="py-3.5 px-4">Plant Location</th>
                 <th className="py-3.5 px-4">Requested Plan</th>
@@ -368,14 +367,14 @@ export function PlatformDashboardClient() {
                 <tr>
                   <td colSpan={7} className="py-16 text-center">
                     <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
-                      <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                        <Inbox className="w-6 h-6 text-[#3A3564]" />
+                      <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs">
+                        <Inbox className="w-6 h-6 text-[#0B1220]" />
                       </div>
                       <div className="space-y-1">
-                        <h4 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                        <h4 className="text-base font-bold text-slate-900">
                           {searchQuery || statusFilter !== 'ALL' ? 'No Matching Leads Found' : 'No Inbound Demo Inquiries Yet'}
                         </h4>
-                        <p className="text-sm text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                        <p className="text-sm text-slate-500 font-medium leading-relaxed">
                           {searchQuery || statusFilter !== 'ALL'
                             ? 'Try adjusting your search query or switching status filter tabs.'
                             : 'Prospective factory clients who submit the "Request Live Demo" form on your website will appear here in real-time.'}
@@ -385,9 +384,9 @@ export function PlatformDashboardClient() {
                         <button
                           type="button"
                           onClick={openNewProvisionModal}
-                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
                         >
-                          <Key className="w-4 h-4" />
+                          <Key className="w-4 h-4 text-[#14C8B4]" />
                           <span>Provision Factory Directly</span>
                         </button>
                       )}
@@ -405,10 +404,10 @@ export function PlatformDashboardClient() {
                       
                       {/* Company & Applicant */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)]">
+                        <div className="font-bold text-slate-900 text-sm">
                           {item.companyName}
                         </div>
-                        <div className="text-xs text-slate-600 font-medium font-[family-name:var(--font-public-sans)] mt-0.5">
+                        <div className="text-xs text-slate-600 font-medium mt-0.5">
                           {item.applicantName}
                         </div>
                       </td>
@@ -416,7 +415,7 @@ export function PlatformDashboardClient() {
                       {/* Contact Info */}
                       <td className="py-3.5 px-4 text-xs font-mono">
                         <div className="flex items-center gap-1.5 text-slate-800 font-medium">
-                          <Phone className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <Phone className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>{item.phone}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-slate-500 mt-1">
@@ -434,7 +433,7 @@ export function PlatformDashboardClient() {
 
                       {/* Preferred Plan */}
                       <td className="py-3.5 px-4">
-                        <span className="font-semibold text-xs text-[#3A3564]">
+                        <span className="font-semibold text-xs text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded-md border border-[#14C8B4]/30">
                           {item.preferredPlan ? item.preferredPlan.replace(/_/g, ' ') : 'FULL PLANT AI'}
                         </span>
                       </td>
@@ -444,7 +443,7 @@ export function PlatformDashboardClient() {
                         <select
                           value={item.status}
                           onChange={(e) => handleStatusChange(item.id, e.target.value as DemoRequestStatus)}
-                          className="text-xs font-medium px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 cursor-pointer outline-none focus:border-[#3A3564]"
+                          className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 cursor-pointer outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10"
                         >
                           <option value="NEW_LEAD">New Lead</option>
                           <option value="CONTACTED">Contacted</option>
@@ -467,7 +466,7 @@ export function PlatformDashboardClient() {
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Chat via WhatsApp"
-                            className="p-2 rounded-lg bg-[#FAF7F0] text-[#3A3564] hover:bg-black/5 border border-black/10 transition-colors cursor-pointer"
+                            className="p-2 rounded-lg bg-[#F0FDFA] text-[#0B1220] hover:bg-[#14C8B4]/10 border border-[#14C8B4]/30 transition-colors cursor-pointer"
                           >
                             <Phone className="w-3.5 h-3.5" />
                           </a>
@@ -475,19 +474,19 @@ export function PlatformDashboardClient() {
                           {item.status === 'PROVISIONED_TENANT' ? (
                             <Link
                               href="/platform-admin/payments"
-                              className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition-all shadow-2xs inline-flex items-center gap-1.5"
+                              className="px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#14C8B4]/10 text-[#0B1220] border border-[#14C8B4]/30 text-xs font-semibold transition-all shadow-2xs inline-flex items-center gap-1.5"
                               title="Provisioned Active Plant - View in Subscriptions"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#14C8B4] shrink-0" />
                               <span>Active</span>
                             </Link>
                           ) : (
                             <button
                               type="button"
                               onClick={() => openProvisionModal(item)}
-                              className="px-3 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                              className="px-3 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                             >
-                              <Key className="w-3.5 h-3.5" />
+                              <Key className="w-3.5 h-3.5 text-[#14C8B4]" />
                               <span>Provision</span>
                             </button>
                           )}

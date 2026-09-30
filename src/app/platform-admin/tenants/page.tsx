@@ -72,35 +72,35 @@ export default function TenantFactoriesPage() {
 
   return (
     <PlatformAdminShell userEmail="admin@zigza.in">
-      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
+      <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-slate-900 font-sans">
         
         {/* Layer 1: Breadcrumb Hierarchy Trail */}
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/platform-admin" className="hover:text-[#3A3564] transition-colors">
+          <Link href="/platform-admin" className="hover:text-[#0B1220] transition-colors">
             Platform Root
           </Link>
           <span>/</span>
           <span>Tenant Management</span>
           <span>/</span>
-          <span className="font-bold text-slate-900">Tenant Factories Directory</span>
+          <span className="font-bold text-[#0B1220]">Tenant Factories Directory</span>
         </div>
 
         {/* Layer 2: Encapsulated Top Header Card */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
           <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-              <Building2 className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+              <Building2 className="w-6 h-6 text-[#0B1220]" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                  Tenant Factories Directory
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0B1220]">
+                  Tenant Factories <span className="text-[#1D4ED8]">Directory</span>
                 </h1>
-                <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-[#FAF7F0] text-slate-700 border border-black/10">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                   {activeCount} {activeCount === 1 ? 'active plant' : 'active plants'}
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
+              <p className="text-sm sm:text-base text-slate-600 mt-1 font-normal">
                 Garment factory clients running Zigza Enterprise MES across multi-division production floors
               </p>
             </div>
@@ -110,9 +110,9 @@ export default function TenantFactoriesPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 text-[#14C8B4]" />
               <span>Provision New Tenant</span>
             </button>
           </div>
@@ -122,10 +122,10 @@ export default function TenantFactoriesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Card 1: Total Tenants */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <Building2 className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+                <Building2 className="w-5 h-5 text-[#0B1220]" />
               </div>
               <span className="text-xs text-slate-500 font-medium">Directory</span>
             </div>
@@ -133,7 +133,7 @@ export default function TenantFactoriesPage() {
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Total Tenants
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
                 {totalTenants}
               </div>
             </div>
@@ -143,10 +143,10 @@ export default function TenantFactoriesPage() {
           </div>
 
           {/* Card 2: Full 11-Division Plants */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <Layers className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+                <Layers className="w-5 h-5 text-[#0B1220]" />
               </div>
               <span className="text-xs text-slate-500 font-medium">Full Stack</span>
             </div>
@@ -154,7 +154,7 @@ export default function TenantFactoriesPage() {
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Full {ENTERPRISE_DIVISIONS_CATALOG.length} Divisions
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
                 {fullAccessCount}
               </div>
             </div>
@@ -164,10 +164,10 @@ export default function TenantFactoriesPage() {
           </div>
 
           {/* Card 3: Active Ratio */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <CheckCircle2 className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+                <CheckCircle2 className="w-5 h-5 text-[#0B1220]" />
               </div>
               <span className="text-xs text-slate-500 font-medium">Utilization</span>
             </div>
@@ -175,7 +175,7 @@ export default function TenantFactoriesPage() {
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Active Ratio
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
                 {totalTenants > 0 ? Math.round((activeCount / totalTenants) * 100) : 0}%
               </div>
             </div>
@@ -185,10 +185,10 @@ export default function TenantFactoriesPage() {
           </div>
 
           {/* Card 4: Contracted MRR */}
-          <div className="bg-white rounded-2xl p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
-                <Zap className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
+                <Zap className="w-5 h-5 text-[#0B1220]" />
               </div>
               <span className="text-xs text-slate-500 font-medium">Billing</span>
             </div>
@@ -196,7 +196,7 @@ export default function TenantFactoriesPage() {
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Contracted MRR
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 font-mono">
+              <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
                 ₹{totalMrr.toLocaleString()}
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function TenantFactoriesPage() {
         </div>
 
         {/* Layer 4 & 5: Unified Toolbar & Data Table Container */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           
           {/* Layer 4: Toolbar Header */}
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
@@ -224,7 +224,7 @@ export default function TenantFactoriesPage() {
                     onClick={() => setStatusFilter(tab)}
                     className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm ${
                       active 
-                        ? 'bg-[#3A3564] text-white shadow-2xs font-semibold' 
+                        ? 'bg-[#0B1220] text-white shadow-xs font-semibold' 
                         : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                     }`}
                   >
@@ -242,7 +242,7 @@ export default function TenantFactoriesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search factory, slug, email, city..."
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] text-slate-900"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 focus:border-[#0B1220] text-slate-900 font-mono transition-all"
               />
             </div>
           </div>
@@ -251,8 +251,8 @@ export default function TenantFactoriesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider bg-[#FAF7F0]">
-                  <th className="py-3.5 px-4">Factory & Location</th>
+                <tr className="border-b border-slate-200/80 text-xs font-semibold text-slate-700 uppercase tracking-wider bg-[#F0FDFA]">
+                  <th className="py-3.5 px-4">Factory &amp; Location</th>
                   <th className="py-3.5 px-4">Super Admin</th>
                   <th className="py-3.5 px-4">Plan Tier</th>
                   <th className="py-3.5 px-4">Divisions</th>
@@ -290,14 +290,14 @@ export default function TenantFactoriesPage() {
                   <tr>
                     <td colSpan={6} className="py-16 text-center">
                       <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
-                        <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
-                          <Building2 className="w-6 h-6 text-[#3A3564]" />
+                        <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs">
+                          <Building2 className="w-6 h-6 text-[#0B1220]" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                          <h4 className="text-base font-bold text-slate-900">
                             {searchQuery || statusFilter !== 'ALL' ? 'No Matching Factories Found' : 'No Tenant Factories Provisioned Yet'}
                           </h4>
-                          <p className="text-sm text-slate-500 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                          <p className="text-sm text-slate-500 font-medium leading-relaxed">
                             {searchQuery || statusFilter !== 'ALL'
                               ? 'Try searching with a different term or resetting the status filter tabs.'
                               : 'Click "Provision New Tenant" above to issue Super Admin credentials and allocate production units to your first apparel client.'}
@@ -307,9 +307,9 @@ export default function TenantFactoriesPage() {
                           <button
                             type="button"
                             onClick={() => setIsModalOpen(true)}
-                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
                           >
-                            <Plus className="w-4 h-4" />
+                            <Plus className="w-4 h-4 text-[#14C8B4]" />
                             <span>Provision First Client Factory</span>
                           </button>
                         )}
@@ -325,11 +325,11 @@ export default function TenantFactoriesPage() {
                     >
                       {/* 1. Factory & Location */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 text-sm font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors">
+                        <div className="font-bold text-slate-900 text-sm group-hover:text-[#1D4ED8] transition-colors">
                           {t.companyName}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
-                          <span className="bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 text-slate-700 font-medium font-mono text-[11px]">
+                          <span className="bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#14C8B4]/30 text-[#0B1220] font-medium font-mono text-[11px]">
                             {t.plantSlug}
                           </span>
                           <span>•</span>
@@ -353,13 +353,13 @@ export default function TenantFactoriesPage() {
                       {/* 3. Plan & Tier */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="inline-block font-semibold text-xs text-[#3A3564] bg-[#FAF7F0] border border-black/10 px-2 py-0.5 rounded-md">
+                          <span className="inline-block font-semibold text-xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/30 px-2 py-0.5 rounded-md">
                             {t.subscriptionTier.replace(/_/g, ' ')}
                           </span>
                           <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
                             t.accessType === 'DEMO_TRIAL'
                               ? 'bg-amber-50 text-amber-800 border-amber-300'
-                              : 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                              : 'bg-[#F0FDFA] text-[#0B1220] border-[#14C8B4]/30'
                           }`}>
                             {t.accessType === 'DEMO_TRIAL' ? '7-Day Trial' : 'Full Access'}
                           </span>
@@ -371,7 +371,7 @@ export default function TenantFactoriesPage() {
 
                       {/* 4. Active Divisions */}
                       <td className="py-3.5 px-4">
-                        <span className="px-2.5 py-1 rounded-md bg-[#FAF7F0] text-slate-800 font-medium text-xs border border-black/10 inline-flex items-center gap-1.5">
+                        <span className="px-2.5 py-1 rounded-md bg-[#F0FDFA] text-slate-800 font-medium text-xs border border-[#14C8B4]/30 inline-flex items-center gap-1.5">
                           {t.activeDivisionsCount} of {ENTERPRISE_DIVISIONS_CATALOG.length} divisions
                         </span>
                       </td>
@@ -379,8 +379,8 @@ export default function TenantFactoriesPage() {
                       {/* 5. Operational Status */}
                       <td className="py-3.5 px-4">
                         {t.status === 'ACTIVE' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-medium border border-emerald-200">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] text-xs font-semibold border border-[#14C8B4]/30">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#14C8B4]" />
                             Active
                           </span>
                         ) : t.status === 'PENDING_SETUP' ? (
@@ -403,7 +403,7 @@ export default function TenantFactoriesPage() {
                             e.stopPropagation()
                             setSelectedTenantForView(t)
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#3A3564] hover:text-white border border-black/10 transition-all cursor-pointer shadow-2xs group-hover:border-[#3A3564]/30 active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#0B1220] hover:text-white border border-[#14C8B4]/30 transition-all cursor-pointer shadow-2xs active:scale-95"
                           title={`View complete dossier for ${t.companyName}`}
                         >
                           <Eye className="w-3.5 h-3.5" />
