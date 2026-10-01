@@ -1070,7 +1070,7 @@ export function ZigzaAiClient({
     formatted = formatted.replace(/\*"(.*?)"\*/g, '<span class="font-medium text-[#1D4ED8] italic">"$1"</span>')
     formatted = formatted.replace(/"\*(.*?)\*"/g, '<span class="font-medium text-[#1D4ED8] italic">"$1"</span>')
     formatted = formatted.replace(/\*(.*?)\*/g, '<em class="italic text-slate-700">$1</em>')
-    formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-[#F0FDFA] text-[#0B1220] font-mono px-1.5 py-0.5 rounded text-xs font-bold border border-[#14C8B4]/30">$1</code>')
+    formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-[#F0FDFA] text-[#0B1220] font-mono px-1.5 py-0.5 rounded text-xs font-bold border border-black/15">$1</code>')
     return formatted
   }
 
@@ -1086,7 +1086,7 @@ export function ZigzaAiClient({
           <ul key={'ul_' + blocks.length} className="my-2.5 space-y-2 pl-0.5 sm:pl-1">
             {currentList.map((item, iIdx) => (
               <li key={iIdx} className="flex items-start gap-2.5 text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] shrink-0 mt-2 shadow-2xs" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0B1220] shrink-0 mt-2 shadow-2xs" />
                 <span className="flex-1" dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
               </li>
             ))}
@@ -1194,8 +1194,8 @@ export function ZigzaAiClient({
     return (
       <div className="flex h-full w-full items-center justify-center bg-[#F8FAFC]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#0B1220] text-[#14C8B4] flex items-center justify-center shadow-md animate-pulse">
-            <Bot className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-md animate-pulse">
+            <Bot className="w-5 h-5 text-[#0B1220]" />
           </div>
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
             Loading Zigza AI...
@@ -1213,7 +1213,7 @@ export function ZigzaAiClient({
         <div className="p-3.5 space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-[#14C8B4]" />
+              <Bot className="w-4 h-4 text-[#0B1220]" />
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600">
                 Chat History
               </span>
@@ -1236,9 +1236,9 @@ export function ZigzaAiClient({
           <button
             type="button"
             onClick={createNewSession}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F0FDFA] hover:bg-[#0B1220] text-[#0B1220] hover:text-white rounded-xl border border-[#14C8B4]/30 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F0FDFA] hover:bg-[#0B1220] text-[#0B1220] hover:text-white rounded-xl border border-black/15 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
           >
-            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 text-[#14C8B4]" />
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 text-[#0B1220] group-hover:text-white" />
             <span>New Conversation</span>
           </button>
         </div>
@@ -1267,7 +1267,7 @@ export function ZigzaAiClient({
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#14C8B4]' : 'text-slate-400'}`} />
+                  <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#0B1220]' : 'text-slate-400'}`} />
                   <span className="truncate">{s.title || 'New Conversation'}</span>
                 </div>
 
@@ -1347,15 +1347,15 @@ export function ZigzaAiClient({
               <Menu className="w-5 h-5 text-[#0B1220]" />
             </button>
 
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs shrink-0">
-              <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#14C8B4]" />
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+              <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#0B1220]" />
             </div>
             <div className="min-w-0 hidden sm:block">
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
                   {meta.title}
                 </h1>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                   {meta.badge}
                 </span>
               </div>
@@ -1378,7 +1378,7 @@ export function ZigzaAiClient({
               className="inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-white border border-slate-200 hover:border-[#0B1220]/30 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-[#F0FDFA] shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
               title="New Chat"
             >
-              <Plus className="w-4 h-4 text-[#14C8B4]" />
+              <Plus className="w-4 h-4 text-[#0B1220]" />
               <span className="text-xs sm:text-sm font-bold whitespace-nowrap text-[#0B1220]">New Chat</span>
             </button>
 
@@ -1412,8 +1412,8 @@ export function ZigzaAiClient({
               
               {/* Hero Greeting - Spacious & Beautiful */}
               <div className="space-y-2 sm:space-y-3 text-center max-w-xl mx-auto px-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
-                  <Bot className="w-3.5 h-3.5 text-[#14C8B4]" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
+                  <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
                   <span>{meta.badge}</span>
                 </div>
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#0B1220] tracking-tight leading-snug">
@@ -1433,11 +1433,11 @@ export function ZigzaAiClient({
                       key={idx}
                       type="button"
                       onClick={() => handleSendMessage(card.prompt)}
-                      className="text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer select-none bg-gradient-to-b from-white to-[#F8FAFC] active:scale-[0.98] shadow-2xs min-h-[90px] sm:min-h-[110px]"
+                      className="text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200/80 hover:border-black/30 hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer select-none bg-gradient-to-b from-white to-[#F8FAFC] active:scale-[0.98] shadow-2xs min-h-[90px] sm:min-h-[110px]"
                     >
                       <div className="flex items-center justify-between w-full mb-1.5 sm:mb-2">
-                        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white transition-colors shrink-0">
-                          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#14C8B4] group-hover:text-white" />
+                        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white transition-colors shrink-0">
+                          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220] group-hover:text-white" />
                         </div>
                         <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 transition-all" />
                       </div>
@@ -1465,8 +1465,8 @@ export function ZigzaAiClient({
               className={`flex gap-2 sm:gap-3.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'model' && (
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0B1220] text-[#14C8B4] flex items-center justify-center shrink-0 mt-1 shadow-2xs">
-                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 mt-1 shadow-2xs">
+                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
                 </div>
               )}
 
@@ -1521,11 +1521,11 @@ export function ZigzaAiClient({
           {/* Loading Indicator */}
           {isLoading && (
             <div className="flex gap-2 sm:gap-3.5 justify-start items-center">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0B1220] text-[#14C8B4] flex items-center justify-center shrink-0 shadow-2xs">
-                <Bot className="w-3.5 h-3.5 animate-pulse" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+                <Bot className="w-3.5 h-3.5 animate-pulse text-[#0B1220]" />
               </div>
               <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-2.5">
-                <Loader2 className="w-4 h-4 text-[#14C8B4] animate-spin shrink-0" />
+                <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin shrink-0" />
                 <span className="text-xs sm:text-sm font-semibold text-slate-600">
                   Querying live factory database...
                 </span>
@@ -1544,7 +1544,7 @@ export function ZigzaAiClient({
                 e.preventDefault()
                 handleSendMessage()
               }}
-              className="relative flex items-center rounded-2xl border-2 border-[#14C8B4]/30 bg-slate-50/80 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/15 transition-all px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xs"
+              className="relative flex items-center rounded-2xl border-2 border-black/15 bg-slate-50/80 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/15 transition-all px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xs"
             >
               <input
                 ref={inputRef}

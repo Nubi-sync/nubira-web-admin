@@ -76,17 +76,17 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
-            <Calculator className="w-5 h-5" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Calculator className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 BOM &amp; Pre/Post-Costing Ledgers
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {costings.length} Costing Sheets
               </span>
             </div>
@@ -111,9 +111,9 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
       {/* Executive KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-            <Layers className="w-5 h-5" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+            <Layers className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -125,16 +125,16 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {costings.length}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               All Styles
             </span>
           </div>
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-            <IndianRupee className="w-5 h-5" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+            <IndianRupee className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -146,16 +146,16 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               ₹{avgPlannedFob.toFixed(2)}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               Factory Net
             </span>
           </div>
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-            <TrendingUp className="w-5 h-5" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+            <TrendingUp className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -174,9 +174,9 @@ export function BomCostingClient({ initialCostings }: BomCostingClientProps = {}
         </div>
 
         {/* Card 4 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-            <AlertTriangle className="w-5 h-5" />
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+            <AlertTriangle className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div className="mt-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-800">

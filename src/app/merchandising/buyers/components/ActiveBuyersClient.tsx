@@ -178,10 +178,10 @@ export function ActiveBuyersClient({
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
-            <Users className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+            <Users className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
@@ -198,7 +198,7 @@ export function ActiveBuyersClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-[#0B1220] transition-all cursor-pointer shadow-2xs shrink-0"
+            className="p-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] transition-all cursor-pointer shadow-2xs shrink-0"
             title="Refresh database"
           >
             <RotateCcw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -219,10 +219,10 @@ export function ActiveBuyersClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
         {/* CARD 1: TOTAL BUYERS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-              <Building2 className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <Building2 className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-4">
@@ -236,10 +236,10 @@ export function ActiveBuyersClient({
         </div>
 
         {/* CARD 2: TOTAL CONTRACTED VOLUME */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-              <Layers className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <Layers className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-4">
@@ -253,10 +253,10 @@ export function ActiveBuyersClient({
         </div>
 
         {/* CARD 3: LINKED IN-ORDER PCS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-              <PackageCheck className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <PackageCheck className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-4">
@@ -270,10 +270,10 @@ export function ActiveBuyersClient({
         </div>
 
         {/* CARD 4: TOTAL CONTRACT VALUE */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-              <DollarSign className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <DollarSign className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-4">
