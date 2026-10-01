@@ -304,7 +304,7 @@ export function TermsClient() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">You Own All Factory Data</h3>
@@ -314,7 +314,7 @@ export function TermsClient() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <DownloadCloud className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Zero Software Lock-In</h3>
@@ -324,7 +324,7 @@ export function TermsClient() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Server className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">99.9% Uptime Commitment</h3>
@@ -334,7 +334,7 @@ export function TermsClient() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 hover:border-[#0B1220]/40 hover:shadow-md transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <CreditCard className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Clear &amp; Fair Pricing</h3>
@@ -416,7 +416,7 @@ export function TermsClient() {
             {/* SECTION 1 */}
             <article id="section-1" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   01
                 </div>
                 <div>
@@ -434,7 +434,7 @@ export function TermsClient() {
                 <p>
                   By creating an account, accessing our supervisor web portals, installing our Android companion app, or deploying line tablets on your production floor, you agree to these Terms. If you are entering into this agreement on behalf of a garment factory, processing mill, or export company, you confirm that you have the authority to bind that entity.
                 </p>
-                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-2 mt-3">
+                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-2 mt-3">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
                     <span>Purpose of the Service</span>
@@ -449,7 +449,7 @@ export function TermsClient() {
             {/* SECTION 2 */}
             <article id="section-2" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   02
                 </div>
                 <div>
@@ -475,7 +475,7 @@ export function TermsClient() {
             {/* SECTION 3 */}
             <article id="section-3" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   03
                 </div>
                 <div>
@@ -513,7 +513,7 @@ export function TermsClient() {
             {/* SECTION 4 */}
             <article id="section-4" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   04
                 </div>
                 <div>
@@ -539,7 +539,7 @@ export function TermsClient() {
             {/* SECTION 5 */}
             <article id="section-5" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   05
                 </div>
                 <div>
@@ -565,7 +565,7 @@ export function TermsClient() {
             {/* SECTION 6 */}
             <article id="section-6" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   06
                 </div>
                 <div>
@@ -611,7 +611,7 @@ export function TermsClient() {
             {/* SECTION 7 */}
             <article id="section-7" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   07
                 </div>
                 <div>
@@ -637,7 +637,7 @@ export function TermsClient() {
             {/* SECTION 8 */}
             <article id="section-8" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   08
                 </div>
                 <div>
@@ -662,7 +662,7 @@ export function TermsClient() {
             {/* SECTION 9 */}
             <article id="section-9" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   09
                 </div>
                 <div>
@@ -688,7 +688,7 @@ export function TermsClient() {
             {/* SECTION 10 */}
             <article id="section-10" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   10
                 </div>
                 <div>
@@ -714,7 +714,7 @@ export function TermsClient() {
             {/* SECTION 11 */}
             <article id="section-11" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   11
                 </div>
                 <div>
@@ -738,7 +738,7 @@ export function TermsClient() {
             {/* SECTION 12 */}
             <article id="section-12" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-2xs space-y-4 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   12
                 </div>
                 <div>
@@ -755,7 +755,7 @@ export function TermsClient() {
                 </p>
 
                 {/* Contact Card */}
-                <div className="p-5 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-3 font-mono text-xs shadow-2xs">
+                <div className="p-5 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-3 font-mono text-xs shadow-2xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700">
                     <div>
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Official Support &amp; Billing Email:</span>

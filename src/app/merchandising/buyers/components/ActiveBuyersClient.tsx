@@ -358,7 +358,7 @@ export function ActiveBuyersClient({
                       {/* Buyer */}
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center font-extrabold text-xs shrink-0 shadow-2xs">
+                          <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-extrabold text-xs shrink-0 shadow-2xs">
                             {buyer.buyer_name.slice(0, 2).toUpperCase()}
                           </div>
                           <div>

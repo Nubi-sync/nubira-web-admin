@@ -304,7 +304,7 @@ export function SecurityClient() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2 hover:border-[#0B1220]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Lock className="w-5 h-5 text-[#0B1220]" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Bank-Grade Encryption</h3>
@@ -314,7 +314,7 @@ export function SecurityClient() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2 hover:border-[#0B1220]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Building2 className="w-5 h-5 text-[#0B1220]" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Row-Level Security (RLS)</h3>
@@ -324,7 +324,7 @@ export function SecurityClient() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2 hover:border-[#0B1220]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Server className="w-5 h-5 text-[#0B1220]" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Stored Safely in India</h3>
@@ -334,7 +334,7 @@ export function SecurityClient() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2 hover:border-[#0B1220]/30 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Cpu className="w-5 h-5 text-[#0B1220]" />
             </div>
             <h3 className="text-sm font-bold text-slate-900">Zero AI Model Training</h3>
@@ -416,7 +416,7 @@ export function SecurityClient() {
             {/* SECTION 1 */}
             <article id="section-1" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   01
                 </div>
                 <div>
@@ -431,7 +431,7 @@ export function SecurityClient() {
                 <p>
                   Zigza is designed with a simple security principle: <strong>Defense-in-Depth</strong>. We understand that in garment manufacturing, your pre-season styles, buyer pricing, cutting efficiencies, and operator piece rates are confidential trade secrets that must be guarded against accidental leaks and malicious access.
                 </p>
-                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-2 mt-3">
+                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-2 mt-3">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
                     <span>Our Security Commitments</span>
@@ -449,7 +449,7 @@ export function SecurityClient() {
             {/* SECTION 2 */}
             <article id="section-2" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   02
                 </div>
                 <div>
@@ -493,7 +493,7 @@ export function SecurityClient() {
             {/* SECTION 3 */}
             <article id="section-3" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   03
                 </div>
                 <div>
@@ -519,7 +519,7 @@ export function SecurityClient() {
             {/* SECTION 4 */}
             <article id="section-4" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   04
                 </div>
                 <div>
@@ -545,7 +545,7 @@ export function SecurityClient() {
             {/* SECTION 5 */}
             <article id="section-5" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   05
                 </div>
                 <div>
@@ -580,7 +580,7 @@ export function SecurityClient() {
             {/* SECTION 6 */}
             <article id="section-6" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   06
                 </div>
                 <div>
@@ -607,7 +607,7 @@ export function SecurityClient() {
             {/* SECTION 7 */}
             <article id="section-7" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   07
                 </div>
                 <div>
@@ -622,7 +622,7 @@ export function SecurityClient() {
                 <p>
                   Zigza includes an AI floor assistant to help production managers quickly analyze bottlenecks and fabric consumption.
                 </p>
-                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-2">
+                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-2">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                     <Cpu className="w-4 h-4 text-[#0B1220]" />
                     <span>Binding Zero-Model-Training Guarantee</span>
@@ -640,7 +640,7 @@ export function SecurityClient() {
             {/* SECTION 8 */}
             <article id="section-8" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   08
                 </div>
                 <div>
@@ -666,7 +666,7 @@ export function SecurityClient() {
             {/* SECTION 9 */}
             <article id="section-9" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   09
                 </div>
                 <div>
@@ -692,7 +692,7 @@ export function SecurityClient() {
             {/* SECTION 10 */}
             <article id="section-10" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   10
                 </div>
                 <div>
@@ -718,7 +718,7 @@ export function SecurityClient() {
             {/* SECTION 11 */}
             <article id="section-11" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   11
                 </div>
                 <div>
@@ -744,7 +744,7 @@ export function SecurityClient() {
             {/* SECTION 12 */}
             <article id="section-12" className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4 scroll-mt-28">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-mono font-bold text-xs shadow-2xs">
                   12
                 </div>
                 <div>
@@ -761,7 +761,7 @@ export function SecurityClient() {
                 </p>
 
                 {/* Contact Card */}
-                <div className="p-5 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-3 font-mono text-xs shadow-2xs">
+                <div className="p-5 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-3 font-mono text-xs shadow-2xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700">
                     <div>
                       <span className="text-slate-400 block text-[10px] uppercase font-bold">Official Security &amp; Vulnerability Contact:</span>
