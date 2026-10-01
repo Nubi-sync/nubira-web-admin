@@ -73,8 +73,8 @@ export function CustomSelect({
         aria-label={ariaLabel}
         aria-expanded={isOpen}
         onClick={() => setIsOpen(prev => !prev)}
-        className={`bg-slate-50 border border-black/10 hover:border-black/25 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-between gap-2.5 transition-all shadow-2xs cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[#3A3564] ${buttonClassName} ${
-          isOpen ? 'ring-2 ring-[#3A3564] border-transparent bg-white shadow-xs' : ''
+        className={`bg-slate-50 border border-black/10 hover:border-black/25 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-between gap-2.5 transition-all shadow-2xs cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[#0B1220] ${buttonClassName} ${
+          isOpen ? 'ring-2 ring-[#0B1220] border-transparent bg-white shadow-xs' : ''
         }`}
       >
         <div className="flex items-center gap-2 truncate text-left">
@@ -91,7 +91,7 @@ export function CustomSelect({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
-            <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 rounded-md">
+            <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 rounded-md">
               {selectedOption.badge}
             </span>
           )}
@@ -122,7 +122,7 @@ export function CustomSelect({
                 }}
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center justify-between gap-2.5 cursor-pointer select-none ${
                   isSelected
-                    ? 'bg-[#FAF7F0] font-bold text-[#3A3564] border border-black/10 shadow-2xs'
+                    ? 'bg-[#F0FDFA] font-bold text-[#0B1220] border border-black/15 shadow-2xs'
                     : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950 border border-transparent'
                 }`}
               >
@@ -134,7 +134,7 @@ export function CustomSelect({
                     />
                   )}
                   {Icon && (
-                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#3A3564]' : 'text-slate-400'}`} />
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#0B1220]' : 'text-slate-400'}`} />
                   )}
                   <span className="truncate">{opt.label}</span>
                   {opt.badge && (
@@ -145,7 +145,7 @@ export function CustomSelect({
                 </div>
 
                 {isSelected && (
-                  <Check className="w-3.5 h-3.5 text-[#3A3564] shrink-0 stroke-[2.5]" />
+                  <Check className="w-3.5 h-3.5 text-[#0B1220] shrink-0 stroke-[2.5]" />
                 )}
               </div>
             )

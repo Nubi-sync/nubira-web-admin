@@ -848,13 +848,13 @@ export function StoreDashboardClient({
                     setIsCreateOpen(false)
                     setIsGrnModalOpen(true)
                   }}
-                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[#FAF7F0] transition-colors text-left group cursor-pointer"
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left group cursor-pointer"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] group-hover:bg-[#0B1220] text-[#0B1220] group-hover:text-white border border-black/15 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
                     <Receipt className="w-4.5 h-4.5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#0B1220] transition-colors">
                       Accessory Inward (GRN)
                     </div>
                     <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
@@ -870,13 +870,13 @@ export function StoreDashboardClient({
                     setIsCreateOpen(false)
                     setIsBomModalOpen(true)
                   }}
-                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[#FAF7F0] transition-colors text-left group cursor-pointer border-t border-slate-100"
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left group cursor-pointer border-t border-slate-100"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] group-hover:bg-[#3A3564] text-[#3A3564] group-hover:text-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] group-hover:bg-[#0B1220] text-[#0B1220] group-hover:text-white border border-black/15 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
                     <Boxes className="w-4.5 h-4.5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#3A3564] transition-colors">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-[#0B1220] transition-colors">
                       BOM Material Handover
                     </div>
                     <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
@@ -914,7 +914,7 @@ export function StoreDashboardClient({
             type="button"
             onClick={handleRefresh}
             disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs transition-all cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all cursor-pointer disabled:opacity-60"
             title="Sync latest live movements"
           >
             <RotateCw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
@@ -940,13 +940,13 @@ export function StoreDashboardClient({
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-4">
         
         {/* Card 1: Total Store Stocks */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs">
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                 <Warehouse className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-700 transition-colors">
                 STORE 01
               </span>
             </div>
@@ -964,7 +964,7 @@ export function StoreDashboardClient({
               {storeMetrics.totalStocks.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 Total Pipeline
               </span>
               <span className="text-[10px] font-mono text-slate-400 font-medium">pcs</span>
@@ -983,24 +983,24 @@ export function StoreDashboardClient({
               setIsGoodsInLineDrawerOpen(true)
             }
           }}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564] hover:shadow-lg transition-all flex flex-col justify-between group relative shadow-2xs cursor-pointer ring-0 hover:ring-2 hover:ring-[#3A3564]/10 text-left select-none"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 hover:shadow-lg transition-all flex flex-col justify-between group relative shadow-2xs cursor-pointer ring-0 hover:ring-2 hover:ring-black/5 text-left select-none"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                 <Activity className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-700 transition-colors flex items-center gap-1">
                 <span>INSPECT WIP</span>
-                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform text-[#3A3564]" />
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform text-slate-700" />
               </span>
             </div>
             <div className="mt-3.5">
               <div className="flex items-center justify-between gap-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate group-hover:text-[#3A3564] transition-colors">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate group-hover:text-slate-950 transition-colors">
                   2. Goods in Line
                 </span>
-                <span className="text-[9px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-[9px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   Drawer
                 </span>
               </div>
@@ -1010,11 +1010,11 @@ export function StoreDashboardClient({
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100/80">
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none group-hover:text-[#3A3564] transition-colors">
+            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none group-hover:text-slate-950 transition-colors">
               {storeMetrics.goodsInLine.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 {activeAllotments.length} Active Lots →
               </span>
               <span className="text-[10px] font-mono text-slate-400 font-medium">
@@ -1025,13 +1025,13 @@ export function StoreDashboardClient({
         </div>
 
         {/* Card 3: Pending to Issue (Store Balance) */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs">
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                 <Boxes className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-700 transition-colors">
                 STORE 03
               </span>
             </div>
@@ -1049,7 +1049,7 @@ export function StoreDashboardClient({
               {storeMetrics.unallottedStocks.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 In Godown
               </span>
               <span className="text-[10px] font-mono text-slate-400 font-medium">unallotted</span>
@@ -1060,21 +1060,21 @@ export function StoreDashboardClient({
         {/* Card 4: Lineman BOM Handover Pending */}
         <div 
           onClick={() => setIsBomModalOpen(true)}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#3A3564]/40 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs cursor-pointer select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-black/25 hover:shadow-md transition-all flex flex-col justify-between group relative shadow-2xs cursor-pointer select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                 <Boxes className="w-5 h-5" />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider shadow-2xs group-hover:bg-[#3A3564] group-hover:text-white transition-colors">
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                   HANDOVER
                 </span>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#3A3564] transition-colors hidden sm:inline">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-700 transition-colors hidden sm:inline">
                   ISSUE BOM
                 </span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#3A3564] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-700 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </div>
             <div className="mt-3.5">
@@ -1112,14 +1112,14 @@ export function StoreDashboardClient({
         <div className={`rounded-2xl p-4 sm:p-5 border transition-all flex flex-col justify-between group relative shadow-2xs ${
           inventoryRiskRadar.totalAlerts > 0
             ? 'bg-rose-50/40 border-rose-200 hover:border-rose-400'
-            : 'bg-white border-black/10 hover:border-[#3A3564]/40 hover:shadow-md'
+            : 'bg-white border-black/10 hover:border-black/25 hover:shadow-md'
         }`}>
           <div>
             <div className="flex items-center justify-between">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-2xs border ${
                 inventoryRiskRadar.totalAlerts > 0
                   ? 'bg-rose-100 text-rose-700 border-rose-300'
-                  : 'bg-[#FAF7F0] text-[#3A3564] border-black/10 group-hover:bg-[#3A3564] group-hover:text-white transition-colors'
+                  : 'bg-[#F0FDFA] text-[#0B1220] border-black/15'
               }`}>
                 <AlertTriangle className="w-5 h-5" />
               </div>
