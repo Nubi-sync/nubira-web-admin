@@ -419,9 +419,9 @@ export function DispatchClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
@@ -429,8 +429,8 @@ export function DispatchClient({
       {/* 1. Page Header (Zigza Executive Aesthetic) */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Truck className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -447,16 +447,16 @@ export function DispatchClient({
           <button 
             type="button"
             onClick={() => setShowCountingModal(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 shadow-2xs transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200 shadow-2xs transition-all cursor-pointer"
           >
-            <ClipboardCheck className="w-4 h-4" />
+            <ClipboardCheck className="w-4 h-4 text-slate-500" />
             <span>Record Counting</span>
           </button>
           
           <button 
             type="button"
             onClick={handleOpenCreateChallan}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New Delivery Challan</span>
@@ -468,7 +468,7 @@ export function DispatchClient({
             className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all cursor-pointer"
             title="Export current tab records as CSV"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 text-slate-500" />
             <span>Export CSV</span>
           </button>
         </div>
@@ -478,7 +478,7 @@ export function DispatchClient({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
         {/* Total Dispatched */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Total Dispatched
@@ -487,13 +487,13 @@ export function DispatchClient({
               {totalDeliveredPieces.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
             </span>
           </div>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-            <Truck className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <Truck className="w-4 h-4 text-[#0B1220]" />
           </div>
         </div>
 
         {/* Delivery Challans */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Delivery Challans
@@ -502,13 +502,13 @@ export function DispatchClient({
               {totalChallansCount} <span className="text-xs font-medium text-slate-500">issued</span>
             </span>
           </div>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-            <FileText className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <FileText className="w-4 h-4 text-[#0B1220]" />
           </div>
         </div>
 
         {/* Counted Audits */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
               Counted Audits
@@ -517,8 +517,8 @@ export function DispatchClient({
               {totalCountedPieces.toLocaleString()} <span className="text-xs font-medium text-slate-500">pcs</span>
             </span>
           </div>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-            <ClipboardCheck className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <ClipboardCheck className="w-4 h-4 text-[#0B1220]" />
           </div>
         </div>
 
@@ -534,7 +534,7 @@ export function DispatchClient({
           className={`p-4 sm:p-5 rounded-2xl border shadow-2xs flex items-center justify-between transition-all ${
             totalDiscrepancies > 0 
               ? 'bg-rose-50/40 border-rose-200/80 cursor-pointer hover:border-rose-300' 
-              : 'bg-white border-black/10'
+              : 'bg-white border-slate-200/80'
           }`}
         >
           <div>
@@ -550,7 +550,7 @@ export function DispatchClient({
           <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${
             totalDiscrepancies > 0
               ? 'bg-rose-100 text-rose-700 border border-rose-200'
-              : 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+              : 'bg-[#F0FDFA] text-[#0B1220] border border-black/15'
           }`}>
             <AlertTriangle className="w-4 h-4" />
           </div>
@@ -566,7 +566,7 @@ export function DispatchClient({
             onClick={() => handleTabChange('challans')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'challans'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -579,7 +579,7 @@ export function DispatchClient({
             onClick={() => handleTabChange('counting')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'counting'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -611,7 +611,7 @@ export function DispatchClient({
                     }}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                       isSelected
-                        ? 'bg-[#3A3564] text-white shadow-xs'
+                        ? 'bg-[#0B1220] text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
                     }`}
                   >
@@ -630,14 +630,14 @@ export function DispatchClient({
           <div className="relative w-full sm:max-w-xs">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input 
-              type="text"
+              type="text" 
               placeholder="Search challan, buyer, vehicle..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all"
             />
           </div>
         </div>
@@ -653,8 +653,8 @@ export function DispatchClient({
           <div>
             {filteredChallans.length === 0 ? (
               <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                  <FileText className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+                  <FileText className="w-6 h-6 text-[#0B1220]" />
                 </div>
                 <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
                   No delivery challans found
@@ -665,7 +665,7 @@ export function DispatchClient({
                 <button
                   type="button"
                   onClick={handleOpenCreateChallan}
-                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-colors cursor-pointer"
+                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create First Challan</span>
@@ -675,17 +675,17 @@ export function DispatchClient({
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[720px]">
                   <thead>
-                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
                       
                       {/* Sortable Challan No */}
                       <th 
                         onClick={() => handleSort('challan_no')}
-                        className="py-3.5 px-4 cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
+                        className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Challan No</span>
                           {sortCol === 'challan_no' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -695,12 +695,12 @@ export function DispatchClient({
                       {/* Sortable Date */}
                       <th 
                         onClick={() => handleSort('date')}
-                        className="py-3.5 px-4 cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
+                        className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -717,12 +717,12 @@ export function DispatchClient({
                       {/* Sortable Dispatched Qty */}
                       <th 
                         onClick={() => handleSort('dispatched')}
-                        className="py-3.5 px-4 text-right cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none text-[#3A3564]"
+                        className="py-3.5 px-4 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none text-[#0B1220]"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Dispatched Qty</span>
                           {sortCol === 'dispatched' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -732,12 +732,12 @@ export function DispatchClient({
                       {/* Reconciliation Status */}
                       <th 
                         onClick={() => handleSort('reconciliation')}
-                        className="py-3.5 px-4 text-center cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
+                        className="py-3.5 px-4 text-center cursor-pointer hover:bg-slate-100 transition-colors select-none"
                       >
                         <div className="flex items-center justify-center gap-1.5">
                           <span>Reconciliation</span>
                           {sortCol === 'reconciliation' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -750,8 +750,10 @@ export function DispatchClient({
                   <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                     {paginatedChallans.map((row) => (
                       <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-extrabold text-[#3A3564]">
-                          {row.challan_no}
+                        <td className="py-3.5 px-4 font-mono font-extrabold text-[#0B1220]">
+                          <span className="px-2 py-0.5 rounded-md bg-[#F0FDFA] border border-black/15 shadow-2xs">
+                            {row.challan_no}
+                          </span>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
                           {row.delivery_date || row.created_at.split('T')[0]}
@@ -759,7 +761,7 @@ export function DispatchClient({
                         <td className="py-3.5 px-4">
                           <div className="font-extrabold text-slate-900">{row.buyer_name}</div>
                           {row.vendor_name && (
-                            <div className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                            <div className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                               <span>Unit: {row.vendor_name}</span>
                             </div>
                           )}
@@ -792,8 +794,8 @@ export function DispatchClient({
                             </span>
                           )}
                           {row.reconciliationStatus === 'PENDING' && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 font-mono">
-                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/20 font-mono">
+                              <Clock className="w-3.5 h-3.5 text-[#0B1220]" />
                               <span>{row.reconciliationLabel}</span>
                             </span>
                           )}
@@ -805,7 +807,7 @@ export function DispatchClient({
                                 type="button"
                                 disabled={approvingId === row.id}
                                 onClick={() => handleApproveChallan(row.id)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 <span>{approvingId === row.id ? 'Approving...' : 'Approve Dispatch'}</span>
@@ -819,9 +821,9 @@ export function DispatchClient({
                             <button
                               type="button"
                               onClick={() => setSelectedChallanForPrint(row)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
                             >
-                              <Printer className="w-3.5 h-3.5" />
+                              <Printer className="w-3.5 h-3.5 text-slate-500" />
                               <span>Print / View</span>
                             </button>
                           </div>
