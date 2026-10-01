@@ -218,15 +218,9 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 {resolvedCompany ? (
-                  <>
-                    Welcome,{' '}
-                    <span className="text-[#0B1220] relative inline-block font-extrabold">
-                      {resolvedCompany}
-                      <span className="absolute -bottom-1 left-0 w-full h-[2.5px] bg-[#0B1220]/25 rounded-full" />
-                    </span>
-                  </>
+                  <>Welcome, <span className="text-[#1D4ED8]">{resolvedCompany}</span></>
                 ) : (
-                  <>Enterprise Workspace Hub</>
+                  <>Enterprise <span className="text-[#1D4ED8]">Workspace</span> Hub</>
                 )}
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">

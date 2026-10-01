@@ -184,9 +184,9 @@ export function ModuleNotificationPageClient({
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
       {/* Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
             <CurrentModuleIcon className="w-6 h-6" />
           </div>
           <div>
@@ -194,7 +194,7 @@ export function ModuleNotificationPageClient({
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {moduleName} Notifications
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                 {moduleEvents.length} Events Logged
               </span>
               {/* WebSocket Status Indicator */}
@@ -223,10 +223,10 @@ export function ModuleNotificationPageClient({
             type="button"
             onClick={handleMarkAllRead}
             disabled={unreadEvents.length === 0}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/15 bg-white hover:bg-[#F0FDFA] text-xs font-bold text-slate-800 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
             title="Mark all notifications as read"
           >
-            <CheckCheck className="w-4 h-4 text-[#3A3564]" />
+            <CheckCheck className="w-4 h-4 text-[#0B1220]" />
             <span>Mark All as Read</span>
           </button>
 
@@ -234,7 +234,7 @@ export function ModuleNotificationPageClient({
             type="button"
             onClick={handleClear}
             disabled={notifications.length === 0}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 bg-white hover:bg-rose-50 hover:text-rose-600 text-xs font-bold text-slate-600 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/15 bg-white hover:bg-rose-50 hover:text-rose-600 text-xs font-bold text-slate-600 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
             title="Clear all stored event logs"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -244,7 +244,7 @@ export function ModuleNotificationPageClient({
       </div>
 
       {/* 3. Filter Tabs & Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Tabs */}
         <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-black/5 overflow-x-auto">
           <button
@@ -252,13 +252,13 @@ export function ModuleNotificationPageClient({
             onClick={() => setActiveTab('MODULE')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'MODULE'
-                ? 'bg-white text-[#3A3564] shadow-xs border border-black/10'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>{moduleName} Events</span>
             <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-              activeTab === 'MODULE' ? 'bg-[#FAF7F0] text-[#3A3564]' : 'bg-slate-200 text-slate-700'
+              activeTab === 'MODULE' ? 'bg-[#F0FDFA] text-[#0B1220] font-bold' : 'bg-slate-200 text-slate-700'
             }`}>
               {moduleEvents.length}
             </span>
@@ -269,13 +269,13 @@ export function ModuleNotificationPageClient({
             onClick={() => setActiveTab('ALL')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'ALL'
-                ? 'bg-white text-[#3A3564] shadow-xs border border-black/10'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>All Floor Activity</span>
             <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-              activeTab === 'ALL' ? 'bg-[#FAF7F0] text-[#3A3564]' : 'bg-slate-200 text-slate-700'
+              activeTab === 'ALL' ? 'bg-[#F0FDFA] text-[#0B1220] font-bold' : 'bg-slate-200 text-slate-700'
             }`}>
               {notifications.length}
             </span>
@@ -286,13 +286,13 @@ export function ModuleNotificationPageClient({
             onClick={() => setActiveTab('UNREAD')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'UNREAD'
-                ? 'bg-white text-[#3A3564] shadow-xs border border-black/10'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>Unread</span>
             {unreadEvents.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-md bg-[#3A3564] text-white text-[10px] font-mono font-bold">
+              <span className="px-1.5 py-0.2 rounded-md bg-[#F0FDFA] text-[#0B1220] text-[10px] font-mono font-bold border border-black/15">
                 {unreadEvents.length}
               </span>
             )}
@@ -307,7 +307,7 @@ export function ModuleNotificationPageClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by article, worker, task..."
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50/80 focus:bg-white focus:outline-hidden focus:border-[#3A3564] transition-all"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50/80 focus:bg-white focus:outline-hidden focus:border-[#0B1220] transition-all"
           />
         </div>
       </div>
@@ -315,8 +315,8 @@ export function ModuleNotificationPageClient({
       {/* 4. Notification List */}
       <div className="space-y-2.5">
         {filteredNotifications.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-black/10 shadow-2xs space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto shadow-2xs">
+          <div className="bg-white rounded-2xl p-12 text-center border border-black/15 shadow-2xs space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center mx-auto shadow-2xs">
               <Bell className="w-7 h-7" />
             </div>
             <div>
@@ -341,13 +341,13 @@ export function ModuleNotificationPageClient({
                 onClick={() => handleItemClick(notif.id)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
                   isUnread
-                    ? 'bg-white border-[#3A3564]/30 shadow-xs hover:border-[#3A3564]'
+                    ? 'bg-white border-[#0B1220]/40 shadow-xs hover:border-[#0B1220]'
                     : 'bg-white/80 hover:bg-white border-black/10 shadow-2xs hover:shadow-xs'
                 }`}
               >
                 {/* Module Avatar */}
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-black/10 shadow-2xs ${
-                  isUnread ? 'bg-[#3A3564] text-white' : 'bg-[#FAF7F0] text-[#3A3564]'
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-black/15 shadow-2xs ${
+                  isUnread ? 'bg-[#0B1220] text-white' : 'bg-[#F0FDFA] text-[#0B1220]'
                 }`}>
                   <SourceIcon className="w-5 h-5" />
                 </div>
@@ -360,7 +360,7 @@ export function ModuleNotificationPageClient({
                         {notif.title}
                       </span>
                       {notif.articleNumber && (
-                        <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                           Article: {notif.articleNumber}
                         </span>
                       )}
@@ -380,7 +380,7 @@ export function ModuleNotificationPageClient({
                       <Clock className="w-3.5 h-3.5" />
                       <span>{formatTimestamp(notif.timestamp)}</span>
                       {isUnread && (
-                        <span className="w-2 h-2 rounded-full bg-[#3A3564]" title="Unread" />
+                        <span className="w-2 h-2 rounded-full bg-[#0B1220]" title="Unread" />
                       )}
                     </div>
                   </div>
@@ -404,7 +404,7 @@ export function ModuleNotificationPageClient({
 
                     {notif.workerName && (
                       <span className="inline-flex items-center gap-1 text-slate-600">
-                        <User className="w-3 h-3 text-[#3A3564]" />
+                        <User className="w-3 h-3 text-[#0B1220]" />
                         <span>{notif.workerName}</span>
                       </span>
                     )}

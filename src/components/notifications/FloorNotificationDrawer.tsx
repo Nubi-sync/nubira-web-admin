@@ -198,9 +198,9 @@ export function FloorNotificationDrawer({
       <div className="fixed inset-y-0 right-0 w-full sm:w-[430px] bg-white shadow-2xl z-50 flex flex-col border-l border-black/10 animate-in slide-in-from-right duration-250 select-none">
         
         {/* Drawer Header */}
-        <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between gap-3 bg-[#FAF7F0]">
+        <div className="p-4 sm:p-5 border-b border-black/15 flex items-center justify-between gap-3 bg-[#F0FDFA]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
               <Bell className="w-5 h-5" />
             </div>
             <div>
@@ -209,7 +209,7 @@ export function FloorNotificationDrawer({
                   Live Floor Activity
                 </h2>
                 {unreadCount > 0 && (
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#3A3564] text-white">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#0B1220] text-white">
                     {unreadCount} new
                   </span>
                 )}
@@ -281,7 +281,7 @@ export function FloorNotificationDrawer({
               <button
                 type="button"
                 onClick={handleMarkAllRead}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold text-slate-600 hover:text-[#3A3564] hover:bg-black/5 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold text-slate-600 hover:text-[#0B1220] hover:bg-black/5 transition-colors cursor-pointer"
                 title="Mark all as read"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
@@ -306,7 +306,7 @@ export function FloorNotificationDrawer({
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 divide-y divide-slate-100">
           {notifications.length === 0 ? (
             <div className="py-16 text-center space-y-2">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
+              <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center mx-auto text-[#0B1220] shadow-2xs">
                 <Bell className="w-6 h-6" />
               </div>
               <div className="text-sm font-bold text-slate-700">No recent floor activity</div>
@@ -326,7 +326,7 @@ export function FloorNotificationDrawer({
                   className={`pt-2.5 pb-2 px-3 rounded-xl transition-all cursor-pointer border ${
                     item.isRead
                       ? 'bg-white border-transparent hover:bg-slate-50'
-                      : 'bg-indigo-50/40 border-indigo-100/70 hover:bg-indigo-50/70'
+                      : 'bg-[#F0FDFA]/50 border-black/15 hover:bg-[#F0FDFA]/80'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -346,7 +346,7 @@ export function FloorNotificationDrawer({
                       )}
 
                       {item.articleNumber && (
-                        <span className="text-[10px] font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/5">
+                        <span className="text-[10px] font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-1.5 py-0.5 rounded border border-black/15">
                           {item.articleNumber}
                         </span>
                       )}
@@ -359,7 +359,7 @@ export function FloorNotificationDrawer({
                         {formatTimestamp(item.timestamp)}
                       </span>
                       {!item.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-[#3A3564] shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-[#0B1220] shrink-0" />
                       )}
                     </div>
                   </div>
@@ -397,9 +397,9 @@ export function FloorNotificationDrawer({
         </div>
 
         {/* Drawer Footer */}
-        <div className="p-3 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between text-[11px] font-mono text-slate-500">
+        <div className="p-3 bg-[#F0FDFA] border-t border-black/15 flex items-center justify-between text-[11px] font-mono text-slate-600">
           <span>Connected via Supabase WebSockets</span>
-          <span className="font-bold text-[#3A3564]">Zigza Floor Sync</span>
+          <span className="font-bold text-[#0B1220]">Zigza Floor Sync</span>
         </div>
       </div>
     </>
