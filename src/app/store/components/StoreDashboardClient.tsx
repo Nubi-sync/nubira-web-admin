@@ -801,17 +801,17 @@ export function StoreDashboardClient({
       {/* ============================================================ */}
       {/* 1. TOP HEADER & TELEMETRY TOOLBAR                            */}
       {/* ============================================================ */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Warehouse className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Warehouse className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                 Welcome, {currentUserName}
               </h1>
-              <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+              <span className="inline-flex items-center px-3 py-1 rounded-xl text-xs font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 Store & Godown Shift
               </span>
             </div>
@@ -828,7 +828,7 @@ export function StoreDashboardClient({
             <button
               type="button"
               onClick={() => setIsCreateOpen(prev => !prev)}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#3A3564] hover:bg-[#2F2B52] text-white shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-95"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] hover:bg-[#162032] text-white shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-95"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Create</span>
@@ -5349,18 +5349,18 @@ function GoodsInLineDrawer({ onClose, activeAllotments }: GoodsInLineDrawerProps
       <div className="fixed inset-y-0 right-0 max-w-3xl w-full bg-white shadow-2xl flex flex-col z-10 border-l border-black/10">
         
         {/* Drawer Header */}
-        <div className="p-5 sm:p-6 bg-[#FAF7F0] border-b border-black/10 space-y-4 shrink-0">
+        <div className="p-5 sm:p-6 bg-[#F0FDFA] border-b border-black/15 space-y-4 shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-md">
-                <Activity className="w-6 h-6" />
+              <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+                <Activity className="w-6 h-6 text-[#0B1220]" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-lg sm:text-xl font-black text-slate-900 font-[family-name:var(--font-heading)]">
                     Goods in Line (Live Floor WIP)
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                     {totalPcs.toLocaleString()} pcs • {masterArticleGroups.length} Master Articles
                   </span>
                 </div>

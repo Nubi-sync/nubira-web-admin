@@ -191,9 +191,6 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
             </span>
           </div>
         </div>
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* 4. Main Shipments Table Card (Toolbar + Table with 6th Box Design) */}
