@@ -215,12 +215,12 @@ export function AddTaskAllocationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none">
-      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/15 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
         
         {/* Header */}
-        <div className="px-6 py-4.5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4.5 bg-[#F0FDFA] border-b border-black/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <TableProperties className="w-4.5 h-4.5" />
             </div>
             <div>
@@ -235,7 +235,7 @@ export function AddTaskAllocationModal({
           <button
             onClick={onClose}
             type="button"
-            className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 border border-black/10 flex items-center justify-center text-slate-500 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 border border-black/15 flex items-center justify-center text-slate-500 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -246,9 +246,9 @@ export function AddTaskAllocationModal({
           
           {/* Route & In Hand Status Banner */}
           {routeDetails && (
-            <div className="p-3.5 rounded-2xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] text-xs font-mono flex items-start gap-2.5 shadow-2xs">
+            <div className="p-3.5 rounded-2xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] text-xs font-mono flex items-start gap-2.5 shadow-2xs">
               <div className="shrink-0 mt-0.5">
-                <TableProperties className="w-4 h-4 text-[#3A3564]" />
+                <TableProperties className="w-4 h-4 text-[#0B1220]" />
               </div>
               <div>
                 <div className="font-bold flex items-center gap-1.5 flex-wrap text-slate-900">
@@ -275,7 +275,7 @@ export function AddTaskAllocationModal({
                     onClose()
                     onOpenAddWorkerModal()
                   }}
-                  className="text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer"
+                  className="text-xs font-mono font-bold text-[#0B1220] hover:underline cursor-pointer"
                 >
                   + Add New Worker
                 </button>
@@ -291,7 +291,7 @@ export function AddTaskAllocationModal({
                     onClose()
                     if (onOpenAddWorkerModal) onOpenAddWorkerModal()
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-[#3A3564] text-white font-mono font-bold text-[11px] cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-[#0B1220] text-white font-mono font-bold text-[11px] cursor-pointer"
                 >
                   Create Worker Now
                 </button>
@@ -300,7 +300,7 @@ export function AddTaskAllocationModal({
               <select
                 value={workerId}
                 onChange={e => setWorkerId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-900 focus:outline-hidden focus:border-[#0B1220] transition-all cursor-pointer"
               >
                 {workers.map(w => {
                   const roleLabel = w.role || (w.roles && w.roles.length > 0 ? w.roles.map(r => r.replace(/_/g, ' ')).join(', ') : 'Screen Print Operator')
@@ -320,7 +320,7 @@ export function AddTaskAllocationModal({
               <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
                 Article Style Reference
               </label>
-              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
                 Contract Locked
               </span>
             </div>
@@ -329,7 +329,7 @@ export function AddTaskAllocationModal({
               readOnly
               tabIndex={-1}
               value={articleStyle}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] text-sm font-mono font-bold text-slate-900 cursor-not-allowed select-none focus:outline-hidden shadow-2xs"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] text-sm font-mono font-bold text-slate-900 cursor-not-allowed select-none focus:outline-hidden shadow-2xs"
             />
             {selectedBuyer && (
               <p className="text-[11px] text-slate-500 font-mono mt-1">
@@ -361,7 +361,7 @@ export function AddTaskAllocationModal({
                       ? 'border-red-300 bg-red-50/50 text-red-700 cursor-not-allowed'
                       : isExceedingInHand
                         ? 'border-red-500 bg-red-50/30 text-red-900 focus:border-red-500'
-                        : 'border-black/10 bg-slate-50 focus:bg-white text-slate-900 focus:border-[#3A3564]'
+                        : 'border-black/10 bg-slate-50 focus:bg-white text-slate-900 focus:border-[#0B1220]'
                   }`}
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
@@ -397,7 +397,7 @@ export function AddTaskAllocationModal({
                   value={allotedHours}
                   onChange={e => setAllotedHours(e.target.value)}
                   placeholder="4.0"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220] transition-all"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
                   Hrs
@@ -420,7 +420,7 @@ export function AddTaskAllocationModal({
                 <button
                   type="button"
                   onClick={() => setIsAddingNewTable(true)}
-                  className="text-xs font-mono font-bold text-[#3A3564] hover:underline cursor-pointer inline-flex items-center gap-1"
+                  className="text-xs font-mono font-bold text-[#0B1220] hover:underline cursor-pointer inline-flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Station</span>
@@ -429,19 +429,19 @@ export function AddTaskAllocationModal({
             </div>
 
             {isAddingNewTable && (
-              <div className="mb-2.5 p-3 bg-[#FAF7F0] border border-black/10 rounded-xl flex items-center gap-2 animate-in fade-in">
+              <div className="mb-2.5 p-3 bg-[#F0FDFA] border border-black/15 rounded-xl flex items-center gap-2 animate-in fade-in">
                 <input
                   type="text"
                   value={newTableInput}
                   onChange={e => setNewTableInput(e.target.value)}
                   placeholder={`e.g. Print Table ${tablesList.length + 1}`}
-                  className="flex-1 px-3 py-1.5 text-xs font-mono font-bold bg-white border border-black/10 rounded-lg focus:outline-hidden focus:border-[#3A3564]"
+                  className="flex-1 px-3 py-1.5 text-xs font-mono font-bold bg-white border border-black/15 rounded-lg focus:outline-hidden focus:border-[#0B1220]"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => handleAddNewTable()}
-                  className="px-3 py-1.5 bg-[#3A3564] text-white text-xs font-mono font-bold rounded-lg cursor-pointer"
+                  className="px-3 py-1.5 bg-[#0B1220] text-white text-xs font-mono font-bold rounded-lg cursor-pointer"
                 >
                   Save
                 </button>
@@ -463,8 +463,8 @@ export function AddTaskAllocationModal({
                   onClick={() => setTableNumber(tbl)}
                   className={`py-2.5 px-3 text-left rounded-xl border font-mono text-xs font-bold transition-all cursor-pointer truncate ${
                     tableNumber === tbl
-                      ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
-                      : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
+                      ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                      : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-white'
                   }`}
                   title={tbl}
                 >
@@ -484,7 +484,7 @@ export function AddTaskAllocationModal({
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="e.g. 2-stroke plastisol white underbase, cure at 160°C"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-[#0B1220] transition-all"
             />
           </div>
 
@@ -493,14 +493,14 @@ export function AddTaskAllocationModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 transition-all cursor-pointer shadow-2xs"
+              className="px-4 py-2.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || workers.length === 0 || isZeroInHand || isExceedingInHand}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>

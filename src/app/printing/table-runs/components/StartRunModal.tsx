@@ -110,9 +110,9 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/10 shadow-xl overflow-hidden">
+      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/15 shadow-xl overflow-hidden">
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F0]/60">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#F0FDFA]/60">
           <div>
             <h2 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
               Schedule Table Batch or DTG Run
@@ -129,15 +129,15 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
 
         {/* Step 5.3 Quick Fill Preset */}
         <div className="px-5 pt-4">
-          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+          <div className="bg-[#F0FDFA] p-3 rounded-xl border border-black/15 flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
               Step 5.3 Table Run Preset:
             </span>
             <button
               type="button"
               onClick={applyPreset53}
-              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-black/15 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
             >
               PRN-2026-052 (PO-2026-9901 • 1,000 Panels)
             </button>
@@ -161,7 +161,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               <select
                 value={poNumber}
                 onChange={e => handleSelectPo(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
                 required
               >
                 {availablePos.map(p => (
@@ -186,7 +186,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
                   const found = availablePos.find(p => p.style_ref === e.target.value)
                   if (found) setStyleName(found.style_name || 'Heavyweight Relaxed French Terry Hoodie')
                 }}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
                 required
               >
                 {availablePos.map(p => (
@@ -209,7 +209,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               type="text"
               value={styleName}
               onChange={e => setStyleName(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-medium"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-medium"
               required
             />
           </div>
@@ -222,7 +222,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               <select
                 value={tableOrMachine}
                 onChange={e => setTableOrMachine(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900"
               >
                 <option value="Table 01 (60m Conveyor)">Table 01 (60m Conveyor)</option>
                 <option value="Table 02 (60m Conveyor)">Table 02 (60m Conveyor)</option>
@@ -240,7 +240,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               <select
                 value={technique}
                 onChange={e => setTechnique(e.target.value as PrintTechnique)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               >
                 {TECHNIQUES.map(t => (
                   <option key={t} value={t}>{t}</option>
@@ -258,7 +258,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
                 type="number"
                 value={totalPanelsIssued}
                 onChange={e => setTotalPanelsIssued(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
                 required
               />
             </div>
@@ -271,7 +271,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
                 type="number"
                 value={curingTemp}
                 onChange={e => setCuringTemp(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
                 required
               />
             </div>
@@ -285,7 +285,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               type="text"
               value={pantoneCodes}
               onChange={e => setPantoneCodes(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
             />
           </div>
 
@@ -297,7 +297,7 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
               type="text"
               value={operatorName}
               onChange={e => setOperatorName(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900"
             />
           </div>
 
@@ -306,13 +306,13 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Authorize & Start Run</span>

@@ -127,12 +127,12 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/15 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
         
         {/* Header */}
-        <div className="px-6 py-4.5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4.5 bg-[#F0FDFA] border-b border-black/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <UserPlus className="w-4.5 h-4.5" />
             </div>
             <div>
@@ -147,7 +147,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
           <button
             onClick={onClose}
             type="button"
-            className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 border border-black/10 flex items-center justify-center text-slate-500 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 border border-black/15 flex items-center justify-center text-slate-500 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -167,7 +167,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Anand Sharma"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-900 focus:outline-hidden focus:border-[#3A3564] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-900 focus:outline-hidden focus:border-[#0B1220] transition-all"
             />
           </div>
 
@@ -176,8 +176,8 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Phone Number <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex rounded-xl border border-black/10 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] transition-all overflow-hidden">
-              <span className="inline-flex items-center px-3.5 bg-[#FAF7F0] border-r border-black/10 text-xs font-mono font-bold text-[#3A3564] shrink-0">
+            <div className="relative flex rounded-xl border border-black/15 bg-slate-50 focus-within:bg-white focus-within:border-[#0B1220] transition-all overflow-hidden">
+              <span className="inline-flex items-center px-3.5 bg-[#F0FDFA] border-r border-black/10 text-xs font-mono font-bold text-[#0B1220] shrink-0">
                 +91
               </span>
               <input
@@ -199,7 +199,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Password <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex rounded-xl border border-black/10 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] transition-all overflow-hidden">
+            <div className="relative flex rounded-xl border border-black/15 bg-slate-50 focus-within:bg-white focus-within:border-[#0B1220] transition-all overflow-hidden">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
@@ -239,14 +239,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                     onClick={() => toggleRole(r.id)}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                       isChecked
-                        ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
-                        : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
+                        ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                        : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-white'
                     }`}
                   >
                     <span className="text-xs font-bold font-mono">{r.label}</span>
                     <div className={`w-4 h-4 rounded-md flex items-center justify-center border transition-all ${
                       isChecked
-                        ? 'bg-white text-[#3A3564] border-white'
+                        ? 'bg-white text-[#0B1220] border-white'
                         : 'border-slate-300 bg-white'
                     }`}>
                       {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
@@ -262,14 +262,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 transition-all cursor-pointer shadow-2xs"
+              className="px-4 py-2.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 transition-all cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isSubmitting ? 'Registering...' : 'Register Worker'}</span>
