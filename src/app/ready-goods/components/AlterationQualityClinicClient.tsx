@@ -305,9 +305,9 @@ export function AlterationQualityClinicClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
@@ -315,15 +315,15 @@ export function AlterationQualityClinicClient({
       {/* Module Title Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Alteration &amp; Quality Clinic
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {workers.length} Specialists Registered
               </span>
             </div>
@@ -337,41 +337,41 @@ export function AlterationQualityClinicClient({
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
           <Link
             href="/ready-goods/packing"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <PackageCheck className="w-3.5 h-3.5" />
+            <PackageCheck className="w-3.5 h-3.5 text-slate-500" />
             <span>Packing Goods</span>
           </Link>
 
           <Link
             href="/ready-goods/notifications"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Bell className="w-3.5 h-3.5" />
+            <Bell className="w-3.5 h-3.5 text-slate-500" />
             <span>Notifications</span>
           </Link>
 
           <Link
             href="/ready-goods/workers"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-slate-500" />
             <span>Staff List</span>
           </Link>
 
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
             <span>Worker Terminal</span>
           </Link>
 
           <Link
             href="/ready-goods/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-slate-500" />
             <span>Zigza AI</span>
           </Link>
 
@@ -392,8 +392,8 @@ export function AlterationQualityClinicClient({
         
         {/* Left: Active Buyer Info + Dropdown selector */}
         <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap sm:flex-nowrap">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
 
           <div>
@@ -403,7 +403,7 @@ export function AlterationQualityClinicClient({
             <div className="text-base sm:text-lg md:text-xl font-black text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers & Contracts'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   {selectedBuyer.linked_article_number}
                 </span>
               )}
@@ -415,10 +415,10 @@ export function AlterationQualityClinicClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-slate-100 text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <Users className="w-4 h-4 text-[#0B1220] shrink-0" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
@@ -433,7 +433,7 @@ export function AlterationQualityClinicClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -447,13 +447,13 @@ export function AlterationQualityClinicClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-slate-300' : 'text-slate-500'}`}>
                         Show all {tasks.length} lots ({tasks.reduce((sum, t) => sum + (t.pieces_count || 0), 0)} pcs)
                       </div>
                     </div>
@@ -482,13 +482,13 @@ export function AlterationQualityClinicClient({
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                             isSelected
-                              ? 'bg-[#3A3564] text-white font-bold'
-                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                              ? 'bg-[#0B1220] text-white font-bold'
+                              : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <div className="truncate pr-2">
                             <div className="font-bold">{bName}</div>
-                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
                               {vol > 0 ? `${vol.toLocaleString('en-IN')} Pcs` : `${bLots.length} Lots`} {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
                             </div>
                           </div>
@@ -508,25 +508,25 @@ export function AlterationQualityClinicClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-slate-500" />
             <span>Workers ({workers.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs"
           >
-            <UserPlus className="w-4 h-4" />
+            <UserPlus className="w-4 h-4 text-slate-500" />
             <span>+ Worker</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsAddLotOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
             <PackagePlus className="w-4 h-4" />
             <span>+ Inward Lot</span>
@@ -535,7 +535,7 @@ export function AlterationQualityClinicClient({
           <button
             type="button"
             onClick={reloadData}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync floor data"
           >
             <RotateCcw className="w-4 h-4" />
@@ -552,7 +552,7 @@ export function AlterationQualityClinicClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Inspection Queue
             </span>
-            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
               <Scissors className="w-5 h-5" />
             </div>
           </div>
@@ -567,7 +567,7 @@ export function AlterationQualityClinicClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Alteration Rework
             </span>
-            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
               <Wrench className="w-5 h-5" />
             </div>
           </div>
@@ -582,7 +582,7 @@ export function AlterationQualityClinicClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Passed for Packing
             </span>
-            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
@@ -603,12 +603,12 @@ export function AlterationQualityClinicClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search lot #, buyer, style, wash batch..."
-            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
           />
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 bg-[#FAF7F0] p-1.5 rounded-xl border border-black/10 overflow-x-auto">
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto">
           {[
             { id: 'ALL', label: 'All Lots', count: buyerTasks.length },
             { id: 'PENDING', label: 'Pending Check', count: inspectionQueueCount },
@@ -621,7 +621,7 @@ export function AlterationQualityClinicClient({
               onClick={() => setStatusFilter(tab.id as any)}
               className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 statusFilter === tab.id
-                  ? 'bg-[#3A3564] text-white shadow-xs'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
                   : 'text-slate-600 hover:bg-white'
               }`}
             >
@@ -643,7 +643,7 @@ export function AlterationQualityClinicClient({
             <h3 className="text-sm font-bold text-slate-900">
               Quality Inspection Lots
             </h3>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-600 border border-black/5 font-bold">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 font-bold">
               {filteredTasks.length} lots
             </span>
           </div>
@@ -654,7 +654,7 @@ export function AlterationQualityClinicClient({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono font-bold uppercase text-[11px]">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-mono font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3.5 px-5">Lot # / Order</th>
                 <th className="py-3.5 px-5">Buyer &amp; Style</th>
@@ -671,7 +671,7 @@ export function AlterationQualityClinicClient({
                 <tr>
                   <td colSpan={8} className="py-20 text-center">
                     <div className="max-w-md mx-auto space-y-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+                      <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] mx-auto shadow-2xs">
                         <Scissors className="w-7 h-7" />
                       </div>
                       <h4 className="text-base font-bold text-slate-900">
@@ -684,7 +684,7 @@ export function AlterationQualityClinicClient({
                         <button
                           type="button"
                           onClick={() => setIsAddLotOpen(true)}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
                         >
                           <PackagePlus className="w-4 h-4" />
                           <span>+ Inward Lot</span>
@@ -692,7 +692,7 @@ export function AlterationQualityClinicClient({
                         <button
                           type="button"
                           onClick={() => setIsAddWorkerOpen(true)}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs"
                         >
                           <UserPlus className="w-4 h-4" />
                           <span>+ Add Worker</span>
@@ -711,7 +711,7 @@ export function AlterationQualityClinicClient({
                     <tr key={task.id} className="hover:bg-slate-50/70 transition-colors">
                       {/* Lot & Order */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-[#3A3564]">#{task.task_code}</div>
+                        <div className="font-mono font-bold text-[#0B1220]">#{task.task_code}</div>
                         <div className="text-[11px] text-slate-500 font-mono">{task.order_number}</div>
                       </td>
 
@@ -768,7 +768,7 @@ export function AlterationQualityClinicClient({
                       <td className="py-3.5 px-4">
                         {task.checked_by_worker_name ? (
                           <div className="flex items-center gap-1.5 font-bold text-slate-900">
-                            <div className="w-5 h-5 rounded-full bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[10px] text-[#3A3564]">
+                            <div className="w-5 h-5 rounded-full bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[10px] text-[#0B1220]">
                               <Scissors className="w-2.5 h-2.5" />
                             </div>
                             <span>{task.checked_by_worker_name}</span>
@@ -814,7 +814,7 @@ export function AlterationQualityClinicClient({
                             <button
                               type="button"
                               onClick={() => setSelectedTaskToInspect(task)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                             >
                               <ShieldCheck className="w-3.5 h-3.5" />
                               <span>Inspect &amp; Verify</span>
@@ -824,7 +824,7 @@ export function AlterationQualityClinicClient({
                             <button
                               type="button"
                               onClick={() => handleMarkRepaired(task.id, task.task_code)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] text-xs font-bold transition-all cursor-pointer"
                             >
                               <Wrench className="w-3.5 h-3.5" />
                               <span>Mark Mended</span>
@@ -833,7 +833,7 @@ export function AlterationQualityClinicClient({
                           {isPassed && (
                             <Link
                               href="/ready-goods/packing"
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] text-xs font-bold transition-all cursor-pointer"
                             >
                               <span>Open Packing &rarr;</span>
                             </Link>

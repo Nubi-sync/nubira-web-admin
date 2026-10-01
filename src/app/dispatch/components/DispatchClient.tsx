@@ -844,7 +844,7 @@ export function DispatchClient({
           <div>
             {filteredCounting.length === 0 ? (
               <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                   <ClipboardCheck className="w-6 h-6" />
                 </div>
                 <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
@@ -856,7 +856,7 @@ export function DispatchClient({
                 <button
                   type="button"
                   onClick={() => setShowCountingModal(true)}
-                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-colors cursor-pointer"
+                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Record First Counting</span>
@@ -866,17 +866,17 @@ export function DispatchClient({
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
                       
                       {/* Sortable Date */}
                       <th 
                         onClick={() => handleSort('date')}
-                        className="py-3.5 px-4 cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none"
+                        className="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
                       >
                         <div className="flex items-center gap-1.5">
                           <span>Date</span>
                           {sortCol === 'date' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -889,12 +889,12 @@ export function DispatchClient({
                       {/* Sortable Counted Qty */}
                       <th 
                         onClick={() => handleSort('counted')}
-                        className="py-3.5 px-4 text-right cursor-pointer hover:bg-[#F2ECE1] transition-colors select-none text-[#3A3564]"
+                        className="py-3.5 px-4 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none text-[#0B1220]"
                       >
                         <div className="flex items-center justify-end gap-1.5">
                           <span>Counted Qty</span>
                           {sortCol === 'counted' ? (
-                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -917,7 +917,7 @@ export function DispatchClient({
                           <td className="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
                             {row.entry_date || row.created_at.split('T')[0]}
                           </td>
-                          <td className="py-3.5 px-4 font-extrabold text-[#3A3564] font-mono">
+                          <td className="py-3.5 px-4 font-extrabold text-[#0B1220] font-mono">
                             {row.article?.art_no || '-'}
                           </td>
                           <td className="py-3.5 px-4">
@@ -988,7 +988,7 @@ export function DispatchClient({
                     onClick={() => setCurrentPage(pg)}
                     className={`w-8 h-8 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                       isActive
-                        ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+                        ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
                         : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
                     }`}
                   >
@@ -1019,9 +1019,9 @@ export function DispatchClient({
           <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-black/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200 flex flex-col">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-black/10 bg-[#F0FDFA] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                   <Truck className="w-5 h-5" />
                 </div>
                 <div>
@@ -1070,7 +1070,7 @@ export function DispatchClient({
                       value={newChallanNo}
                       onChange={(e) => setNewChallanNo(e.target.value)}
                       required
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all" 
                     />
                   </div>
                   <div>
@@ -1082,7 +1082,7 @@ export function DispatchClient({
                       name="buyer_name" 
                       required 
                       placeholder="Enter Buyer / Consignee Name" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all" 
                     />
                   </div>
                   <div>
@@ -1093,7 +1093,7 @@ export function DispatchClient({
                       type="text" 
                       name="vendor_name" 
                       placeholder="Enter Vendor / Unit Name" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all" 
                     />
                   </div>
                 </div>
@@ -1108,7 +1108,7 @@ export function DispatchClient({
                       type="text" 
                       name="destination" 
                       placeholder="Bhiwandi Godown" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all" 
                     />
                   </div>
                   <div>
@@ -1119,7 +1119,7 @@ export function DispatchClient({
                       type="text" 
                       name="vehicle_no" 
                       placeholder="WB-04-AB-1234" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all" 
                     />
                   </div>
                   <div>
@@ -1130,7 +1130,7 @@ export function DispatchClient({
                       type="text" 
                       name="driver_phone" 
                       placeholder="9876543210" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all" 
                     />
                   </div>
                 </div>
@@ -1156,7 +1156,7 @@ export function DispatchClient({
                           quantity: 100,
                         }])
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#0B1220] bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add Article Line</span>
@@ -1179,7 +1179,7 @@ export function DispatchClient({
                                 updated[idx].article_id = e.target.value
                                 setChallanRows(updated)
                               }}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 truncate"
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 truncate"
                             >
                               {articles.map(art => (
                                 <option key={art.id} value={art.id}>Art #{art.art_no} {art.description ? `• ${art.description}` : ''}</option>
@@ -1214,7 +1214,7 @@ export function DispatchClient({
                                 updated[idx].color = e.target.value
                                 setChallanRows(updated)
                               }}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
                             />
                           </div>
 
@@ -1231,7 +1231,7 @@ export function DispatchClient({
                                 updated[idx].size = e.target.value
                                 setChallanRows(updated)
                               }}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-mono font-bold text-slate-900 text-center focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-mono font-bold text-slate-900 text-center focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
                             />
                           </div>
 
@@ -1248,7 +1248,7 @@ export function DispatchClient({
                                 updated[idx].quantity = parseInt(e.target.value) || 0
                                 setChallanRows(updated)
                               }}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-mono font-black text-slate-900 text-right focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-mono font-black text-slate-900 text-right focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
                             />
                           </div>
                         </div>
@@ -1276,7 +1276,7 @@ export function DispatchClient({
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                    className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
                   >
                     {isPending ? 'Generating Challan...' : 'Generate & Issue Delivery Challan'}
                   </button>
@@ -1294,9 +1294,9 @@ export function DispatchClient({
       {showCountingModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex justify-center items-start sm:items-center">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-black/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200 flex flex-col">
-            <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-black/10 bg-[#F0FDFA] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                   <ClipboardCheck className="w-5 h-5" />
                 </div>
                 <div>
@@ -1334,7 +1334,7 @@ export function DispatchClient({
                   <select 
                     name="article_id" 
                     required 
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
                   >
                     {articles.map(art => (
                       <option key={art.id} value={art.id}>Art #{art.art_no} {art.description ? `• ${art.description}` : ''}</option>
@@ -1352,7 +1352,7 @@ export function DispatchClient({
                       name="color" 
                       defaultValue="" 
                       placeholder="Color"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20" 
                     />
                   </div>
                   <div>
@@ -1364,7 +1364,7 @@ export function DispatchClient({
                       name="size" 
                       defaultValue="" 
                       placeholder="Size"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-center" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 text-center" 
                     />
                   </div>
                 </div>
@@ -1379,7 +1379,7 @@ export function DispatchClient({
                       name="counted_qty" 
                       required 
                       placeholder="e.g. 500" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-right" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 text-right" 
                     />
                   </div>
                   <div>
@@ -1391,7 +1391,7 @@ export function DispatchClient({
                       name="expected_qty" 
                       required 
                       placeholder="e.g. 500" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 text-right" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 text-right" 
                     />
                   </div>
                 </div>
@@ -1404,7 +1404,7 @@ export function DispatchClient({
                     type="text" 
                     name="remarks" 
                     placeholder="Verified carton tags & pack count" 
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20" 
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20" 
                   />
                 </div>
               </div>
@@ -1421,7 +1421,7 @@ export function DispatchClient({
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] shadow-xs transition-all cursor-pointer disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer disabled:opacity-60"
                 >
                   {isPending ? 'Saving...' : 'Save Counting Record'}
                 </button>
@@ -1448,7 +1448,7 @@ export function DispatchClient({
                 <p className="text-xs text-slate-400 font-mono mt-0.5">{factoryAddress}</p>
               </div>
               <div className="text-right">
-                <span className="inline-block px-3 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono font-extrabold text-xs text-[#3A3564] shadow-2xs">
+                <span className="inline-block px-3 py-1 rounded-lg bg-[#F0FDFA] border border-black/15 font-mono font-extrabold text-xs text-[#0B1220] shadow-2xs">
                   {selectedChallanForPrint.challan_no}
                 </span>
                 <p className="text-xs text-slate-500 font-mono mt-1">Date: {selectedChallanForPrint.delivery_date}</p>
@@ -1498,7 +1498,7 @@ export function DispatchClient({
             <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs">
               <table className="w-full text-left text-xs border-collapse min-w-[520px]">
                 <thead>
-                  <tr className="bg-[#FAF7F0] border-b border-black/10 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
                     <th className="py-2.5 px-3">#</th>
                     <th className="py-2.5 px-3">Art No</th>
                     <th className="py-2.5 px-3">Color</th>
@@ -1535,7 +1535,7 @@ export function DispatchClient({
                     <td className="py-2.5 px-3 text-right font-mono text-slate-500">
                       {(selectedChallanForPrint.total_order_qty || selectedChallanForPrint.total_pieces).toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono text-[#3A3564] font-black">
+                    <td className="py-2.5 px-3 text-right font-mono text-[#0B1220] font-black">
                       {(selectedChallanForPrint.total_delivery_qty || selectedChallanForPrint.total_pieces).toLocaleString()} pcs
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono text-slate-700">
@@ -1583,7 +1583,7 @@ export function DispatchClient({
               <button 
                 type="button" 
                 onClick={() => window.print()}
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] shadow-xs cursor-pointer transition-colors"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-xs font-bold bg-[#0B1220] hover:bg-[#162032] shadow-xs cursor-pointer transition-colors"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Official Challan</span>

@@ -294,9 +294,9 @@ export function CentralStoreHubClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
@@ -304,7 +304,7 @@ export function CentralStoreHubClient({
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <CentralStoreBespokeIcon className="w-6 h-6" />
           </div>
           <div>
@@ -312,7 +312,7 @@ export function CentralStoreHubClient({
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Central Store Hub
               </h1>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 DIV 11
               </span>
             </div>
@@ -329,9 +329,9 @@ export function CentralStoreHubClient({
               setFormError(null)
               setIsAddFabricOpen(true)
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-[#3A3564]" />
+            <Plus className="w-4 h-4 text-slate-500" />
             <span>Add Cloth Stock</span>
           </button>
 
@@ -341,7 +341,7 @@ export function CentralStoreHubClient({
               setFormError(null)
               setIsIssueModalOpen(true)
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <ArrowRight className="w-4 h-4" />
             <span>Issue Challan</span>
@@ -354,7 +354,7 @@ export function CentralStoreHubClient({
         {/* Metric 1: Total Fabric Stock */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -380,7 +380,7 @@ export function CentralStoreHubClient({
         {/* Metric 2: Available Fabric */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Box className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -406,7 +406,7 @@ export function CentralStoreHubClient({
         {/* Metric 3: Active Material Issues */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <MaterialFlowBespokeIcon className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -432,7 +432,7 @@ export function CentralStoreHubClient({
         {/* Metric 4: Total Weight */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Scale className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -473,13 +473,13 @@ export function CentralStoreHubClient({
             <Link
               key={m.code}
               href={m.route}
-              className="p-2.5 rounded-xl bg-slate-50 hover:bg-[#FAF7F0] border border-slate-200 hover:border-[#3A3564]/30 transition-all flex flex-col justify-between group"
+              className="p-2.5 rounded-xl bg-slate-50 hover:bg-[#F0FDFA] border border-slate-200 hover:border-black/20 transition-all flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-slate-400 group-hover:text-[#3A3564]">
+                <span className="text-[10px] font-mono font-bold text-slate-400 group-hover:text-[#0B1220]">
                   0{idx + 1}
                 </span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#3A3564] transition-transform group-hover:translate-x-0.5" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#0B1220] transition-transform group-hover:translate-x-0.5" />
               </div>
               <div className="font-bold text-slate-900 mt-1">{m.label}</div>
               <div className="text-[10px] text-slate-500">{m.role}</div>
@@ -508,8 +508,8 @@ export function CentralStoreHubClient({
                 onClick={() => setActiveTab(tab.key as TabType)}
                 className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeTab === tab.key
-                    ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                    : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                    ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                    : 'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200'
                 }`}
               >
                 {tab.label}
@@ -525,7 +525,7 @@ export function CentralStoreHubClient({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search fabric, article, challan..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220]"
             />
           </div>
         </div>
@@ -543,7 +543,7 @@ export function CentralStoreHubClient({
                   <button
                     type="button"
                     onClick={() => setActiveTab('FABRIC')}
-                    className="text-xs font-bold text-[#3A3564] hover:underline"
+                    className="text-xs font-bold text-[#0B1220] hover:underline"
                   >
                     View All &rarr;
                   </button>
@@ -582,7 +582,7 @@ export function CentralStoreHubClient({
                   <button
                     type="button"
                     onClick={() => setActiveTab('ISSUES')}
-                    className="text-xs font-bold text-[#3A3564] hover:underline"
+                    className="text-xs font-bold text-[#0B1220] hover:underline"
                   >
                     View All &rarr;
                   </button>
@@ -591,7 +591,7 @@ export function CentralStoreHubClient({
                   {issues.slice(0, 5).map(i => (
                     <div key={i.id} className="py-2.5 flex items-center justify-between">
                       <div>
-                        <div className="font-mono font-bold text-[#3A3564]">{i.issue_challan_no}</div>
+                        <div className="font-mono font-bold text-[#0B1220]">{i.issue_challan_no}</div>
                         <div className="text-[11px] text-slate-500">
                           {i.from_division} &rarr; {i.to_division} {i.article_no ? `• Art #${i.article_no}` : ''}
                         </div>
@@ -626,7 +626,7 @@ export function CentralStoreHubClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">Fabric Type</th>
                   <th className="py-3 px-4">Color</th>
                   <th className="py-3 px-4">Rack</th>
@@ -668,7 +668,7 @@ export function CentralStoreHubClient({
                       </td>
                       <td className="py-3 px-4 font-mono">
                         {f.booked_for_article ? (
-                          <span className="font-bold text-[#3A3564]">
+                          <span className="font-bold text-[#0B1220]">
                             Art #{f.booked_for_article} ({Number(f.booked_meters).toLocaleString()}m)
                           </span>
                         ) : (
@@ -682,7 +682,7 @@ export function CentralStoreHubClient({
                         <button
                           type="button"
                           onClick={() => handleOpenBookModal(f)}
-                          className="px-2.5 py-1 rounded-lg text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg text-xs font-bold text-[#0B1220] bg-white hover:bg-slate-50 border border-slate-200 cursor-pointer shadow-2xs"
                         >
                           Book Art
                         </button>
@@ -713,7 +713,7 @@ export function CentralStoreHubClient({
               {filteredFabrics.map(f => (
                 <div
                   key={f.id}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-[#3A3564]/40 transition-all flex flex-col justify-between space-y-3"
+                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-[#0B1220]/40 transition-all flex flex-col justify-between space-y-3"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -751,7 +751,7 @@ export function CentralStoreHubClient({
                     <button
                       type="button"
                       onClick={() => handleQuickIssueToCutting(f)}
-                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] cursor-pointer"
+                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] cursor-pointer"
                     >
                       Issue to Cut
                     </button>
@@ -772,7 +772,7 @@ export function CentralStoreHubClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">Challan Ref</th>
                   <th className="py-3 px-4">From</th>
                   <th className="py-3 px-4">To</th>
@@ -793,7 +793,7 @@ export function CentralStoreHubClient({
                 ) : (
                   filteredIssues.map(i => (
                     <tr key={i.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         {i.issue_challan_no}
                       </td>
                       <td className="py-3 px-4">
@@ -847,7 +847,7 @@ export function CentralStoreHubClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">Challan Ref</th>
                   <th className="py-3 px-4">Receiving Floor</th>
                   <th className="py-3 px-4">Article / Material</th>
@@ -868,7 +868,7 @@ export function CentralStoreHubClient({
                 ) : (
                   filteredReceipts.map(r => (
                     <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         {r.issue?.issue_challan_no || 'MANUAL-REC'}
                       </td>
                       <td className="py-3 px-4">
@@ -929,7 +929,7 @@ export function CentralStoreHubClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">Supplier / Party</th>
                   <th className="py-3 px-4">Challan No</th>
                   <th className="py-3 px-4">Vehicle No</th>
@@ -981,9 +981,9 @@ export function CentralStoreHubClient({
       {isAddFabricOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+            <div className="px-6 py-5 bg-[#F0FDFA] border-b border-black/10 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-black/15 shadow-2xs">
                   INWARD STOCK
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -1018,7 +1018,7 @@ export function CentralStoreHubClient({
                       onChange={e => setFabricType(e.target.value)}
                       placeholder="e.g. Cotton Twill 280 GSM"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1032,7 +1032,7 @@ export function CentralStoreHubClient({
                       onChange={e => setFabricColor(e.target.value)}
                       placeholder="e.g. Olive Green"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -1047,7 +1047,7 @@ export function CentralStoreHubClient({
                       value={fabricSupplier}
                       onChange={e => setFabricSupplier(e.target.value)}
                       placeholder="e.g. Vardhman Mills"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1060,7 +1060,7 @@ export function CentralStoreHubClient({
                       value={fabricRack}
                       onChange={e => setFabricRack(e.target.value)}
                       placeholder="e.g. RACK-01"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono uppercase text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono uppercase text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -1078,7 +1078,7 @@ export function CentralStoreHubClient({
                       min="0.1"
                       step="any"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1093,7 +1093,7 @@ export function CentralStoreHubClient({
                       placeholder="0"
                       min="0"
                       step="any"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1107,7 +1107,7 @@ export function CentralStoreHubClient({
                       onChange={e => setFabricRolls(e.target.value === '' ? '' : Number(e.target.value))}
                       placeholder="0"
                       min="0"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -1121,23 +1121,23 @@ export function CentralStoreHubClient({
                     value={fabricNotes}
                     onChange={e => setFabricNotes(e.target.value)}
                     placeholder="Lot number, remarks, etc."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50/60 border-t border-black/10 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsAddFabricOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Add Stock'}
                 </button>
@@ -1151,9 +1151,9 @@ export function CentralStoreHubClient({
       {isBookFabricOpen && selectedFabricForBooking && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+            <div className="px-6 py-5 bg-[#F0FDFA] border-b border-black/10 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-black/15 shadow-2xs">
                   MERCHANDISE ALLOCATION
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -1188,7 +1188,7 @@ export function CentralStoreHubClient({
                   </div>
                   <div className="flex justify-between font-mono">
                     <span className="text-slate-500">Available:</span>
-                    <span className="font-bold text-[#3A3564]">{Number(selectedFabricForBooking.available_meters).toLocaleString()}m</span>
+                    <span className="font-bold text-[#0B1220]">{Number(selectedFabricForBooking.available_meters).toLocaleString()}m</span>
                   </div>
                 </div>
 
@@ -1202,7 +1202,7 @@ export function CentralStoreHubClient({
                     onChange={e => setBookArticleNo(e.target.value)}
                     placeholder="e.g. 9437"
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#0B1220] outline-none shadow-2xs transition-all"
                   />
                 </div>
 
@@ -1219,23 +1219,23 @@ export function CentralStoreHubClient({
                     max={selectedFabricForBooking.available_meters}
                     step="any"
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50/60 border-t border-black/10 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsBookFabricOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Booking'}
                 </button>
@@ -1249,9 +1249,9 @@ export function CentralStoreHubClient({
       {isIssueModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+            <div className="px-6 py-5 bg-[#F0FDFA] border-b border-black/10 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-black/15 shadow-2xs">
                   INTER-MODULE ISSUE
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -1283,7 +1283,7 @@ export function CentralStoreHubClient({
                     <select
                       value={issueFrom}
                       onChange={e => setIssueFrom(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     >
                       <option value="MERCHANDISE">Merchandise Fabric Store</option>
                       <option value="CUTTING">Cutting Floor</option>
@@ -1302,7 +1302,7 @@ export function CentralStoreHubClient({
                     <select
                       value={issueTo}
                       onChange={e => setIssueTo(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     >
                       <option value="CUTTING">Cutting Floor</option>
                       <option value="PRINTING">Printing Division</option>
@@ -1325,7 +1325,7 @@ export function CentralStoreHubClient({
                       value={issueArticleNo}
                       onChange={e => setIssueArticleNo(e.target.value)}
                       placeholder="e.g. 9437"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#0B1220] outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1338,7 +1338,7 @@ export function CentralStoreHubClient({
                       value={issueBuyerName}
                       onChange={e => setIssueBuyerName(e.target.value)}
                       placeholder="e.g. Zara / HM"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -1353,7 +1353,7 @@ export function CentralStoreHubClient({
                       value={issueFabricType}
                       onChange={e => setIssueFabricType(e.target.value)}
                       placeholder="e.g. Cotton Twill 280 GSM"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1366,7 +1366,7 @@ export function CentralStoreHubClient({
                       value={issueColor}
                       onChange={e => setIssueColor(e.target.value)}
                       placeholder="e.g. Navy Blue"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -1384,7 +1384,7 @@ export function CentralStoreHubClient({
                       min="0.1"
                       step="any"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -1395,7 +1395,7 @@ export function CentralStoreHubClient({
                     <select
                       value={issueUnit}
                       onChange={e => setIssueUnit(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     >
                       <option value="meters">Meters</option>
                       <option value="pcs">Pieces</option>
@@ -1414,7 +1414,7 @@ export function CentralStoreHubClient({
                       onChange={e => setIssueRollsCount(e.target.value === '' ? '' : Number(e.target.value))}
                       placeholder="0"
                       min="0"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -1428,23 +1428,23 @@ export function CentralStoreHubClient({
                     value={issueNotes}
                     onChange={e => setIssueNotes(e.target.value)}
                     placeholder="Instructions, lot numbers, etc."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50/60 border-t border-black/10 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsIssueModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Issue'}
                 </button>

@@ -120,15 +120,15 @@ export function ReadyGoodsDashboardClient({
       {/* Module Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Boxes className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Boxes className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Ready Goods &amp; Export Carton Packing
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Final Defense QA
               </span>
             </div>
@@ -142,16 +142,16 @@ export function ReadyGoodsDashboardClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/ready-goods/aql-inspection"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-white" />
             <span>AQL 2.5 Station</span>
           </Link>
           <Link
             href="/ready-goods/carton-packing"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0B1220] transition-all shadow-2xs cursor-pointer"
           >
-            <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+            <PackageCheck className="w-3.5 h-3.5 text-slate-500" />
             <span>Pack Carton</span>
           </Link>
         </div>
@@ -165,7 +165,7 @@ export function ReadyGoodsDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Packed Cartons Today
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
@@ -175,8 +175,8 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             {metrics.totalGarmentsPackedToday.toLocaleString()} Finished Export Garments
           </p>
-          <div className="mt-3 text-[11px] font-mono text-slate-700 font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
-            <Check className="w-3 h-3 text-[#3A3564]" /> 100% Solid & Ratio Validated
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-bold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
+            <Check className="w-3 h-3 text-[#0B1220]" /> 100% Solid & Ratio Validated
           </div>
         </div>
 
@@ -186,7 +186,7 @@ export function ReadyGoodsDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               AQL 2.5 Audit Score
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -196,7 +196,7 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Critical Defect: 0 • Major Defects: 2 (Limit ≤ 10)
           </p>
-          <div className="mt-3 text-[11px] font-mono text-slate-600 font-semibold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-slate-600 font-semibold bg-slate-50 px-2 py-0.5 rounded border border-slate-200 inline-flex items-center gap-1">
             <span>Threshold: 2.5% Max Allowable</span>
           </div>
         </div>
@@ -207,7 +207,7 @@ export function ReadyGoodsDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Hangtag Barcode Match
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Tag className="w-4 h-4" />
             </div>
           </div>
@@ -217,8 +217,8 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Zero EAN-13 or SKU mismatch errors detected
           </p>
-          <div className="mt-3 text-[11px] font-mono text-slate-700 font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
-            <Check className="w-3 h-3 text-[#3A3564]" /> Micro-Tach & Silica Inserted
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-bold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
+            <Check className="w-3 h-3 text-[#0B1220]" /> Micro-Tach & Silica Inserted
           </div>
         </div>
 
@@ -228,7 +228,7 @@ export function ReadyGoodsDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Ready in Central Godown
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Warehouse className="w-4 h-4" />
             </div>
           </div>
@@ -238,8 +238,8 @@ export function ReadyGoodsDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Stored in Central Godown Bay 3–5
           </p>
-          <div className="mt-3 text-[11px] font-mono text-slate-700 font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
-            <Truck className="w-3 h-3 text-[#3A3564]" /> Dock Gate 01–03 Ready
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-bold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
+            <Truck className="w-3 h-3 text-[#0B1220]" /> Dock Gate 01–03 Ready
           </div>
         </div>
       </div>
@@ -248,12 +248,12 @@ export function ReadyGoodsDashboardClient({
       <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-[#3A3564]">Integrated Finishing Pipeline:</span>
+            <span className="font-extrabold text-[#0B1220]">Integrated Finishing Pipeline:</span>
             <span className="text-slate-500 hidden sm:inline">Wash & Iron Intake ──➔ 5-Point Quality Check ──➔ Alteration (if defect) ──➔ Carton Packing</span>
           </div>
           <Link
             href="/ready-goods/worker"
-            className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+            className="text-xs font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1"
           >
             <span>Floor Worker Terminal</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -284,37 +284,37 @@ export function ReadyGoodsDashboardClient({
           </Link>
           <Link
             href="/ready-goods/carton-packing"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+            <PackageCheck className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>04. Carton Packing Manifest</span>
           </Link>
           <Link
             href="/ready-goods/tagging-polybag"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <Tag className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Tag className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>05. Hangtag & Polybag</span>
           </Link>
           <Link
             href="/ready-goods/aql-inspection"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>06. AQL 2.5 Sampling</span>
           </Link>
           <Link
             href="/ready-goods/carton-weight"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <Scale className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Scale className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>07. Scale Weight & Audit</span>
           </Link>
           <Link
             href="/ready-goods/handover"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
-            <Warehouse className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Warehouse className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>08. Central Godown Handover</span>
           </Link>
         </div>
@@ -322,13 +322,13 @@ export function ReadyGoodsDashboardClient({
 
       {/* Main Table: Live Export Carton Packing Manifest */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-50/60">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Live Master Export Carton Manifest
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {filteredCartons.length} Cartons Loaded
               </span>
             </div>
@@ -345,12 +345,12 @@ export function ReadyGoodsDashboardClient({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search CTN #, PO, Buyer, Bay..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono text-slate-900"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono text-slate-900"
               />
             </div>
             <Link
               href="/ready-goods/carton-packing"
-              className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shrink-0 inline-flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shrink-0 inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Manage Manifest</span>
               <ArrowRight className="w-3 h-3" />
@@ -372,7 +372,7 @@ export function ReadyGoodsDashboardClient({
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-2 text-xs font-mono font-bold rounded-t-lg transition-all border-b-2 cursor-pointer ${
                 statusFilter === tab.id
-                  ? 'border-[#3A3564] text-[#3A3564] bg-[#FAF7F0]/60'
+                  ? 'border-[#0B1220] text-[#0B1220] bg-[#F0FDFA]/60'
                   : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -385,7 +385,7 @@ export function ReadyGoodsDashboardClient({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3.5 px-4">Carton Barcode</th>
                 <th className="py-3.5 px-4">Order & Buyer</th>
                 <th className="py-3.5 px-4">Style & Color</th>
@@ -416,10 +416,10 @@ export function ReadyGoodsDashboardClient({
                   return (
                     <tr
                       key={carton.id}
-                      className="hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer"
+                      className="hover:bg-slate-50/70 transition-colors cursor-pointer"
                       onClick={() => setSelectedCarton(carton)}
                     >
-                      <td className="py-3.5 px-4 font-mono font-black text-[#3A3564] flex items-center gap-2">
+                      <td className="py-3.5 px-4 font-mono font-black text-[#0B1220] flex items-center gap-2">
                         <QrCode className="w-3.5 h-3.5 text-slate-400" />
                         <span>{carton.cartonNumber}</span>
                       </td>
@@ -437,7 +437,7 @@ export function ReadyGoodsDashboardClient({
                           {Object.entries(carton.sizeBreakdown).map(([sz, qty]) => (
                             <span
                               key={sz}
-                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15"
                             >
                               {sz}:{qty}
                             </span>
@@ -449,18 +449,18 @@ export function ReadyGoodsDashboardClient({
                         <div className="text-[10px] text-slate-400">Exp: {carton.expectedGrossWeightKg.toFixed(2)}</div>
                       </td>
                       <td className="py-3.5 px-4 font-mono">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold border bg-[#FAF7F0] text-slate-900 border-black/10">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold border bg-slate-100 text-slate-900 border-slate-200">
                           {carton.weightVarianceKg >= 0 ? '+' : ''}
                           {carton.weightVarianceKg.toFixed(2)} kg
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                           {carton.godownBay}
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                           {carton.status.replace(/_/g, ' ')}
                         </span>
                       </td>
@@ -470,9 +470,9 @@ export function ReadyGoodsDashboardClient({
                             e.stopPropagation()
                             setSelectedCarton(carton)
                           }}
-                          className="px-2.5 py-1 rounded bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
                         >
-                          <Eye className="w-3 h-3 text-[#3A3564]" />
+                          <Eye className="w-3 h-3 text-[#0B1220]" />
                           <span>Inspect</span>
                         </button>
                       </td>
@@ -491,12 +491,12 @@ export function ReadyGoodsDashboardClient({
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
               <h3 className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">Recent AQL 2.5 Sampling Audits</h3>
             </div>
             <Link
               href="/ready-goods/aql-inspection"
-              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
               <span>View Full QA Log</span>
               <ArrowRight className="w-3 h-3" />
@@ -507,18 +507,18 @@ export function ReadyGoodsDashboardClient({
             {aqlAudits.slice(0, 3).map(audit => (
               <div
                 key={audit.id}
-                className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0]/40 space-y-2"
+                className="p-3.5 rounded-xl border border-black/10 bg-slate-50/60 space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-[#3A3564]">
+                    <span className="text-xs font-mono font-bold text-[#0B1220]">
                       {audit.auditNumber}
                     </span>
                     <span className="text-xs font-mono text-slate-500">
                       • Carton {audit.cartonNumber}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold border bg-[#FAF7F0] text-[#3A3564] border-black/10">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold border bg-[#F0FDFA] text-[#0B1220] border-black/15">
                     {audit.auditDecision}
                   </span>
                 </div>
@@ -542,12 +542,12 @@ export function ReadyGoodsDashboardClient({
         <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Warehouse className="w-4 h-4 text-[#3A3564]" />
+              <Warehouse className="w-4 h-4 text-[#0B1220]" />
               <h3 className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">Central Godown Stacking & Scale Telemetry</h3>
             </div>
             <Link
               href="/ready-goods/carton-weight"
-              className="text-xs font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Scale Logs</span>
               <ArrowRight className="w-3 h-3" />
@@ -555,27 +555,27 @@ export function ReadyGoodsDashboardClient({
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 text-center">
+            <div className="p-3 rounded-xl border border-black/10 bg-slate-50/60 text-center">
               <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">Bay 3 (Hoodies)</span>
               <div className="text-lg font-black font-mono text-slate-900 mt-1">16,200 pcs</div>
               <div className="text-[10px] text-slate-700 font-bold mt-0.5">Weighbridge 1 OK</div>
             </div>
-            <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 text-center">
+            <div className="p-3 rounded-xl border border-black/10 bg-slate-50/60 text-center">
               <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">Bay 4 (Tees)</span>
               <div className="text-lg font-black font-mono text-slate-900 mt-1">14,800 pcs</div>
               <div className="text-[10px] text-slate-700 font-bold mt-0.5">Weighbridge 2 OK</div>
             </div>
-            <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 text-center">
+            <div className="p-3 rounded-xl border border-black/10 bg-slate-50/60 text-center">
               <span className="text-[11px] font-mono font-bold text-slate-500 uppercase">Bay 5 (Bottoms)</span>
               <div className="text-lg font-black font-mono text-slate-900 mt-1">11,500 pcs</div>
               <div className="text-[10px] text-slate-700 font-bold mt-0.5">Quarantine Area Active</div>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0]/60 space-y-1.5 text-xs text-slate-600">
+          <div className="p-3.5 rounded-xl border border-black/10 bg-slate-50/60 space-y-1.5 text-xs text-slate-600">
             <div className="flex items-center justify-between font-mono text-[11px]">
               <span className="font-bold text-slate-700">Digital Scale Tolerance Standard</span>
-              <span className="text-[#3A3564] font-bold">±0.15 kg BOM Target</span>
+              <span className="text-[#0B1220] font-bold">±0.15 kg BOM Target</span>
             </div>
             <p className="text-[11px] text-slate-500">
               Discrepancies &gt; 0.15 kg trigger automated carton lockouts to prevent accidental shipment of empty or extra garments (Zero Ghost Piece compliance).
@@ -596,7 +596,7 @@ export function ReadyGoodsDashboardClient({
           >
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div className="flex items-center gap-2">
-                <Boxes className="w-5 h-5 text-[#3A3564]" />
+                <Boxes className="w-5 h-5 text-[#0B1220]" />
                 <h3 className="text-lg font-black text-slate-900">
                   Carton {selectedCarton.cartonNumber}
                 </h3>
@@ -638,11 +638,11 @@ export function ReadyGoodsDashboardClient({
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Assigned Bay:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedCarton.godownBay}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedCarton.godownBay}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Status:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedCarton.status}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedCarton.status}</div>
               </div>
             </div>
 
@@ -652,7 +652,7 @@ export function ReadyGoodsDashboardClient({
                 {Object.entries(selectedCarton.sizeBreakdown).map(([sz, qty]) => (
                   <span
                     key={sz}
-                    className="px-2.5 py-1 rounded bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564]"
+                    className="px-2.5 py-1 rounded bg-[#F0FDFA] border border-black/15 text-xs font-mono font-bold text-[#0B1220]"
                   >
                     Size {sz}: {qty} pcs
                   </span>
@@ -682,7 +682,7 @@ export function ReadyGoodsDashboardClient({
             <div className="pt-2 flex justify-end gap-2">
               <Link
                 href="/ready-goods/aql-inspection"
-                className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all cursor-pointer"
               >
                 Perform AQL Audit on Carton
               </Link>
