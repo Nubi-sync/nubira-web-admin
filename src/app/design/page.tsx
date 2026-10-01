@@ -33,7 +33,12 @@ export default async function DesignModulePage() {
   ])
 
   // Derive metrics instantly without redundant DB queries
-  const active_briefs = initialBriefs.filter(b => b.status === 'ALLOCATED' || b.status === 'SUBMITTED').length
+  const active_briefs = initialBriefs.reduce((acc, b) => {
+    if (b.design_concepts_brief && b.design_concepts_brief.length > 0) {
+      return acc + b.design_concepts_brief.length
+    }
+    return acc + 1
+  }, 0)
   const pending_ph_reviews = initialBriefs.filter(b => b.status === 'SUBMITTED').length
   const pending_sa_approvals = initialBriefs.filter(b => b.status === 'PH_APPROVED').length
   const sa_approved_designs = initialBriefs.filter(b => b.status === 'SA_APPROVED').length

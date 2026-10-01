@@ -442,21 +442,27 @@ export function DispatchClient({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-          <button 
-            type="button"
-            onClick={() => setShowCountingModal(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200 shadow-2xs transition-all cursor-pointer"
-          >
-            <ClipboardCheck className="w-4 h-4 text-slate-500" />
-            <span>Record Counting</span>
-          </button>
-          
+        {/* Right side: Search Bar + Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search challan, buyer, vehicle..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs"
+            />
+          </div>
+
           <button 
             type="button"
             onClick={handleOpenCreateChallan}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>New Delivery Challan</span>
@@ -464,12 +470,11 @@ export function DispatchClient({
 
           <button 
             type="button"
-            onClick={handleExportCSV}
-            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all cursor-pointer"
-            title="Export current tab records as CSV"
+            onClick={() => setShowCountingModal(true)}
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer shrink-0"
           >
-            <Download className="w-4 h-4 text-slate-500" />
-            <span>Export CSV</span>
+            <ClipboardCheck className="w-4 h-4 text-slate-500" />
+            <span>Record Counting</span>
           </button>
         </div>
       </div>

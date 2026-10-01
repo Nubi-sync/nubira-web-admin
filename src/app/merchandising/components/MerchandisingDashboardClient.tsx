@@ -279,6 +279,7 @@ export function MerchandisingDashboardClient({
   const [selectedStyleId, setSelectedStyleId] = useState<string>('ALL')
   const [isSyncing, setIsSyncing] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
+  const [orderSearchQuery, setOrderSearchQuery] = useState('')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [selectedOrderForView, setSelectedOrderForView] = useState<MerchandisingOrder | null>(null)
   const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
@@ -417,12 +418,19 @@ export function MerchandisingDashboardClient({
     }
   }
 
-  // Filter orders by brand, style, and status
+  // Filter orders by brand, style, status, and search query
   const filteredOrders = orders.filter(ord => {
     const matchesBrand = selectedBrand === 'ALL' || ord.brand_name === selectedBrand
     const matchesStyle = selectedStyleId === 'ALL' || ord.id === selectedStyleId
     const matchesStatus = statusFilter === 'ALL' || normalizeStatus(ord.status) === statusFilter
-    return matchesBrand && matchesStyle && matchesStatus
+    const q = orderSearchQuery.toLowerCase().trim()
+    const matchesSearch = !q ||
+      (ord.po_number && ord.po_number.toLowerCase().includes(q)) ||
+      (ord.brand_name && ord.brand_name.toLowerCase().includes(q)) ||
+      (ord.style_ref && ord.style_ref.toLowerCase().includes(q)) ||
+      ((ord as any).article_no && (ord as any).article_no.toLowerCase().includes(q)) ||
+      (ord.style_name && ord.style_name.toLowerCase().includes(q))
+    return matchesBrand && matchesStyle && matchesStatus && matchesSearch
   })
 
   // Orders matching selected buyer contract
@@ -522,21 +530,24 @@ export function MerchandisingDashboardClient({
           </div>
         </div>
 
-        {/* Quick Action Navigation Buttons */}
-        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
-
-          <Link
-            href="/merchandising/buyers"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
-          >
-            <Users className="w-3.5 h-3.5 text-slate-500" />
-            <span>Active Buyers</span>
-          </Link>
+        {/* Right side: Search Bar + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search PO #, buyer, article..."
+              value={orderSearchQuery}
+              onChange={e => setOrderSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs"
+            />
+          </div>
 
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
             <Plus className="w-4 h-4 text-white" />
             <span>Book New PO</span>

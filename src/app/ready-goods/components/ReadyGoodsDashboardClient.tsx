@@ -22,7 +22,8 @@ import {
   X,
   Scissors,
   Wrench,
-  Users
+  Users,
+  Plus
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/EmptyState'
 import {
@@ -138,20 +139,25 @@ export function ReadyGoodsDashboardClient({
           </div>
         </div>
 
-        {/* Quick Hub Links */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Link
-            href="/ready-goods/aql-inspection"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-white" />
-            <span>AQL 2.5 Station</span>
-          </Link>
+        {/* Right side: Search Bar + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search CTN #, PO, Buyer, Bay..."
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs font-mono"
+            />
+          </div>
+
           <Link
             href="/ready-goods/carton-packing"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0B1220] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
-            <PackageCheck className="w-3.5 h-3.5 text-slate-500" />
+            <Plus className="w-4 h-4 text-white" />
             <span>Pack Carton</span>
           </Link>
         </div>
@@ -244,81 +250,7 @@ export function ReadyGoodsDashboardClient({
         </div>
       </div>
 
-      {/* Quick Action Navigation Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
-        <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-extrabold text-[#0B1220]">Integrated Finishing Pipeline:</span>
-            <span className="text-slate-500 hidden sm:inline">Wash & Iron Intake ──➔ 5-Point Quality Check ──➔ Alteration (if defect) ──➔ Carton Packing</span>
-          </div>
-          <Link
-            href="/ready-goods/worker"
-            className="text-xs font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1"
-          >
-            <span>Floor Worker Terminal</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <Link
-            href="/ready-goods/checking"
-            className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold border border-amber-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
-          >
-            <Scissors className="w-3.5 h-3.5 text-amber-700" />
-            <span>01. Quality Checking (QC)</span>
-          </Link>
-          <Link
-            href="/ready-goods/alteration"
-            className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-900 text-xs font-bold border border-rose-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
-          >
-            <Wrench className="w-3.5 h-3.5 text-rose-700" />
-            <span>02. Alteration Clinic</span>
-          </Link>
-          <Link
-            href="/ready-goods/workers"
-            className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-white text-slate-800 text-xs font-bold border border-slate-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
-          >
-            <Users className="w-3.5 h-3.5 text-slate-600" />
-            <span>03. Floor Workers & Roles</span>
-          </Link>
-          <Link
-            href="/ready-goods/carton-packing"
-            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
-          >
-            <PackageCheck className="w-3.5 h-3.5 text-[#0B1220]" />
-            <span>04. Carton Packing Manifest</span>
-          </Link>
-          <Link
-            href="/ready-goods/tagging-polybag"
-            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
-          >
-            <Tag className="w-3.5 h-3.5 text-[#0B1220]" />
-            <span>05. Hangtag & Polybag</span>
-          </Link>
-          <Link
-            href="/ready-goods/aql-inspection"
-            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
-          >
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
-            <span>06. AQL 2.5 Sampling</span>
-          </Link>
-          <Link
-            href="/ready-goods/carton-weight"
-            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
-          >
-            <Scale className="w-3.5 h-3.5 text-[#0B1220]" />
-            <span>07. Scale Weight & Audit</span>
-          </Link>
-          <Link
-            href="/ready-goods/handover"
-            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-white text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1 cursor-pointer"
-          >
-            <Warehouse className="w-3.5 h-3.5 text-[#0B1220]" />
-            <span>08. Central Godown Handover</span>
-          </Link>
-        </div>
-      </div>
 
       {/* Main Table: Live Export Carton Packing Manifest */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">

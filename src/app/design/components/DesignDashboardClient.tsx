@@ -218,8 +218,13 @@ export function DesignDashboardClient({
     return matchesStatus && matchesSearch
   })
 
-  // Dynamic KPI counts - Count all active briefs in studio pipeline
-  const activeBriefsCount = briefs.length
+  // Dynamic KPI counts - Count all active brief concepts in studio pipeline
+  const activeBriefsCount = briefs.reduce((acc, b) => {
+    if (b.design_concepts_brief && b.design_concepts_brief.length > 0) {
+      return acc + b.design_concepts_brief.length
+    }
+    return acc + 1
+  }, 0)
   const pendingPHCount = briefs.filter(b => b.status === 'SUBMITTED').length
   const pendingSACount = briefs.filter(b => b.status === 'PH_APPROVED').length
   const techPacksCount = techPacks.length
