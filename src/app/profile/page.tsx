@@ -5,12 +5,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Building2 } from 'lucide-react'
 import { AdminIdentityCard } from './components/AdminIdentityCard'
-import { SupervisorTeamOverview, ProfileUser } from './components/SupervisorTeamOverview'
 import { AccountDeletionDangerZone } from './components/AccountDeletionDangerZone'
 import { StaffProfileView } from './components/StaffProfileView'
 import { CompanySubscriptionCard } from './components/CompanySubscriptionCard'
 import { resolveUserTenant } from '@/lib/tenant-context'
-import { ROLE_MODULE_MAPPING } from '@/lib/access-control'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,44 +85,6 @@ export default async function CompanyProfilePage(props: {
     console.warn('company_profile fetch notice:', err)
   }
 
-  // Fetch staff & supervisor profiles using supabaseAdmin for reliable cross-tenant scoping
-  let rawProfiles: any[] = []
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('profiles')
-      .select('id, username, role, is_active, created_at, allowed_modules, is_head, designation, company_name')
-      .order('created_at', { ascending: false })
-    if (!error && data) {
-      rawProfiles = data
-    }
-  } catch (err) {
-    console.warn('profiles fetch notice:', err)
-  }
-
-  const isNubira = !tenant.companyName || tenant.companyName.toLowerCase().includes('nubira')
-
-  // Scoped staff list for this tenant and active modules
-  const staffList: ProfileUser[] = rawProfiles.filter((p) => {
-    if (p.id === user.id) return false // exclude logged-in admin
-    if (p.role === 'PLATFORM_SUPERADMIN') return false
-
-    // Company scoping check
-    if (isNubira) {
-      const pComp = (p.company_name || '').toLowerCase()
-      if (pComp && !pComp.includes('nubira')) return false
-    } else {
-      const pComp = (p.company_name || '').toLowerCase()
-      if (!pComp.includes(tenant.companyName.toLowerCase())) return false
-    }
-
-    // Module scoping check: only show staff assigned to this company's purchased modules
-    const userModules = Array.isArray(p.allowed_modules) && p.allowed_modules.length > 0
-      ? p.allowed_modules
-      : (ROLE_MODULE_MAPPING[p.role?.toUpperCase() || ''] || [])
-
-    return userModules.some((m: string) => tenant.allowedDivisions.includes(m))
-  })
-
   const adminDisplayName = tenant.adminDisplayName || tenant.customUsername || 'Enterprise Admin'
   const adminPhone = tenant.phone || companyData?.admin_phone || ''
 
@@ -132,7 +92,7 @@ export default async function CompanyProfilePage(props: {
     <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-5 sm:space-y-6 select-none">
         {/* 1. Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500">
           <Link href="/modules" className="hover:text-[#0B1220] transition-colors">
             Workspace Hub
           </Link>
@@ -141,22 +101,22 @@ export default async function CompanyProfilePage(props: {
         </div>
 
         {/* 2. Page Header Card */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+        <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
+          <div className="flex items-center gap-4">
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+              <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-[#14C8B4]" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                   {tenant.companyName}
                 </h1>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
+                <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
                   Enterprise Master
                 </span>
               </div>
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
-                Manage factory identification, master admin credentials, and live supervisor operations
+              <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                Manage factory identification, master admin credentials, and live subscription operations
               </p>
             </div>
           </div>
@@ -183,13 +143,7 @@ export default async function CompanyProfilePage(props: {
           createdAt={user.created_at}
         />
 
-        {/* 5. Supervisors & Team Floor Distribution (Dynamically filtered by active modules) */}
-        <SupervisorTeamOverview
-          staff={staffList}
-          allowedDivisions={tenant.allowedDivisions}
-        />
-
-        {/* 6. Account Deletion Request Danger Zone */}
+        {/* 5. Account Deletion Request Danger Zone */}
         <AccountDeletionDangerZone
           companyName={tenant.companyName}
           adminName={adminDisplayName}
