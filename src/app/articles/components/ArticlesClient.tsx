@@ -628,12 +628,12 @@ export function ArticlesClient({
       
       {/* 1. Page Header Card */}
       <div 
-        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
       >
         {/* Left Side: Badge + Title + Subtitle */}
         <div className="flex items-center gap-3.5">
           <div 
-            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15"
           >
             <Tag className="w-5 h-5" />
           </div>
@@ -644,7 +644,7 @@ export function ArticlesClient({
               >
                 Articles
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 {articles.length} Catalog Styles
               </span>
             </div>
@@ -664,7 +664,7 @@ export function ArticlesClient({
               setAddError(null)
               setShowAddModal(true)
             }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Add Article</span>
@@ -674,10 +674,10 @@ export function ArticlesClient({
 
       {/* 2. EXECUTIVE LINEMAN HISTORY SUMMARY BANNER (Shows when Lineman Filter is active) */}
       {selectedLinemanData && (
-        <div className="p-4 sm:p-5 bg-white border border-black/10 rounded-2xl shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in duration-200">
+        <div className="p-4 sm:p-5 bg-white border border-black/15 rounded-2xl shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in duration-200">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold text-lg shrink-0 shadow-2xs">
-              <User className="w-6 h-6 text-[#3A3564]" />
+            <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-bold text-lg shrink-0 shadow-2xs">
+              <User className="w-6 h-6 text-[#0B1220]" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -687,7 +687,7 @@ export function ArticlesClient({
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
                   Floor Lineman
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   Lifetime Production History
                 </span>
               </div>
@@ -702,9 +702,9 @@ export function ArticlesClient({
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Articles Allotted</span>
               <span className="text-base font-extrabold text-slate-900 font-mono">{selectedLinemanData.distinctArticleCount}</span>
             </div>
-            <div className="px-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-center min-w-[110px]">
-              <span className="text-[10px] font-bold text-[#3A3564] uppercase tracking-wider block">Total Pieces</span>
-              <span className="text-base font-extrabold text-[#3A3564] font-mono">{selectedLinemanData.totalPcs.toLocaleString()} pcs</span>
+            <div className="px-4 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-center min-w-[110px]">
+              <span className="text-[10px] font-bold text-[#0B1220] uppercase tracking-wider block">Total Pieces</span>
+              <span className="text-base font-extrabold text-[#0B1220] font-mono">{selectedLinemanData.totalPcs.toLocaleString()} pcs</span>
             </div>
             <div className="px-4 py-2 bg-slate-50 border border-black/5 rounded-xl text-center min-w-[100px]">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Delivery Challans</span>
@@ -723,15 +723,15 @@ export function ArticlesClient({
 
       {/* 3. Table Toolbar & Bulk Action Bar */}
       <div 
-        className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden"
       >
         
         {/* Bulk Action Bar (Visible when >= 1 row selected) */}
         {selectedIds.length > 0 && (
           <div 
-            className="p-3 px-4 border-b flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150 bg-[#FAF7F0] border-black/10"
+            className="p-3 px-4 border-b flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150 bg-[#F0FDFA] border-black/10"
           >
-            <div className="text-xs font-bold text-[#3A3564]">
+            <div className="text-xs font-bold text-[#0B1220]">
               {selectedIds.length} {selectedIds.length === 1 ? 'article' : 'articles'} selected
             </div>
 
@@ -813,7 +813,7 @@ export function ArticlesClient({
                   }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all outline-none cursor-pointer ${
                     isSelected
-                      ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                      ? 'bg-[#0B1220] text-white border-transparent shadow-xs'
                       : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
@@ -829,7 +829,7 @@ export function ArticlesClient({
             {/* Lineman Filter Dropdown */}
             <div className="relative min-w-[220px]">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <User className="w-4 h-4 text-[#3A3564]" />
+                <User className="w-4 h-4 text-[#0B1220]" />
               </div>
               <select
                 value={selectedLineman}
@@ -840,7 +840,7 @@ export function ArticlesClient({
                 }}
                 className={`w-full pl-9 pr-8 py-2 border rounded-xl text-xs sm:text-sm font-bold outline-none transition-all cursor-pointer shadow-2xs appearance-none ${
                   selectedLineman !== 'ALL'
-                    ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] ring-2 ring-[#3A3564]/10'
+                    ? 'bg-[#F0FDFA] border-[#0B1220] text-[#0B1220] ring-2 ring-[#0B1220]/10'
                     : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
                 title="Filter articles allotted to a specific production lineman"
@@ -868,7 +868,7 @@ export function ArticlesClient({
                   setSearchTerm(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all shadow-2xs"
               />
             </div>
           </div>
@@ -878,7 +878,7 @@ export function ArticlesClient({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
             <thead>
-              <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
+              <tr className="bg-[#F0FDFA] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                 
                 {/* Select All Checkbox */}
                 <th className="w-10 px-4 py-3.5 text-center">
@@ -886,7 +886,7 @@ export function ArticlesClient({
                     type="checkbox"
                     checked={allCurrentPageSelected}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-slate-300 text-[#3A3564] focus:ring-[#3A3564] cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-[#0B1220] focus:ring-[#0B1220] cursor-pointer"
                   />
                 </th>
 
@@ -898,7 +898,7 @@ export function ArticlesClient({
                   <div className="flex items-center gap-1.5">
                     <span>Art No</span>
                     {sortField === 'art_no' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                     ) : (
                       <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                     )}
@@ -917,7 +917,7 @@ export function ArticlesClient({
                       {selectedLineman !== 'ALL' ? 'Pieces to Lineman' : 'Total Allotted Pcs'}
                     </span>
                     {sortField === 'total_pcs' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                      sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                     ) : (
                       <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                     )}
@@ -949,7 +949,7 @@ export function ArticlesClient({
                         <button
                           type="button"
                           onClick={() => setSelectedLineman('ALL')}
-                          className="text-xs text-[#3A3564] font-bold hover:underline"
+                          className="text-xs text-[#0B1220] font-bold hover:underline"
                         >
                           Clear Lineman Filter to view all articles
                         </button>
@@ -1004,12 +1004,12 @@ export function ArticlesClient({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleSelectRow(article.id)}
-                          className="w-4 h-4 rounded border-slate-300 text-[#3A3564] focus:ring-[#3A3564] cursor-pointer"
+                          className="w-4 h-4 rounded border-slate-300 text-[#0B1220] focus:ring-[#0B1220] cursor-pointer"
                         />
                       </td>
 
                       {/* Art No */}
-                      <td className="px-4 py-3.5 font-bold font-mono text-sm" style={{ color: isArchived ? '#94A3B8' : '#3A3564' }}>
+                      <td className="px-4 py-3.5 font-bold font-mono text-sm" style={{ color: isArchived ? '#94A3B8' : '#0B1220' }}>
                         {article.art_no}
                       </td>
 
@@ -1037,8 +1037,8 @@ export function ArticlesClient({
                       {/* Challans Count */}
                       <td className="px-4 py-3.5">
                         {challansCount > 0 ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-                            <FileSpreadsheet className="w-3 h-3 text-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+                            <FileSpreadsheet className="w-3 h-3 text-[#0B1220]" />
                             <span>{challansCount} {challansCount === 1 ? 'Challan' : 'Challans'}</span>
                           </span>
                         ) : (
@@ -1068,10 +1068,10 @@ export function ArticlesClient({
                             <button
                               type="button"
                               onClick={() => openArticleHistoryDetail(article)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 hover:bg-[#F2ECE0] transition-colors cursor-pointer shadow-2xs"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 hover:bg-[#E6FFFA] transition-colors cursor-pointer shadow-2xs"
                               title={`View full history of article #${article.art_no}`}
                             >
-                              <History className="w-3.5 h-3.5 text-[#3A3564]" />
+                              <History className="w-3.5 h-3.5 text-[#0B1220]" />
                               <span>History ({historyCount})</span>
                             </button>
                           )}
@@ -1140,7 +1140,7 @@ export function ArticlesClient({
                     onClick={() => setCurrentPage(pg)}
                     className={`w-8 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                        ? 'bg-[#0B1220] text-white border-transparent shadow-xs'
                         : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                     }`}
                   >
@@ -1174,13 +1174,13 @@ export function ArticlesClient({
           }}
         >
           <div 
-            className="w-full max-w-md my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200"
+            className="w-full max-w-md my-6 bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/15 relative space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs"
                 >
                   <Plus className="w-5 h-5" />
                 </div>
@@ -1216,7 +1216,7 @@ export function ArticlesClient({
                   placeholder="E.G. A2045, 9437"
                   value={addArtNo}
                   onChange={(e) => setAddArtNo(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-mono font-bold uppercase text-[#0B1220] outline-none shadow-2xs transition-all"
                   autoFocus
                 />
               </div>
@@ -1230,7 +1230,7 @@ export function ArticlesClient({
                   placeholder="e.g. Blue Denim Jacket, Night Suit, T-Shirt"
                   value={addDescription}
                   onChange={(e) => setAddDescription(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                 />
               </div>
 
@@ -1252,7 +1252,7 @@ export function ArticlesClient({
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer shadow-xs bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-50 active:scale-[0.98]"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer shadow-xs bg-[#0B1220] hover:bg-[#162032] disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isPending ? 'Saving...' : 'Save Article'}
                 </button>
@@ -1273,22 +1273,22 @@ export function ArticlesClient({
           }}
         >
           <div 
-            className="w-full max-w-2xl bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col"
+            className="w-full max-w-2xl bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/15 relative space-y-4 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col"
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div 
-                  className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs"
                 >
-                  <History className="w-5 h-5 text-[#3A3564]" />
+                  <History className="w-5 h-5 text-[#0B1220]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-mono">
                       Article #{historyModalState.artNo}
                     </h3>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                       {historyModalState.totalPcs.toLocaleString()} pcs total
                     </span>
                   </div>
@@ -1321,7 +1321,7 @@ export function ArticlesClient({
                 <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono uppercase font-bold text-slate-700">
+                      <tr className="bg-[#F0FDFA] border-b border-black/10 font-mono uppercase font-bold text-slate-700">
                         <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Challan #</th>
                         <th className="py-2.5 px-3">Color / Pattern</th>
@@ -1335,7 +1335,7 @@ export function ArticlesClient({
                           <td className="py-2.5 px-3 font-mono text-slate-600">
                             {rec.challanDate || '—'}
                           </td>
-                          <td className="py-2.5 px-3 font-bold font-mono text-[#3A3564]">
+                          <td className="py-2.5 px-3 font-bold font-mono text-[#0B1220]">
                             {rec.challanNo}
                             {rec.brand && (
                               <span className="text-[10px] text-slate-400 font-normal block">
@@ -1383,7 +1383,7 @@ export function ArticlesClient({
               <button
                 type="button"
                 onClick={() => setHistoryModalState(null)}
-                className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
               >
                 Close History
               </button>
@@ -1438,7 +1438,7 @@ export function ArticlesClient({
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Article Number:</span>
-                  <span className="font-mono font-bold text-sm text-[#3A3564]">{articleToDelete.art_no}</span>
+                  <span className="font-mono font-bold text-sm text-[#0B1220]">{articleToDelete.art_no}</span>
                 </div>
                 {articleToDelete.description && (
                   <div className="flex justify-between items-center">

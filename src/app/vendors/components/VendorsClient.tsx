@@ -37,7 +37,7 @@ const VENDOR_TYPES = [
   { value: 'WASHING_FINISHING', label: 'Washing & Finishing Unit', badge: 'Finishing' },
 ]
 
-export function VendorsClient({ brands: initialBrands, vendors: initialVendors }: VendorsClientProps) {
+export function VendorsClient({ companyName, brands: initialBrands, vendors: initialVendors }: VendorsClientProps) {
   const [brands, setBrands] = useState<BrandRecord[]>(initialBrands)
   const [vendors, setVendors] = useState<VendorRecord[]>(initialVendors)
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL')
@@ -214,15 +214,15 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
       {/* 1. Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                 Brands & <span className="text-[#1D4ED8]">Vendors</span> Master
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold tracking-wider uppercase bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold tracking-wider uppercase bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 ERP MASTER
               </span>
             </div>
@@ -236,9 +236,9 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
           <button
             type="button"
             onClick={() => setIsBrandModalOpen(true)}
-            className="min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#F0FDFA] hover:bg-[#CCFBF1] active:scale-[0.98] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs transition-all cursor-pointer text-center"
+            className="min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#F0FDFA] hover:bg-[#E6FFFA] active:scale-[0.98] text-[#0B1220] border border-black/15 shadow-2xs transition-all cursor-pointer text-center"
           >
-            <Tag className="w-4 h-4 text-[#14C8B4]" />
+            <Tag className="w-4 h-4 text-[#0B1220]" />
             <span>Add Brand</span>
           </button>
 
@@ -268,8 +268,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
               {kpis.activeVendors} <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">/ {kpis.totalVendors} total</span>
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
         </div>
 
@@ -283,8 +283,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
               {kpis.totalBrands} <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">buyers</span>
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-            <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
         </div>
 
@@ -298,8 +298,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
               {kpis.stitchingUnits} <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">job-workers</span>
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-            <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
         </div>
 
@@ -313,8 +313,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
               ₹{kpis.avgRate}.00 <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">/ pc</span>
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
         </div>
       </div>
@@ -396,8 +396,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {filteredVendors.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-              <Building2 className="w-6 h-6 text-[#14C8B4]" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+              <Building2 className="w-6 h-6 text-[#0B1220]" />
             </div>
             <h3 className="text-base sm:text-lg font-extrabold text-[#0B1220]">
               No vendors found
@@ -452,8 +452,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
 
                       {/* Brand */}
                       <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-                          <Tag className="w-3 h-3 text-[#14C8B4]" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+                          <Tag className="w-3 h-3 text-[#0B1220]" />
                           <span>{vendor.brand_name}</span>
                         </span>
                       </td>
@@ -548,8 +548,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
             
             <div className="p-4 sm:p-5 border-b border-slate-200 bg-[#F0FDFA] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs">
-                  <Building2 className="w-5 h-5 text-[#14C8B4]" />
+                <div className="w-10 h-10 rounded-xl bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Building2 className="w-5 h-5 text-[#0B1220]" />
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-extrabold text-[#0B1220] leading-tight">
@@ -757,8 +757,8 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
             
             <div className="p-4 sm:p-5 border-b border-slate-200 bg-[#F0FDFA] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs">
-                  <Tag className="w-5 h-5 text-[#14C8B4]" />
+                <div className="w-10 h-10 rounded-xl bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Tag className="w-5 h-5 text-[#0B1220]" />
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-extrabold text-[#0B1220] leading-tight">
