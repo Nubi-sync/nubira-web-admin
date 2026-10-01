@@ -85,20 +85,20 @@ export function AccountDeletionDangerZone({
       {/* Danger Zone Container (Minimal Executive Neutral Container with Refined Crimson Accents) */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 relative transition-all">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-          <div className="flex items-start gap-3.5">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shrink-0 shadow-2xs">
-              <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="flex items-start gap-4">
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <AlertTriangle className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                   Danger Zone: Account Decommission
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
+                <span className="px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
                   IRREVERSIBLE
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-600 mt-1 max-w-2xl leading-relaxed font-[family-name:var(--font-public-sans)]">
                 Need to delete or close this company account? Submit an official deletion request.
                 Our administration desk at <strong className="text-slate-900 font-mono">support@zigza.in</strong> will
                 verify your company credentials and securely archive all production records.
@@ -114,9 +114,9 @@ export function AccountDeletionDangerZone({
               setErrorMsg(null)
               setConfirmText('')
             }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-2xs transition-all shrink-0 cursor-pointer w-fit self-start sm:self-center"
+            className="min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.98] shadow-2xs transition-all shrink-0 cursor-pointer w-full sm:w-auto text-center"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Request Account Deletion</span>
           </button>
         </div>
