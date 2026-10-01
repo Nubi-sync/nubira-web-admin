@@ -63,22 +63,22 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
       </div>
 
       {/* 2. Page Header Banner */}
-      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Warehouse className="w-7 h-7 sm:w-8 sm:h-8" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Warehouse className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Store Supervisor Profile
               </h1>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Shift Active
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Store & Godown Department • Raw Material Inventory & Floor Handover
             </p>
           </div>
@@ -87,10 +87,10 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
         {/* Quick launcher to store */}
         <Link
           href="/store"
-          className="min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-sm sm:text-base font-bold shadow-xs hover:shadow active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
+          className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
         >
           <span>Open Store Dashboard</span>
-          <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          <ArrowUpRight className="w-4 h-4" />
         </Link>
       </div>
 
@@ -216,7 +216,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
             <button
               onClick={handleLogout}
               disabled={logoutPending}
-              className="min-h-[46px] w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl border border-red-200 bg-red-50/60 hover:bg-red-100/80 active:scale-[0.98] text-red-700 text-sm sm:text-base font-bold transition-all cursor-pointer disabled:opacity-50 shadow-2xs text-center"
+              className="min-h-[42px] w-full inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl border border-red-200 bg-red-50/60 hover:bg-red-100/80 active:scale-[0.98] text-red-700 text-xs sm:text-sm font-bold transition-all cursor-pointer disabled:opacity-50 shadow-2xs text-center"
             >
               {logoutPending ? (
                 <>

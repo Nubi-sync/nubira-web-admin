@@ -195,15 +195,15 @@ export function AccountDeletionDangerZone({
                   <button
                     type="button"
                     onClick={handleOpenMailClient}
-                    className="min-h-[46px] w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-2xs transition-all cursor-pointer text-center"
+                    className="min-h-[42px] w-full inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-2xs transition-all cursor-pointer text-center"
                   >
-                    <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Mail className="w-4 h-4" />
                     <span>Open in Mail App</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="min-h-[46px] w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm sm:text-base font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all cursor-pointer text-center"
+                    className="min-h-[42px] w-full sm:w-auto px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all cursor-pointer text-center"
                   >
                     Done
                   </button>
@@ -313,14 +313,14 @@ export function AccountDeletionDangerZone({
                     type="button"
                     onClick={() => setIsOpen(false)}
                     disabled={isPending}
-                    className="min-h-[46px] w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer text-center"
+                    className="min-h-[42px] w-full sm:w-auto px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer text-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={!isConfirmed || isPending || !phoneInput.trim()}
-                    className="min-h-[46px] w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm sm:text-base font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.98] shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
+                    className="min-h-[42px] w-full sm:w-auto px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.98] shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
                   >
                     {isPending ? (
                       <>

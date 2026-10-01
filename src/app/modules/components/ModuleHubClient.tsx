@@ -209,25 +209,25 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
       {/* 1. Page Header Card */}
-      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <LayoutGrid className="w-7 h-7 sm:w-8 sm:h-8 text-[#0B1220]" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <LayoutGrid className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 {resolvedCompany ? (
                   <>Welcome, <span className="text-[#1D4ED8]">{resolvedCompany}</span></>
                 ) : (
                   <>Enterprise <span className="text-[#1D4ED8]">Workspace</span> Hub</>
                 )}
               </h1>
-              <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
                 {visibleModules.length} Operating Units
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               {headingSubtitle}
             </p>
           </div>
@@ -236,13 +236,13 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
         {/* Right Search Option */}
         <div className="w-full sm:w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
-            <Search className="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search modules & divisions..."
-              className="min-h-[46px] w-full pl-11 pr-10 py-2.5 sm:py-3 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 rounded-xl transition-all outline-none"
+              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 rounded-xl transition-all outline-none"
             />
             {searchQuery && (
               <button
@@ -273,7 +273,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer"
+            className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer"
           >
             <span>Clear Search</span>
           </button>
@@ -291,7 +291,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 href={mod.href}
                 onClick={(e) => handleCardClick(e, mod)}
                 aria-disabled={isOtherLaunching}
-                className={`group relative flex flex-col justify-between p-6 sm:p-7 md:p-8 rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
+                className={`group relative flex flex-col justify-between p-5 sm:p-6 md:p-7 rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
                   isLaunching
                     ? 'border-2 border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md bg-[#F0FDFA]/40 -translate-y-0.5'
                     : isOtherLaunching
@@ -309,18 +309,18 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 {/* Top Section */}
                 <div>
                   {/* Row 1: Bare Outline Icon + Category Tag */}
-                  <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="flex items-start justify-between gap-3 mb-3.5">
                     {isLaunching ? (
-                      <Loader2 className="w-8 h-8 text-[#0B1220] stroke-[2] animate-spin" />
+                      <Loader2 className="w-7 h-7 text-[#0B1220] stroke-[2] animate-spin" />
                     ) : (
-                      <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
-                        <Icon className="w-7 h-7 text-[#0B1220] stroke-[1.75]" />
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
+                        <Icon className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220] stroke-[1.75]" />
                       </div>
                     )}
 
                     {/* Single Top-Right Category Tag */}
                     <span
-                      className={`text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-lg uppercase tracking-wider transition-colors ${
+                      className={`text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg uppercase tracking-wider transition-colors ${
                         isLaunching
                           ? 'bg-[#0B1220] text-white'
                           : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs'
@@ -332,7 +332,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
 
                   {/* Card Title */}
                   <h2
-                    className={`text-xl sm:text-2xl font-bold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
+                    className={`text-lg sm:text-xl font-bold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
                       isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#1D4ED8]'
                     }`}
                   >
@@ -340,14 +340,14 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                   </h2>
 
                   {/* Card Description */}
-                  <p className="mt-2 text-sm sm:text-base font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
+                  <p className="mt-1.5 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
                     {mod.subtitle}
                   </p>
 
                   {/* 2 Feature Bullets */}
-                  <div className="mt-4 flex flex-col gap-2.5">
+                  <div className="mt-3.5 flex flex-col gap-2">
                     {mod.features.slice(0, 2).map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-2.5 text-sm sm:text-[15px] font-semibold text-slate-700">
+                      <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
                         <span className="w-2 h-2 rounded-full bg-[#14C8B4] shrink-0" />
                         <span>{feat}</span>
                       </div>
@@ -356,14 +356,14 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 </div>
 
                 {/* Bottom Section: Solid Filled Launch Button */}
-                <div className="mt-6 flex items-center justify-end">
+                <div className="mt-5 flex items-center justify-end">
                   {isLaunching ? (
-                    <div className="min-h-[46px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold bg-[#0B1220] text-white shadow-xs">
+                    <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs">
                       <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
                       <span>Opening...</span>
                     </div>
                   ) : (
-                    <div className="min-h-[46px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] active:scale-[0.98] transition-all cursor-pointer text-center">
+                    <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] active:scale-[0.98] transition-all cursor-pointer text-center">
                       <span>Launch</span>
                       <ArrowRight className="w-4 h-4 text-[#14C8B4] transition-transform group-hover:translate-x-1" />
                     </div>
