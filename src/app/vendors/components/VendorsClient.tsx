@@ -27,6 +27,7 @@ import { SubtleDialog, SubtleDialogProps } from '@/components/ui/SubtleDialog'
 interface VendorsClientProps {
   brands: BrandRecord[]
   vendors: VendorRecord[]
+  companyName?: string
 }
 
 const VENDOR_TYPES = [

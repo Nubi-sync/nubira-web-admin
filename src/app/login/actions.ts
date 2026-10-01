@@ -356,7 +356,7 @@ function renderOtpEmailHtml(otp: string, email: string) {
     <table align="center" style="max-width:520px;width:100%;margin:0 auto;background-color:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.04);">
       <tr>
         <td style="padding:28px 32px 18px;border-bottom:1px solid #F1F3F5;">
-          <div style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#3A3564;">ZIGZA<span style="color:#6366F1;">.</span></div>
+          <div style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0B1220;">ZIGZA<span style="color:#6366F1;">.</span></div>
           <div style="font-size:11px;font-weight:700;color:#868E96;text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Floor Execution Platform</div>
         </td>
       </tr>
@@ -366,9 +366,9 @@ function renderOtpEmailHtml(otp: string, email: string) {
           <p style="font-size:14px;line-height:22px;color:#4B5563;margin:0 0 20px;">
             We received a request to verify your identity and reset your password for <strong>${email}</strong>. Enter this 6-digit security code on the portal:
           </p>
-          <div style="background-color:#FAF7F0;border:1.5px dashed #D1D5DB;border-radius:12px;padding:20px;text-align:center;margin:20px 0;">
+          <div style="background-color:#F0FDFA;border:1.5px dashed #D1D5DB;border-radius:12px;padding:20px;text-align:center;margin:20px 0;">
             <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Security Verification Code</div>
-            <div style="font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:36px;font-weight:800;letter-spacing:8px;color:#3A3564;margin:0;padding-left:8px;">${otp}</div>
+            <div style="font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:36px;font-weight:800;letter-spacing:8px;color:#0B1220;margin:0;padding-left:8px;">${otp}</div>
             <div style="font-size:12px;color:#9CA3AF;margin-top:8px;">Valid for 10 minutes • Single use only</div>
           </div>
           <p style="font-size:12px;line-height:18px;color:#6B7280;margin:20px 0 0;border-left:3px solid #E5E7EB;padding-left:12px;">
