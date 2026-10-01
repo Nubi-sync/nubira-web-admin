@@ -60,17 +60,17 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Header Banner */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Master Mending Stations
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Stations 01–04
               </span>
             </div>
@@ -85,7 +85,7 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
             setSelectedTicketId(undefined)
             setIsModalOpen(true)
           }}
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <FileCheck2 className="w-4 h-4 text-white" />
           <span>Sign Off Repair (Form 2)</span>
@@ -98,13 +98,13 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
           return (
             <div
               key={stn.id}
-              className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3 relative overflow-hidden"
+              className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs space-y-3 relative overflow-hidden"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-[#3A3564]">
+                <span className="text-xs font-mono font-bold text-[#0B1220]">
                   {stn.stationCode}
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15 font-bold">
                   {stn.status}
                 </span>
               </div>
@@ -114,7 +114,7 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
                 <p className="text-xs text-slate-600 mt-0.5 font-medium">{stn.menderName}</p>
               </div>
 
-              <div className="p-2 rounded-lg bg-[#FAF7F0] border border-black/5 text-[11px] font-mono text-slate-600">
+              <div className="p-2 rounded-lg bg-[#F0FDFA] border border-black/5 text-[11px] font-mono text-slate-600">
                 Machine: {stn.equipmentType.substring(0, 24)}...
               </div>
 
@@ -138,14 +138,14 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
       </div>
 
       {/* Active Mending Queue Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0FDFA]/30">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Active Mending & Seam Reconstruction Queue
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {openTickets.length} Open Tickets
               </span>
             </div>
@@ -161,7 +161,7 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search Ticket, Barcode, Style..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono"
             />
           </div>
         </div>
@@ -199,8 +199,8 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
                 </tr>
               ) : (
                 openTickets.map(ticket => (
-                  <tr key={ticket.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="py-3 px-4 font-mono font-black text-[#3A3564]">
+                  <tr key={ticket.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
+                    <td className="py-3 px-4 font-mono font-black text-[#0B1220]">
                       {ticket.ticketNumber}
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">
@@ -212,7 +212,7 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
                       <div className="text-[10px] text-slate-500">{ticket.buyer}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                      <span className="font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
                         {ticket.defectType}
                       </span>
                       <div className="text-[11px] text-slate-600 mt-1 line-clamp-1">
@@ -222,11 +222,11 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
                     <td className="py-3 px-4 text-slate-800 font-medium">
                       {ticket.linemanName}
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                    <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                       {ticket.assignedStation}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                         {ticket.resolutionStatus}
                       </span>
                     </td>
@@ -236,7 +236,7 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
                           setSelectedTicketId(ticket.id)
                           setIsModalOpen(true)
                         }}
-                        className="px-3 py-1 rounded-lg bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1 rounded-lg bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-1 cursor-pointer"
                       >
                         <FileCheck2 className="w-3 h-3" />
                         <span>Sign Off</span>

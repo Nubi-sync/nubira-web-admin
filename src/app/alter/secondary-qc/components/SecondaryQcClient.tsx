@@ -56,9 +56,9 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
       {/* Header Banner */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -66,7 +66,7 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
               <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Secondary AQL Re-Inspection Station
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
                 100% Repaired Clearance
               </span>
             </div>
@@ -78,7 +78,7 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
 
         <Link
           href="/alter/repair-stations"
-          className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <Scissors className="w-4 h-4" />
           <span>View Active Mending</span>
@@ -87,12 +87,12 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
 
       {/* 4 Clearance Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Repaired & Cleared
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -102,12 +102,12 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
           <p className="text-xs font-semibold text-slate-500 mt-1">Approved for Re-Injection</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Secondary AQL SLA
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -117,12 +117,12 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
           <p className="text-xs font-semibold text-slate-500 mt-1">Zero Defect Re-Occurrence</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Re-Injection Channel
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ArrowRight className="w-4 h-4" />
             </div>
           </div>
@@ -132,12 +132,12 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
           <p className="text-xs font-semibold text-slate-500 mt-1">Seamless Stream Return</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Direct Cost Saved
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
@@ -149,14 +149,14 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
       </div>
 
       {/* Main Table: Cleared Quality Re-Inspections */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0FDFA]/30">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Secondary Quality Assurance Clearance Manifest
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {filteredTickets.length} Cleared Lots
               </span>
             </div>
@@ -172,7 +172,7 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search Ticket, Mender, Inspector..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono"
             />
           </div>
         </div>
@@ -210,10 +210,10 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
                 filteredTickets.map(ticket => (
                   <tr
                     key={ticket.id}
-                    className="hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer"
+                    className="hover:bg-[#F0FDFA]/40 transition-colors cursor-pointer"
                     onClick={() => setSelectedTicket(ticket)}
                   >
-                    <td className="py-3 px-4 font-mono font-black text-[#3A3564]">
+                    <td className="py-3 px-4 font-mono font-black text-[#0B1220]">
                       {ticket.ticketNumber}
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">
@@ -225,21 +225,21 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
                       <div className="text-[10px] text-slate-500">{ticket.buyer}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                      <span className="font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
                         {ticket.defectType}
                       </span>
                     </td>
                     <td className="py-3 px-4 font-medium text-slate-800">
                       {ticket.menderName || 'Fatima Bano'}
                     </td>
-                    <td className="py-3 px-4 font-mono text-xs text-[#3A3564] font-semibold">
+                    <td className="py-3 px-4 font-mono text-xs text-[#0B1220] font-semibold">
                       {ticket.repairActionTaken}
                     </td>
                     <td className="py-3 px-4 font-medium text-slate-800">
                       {ticket.inspectorName || 'Devendra Patel'}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10 inline-flex items-center gap-1">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15 inline-flex items-center gap-1">
                         <Check className="w-3 h-3" /> AQL CLEARED
                       </span>
                     </td>
@@ -261,12 +261,12 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
           onClick={() => setSelectedTicket(null)}
         >
           <div
-            className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-4"
+            className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-[#3A3564]" />
+                <CheckCircle2 className="w-5 h-5 text-[#0B1220]" />
                 <h3 className="text-lg font-black text-slate-900">
                   AQL Clearance Certificate: {selectedTicket.ticketNumber}
                 </h3>
@@ -290,7 +290,7 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Original Defect:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedTicket.defectType}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedTicket.defectType}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Action Performed:</span>
@@ -306,9 +306,9 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
               </div>
             </div>
 
-            <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0] text-xs space-y-1">
-              <div className="font-mono font-bold text-[#3A3564] flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+            <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA] text-xs space-y-1">
+              <div className="font-mono font-bold text-[#0B1220] flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
                 Authorized for Production Stream Re-Injection
               </div>
               <p className="text-slate-700 text-[11px]">
@@ -319,7 +319,7 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedTicket(null)}
-                className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e]"
+                className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032]"
               >
                 Close Certificate
               </button>

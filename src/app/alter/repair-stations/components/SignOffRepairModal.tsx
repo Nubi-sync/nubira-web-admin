@@ -93,12 +93,12 @@ export function SignOffRepairModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Scissors className="w-5 h-5" />
             </div>
             <div>
@@ -119,8 +119,8 @@ export function SignOffRepairModal({
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
+          <div className="p-3 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#0B1220]" />
             <span>{error}</span>
           </div>
         )}
@@ -133,7 +133,7 @@ export function SignOffRepairModal({
             <select
               value={selectedTicketId}
               onChange={e => setSelectedTicketId(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             >
               {openTickets.length === 0 ? (
                 <option value="">No open tickets in queue</option>
@@ -148,8 +148,8 @@ export function SignOffRepairModal({
           </div>
 
           {selectedTicket && (
-            <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0] text-xs space-y-1">
-              <div className="font-mono font-bold text-[#3A3564]">
+            <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA] text-xs space-y-1">
+              <div className="font-mono font-bold text-[#0B1220]">
                 Defect Context: {selectedTicket.defectDescription}
               </div>
               <div className="text-slate-600">
@@ -167,7 +167,7 @@ export function SignOffRepairModal({
               <select
                 value={menderName}
                 onChange={e => setMenderName(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium text-slate-800"
               >
                 <option value="Fatima Bano (Master Seamstress)">Fatima Bano (Master Seamstress)</option>
                 <option value="Rameshwar Lal (Senior Tailor)">Rameshwar Lal (Senior Tailor)</option>
@@ -183,7 +183,7 @@ export function SignOffRepairModal({
               <select
                 value={repairActionTaken}
                 onChange={e => setRepairActionTaken(e.target.value as RepairAction)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
               >
                 <option value="SEAM_RE_STITCHED">SEAM_RE_STITCHED (Unpicked & Re-sewn)</option>
                 <option value="COLLAR_RESET">COLLAR_RESET (Collar Realigned & Topstitched)</option>
@@ -203,7 +203,7 @@ export function SignOffRepairModal({
               <select
                 value={inspectorName}
                 onChange={e => setInspectorName(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium text-slate-800"
               >
                 <option value="Devendra Patel (ISO Certified Lead Auditor)">
                   Devendra Patel (ISO Certified Lead Auditor)
@@ -222,7 +222,7 @@ export function SignOffRepairModal({
                 step="0.5"
                 value={repairCost}
                 onChange={e => setRepairCost(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-900"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-900"
               />
             </div>
           </div>
@@ -235,7 +235,7 @@ export function SignOffRepairModal({
             <select
               value={resolutionStatus}
               onChange={e => setResolutionStatus(e.target.value as ResolutionStatus)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 font-mono font-bold focus:outline-none bg-[#FAF7F0] text-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 font-mono font-bold focus:outline-none bg-[#F0FDFA] text-[#0B1220]"
             >
               <option value="REPAIRED_PASSED">
                 REPAIRED_PASSED — Secondary AQL Pass (Return to Ironing/Packing Floor)
@@ -247,14 +247,14 @@ export function SignOffRepairModal({
           </div>
 
           {resolutionStatus === 'DECLARED_SCRAP' && (
-            <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2">
+            <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2">
               <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-800">
                 Scrap Write-Off Reason *
               </label>
               <select
                 value={scrapReason}
                 onChange={e => setScrapReason(e.target.value as ScrapReason)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="HOLE_IN_SHELL">HOLE_IN_SHELL (Unrecoverable needle cut)</option>
                 <option value="FABRIC_TORN">FABRIC_TORN (Severe seam tear / fabric rip)</option>
@@ -272,13 +272,13 @@ export function SignOffRepairModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <FileCheck2 className="w-3.5 h-3.5 text-white" />
               <span>Sign Off & Clear Ticket (Form 2)</span>

@@ -100,12 +100,12 @@ export function DeclareScrapModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
@@ -126,8 +126,8 @@ export function DeclareScrapModal({
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
+          <div className="p-3 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#0B1220]" />
             <span>{error}</span>
           </div>
         )}
@@ -140,7 +140,7 @@ export function DeclareScrapModal({
             <select
               value={selectedTicketNumber}
               onChange={e => setSelectedTicketNumber(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
             >
               {openTickets.length === 0 ? (
                 <option value="">No open tickets available to scrap</option>
@@ -162,7 +162,7 @@ export function DeclareScrapModal({
               <select
                 value={scrapReason}
                 onChange={e => setScrapReason(e.target.value as ScrapReason)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="HOLE_IN_SHELL">HOLE_IN_SHELL (Needle cut / fabric hole)</option>
                 <option value="FABRIC_TORN">FABRIC_TORN (Severe seam tear / rip)</option>
@@ -180,18 +180,18 @@ export function DeclareScrapModal({
                 step="0.01"
                 value={salvageWeightKg}
                 onChange={e => setSalvageWeightKg(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-900"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-900"
               />
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2 text-xs">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2 text-xs">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={reCutAuthorized}
                 onChange={e => setReCutAuthorized(e.target.checked)}
-                className="rounded text-[#3A3564]"
+                className="rounded text-[#0B1220]"
               />
               <span className="text-slate-900 font-bold">
                 Authorize Immediate Single-Piece Replacement Re-Cut to 03. Cutting Floor
@@ -211,7 +211,7 @@ export function DeclareScrapModal({
               value={authorizedBy}
               onChange={e => setAuthorizedBy(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-800"
             />
           </div>
 
@@ -219,13 +219,13 @@ export function DeclareScrapModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Confirm Scrap & Issue Re-Cut</span>

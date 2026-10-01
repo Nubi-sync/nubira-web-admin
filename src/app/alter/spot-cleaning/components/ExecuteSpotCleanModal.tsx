@@ -97,13 +97,13 @@ export function ExecuteSpotCleanModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Droplets className="w-5 h-5 text-[#3A3564]" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Droplets className="w-5 h-5 text-[#0B1220]" />
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900">
@@ -123,8 +123,8 @@ export function ExecuteSpotCleanModal({
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
+          <div className="p-3 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#0B1220]" />
             <span>{error}</span>
           </div>
         )}
@@ -137,7 +137,7 @@ export function ExecuteSpotCleanModal({
             <select
               value={selectedTicketNumber}
               onChange={e => setSelectedTicketNumber(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
             >
               {stainTickets.length === 0 ? (
                 <option value="">No stain tickets currently pending</option>
@@ -159,7 +159,7 @@ export function ExecuteSpotCleanModal({
               <select
                 value={stainType}
                 onChange={e => setStainType(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium text-slate-800"
               >
                 <option value="Needle Machine Lubricant Oil">Needle Machine Lubricant Oil</option>
                 <option value="Extractor Tumbler Belt Grease">Extractor Tumbler Belt Grease</option>
@@ -177,7 +177,7 @@ export function ExecuteSpotCleanModal({
                 max={120}
                 value={vacuumSec}
                 onChange={e => setVacuumSec(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-900"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-900"
               />
             </div>
           </div>
@@ -189,7 +189,7 @@ export function ExecuteSpotCleanModal({
             <select
               value={solventUsed}
               onChange={e => setSolventUsed(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
             >
               <option value="Trichloroethylene-Free Citrus Degreaser A-9">
                 Trichloroethylene-Free Citrus Degreaser A-9 (OEKO-TEX Certified)
@@ -204,8 +204,8 @@ export function ExecuteSpotCleanModal({
           </div>
 
           {/* Quality Sign-off Checkbox */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2 text-xs">
-            <span className="text-xs font-mono font-bold text-[#3A3564] uppercase flex items-center gap-1.5">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2 text-xs">
+            <span className="text-xs font-mono font-bold text-[#0B1220] uppercase flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
               Inspection Under 1000-Lux Light
             </span>
@@ -215,7 +215,7 @@ export function ExecuteSpotCleanModal({
                 type="checkbox"
                 checked={stainRemoved}
                 onChange={e => setStainRemoved(e.target.checked)}
-                className="rounded text-[#3A3564]"
+                className="rounded text-[#0B1220]"
               />
               <span className="text-slate-800 font-medium">
                 Stain 100% dissolved and vacuumed into suction baffle
@@ -227,7 +227,7 @@ export function ExecuteSpotCleanModal({
                 type="checkbox"
                 checked={!haloVisible}
                 onChange={e => setHaloVisible(!e.target.checked)}
-                className="rounded text-[#3A3564]"
+                className="rounded text-[#0B1220]"
               />
               <span className="text-slate-800 font-medium">
                 Zero solvent halo or water ring residue on fabric surface
@@ -244,7 +244,7 @@ export function ExecuteSpotCleanModal({
               value={operatorName}
               onChange={e => setOperatorName(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-800"
             />
           </div>
 
@@ -252,13 +252,13 @@ export function ExecuteSpotCleanModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <Droplets className="w-3.5 h-3.5 text-white" />
               <span>Log Chemical Spotting</span>

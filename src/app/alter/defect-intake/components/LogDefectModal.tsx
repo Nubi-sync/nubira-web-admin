@@ -119,13 +119,13 @@ export function LogDefectModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <AlertTriangle className="w-5 h-5 text-[#3A3564]" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <AlertTriangle className="w-5 h-5 text-[#0B1220]" />
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900">
@@ -145,8 +145,8 @@ export function LogDefectModal({
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs text-slate-800 font-medium flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-[#3A3564]" />
+          <div className="p-3 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs text-slate-800 font-medium flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#0B1220]" />
             <span>{error}</span>
           </div>
         )}
@@ -162,7 +162,7 @@ export function LogDefectModal({
                 value={ticketNumber}
                 onChange={e => setTicketNumber(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 font-mono font-black text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 font-mono font-black text-[#0B1220]"
               />
             </div>
             <div>
@@ -174,7 +174,7 @@ export function LogDefectModal({
                 value={garmentBarcode}
                 onChange={e => setGarmentBarcode(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               />
             </div>
           </div>
@@ -189,7 +189,7 @@ export function LogDefectModal({
                 placeholder="e.g. PO-1001"
                 value={orderNumber}
                 onChange={e => handleOrderChange(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               />
             </div>
             <div>
@@ -199,7 +199,7 @@ export function LogDefectModal({
               <select
                 value={size}
                 onChange={e => setSize(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="XS">XS</option>
                 <option value="S">S</option>
@@ -222,7 +222,7 @@ export function LogDefectModal({
               <select
                 value={defectSource}
                 onChange={e => setDefectSource(e.target.value as DefectSource)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
               >
                 <option value="SEWING_LINE">06. Stitching & Sewing Floor</option>
                 <option value="WASHING">07. Industrial Washing Plant</option>
@@ -237,7 +237,7 @@ export function LogDefectModal({
               <select
                 value={defectType}
                 onChange={e => setDefectType(e.target.value as DefectType)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="SKIP_STITCH">SKIP_STITCH (Skipped Stitches)</option>
                 <option value="SEAM_OPEN">SEAM_OPEN (Open Seam / Low SPI)</option>
@@ -259,7 +259,7 @@ export function LogDefectModal({
               <select
                 value={linemanName}
                 onChange={e => setLinemanName(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium text-slate-800"
               >
                 <option value="Dinesh Prasad (Line 2 Operator)">Dinesh Prasad (Line 2 Operator)</option>
                 <option value="Sunita Sharma (Line 4 Operator)">Sunita Sharma (Line 4 Operator)</option>
@@ -276,7 +276,7 @@ export function LogDefectModal({
               <select
                 value={assignedStation}
                 onChange={e => setAssignedStation(e.target.value as AssignedStation)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
               >
                 <option value="Mending Station 01">Mending Station 01 (Collar & Neck)</option>
                 <option value="Mending Station 02">Mending Station 02 (Flatlock & Seams)</option>
@@ -298,7 +298,7 @@ export function LogDefectModal({
               onChange={e => setDefectDescription(e.target.value)}
               rows={2}
               placeholder="e.g. Skipped 4 stitches along kangaroo pocket curve; yellow defect sticker placed on left apex."
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             />
           </div>
 
@@ -306,13 +306,13 @@ export function LogDefectModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <AlertTriangle className="w-3.5 h-3.5 text-white" />
               <span>Register Inward Defect (Form 1)</span>

@@ -107,17 +107,17 @@ export function ClinicDashboardClient({
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Header Banner */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Alteration &amp; Quality Rework Clinic
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Pareto Recovery
               </span>
             </div>
@@ -131,16 +131,16 @@ export function ClinicDashboardClient({
         <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto">
           <Link
             href="/alter/defect-intake"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Log Inward Defect</span>
           </Link>
           <Link
             href="/alter/repair-stations"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/15 text-xs font-bold text-slate-700 hover:bg-[#F0FDFA] hover:text-[#0B1220] transition-all shadow-2xs cursor-pointer"
           >
-            <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Scissors className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>Mending Floor</span>
           </Link>
         </div>
@@ -149,12 +149,12 @@ export function ClinicDashboardClient({
       {/* 4 Summary Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1 */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In-Queue for Rework
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <RefreshCw className="w-4 h-4" />
             </div>
           </div>
@@ -164,18 +164,18 @@ export function ClinicDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Current Floor Defect Rate: 0.8% • Low
           </p>
-          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-bold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
             <Clock className="w-3 h-3" /> Avg Cycle: 18 min / piece
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Repaired & Cleared Today
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -185,18 +185,18 @@ export function ClinicDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Passed back to final finishing flow
           </p>
-          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-bold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
             <Check className="w-3 h-3" /> 100% Secondary AQL Pass
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Top Defect Root Cause
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
@@ -206,18 +206,18 @@ export function ClinicDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             Line 2 & 4 Needle tension calibration
           </p>
-          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-semibold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-semibold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
             <span>34% of All Clinic Intakes</span>
           </div>
         </div>
 
         {/* Metric 4 */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs relative overflow-hidden">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs relative overflow-hidden">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Recovery Clearance Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -227,17 +227,17 @@ export function ClinicDashboardClient({
           <p className="text-xs font-semibold text-slate-500 mt-1">
             True Scrap Write-Off: 0.04% (High Salvage)
           </p>
-          <div className="mt-3 text-[11px] font-mono text-[#3A3564] font-bold bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10 inline-flex items-center gap-1">
+          <div className="mt-3 text-[11px] font-mono text-[#0B1220] font-bold bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15 inline-flex items-center gap-1">
             <UserCheck className="w-3 h-3" /> Lineman Root Tracking
           </div>
         </div>
       </div>
 
       {/* Pareto 80/20 Defect Analysis Panel */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-[#3A3564]" />
+            <BarChart3 className="w-5 h-5 text-[#0B1220]" />
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Pareto 80/20 Defect Frequency & Root Cause Analysis
@@ -247,7 +247,7 @@ export function ClinicDashboardClient({
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             ASTM D3990 Standard
           </span>
         </div>
@@ -256,11 +256,11 @@ export function ClinicDashboardClient({
           {paretoSummary.map((item, idx) => (
             <div
               key={item.defectType}
-              className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0]/40 space-y-2"
+              className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA]/40 space-y-2"
             >
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#3A3564] text-white text-[11px] font-mono font-black flex items-center justify-center">
+                  <span className="w-5 h-5 rounded-full bg-[#0B1220] text-white text-[11px] font-mono font-black flex items-center justify-center">
                     {idx + 1}
                   </span>
                   <span className="font-mono font-bold text-slate-900 text-xs">
@@ -271,7 +271,7 @@ export function ClinicDashboardClient({
                   </span>
                 </div>
                 <div className="flex items-center gap-3 font-mono text-xs">
-                  <span className="font-bold text-[#3A3564]">{item.percentage}% of Defects</span>
+                  <span className="font-bold text-[#0B1220]">{item.percentage}% of Defects</span>
                   <span className="text-slate-400">|</span>
                   <span className="text-slate-600">Cumul: {item.cumulativePct}%</span>
                 </div>
@@ -280,7 +280,7 @@ export function ClinicDashboardClient({
               {/* Progress bar */}
               <div className="w-full bg-black/5 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#3A3564] h-full rounded-full transition-all duration-500"
+                  className="bg-[#0B1220] h-full rounded-full transition-all duration-500"
                   style={{ width: `${item.percentage}%` }}
                 />
               </div>
@@ -302,7 +302,7 @@ export function ClinicDashboardClient({
       </div>
 
       {/* Quick Operational Navigation Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between flex-wrap gap-3">
+      <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="w-4 h-4 text-slate-400" />
           <span className="text-xs font-mono font-bold text-slate-600 uppercase">
@@ -312,51 +312,51 @@ export function ClinicDashboardClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/alter/defect-intake"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#eadecc] text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1"
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-[#3A3564]" />
+            <AlertTriangle className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>02. Defect Intake & Triage</span>
           </Link>
           <Link
             href="/alter/repair-stations"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#eadecc] text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1"
           >
-            <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Scissors className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>03. Master Mending Stations</span>
           </Link>
           <Link
             href="/alter/spot-cleaning"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#eadecc] text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1"
           >
-            <Droplets className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Droplets className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>04. Chemical Spotting Table</span>
           </Link>
           <Link
             href="/alter/secondary-qc"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#eadecc] text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>05. Secondary AQL Gate</span>
           </Link>
           <Link
             href="/alter/scrap-salvage"
-            className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] hover:bg-[#eadecc] text-[#3A3564] text-xs font-bold border border-black/10 transition-colors inline-flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#eadecc] text-[#0B1220] text-xs font-bold border border-black/15 transition-colors inline-flex items-center gap-1"
           >
-            <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
+            <FileText className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>06. Scrap & Re-Cut Ledger</span>
           </Link>
         </div>
       </div>
 
       {/* Main Table: Live Clinic Rework Queue */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0FDFA]/30">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Live Alteration & Quality Rework Queue
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {filteredTickets.length} Tickets
               </span>
             </div>
@@ -373,12 +373,12 @@ export function ClinicDashboardClient({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search Ticket, Barcode, Lineman..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono"
               />
             </div>
             <Link
               href="/alter/defect-intake"
-              className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shrink-0 inline-flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shrink-0 inline-flex items-center gap-1"
             >
               <span>Intake Defect</span>
               <ArrowRight className="w-3 h-3" />
@@ -399,7 +399,7 @@ export function ClinicDashboardClient({
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-2 text-xs font-mono font-bold rounded-t-lg transition-all border-b-2 cursor-pointer ${
                 statusFilter === tab.id
-                  ? 'border-[#3A3564] text-[#3A3564] bg-[#FAF7F0]/60'
+                  ? 'border-[#0B1220] text-[#0B1220] bg-[#F0FDFA]/60'
                   : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -442,10 +442,10 @@ export function ClinicDashboardClient({
                 filteredTickets.map(ticket => (
                   <tr
                     key={ticket.id}
-                    className="hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer"
+                    className="hover:bg-[#F0FDFA]/40 transition-colors cursor-pointer"
                     onClick={() => setSelectedTicket(ticket)}
                   >
-                    <td className="py-3 px-4 font-mono font-black text-[#3A3564]">
+                    <td className="py-3 px-4 font-mono font-black text-[#0B1220]">
                       {ticket.ticketNumber}
                     </td>
                     <td className="py-3 px-4">
@@ -459,7 +459,7 @@ export function ClinicDashboardClient({
                       <div className="text-[11px] text-slate-500">{ticket.buyer}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                      <span className="font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
                         {ticket.defectType}
                       </span>
                       <div className="text-[11px] text-slate-600 mt-1 line-clamp-1">
@@ -472,17 +472,17 @@ export function ClinicDashboardClient({
                         Src: {ticket.sourceDivision}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                    <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                       {ticket.assignedStation}
                     </td>
                     <td className="py-3 px-4">
                       {ticket.resolutionStatus === 'IN_REWORK' && (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                           IN REWORK
                         </span>
                       )}
                       {ticket.resolutionStatus === 'REPAIRED_PASSED' && (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                           REPAIRED PASSED
                         </span>
                       )}
@@ -501,7 +501,7 @@ export function ClinicDashboardClient({
                           e.stopPropagation()
                           setSelectedTicket(ticket)
                         }}
-                        className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-black/10 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1"
+                        className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-black/15 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1"
                       >
                         <Eye className="w-3 h-3" />
                         <span>Inspect</span>
@@ -522,12 +522,12 @@ export function ClinicDashboardClient({
           onClick={() => setSelectedTicket(null)}
         >
           <div
-            className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-4"
+            className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div className="flex items-center gap-2">
-                <Wrench className="w-5 h-5 text-[#3A3564]" />
+                <Wrench className="w-5 h-5 text-[#0B1220]" />
                 <h3 className="text-lg font-black text-slate-900">
                   Alteration Ticket: {selectedTicket.ticketNumber}
                 </h3>
@@ -563,11 +563,11 @@ export function ClinicDashboardClient({
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Defect Type:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedTicket.defectType}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedTicket.defectType}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Source Division:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedTicket.sourceDivision}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedTicket.sourceDivision}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Responsible Lineman:</span>
@@ -575,13 +575,13 @@ export function ClinicDashboardClient({
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Assigned Station:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedTicket.assignedStation}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedTicket.assignedStation}</div>
               </div>
             </div>
 
             <div className="border-t border-black/10 pt-3">
               <span className="text-xs font-mono font-bold text-slate-500 uppercase">Defect Description</span>
-              <p className="text-xs text-slate-700 mt-1 bg-[#FAF7F0] p-2.5 rounded-lg border border-black/5">
+              <p className="text-xs text-slate-700 mt-1 bg-[#F0FDFA] p-2.5 rounded-lg border border-black/5">
                 {selectedTicket.defectDescription}
               </p>
             </div>
@@ -617,7 +617,7 @@ export function ClinicDashboardClient({
             <div className="pt-2 flex justify-end gap-2">
               <Link
                 href="/alter/repair-stations"
-                className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e]"
+                className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032]"
               >
                 Go to Repair Station
               </Link>
