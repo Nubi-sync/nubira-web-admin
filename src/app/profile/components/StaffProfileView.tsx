@@ -63,22 +63,22 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
       </div>
 
       {/* 2. Page Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Warehouse className="w-6 h-6" />
+      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <Warehouse className="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Store Supervisor Profile
               </h1>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Shift Active
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Store & Godown Department • Raw Material Inventory & Floor Handover
             </p>
           </div>
@@ -87,10 +87,10 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
         {/* Quick launcher to store */}
         <Link
           href="/store"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+          className="min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-sm sm:text-base font-bold shadow-xs hover:shadow active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
         >
           <span>Open Store Dashboard</span>
-          <ArrowUpRight className="w-4 h-4" />
+          <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </Link>
       </div>
 
@@ -102,19 +102,19 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
             {/* Header info */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-[#3A3564] text-white text-xl font-black">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-[#3A3564] text-white text-xl sm:text-2xl font-black">
                   {initials}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 capitalize font-[family-name:var(--font-heading)]">
                       {username}
                     </h2>
-                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/15 uppercase">
+                    <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/15 uppercase">
                       {roleName}
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  <p className="text-sm sm:text-base text-slate-500 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
                     Assigned Floor: Godown & Materials Inward Hub
                   </p>
                 </div>
@@ -123,36 +123,36 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
 
             {/* Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3">
-                <User className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
+                <User className="w-5 h-5 text-[#3A3564] shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Username / Staff ID</div>
-                  <div className="text-sm font-bold text-slate-900 truncate font-mono">{username}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Username / Staff ID</div>
+                  <div className="text-base sm:text-lg font-bold text-slate-900 truncate font-mono mt-0.5">{username}</div>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3">
-                <Mail className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
+                <Mail className="w-5 h-5 text-[#3A3564] shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Login Credential</div>
-                  <div className="text-sm font-semibold text-slate-900 truncate font-mono">{displayEmail}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Login Credential</div>
+                  <div className="text-base sm:text-lg font-semibold text-slate-900 truncate font-mono mt-0.5">{displayEmail}</div>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3">
-                <Building2 className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
+                <Building2 className="w-5 h-5 text-[#3A3564] shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Assigned Facility</div>
-                  <div className="text-sm font-semibold text-slate-900 truncate">{companyName || 'Apparel Manufacturing Facility'}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Assigned Facility</div>
+                  <div className="text-base sm:text-lg font-semibold text-slate-900 truncate mt-0.5">{companyName || 'Apparel Manufacturing Facility'}</div>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Account Standing</div>
-                  <div className="text-sm font-bold text-emerald-700 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Account Standing</div>
+                  <div className="text-base sm:text-lg font-bold text-emerald-700 flex items-center gap-2 mt-0.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                     Authorized Floor Staff
                   </div>
                 </div>
@@ -161,9 +161,9 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
           </div>
 
           {/* Bottom metadata banner */}
-          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Staff Account Active Since: <strong className="text-slate-700">{memberSince}</strong></span>
-            <span className="text-[11px] font-mono text-slate-400">UID: {user.id.substring(0, 8)}...</span>
+          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-slate-500">
+            <span>Staff Account Active Since: <strong className="text-slate-800">{memberSince}</strong></span>
+            <span className="font-mono text-slate-400">UID: {user.id.substring(0, 8)}...</span>
           </div>
         </div>
 
@@ -172,41 +172,41 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
           <div>
             <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
               <ShieldCheck className="w-5 h-5 text-[#3A3564]" />
-              <h3 className="text-base font-extrabold text-slate-900">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
                 Department Access Level
               </h3>
             </div>
 
-            <div className="space-y-3 mt-4 text-xs">
-              <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-2.5 text-emerald-900">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="space-y-3 mt-4 text-xs sm:text-sm">
+              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-2.5 text-emerald-900">
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <div className="font-bold">Raw Material & Trims Inward</div>
-                  <p className="text-[11px] text-emerald-700 mt-0.5">Supplier Challans & GRN Photo Records</p>
+                  <p className="text-xs text-emerald-700 mt-0.5">Supplier Challans & GRN Photo Records</p>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-2.5 text-emerald-900">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-2.5 text-emerald-900">
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <div className="font-bold">Lineman BOM Issuance</div>
-                  <p className="text-[11px] text-emerald-700 mt-0.5">Physical material handover for active orders</p>
+                  <p className="text-xs text-emerald-700 mt-0.5">Physical material handover for active orders</p>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-2.5 text-emerald-900">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70 flex items-start gap-2.5 text-emerald-900">
+                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <div className="font-bold">QC Floor Handover Inward</div>
-                  <p className="text-[11px] text-emerald-700 mt-0.5">Receive QC approved garments to godown</p>
+                  <p className="text-xs text-emerald-700 mt-0.5">Receive QC approved garments to godown</p>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-2.5 text-slate-600">
-                <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-2.5 text-slate-600">
+                <Lock className="w-4.5 h-4.5 text-slate-400 shrink-0 mt-0.5" />
                 <div>
                   <div className="font-bold text-slate-700">Master Admin & Financials</div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Company GST & Admin settings are restricted</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Company GST & Admin settings are restricted</p>
                 </div>
               </div>
             </div>
@@ -216,16 +216,16 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
             <button
               onClick={handleLogout}
               disabled={logoutPending}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 bg-red-50/60 hover:bg-red-100/80 text-red-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+              className="min-h-[46px] w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl border border-red-200 bg-red-50/60 hover:bg-red-100/80 active:scale-[0.98] text-red-700 text-sm sm:text-base font-bold transition-all cursor-pointer disabled:opacity-50 shadow-2xs text-center"
             >
               {logoutPending ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Signing Out...</span>
                 </>
               ) : (
                 <>
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-4 h-4" />
                   <span>Sign Out of Store Shift</span>
                 </>
               )}
