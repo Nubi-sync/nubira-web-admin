@@ -357,21 +357,21 @@ export function SADesignApprovalsClient({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Layer 1: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
-            <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-[#0B1220]" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
+            <ShieldCheck className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Design <span className="text-[#1D4ED8]">Executive</span> Approvals
               </h1>
-              <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
                 {pendingItems.length} Awaiting Decision
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Review Supervisor-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive
             </p>
           </div>
@@ -380,9 +380,9 @@ export function SADesignApprovalsClient({
         <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
           <Link
             href="/design"
-            className="min-h-[46px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer text-center"
+            className="min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
           >
-            <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
+            <Palette className="w-4 h-4 text-[#14C8B4]" />
             <span>Open Design Studio Module</span>
           </Link>
         </div>
@@ -403,7 +403,7 @@ export function SADesignApprovalsClient({
             <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               Total Designs
             </div>
-            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
               {allRows.length}
             </div>
           </div>
@@ -422,7 +422,7 @@ export function SADesignApprovalsClient({
             <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               Awaiting Decision
             </div>
-            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
               {pendingItems.length}
             </div>
           </div>
@@ -441,7 +441,7 @@ export function SADesignApprovalsClient({
             <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               SA Greenlit
             </div>
-            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-emerald-600 font-[family-name:var(--font-heading)] mt-1">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 font-[family-name:var(--font-heading)] mt-1">
               {approvedItems.length}
             </div>
           </div>
@@ -460,7 +460,7 @@ export function SADesignApprovalsClient({
             <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               Seasonal Archive
             </div>
-            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-1">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-1">
               {savedForLaterItems.length}
             </div>
           </div>
@@ -748,7 +748,7 @@ export function SADesignApprovalsClient({
                     <button
                       type="button"
                       onClick={() => setSelectedRowItem(item)}
-                      className="min-h-[46px] w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="min-h-[40px] sm:min-h-[42px] w-full inline-flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
                       <Eye className="w-4 h-4" />
                       <span>View &amp; Decide {item.artNumber}</span>
@@ -906,7 +906,7 @@ export function SADesignApprovalsClient({
                   setSelectedRowItem(null)
                   setSaNotes('')
                 }}
-                className="min-h-[46px] px-5 py-2.5 text-sm sm:text-base font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-xs cursor-pointer transition-all text-center"
+                className="min-h-[42px] px-4.5 py-2 text-xs sm:text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-xs cursor-pointer transition-all text-center"
               >
                 Close
               </button>
@@ -916,7 +916,7 @@ export function SADesignApprovalsClient({
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'REJECTED')}
-                  className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
+                  className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
                   <XCircle className="w-4 h-4" />
                   <span>Request Revisions</span>
@@ -926,7 +926,7 @@ export function SADesignApprovalsClient({
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'SAVED_FOR_LATER')}
-                  className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
+                  className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
                   <Bookmark className="w-4 h-4 text-[#1D4ED8]" />
                   <span>Save for Later</span>
@@ -936,7 +936,7 @@ export function SADesignApprovalsClient({
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'APPROVED')}
-                  className="min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
+                  className="min-h-[42px] inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
                   {isReviewing ? <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" /> : <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />}
                   <span>Greenlight for Tech-Pack</span>

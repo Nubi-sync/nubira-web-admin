@@ -306,21 +306,21 @@ export function DepartmentHeadsClient({
       
 
       {/* 1. Header Banner - Clean with Department Pill */}
-      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-[#0B1220]" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <ShieldCheck className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
               </h1>
-              <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
                 {divisions.length} Departments
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Factory leadership hierarchy, department heads, and floor worker roster for {companyName}.
             </p>
           </div>
@@ -329,13 +329,13 @@ export function DepartmentHeadsClient({
         {/* Right Search Input - Generous touch target & clear readability */}
         <div className="w-full sm:w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
-            <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
+            <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search departments or staff..."
-              className="w-full pl-11 pr-10 py-3 sm:py-3.5 bg-slate-50 focus:bg-white text-sm sm:text-base font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
+              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button

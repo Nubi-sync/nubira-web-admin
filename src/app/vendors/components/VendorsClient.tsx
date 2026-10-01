@@ -212,21 +212,21 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
     <div className="space-y-6">
       
       {/* 1. Header Card */}
-      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-[#14C8B4]" />
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                 Brands & <span className="text-[#1D4ED8]">Vendors</span> Master
               </h1>
-              <span className="px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold tracking-wider uppercase bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold tracking-wider uppercase bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
                 ERP MASTER
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Manage multi-vendor stitching units, contractor job-workers, and principal buyers across all production operations
             </p>
           </div>
@@ -236,9 +236,9 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
           <button
             type="button"
             onClick={() => setIsBrandModalOpen(true)}
-            className="min-h-[46px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold bg-[#F0FDFA] hover:bg-[#CCFBF1] active:scale-[0.98] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs transition-all cursor-pointer text-center"
+            className="min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#F0FDFA] hover:bg-[#CCFBF1] active:scale-[0.98] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs transition-all cursor-pointer text-center"
           >
-            <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
+            <Tag className="w-4 h-4 text-[#14C8B4]" />
             <span>Add Brand</span>
           </button>
 
@@ -248,9 +248,9 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
               setEditingVendor(null)
               setIsVendorModalOpen(true)
             }}
-            className="min-h-[46px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs transition-all cursor-pointer text-center"
+            className="min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs transition-all cursor-pointer text-center"
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Plus className="w-4 h-4" />
             <span>Add New Vendor Unit</span>
           </button>
         </div>
@@ -264,7 +264,7 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
               Active Vendors
             </span>
-            <span className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] mt-1 block">
+            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] mt-1 block">
               {kpis.activeVendors} <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">/ {kpis.totalVendors} total</span>
             </span>
           </div>
@@ -279,7 +279,7 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
               Registered Brands
             </span>
-            <span className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] mt-1 block">
+            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] mt-1 block">
               {kpis.totalBrands} <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">buyers</span>
             </span>
           </div>
@@ -294,7 +294,7 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
               Stitching Units
             </span>
-            <span className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] mt-1 block">
+            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] mt-1 block">
               {kpis.stitchingUnits} <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">job-workers</span>
             </span>
           </div>
@@ -309,7 +309,7 @@ export function VendorsClient({ brands: initialBrands, vendors: initialVendors }
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
               Factory Std Rate
             </span>
-            <span className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] mt-1 block">
+            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] mt-1 block">
               ₹{kpis.avgRate}.00 <span className="text-xs sm:text-sm font-medium text-slate-500 font-sans">/ pc</span>
             </span>
           </div>
