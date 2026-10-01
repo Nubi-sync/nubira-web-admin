@@ -114,12 +114,12 @@ export function CreatePalletModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Warehouse className="w-5 h-5" />
             </div>
             <div>
@@ -157,7 +157,7 @@ export function CreatePalletModal({
                 value={palletCode}
                 onChange={e => setPalletCode(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 font-mono font-black text-[#3A3564] focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 font-mono font-black text-[#0B1220] focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               />
             </div>
             <div>
@@ -168,7 +168,7 @@ export function CreatePalletModal({
                 type="text"
                 value={`${orderNumber} • ${buyer}`}
                 readOnly
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 text-slate-700 font-mono font-bold"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 text-slate-700 font-mono font-bold"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@ export function CreatePalletModal({
               <select
                 value={targetBay}
                 onChange={e => setTargetBay(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
               >
                 <option value="BAY_3">Bay 3 (Hoodies & Fleece)</option>
                 <option value="BAY_4">Bay 4 (Tees & Polos)</option>
@@ -195,7 +195,7 @@ export function CreatePalletModal({
               <select
                 value={dockGate}
                 onChange={e => setDockGate(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="DOCK_01">DOCK_01 (40ft HC Container Loading)</option>
                 <option value="DOCK_02">DOCK_02 (20ft Standard Staging)</option>
@@ -211,7 +211,7 @@ export function CreatePalletModal({
                 Select Cartons for this Pallet Manifest ({selectedCartonIds.length} Selected)
               </label>
             </div>
-            <div className="max-h-36 overflow-y-auto rounded-xl border border-black/10 p-2 space-y-1.5 bg-slate-50/50">
+            <div className="max-h-36 overflow-y-auto rounded-xl border border-black/15 p-2 space-y-1.5 bg-slate-50/50">
               {availableCartons.map(c => {
                 const isSelected = selectedCartonIds.includes(c.id)
                 return (
@@ -220,7 +220,7 @@ export function CreatePalletModal({
                     onClick={() => toggleCarton(c)}
                     className={`p-2 rounded-lg border text-xs flex items-center justify-between cursor-pointer transition-colors ${
                       isSelected
-                        ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] font-bold'
+                        ? 'bg-[#F0FDFA] border-[#0B1220] text-[#0B1220] font-bold'
                         : 'bg-white border-black/5 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
@@ -229,7 +229,7 @@ export function CreatePalletModal({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => {}}
-                        className="rounded text-[#3A3564]"
+                        className="rounded text-[#0B1220]"
                       />
                       <span className="font-mono">{c.cartonNumber}</span>
                       <span className="text-[11px] font-medium text-slate-500">
@@ -240,7 +240,7 @@ export function CreatePalletModal({
                       <span>{c.totalPieces} pcs</span>
                       <span className="text-slate-400">|</span>
                       <span>{c.measuredGrossWeightKg} kg</span>
-                      <span className="px-1.5 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-[10px] font-mono">
+                      <span className="px-1.5 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] font-mono">
                         {c.status}
                       </span>
                     </div>
@@ -251,26 +251,26 @@ export function CreatePalletModal({
           </div>
 
           {/* Pallet Manifest Totals */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2">
-            <span className="text-xs font-mono font-bold text-[#3A3564] uppercase flex items-center gap-1.5">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2">
+            <span className="text-xs font-mono font-bold text-[#0B1220] uppercase flex items-center gap-1.5">
               <Boxes className="w-3.5 h-3.5" />
               Manifest Aggregate Telemetry
             </span>
 
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Total Pieces</span>
                 <div className="font-mono font-black text-slate-900 text-sm mt-0.5">
                   {totalPieces} Garments
                 </div>
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Gross Weight</span>
                 <div className="font-mono font-black text-slate-900 text-sm mt-0.5">
                   {totalGrossWeight.toFixed(2)} kg
                 </div>
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Total Volume</span>
                 <div className="font-mono font-black text-slate-900 text-sm mt-0.5">
                   {totalCbm.toFixed(3)} CBM
@@ -288,7 +288,7 @@ export function CreatePalletModal({
               value={supervisorSignoff}
               onChange={e => setSupervisorSignoff(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-800"
             />
           </div>
 
@@ -296,13 +296,13 @@ export function CreatePalletModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <Truck className="w-3.5 h-3.5 text-white" />
               <span>Generate Pallet Gate Pass</span>

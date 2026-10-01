@@ -138,12 +138,12 @@ export function SealCartonModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <PackageCheck className="w-5 h-5" />
             </div>
             <div>
@@ -181,7 +181,7 @@ export function SealCartonModal({
                 value={cartonNumber}
                 onChange={e => setCartonNumber(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 font-mono font-black text-[#3A3564] focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 font-mono font-black text-[#0B1220] focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               />
             </div>
             <div>
@@ -193,7 +193,7 @@ export function SealCartonModal({
                 placeholder="e.g. PO-1001"
                 value={orderNumber}
                 onChange={e => handleOrderChange(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800 focus:outline-none"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800 focus:outline-none"
               />
             </div>
           </div>
@@ -211,7 +211,7 @@ export function SealCartonModal({
                   setBuyer(e.target.value)
                   setStyleName(e.target.value)
                 }}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-700 font-semibold"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-700 font-semibold"
               />
             </div>
             <div>
@@ -221,7 +221,7 @@ export function SealCartonModal({
               <select
                 value={godownBay}
                 onChange={e => setGodownBay(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
               >
                 <option value="BAY_3">Central Godown Bay 3 (Hoodies/Knits)</option>
                 <option value="BAY_4">Central Godown Bay 4 (Tees/Polos)</option>
@@ -241,7 +241,7 @@ export function SealCartonModal({
               onChange={e => setBundleInput(e.target.value)}
               placeholder="e.g. BDL-7714-01, BDL-7714-02"
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             />
             <span className="text-[10px] text-slate-500 mt-0.5 block">
               Directly binds cutting bundles to carton in `ready_goods_carton_bundles`.
@@ -249,12 +249,12 @@ export function SealCartonModal({
           </div>
 
           {/* Size Breakdown Grid */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold text-[#3A3564] uppercase">
+              <span className="text-xs font-mono font-bold text-[#0B1220] uppercase">
                 Packing Ratio Size Breakdown
               </span>
-              <span className="text-xs font-mono font-black text-slate-900 bg-white px-2 py-0.5 rounded border border-black/10">
+              <span className="text-xs font-mono font-black text-slate-900 bg-white px-2 py-0.5 rounded border border-black/15">
                 Sum: {totalPieces} Garments
               </span>
             </div>
@@ -269,7 +269,7 @@ export function SealCartonModal({
                   min={0}
                   value={sizeS}
                   onChange={e => setSizeS(Number(e.target.value))}
-                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/10 bg-white"
+                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/15 bg-white"
                 />
               </div>
               <div>
@@ -281,7 +281,7 @@ export function SealCartonModal({
                   min={0}
                   value={sizeM}
                   onChange={e => setSizeM(Number(e.target.value))}
-                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/10 bg-white"
+                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/15 bg-white"
                 />
               </div>
               <div>
@@ -293,7 +293,7 @@ export function SealCartonModal({
                   min={0}
                   value={sizeL}
                   onChange={e => setSizeL(Number(e.target.value))}
-                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/10 bg-white"
+                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/15 bg-white"
                 />
               </div>
               <div>
@@ -305,23 +305,23 @@ export function SealCartonModal({
                   min={0}
                   value={sizeXL}
                   onChange={e => setSizeXL(Number(e.target.value))}
-                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/10 bg-white"
+                  className="w-full text-center py-1.5 text-xs font-mono font-bold rounded-lg border border-black/15 bg-white"
                 />
               </div>
             </div>
           </div>
 
           {/* Digital Weighbridge Gross Weight Integration */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-slate-50 space-y-3">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-slate-50 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-800 uppercase flex items-center gap-1.5">
-                <Scale className="w-4 h-4 text-[#3A3564]" />
+                <Scale className="w-4 h-4 text-[#0B1220]" />
                 Digital Weighbridge Gross Weight Check
               </span>
               <span
                 className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold border ${
                   isVarianceOk
-                    ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10'
+                    ? 'bg-[#F0FDFA] text-[#0B1220] border-black/10'
                     : 'bg-slate-100 text-slate-800 border-black/10'
                 }`}
               >
@@ -330,23 +330,23 @@ export function SealCartonModal({
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Theoretical BOM</span>
                 <div className="font-mono font-black text-slate-700 text-sm mt-0.5">
                   {expectedGrossWeight.toFixed(2)} kg
                 </div>
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Scale Reading</span>
                 <input
                   type="number"
                   step="0.01"
                   value={measuredGrossWeight}
                   onChange={e => setMeasuredGrossWeight(Number(e.target.value))}
-                  className="w-full text-center font-mono font-black text-[#3A3564] text-sm mt-0.5 border-b border-black/10 focus:outline-none"
+                  className="w-full text-center font-mono font-black text-[#0B1220] text-sm mt-0.5 border-b border-black/10 focus:outline-none"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-400 uppercase">Scale Variance</span>
                 <div className="font-mono font-black text-sm mt-0.5 text-slate-900">
                   {weightVariance >= 0 ? '+' : ''}
@@ -371,7 +371,7 @@ export function SealCartonModal({
               value={sealedBy}
               onChange={e => setSealedBy(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-800"
             />
           </div>
 
@@ -379,13 +379,13 @@ export function SealCartonModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <PackageCheck className="w-3.5 h-3.5 text-white" />
               <span>Seal & Register Carton (Form 2)</span>

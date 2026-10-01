@@ -65,17 +65,17 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Header Banner */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 AQL 2.5 Statistical Inspection Station
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Normal Level II
               </span>
             </div>
@@ -87,7 +87,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Conduct AQL Audit (Form 1)</span>
@@ -96,12 +96,12 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
 
       {/* 4 Inspection Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Audits Executed
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <FileCheck2 className="w-4 h-4" />
             </div>
           </div>
@@ -111,12 +111,12 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
           <p className="text-xs font-semibold text-slate-500 mt-1">Export Cartons Sampled</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Audit Pass Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -126,12 +126,12 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
           <p className="text-xs font-semibold text-slate-500 mt-1">{passedCount} Lots Approved for Dispatch</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Quarantined Lots
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
@@ -141,12 +141,12 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
           <p className="text-xs font-semibold text-slate-500 mt-1">Locked in Bay 5 Quarantine</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Critical Defect SLA
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -158,10 +158,10 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
       </div>
 
       {/* ISO 2859-1 Sampling Standard Reference */}
-      <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+      <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calculator className="w-4 h-4 text-[#3A3564]" />
+            <Calculator className="w-4 h-4 text-[#0B1220]" />
             <h3 className="text-sm font-black text-slate-900 font-[family-name:var(--font-heading)]">
               ISO 2859-1 Level II Normal Sampling Acceptance Table
             </h3>
@@ -172,23 +172,23 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 font-mono">
-            <div className="font-bold text-[#3A3564]">Lot: 501 – 1,200 pcs</div>
+          <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA]/40 font-mono">
+            <div className="font-bold text-[#0B1220]">Lot: 501 – 1,200 pcs</div>
             <div className="text-slate-600 mt-1">Sample Size: <span className="font-bold">80 pcs</span></div>
             <div className="text-[11px] text-slate-500">AQL 2.5 Major: ≤ 5 | Minor: ≤ 7</div>
           </div>
-          <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 font-mono">
-            <div className="font-bold text-[#3A3564]">Lot: 1,201 – 3,200 pcs</div>
+          <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA]/40 font-mono">
+            <div className="font-bold text-[#0B1220]">Lot: 1,201 – 3,200 pcs</div>
             <div className="text-slate-600 mt-1">Sample Size: <span className="font-bold">125 pcs</span></div>
             <div className="text-[11px] text-slate-500">AQL 2.5 Major: ≤ 7 | Minor: ≤ 10</div>
           </div>
-          <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0] shadow-2xs font-mono">
-            <div className="font-black text-[#3A3564]">Lot: 3,201 – 10,000 pcs</div>
+          <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA] shadow-2xs font-mono">
+            <div className="font-black text-[#0B1220]">Lot: 3,201 – 10,000 pcs</div>
             <div className="text-slate-900 mt-1 font-bold">Sample Size: 200 pcs</div>
             <div className="text-[11px] font-semibold text-slate-700">AQL 2.5 Major: ≤ 10 | Minor: ≤ 14</div>
           </div>
-          <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0]/40 font-mono">
-            <div className="font-bold text-[#3A3564]">Lot: 10,001 – 35,000 pcs</div>
+          <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA]/40 font-mono">
+            <div className="font-bold text-[#0B1220]">Lot: 10,001 – 35,000 pcs</div>
             <div className="text-slate-600 mt-1">Sample Size: <span className="font-bold">315 pcs</span></div>
             <div className="text-[11px] text-slate-500">AQL 2.5 Major: ≤ 14 | Minor: ≤ 21</div>
           </div>
@@ -196,14 +196,14 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
       </div>
 
       {/* Main Table: Historical & Active Quality Audits */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0FDFA]/30">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 AQL 2.5 Inspection Audit Logs
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {filteredAudits.length} Audits
               </span>
             </div>
@@ -220,7 +220,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search AQL #, Carton, PO, Auditor..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono text-slate-900"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono text-slate-900"
               />
             </div>
           </div>
@@ -239,7 +239,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
               onClick={() => setDecisionFilter(tab.id)}
               className={`px-3 py-2 text-xs font-mono font-bold rounded-t-lg transition-all border-b-2 cursor-pointer ${
                 decisionFilter === tab.id
-                  ? 'border-[#3A3564] text-[#3A3564] bg-[#FAF7F0]/60'
+                  ? 'border-[#0B1220] text-[#0B1220] bg-[#F0FDFA]/60'
                   : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -252,7 +252,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-black/10 bg-[#F0FDFA]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3.5 px-4">Audit Voucher</th>
                 <th className="py-3.5 px-4">Target Carton</th>
                 <th className="py-3.5 px-4">Order PO</th>
@@ -283,10 +283,10 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
                 filteredAudits.map(audit => (
                   <tr
                     key={audit.id}
-                    className="hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer"
+                    className="hover:bg-[#F0FDFA]/40 transition-colors cursor-pointer"
                     onClick={() => setSelectedAudit(audit)}
                   >
-                    <td className="py-3.5 px-4 font-mono font-black text-[#3A3564]">
+                    <td className="py-3.5 px-4 font-mono font-black text-[#0B1220]">
                       {audit.auditNumber}
                     </td>
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
@@ -301,24 +301,24 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
                     <td className="py-3.5 px-4 font-mono text-slate-600">
                       {audit.lotSizePieces.toLocaleString()} pcs
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#0B1220]">
                       {audit.sampleSizeAudited} pcs
                     </td>
                     <td className="py-3.5 px-4 font-mono">
                       <div className="flex items-center gap-1.5">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F0] text-slate-900 border border-black/10">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F0FDFA] text-slate-900 border border-black/15">
                           C:{audit.criticalDefects}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F0] text-slate-900 border border-black/10">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F0FDFA] text-slate-900 border border-black/15">
                           M:{audit.majorDefects}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#FAF7F0] text-slate-600 border border-black/10">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#F0FDFA] text-slate-600 border border-black/15">
                           m:{audit.minorDefects}
                         </span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                         {audit.auditDecision.replace(/_/g, ' ')}
                       </span>
                     </td>
@@ -331,9 +331,9 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
                           e.stopPropagation()
                           setSelectedAudit(audit)
                         }}
-                        className="px-2.5 py-1 rounded bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                        className="px-2.5 py-1 rounded bg-white hover:bg-[#F0FDFA] border border-black/15 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
                       >
-                        <Eye className="w-3 h-3 text-[#3A3564]" />
+                        <Eye className="w-3 h-3 text-[#0B1220]" />
                         <span>Details</span>
                       </button>
                     </td>
@@ -352,12 +352,12 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
           onClick={() => setSelectedAudit(null)}
         >
           <div
-            className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-4"
+            className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#3A3564]" />
+                <ShieldCheck className="w-5 h-5 text-[#0B1220]" />
                 <h3 className="text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                   Audit Voucher: {selectedAudit.auditNumber}
                 </h3>
@@ -385,7 +385,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Decision:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedAudit.auditDecision}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedAudit.auditDecision}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Lot Size:</span>
@@ -393,7 +393,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Sample Size:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedAudit.sampleSizeAudited} pcs</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedAudit.sampleSizeAudited} pcs</div>
               </div>
             </div>
 
@@ -406,10 +406,10 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
                 {selectedAudit.defects.map((d, i) => (
                   <div
                     key={i}
-                    className="p-2 rounded-lg border border-black/10 bg-[#FAF7F0]/40 flex items-center justify-between text-xs"
+                    className="p-2 rounded-lg border border-black/15 bg-[#F0FDFA]/40 flex items-center justify-between text-xs"
                   >
                     <span className="font-medium text-slate-800">{d.type}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                       {d.count}x {d.category}
                     </span>
                   </div>
@@ -430,7 +430,7 @@ export function AqlInspectionClient({ userEmail, companyName }: AqlInspectionCli
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedAudit(null)}
-                className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] cursor-pointer"
               >
                 Close
               </button>

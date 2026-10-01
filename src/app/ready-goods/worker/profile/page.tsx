@@ -36,7 +36,7 @@ export default async function ReadyGoodsWorkerProfilePage() {
 
         <div className="bg-white rounded-3xl border border-black/15 p-6 space-y-4">
           <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="w-12 h-12 rounded-2xl bg-[#3A3564] text-white flex items-center justify-center font-bold text-lg">
+            <div className="w-12 h-12 rounded-2xl bg-[#0B1220] text-white flex items-center justify-center font-bold text-lg">
               {tenant.adminDisplayName?.charAt(0) || 'W'}
             </div>
             <div>

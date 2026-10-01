@@ -83,7 +83,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#3A3564] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0B1220] uppercase tracking-wider mb-1">
             <Users className="w-4 h-4" />
             <span>Finishing Quality & Packing Floor Workforce</span>
           </div>
@@ -106,7 +106,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Add New Worker</span>
@@ -212,7 +212,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by worker name, phone, or station..."
-              className="w-full pl-9 pr-3.5 py-1.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3.5 py-1.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-[#0B1220]"
             />
           </div>
         </div>
@@ -244,7 +244,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
                   <tr key={worker.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#3A3564]/10 text-[#3A3564] font-bold flex items-center justify-center text-xs">
+                        <div className="w-8 h-8 rounded-full bg-[#0B1220]/10 text-[#0B1220] font-bold flex items-center justify-center text-xs">
                           {worker.worker_name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -316,7 +316,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
                     <td className="py-3 px-4 text-right">
                       <Link
                         href={`/ready-goods/worker?workerId=${worker.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0B1220] hover:underline"
                       >
                         <span>Open Terminal</span>
                         <ArrowRight className="w-3.5 h-3.5" />

@@ -299,17 +299,17 @@ export function PackingGoodsClient({
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Module Title Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <PackageCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <PackageCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Packing Goods &amp; Carton Allocation
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {workers.length} Packers Active
               </span>
             </div>
@@ -323,7 +323,7 @@ export function PackingGoodsClient({
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
           <Link
             href="/ready-goods"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <Wrench className="w-3.5 h-3.5" />
             <span>Quality Clinic</span>
@@ -331,7 +331,7 @@ export function PackingGoodsClient({
 
           <Link
             href="/ready-goods/carton-packing"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <Box className="w-3.5 h-3.5" />
             <span>Cartons</span>
@@ -339,7 +339,7 @@ export function PackingGoodsClient({
 
           <Link
             href="/ready-goods/aql-inspection"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>AQL Audit</span>
@@ -347,7 +347,7 @@ export function PackingGoodsClient({
 
           <Link
             href="/ready-goods/handover"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <Truck className="w-3.5 h-3.5" />
             <span>Handover</span>
@@ -355,7 +355,7 @@ export function PackingGoodsClient({
 
           <Link
             href="/ready-goods/notifications"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <Bell className="w-3.5 h-3.5" />
             <span>Notifications</span>
@@ -363,7 +363,7 @@ export function PackingGoodsClient({
 
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Worker</span>
@@ -371,7 +371,7 @@ export function PackingGoodsClient({
 
           <Link
             href="/ready-goods/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-black/15 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
@@ -380,12 +380,12 @@ export function PackingGoodsClient({
       </div>
 
       {/* 3. Selected Buyer Contract & Floor Action Bar */}
-      <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl border border-black/15 shadow-2xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
         
         {/* Left: Active Buyer Info + Dropdown selector */}
         <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap sm:flex-nowrap">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
 
           <div>
@@ -395,7 +395,7 @@ export function PackingGoodsClient({
             <div className="text-base sm:text-lg md:text-xl font-black text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? (selectedBuyer.buyer_name || selectedBuyer.brand_name) : 'All Buyers & Contracts'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   {selectedBuyer.linked_article_number}
                 </span>
               )}
@@ -407,17 +407,17 @@ export function PackingGoodsClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564]" />
+                <Users className="w-4 h-4 text-[#0B1220]" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isBuyerMenuOpen && (
-              <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+              <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/15 shadow-xl z-40 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -425,7 +425,7 @@ export function PackingGoodsClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/15 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -439,8 +439,8 @@ export function PackingGoodsClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-[#F0FDFA]'
                     }`}
                   >
                     <div>
@@ -473,8 +473,8 @@ export function PackingGoodsClient({
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                             isSelected
-                              ? 'bg-[#3A3564] text-white font-bold'
-                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                              ? 'bg-[#0B1220] text-white font-bold'
+                              : 'text-slate-700 hover:bg-[#F0FDFA]'
                           }`}
                         >
                           <div className="truncate pr-2">
@@ -499,16 +499,16 @@ export function PackingGoodsClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/15 bg-white hover:bg-[#F0FDFA] text-xs font-mono font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-[#0B1220]" />
             <span>Workers ({workers.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-white text-xs font-mono font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Worker</span>
@@ -517,7 +517,7 @@ export function PackingGoodsClient({
           <button
             type="button"
             onClick={() => setIsAssignModalOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ Assign Packing</span>
@@ -526,7 +526,7 @@ export function PackingGoodsClient({
           <button
             type="button"
             onClick={reloadData}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync floor data"
           >
             <RotateCcw className="w-4 h-4" />
@@ -538,12 +538,12 @@ export function PackingGoodsClient({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
         
         {/* Box 1: Approved for Packing */}
-        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Approved for Packing
             </span>
-            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
@@ -553,12 +553,12 @@ export function PackingGoodsClient({
         </div>
 
         {/* Box 2: Active Packers */}
-        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Active Packers
             </span>
-            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
           </div>
@@ -568,12 +568,12 @@ export function PackingGoodsClient({
         </div>
 
         {/* Box 3: Cartons Packed */}
-        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-black/15 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Cartons Packed
             </span>
-            <div className="w-11 h-11 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
+            <div className="w-11 h-11 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
               <Boxes className="w-5 h-5" />
             </div>
           </div>
@@ -585,7 +585,7 @@ export function PackingGoodsClient({
       </div>
 
       {/* 6. Controls & Filter Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -594,12 +594,12 @@ export function PackingGoodsClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search assignment #, buyer, style, packer..."
-            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
           />
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 bg-[#FAF7F0] p-1.5 rounded-xl border border-black/10 overflow-x-auto">
+        <div className="flex items-center gap-1.5 bg-[#F0FDFA] p-1.5 rounded-xl border border-black/15 overflow-x-auto">
           {[
             { id: 'ALL', label: 'All Tasks', count: buyerAssignments.length },
             { id: 'IN_PACKING', label: 'In Packing', count: buyerAssignments.filter(a => a.status === 'ASSIGNED' || a.status === 'IN_PACKING').length },
@@ -612,7 +612,7 @@ export function PackingGoodsClient({
               onClick={() => setStatusFilter(tab.id as any)}
               className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 statusFilter === tab.id
-                  ? 'bg-[#3A3564] text-white shadow-xs'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
                   : 'text-slate-600 hover:bg-white'
               }`}
             >
@@ -628,20 +628,20 @@ export function PackingGoodsClient({
       </div>
 
       {/* 7. Active Packing Floor Allocations Table */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/15 shadow-2xs overflow-hidden">
         <div className="p-5 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-slate-900">
               Packing Assignments &amp; Manifest
             </h3>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#FAF7F0] text-slate-600 border border-black/5 font-bold">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#F0FDFA] text-slate-600 border border-black/5 font-bold">
               {filteredAssignments.length} assignments
             </span>
           </div>
           <button
             type="button"
             onClick={() => setIsAssignModalOpen(true)}
-            className="text-xs text-[#3A3564] font-bold hover:underline cursor-pointer"
+            className="text-xs text-[#0B1220] font-bold hover:underline cursor-pointer"
           >
             + New Assignment
           </button>
@@ -649,7 +649,7 @@ export function PackingGoodsClient({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-mono font-bold uppercase text-[11px]">
+            <thead className="bg-[#F0FDFA] border-b border-black/10 text-slate-700 font-mono font-bold uppercase text-[11px]">
               <tr>
                 <th className="py-3.5 px-5">Assignment #</th>
                 <th className="py-3.5 px-5">Order &amp; Buyer</th>
@@ -666,7 +666,7 @@ export function PackingGoodsClient({
                 <tr>
                   <td colSpan={8} className="py-20 text-center">
                     <div className="max-w-md mx-auto space-y-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+                      <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] mx-auto shadow-2xs">
                         <Boxes className="w-7 h-7" />
                       </div>
                       <h4 className="text-base font-bold text-slate-900">
@@ -679,7 +679,7 @@ export function PackingGoodsClient({
                         <button
                           type="button"
                           onClick={() => setIsAssignModalOpen(true)}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
                           <span>+ Assign Packing</span>
@@ -687,7 +687,7 @@ export function PackingGoodsClient({
                         <button
                           type="button"
                           onClick={() => setIsAddWorkerOpen(true)}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-white text-xs font-mono font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs"
                         >
                           <UserPlus className="w-4 h-4" />
                           <span>+ Add Worker</span>
@@ -701,7 +701,7 @@ export function PackingGoodsClient({
                   <tr key={asn.id} className="hover:bg-slate-50/70 transition-colors">
                     {/* Assignment Code */}
                     <td className="py-3.5 px-4">
-                      <div className="font-mono font-bold text-[#3A3564]">#{asn.assignment_code}</div>
+                      <div className="font-mono font-bold text-[#0B1220]">#{asn.assignment_code}</div>
                       <div className="text-[11px] text-slate-500 font-mono">Lot: {asn.task_code}</div>
                     </td>
 
@@ -720,7 +720,7 @@ export function PackingGoodsClient({
                     {/* Assigned Packer */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-md bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] font-bold text-[10px]">
+                        <div className="w-6 h-6 rounded-md bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] font-bold text-[10px]">
                           {asn.packer_worker_name.slice(0, 1)}
                         </div>
                         <span className="font-semibold text-slate-800">{asn.packer_worker_name}</span>
@@ -781,7 +781,7 @@ export function PackingGoodsClient({
                         <button
                           type="button"
                           onClick={() => handleDispatchGodown(asn.id, asn.assignment_code, asn.target_godown_bay)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                         >
                           <Warehouse className="w-3.5 h-3.5" />
                           <span>Send to Godown</span>

@@ -211,11 +211,11 @@ export function InwardLotModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="bg-white w-full max-w-2xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white w-full max-w-2xl rounded-2xl border border-black/15 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-black/10 bg-[#F0FDFA] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <PackagePlus className="w-5 h-5" />
             </div>
             <div>
@@ -231,7 +231,7 @@ export function InwardLotModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/15 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -253,9 +253,9 @@ export function InwardLotModal({
                   key={i}
                   type="button"
                   onClick={() => applyPreset(preset)}
-                  className="p-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white hover:border-[#3A3564] text-left transition-all text-xs cursor-pointer shadow-2xs group"
+                  className="p-2 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-white hover:border-[#0B1220] text-left transition-all text-xs cursor-pointer shadow-2xs group"
                 >
-                  <div className="font-bold text-slate-900 group-hover:text-[#3A3564] truncate">
+                  <div className="font-bold text-slate-900 group-hover:text-[#0B1220] truncate">
                     {preset.label}
                   </div>
                   <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">
@@ -278,7 +278,7 @@ export function InwardLotModal({
                 value={lotCode}
                 onChange={e => setLotCode(e.target.value)}
                 placeholder="e.g. QC-7720-01"
-                className="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
 
@@ -292,7 +292,7 @@ export function InwardLotModal({
                 value={poNumber}
                 onChange={e => setPoNumber(e.target.value)}
                 placeholder="e.g. PO-7720"
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
           </div>
@@ -309,7 +309,7 @@ export function InwardLotModal({
                 value={buyer}
                 onChange={e => setBuyer(e.target.value)}
                 placeholder="e.g. Urban Outfitters, Zara, H&M"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
               {activeMerchBuyers.length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
@@ -321,8 +321,8 @@ export function InwardLotModal({
                       onClick={() => setBuyer(bName)}
                       className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
                         buyer.toLowerCase() === bName.toLowerCase()
-                          ? 'bg-[#3A3564] text-white shadow-2xs'
-                          : 'bg-[#FAF7F0] hover:bg-white border border-black/10 text-slate-700'
+                          ? 'bg-[#0B1220] text-white shadow-2xs'
+                          : 'bg-[#F0FDFA] hover:bg-white border border-black/15 text-slate-700'
                       }`}
                     >
                       {bName}
@@ -342,7 +342,7 @@ export function InwardLotModal({
                 value={styleName}
                 onChange={e => setStyleName(e.target.value)}
                 placeholder="e.g. French Terry Relaxed Hoodie"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
           </div>
@@ -359,7 +359,7 @@ export function InwardLotModal({
                 required
                 value={piecesCount}
                 onChange={e => setPiecesCount(parseInt(e.target.value, 10) || 1)}
-                className="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
 
@@ -370,7 +370,7 @@ export function InwardLotModal({
               <select
                 value={size}
                 onChange={e => setSize(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
               >
                 {['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'Free Size'].map(s => (
                   <option key={s} value={s}>{s}</option>
@@ -387,13 +387,13 @@ export function InwardLotModal({
                 value={color}
                 onChange={e => setColor(e.target.value)}
                 placeholder="e.g. Onyx Black"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
           </div>
 
           {/* Finishing Origin (Wash & Iron) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50/70 rounded-xl border border-black/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50/70 rounded-xl border border-black/15">
             <div>
               <label className="block text-[11px] font-mono font-bold text-slate-600 uppercase tracking-wider mb-1">
                 Wash Batch Origin
@@ -403,7 +403,7 @@ export function InwardLotModal({
                 value={washBatch}
                 onChange={e => setWashBatch(e.target.value)}
                 placeholder="e.g. WB-082 (Silicon Softener Wash)"
-                className="w-full px-3 py-1.5 text-xs rounded-lg border border-black/10 bg-white"
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-black/15 bg-white"
               />
             </div>
 
@@ -416,13 +416,13 @@ export function InwardLotModal({
                 value={ironStation}
                 onChange={e => setIronStation(e.target.value)}
                 placeholder="e.g. Steam Press Board 03"
-                className="w-full px-3 py-1.5 text-xs rounded-lg border border-black/10 bg-white"
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-black/15 bg-white"
               />
             </div>
           </div>
 
           {/* Tech Pack Criteria Toggles */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-white space-y-2.5">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-white space-y-2.5">
             <span className="block text-xs font-mono font-bold text-slate-900 uppercase tracking-wider">
               Tech Pack Criteria Configuration
             </span>
@@ -432,28 +432,28 @@ export function InwardLotModal({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
               <label className={`p-2.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
-                hasPrinting ? 'border-[#3A3564] bg-[#3A3564]/5 font-semibold text-slate-900' : 'border-black/10 text-slate-600'
+                hasPrinting ? 'border-[#0B1220] bg-[#0B1220]/5 font-semibold text-slate-900' : 'border-black/10 text-slate-600'
               }`}>
                 <input
                   type="checkbox"
                   checked={hasPrinting}
                   onChange={e => setHasPrinting(e.target.checked)}
-                  className="w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                  className="w-4 h-4 text-[#0B1220] rounded border-slate-300"
                 />
                 <div className="flex items-center gap-1.5">
-                  <Printer className="w-3.5 h-3.5 text-[#3A3564]" />
+                  <Printer className="w-3.5 h-3.5 text-[#0B1220]" />
                   <span className="text-xs">Undergoes Printing (Screen/DTF)</span>
                 </div>
               </label>
 
               <label className={`p-2.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
-                hasEmbroidery ? 'border-[#3A3564] bg-[#3A3564]/5 font-semibold text-slate-900' : 'border-black/10 text-slate-600'
+                hasEmbroidery ? 'border-[#0B1220] bg-[#0B1220]/5 font-semibold text-slate-900' : 'border-black/10 text-slate-600'
               }`}>
                 <input
                   type="checkbox"
                   checked={hasEmbroidery}
                   onChange={e => setHasEmbroidery(e.target.checked)}
-                  className="w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                  className="w-4 h-4 text-[#0B1220] rounded border-slate-300"
                 />
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-amber-600" />
@@ -471,7 +471,7 @@ export function InwardLotModal({
             <select
               value={assignedWorkerId}
               onChange={e => setAssignedWorkerId(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
             >
               <option value="">Unassigned (Queue in Incoming Pool)</option>
               {availableCheckers.length === 0 ? (
@@ -496,13 +496,13 @@ export function InwardLotModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
             >
               <PackagePlus className="w-3.5 h-3.5" />
               <span>Inward Lot for Inspection</span>

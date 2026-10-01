@@ -77,12 +77,12 @@ export function ScaleAuditModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Scale className="w-5 h-5" />
             </div>
             <div>
@@ -118,7 +118,7 @@ export function ScaleAuditModal({
               <select
                 value={scaleId}
                 onChange={e => setScaleId(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-[#0B1220]"
               >
                 <option value="SCALE-BAY-03">SCALE-BAY-03 (Bay 3 Floor Scale)</option>
                 <option value="SCALE-BAY-04">SCALE-BAY-04 (Bay 4 Conveyor Scale)</option>
@@ -132,7 +132,7 @@ export function ScaleAuditModal({
               <select
                 value={selectedCartonNumber}
                 onChange={e => handleCartonChange(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 {cartons.map(c => (
                   <option key={c.id} value={c.cartonNumber}>
@@ -144,14 +144,14 @@ export function ScaleAuditModal({
           </div>
 
           {/* Scale Reading vs BOM Expected */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2.5">
-            <span className="text-xs font-mono font-bold text-[#3A3564] uppercase flex items-center gap-1.5">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2.5">
+            <span className="text-xs font-mono font-bold text-[#0B1220] uppercase flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
               Weight Discrepancy Telemetry
             </span>
 
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Theoretical BOM</span>
                 <input
                   type="number"
@@ -161,17 +161,17 @@ export function ScaleAuditModal({
                   className="w-full text-center font-mono font-black text-slate-900 text-sm mt-0.5 border-b border-black/10 focus:outline-none"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Scale Reading</span>
                 <input
                   type="number"
                   step="0.01"
                   value={measuredWeightKg}
                   onChange={e => setMeasuredWeightKg(Number(e.target.value))}
-                  className="w-full text-center font-mono font-black text-[#3A3564] text-sm mt-0.5 border-b border-black/10 focus:outline-none"
+                  className="w-full text-center font-mono font-black text-[#0B1220] text-sm mt-0.5 border-b border-black/10 focus:outline-none"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Weight Delta</span>
                 <div className="font-mono font-black text-sm mt-0.5 text-slate-900">
                   {varianceKg >= 0 ? '+' : ''}
@@ -184,7 +184,7 @@ export function ScaleAuditModal({
               <span>Standard Tolerance: ±0.15 kg</span>
               <span
                 className={`px-2 py-0.5 rounded font-bold border ${
-                  isTolerancePassed ? 'bg-[#FAF7F0] text-[#3A3564] border-black/10' : 'bg-slate-100 text-slate-800 border-slate-300'
+                  isTolerancePassed ? 'bg-[#F0FDFA] text-[#0B1220] border-black/10' : 'bg-slate-100 text-slate-800 border-slate-300'
                 }`}
               >
                 {isTolerancePassed ? 'COMPLIANT (ZERO GHOST PASS)' : 'VARIANCE ALERT (QUARANTINE)'}
@@ -201,7 +201,7 @@ export function ScaleAuditModal({
               value={auditorName}
               onChange={e => setAuditorName(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-800"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-800"
             />
           </div>
 
@@ -209,13 +209,13 @@ export function ScaleAuditModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <Scale className="w-3.5 h-3.5 text-white" />
               <span>Log Scale Weight Audit</span>

@@ -147,11 +147,11 @@ export function AssignPackingModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="bg-white w-full max-w-lg rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white w-full max-w-lg rounded-2xl border border-black/15 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-black/10 bg-[#F0FDFA] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <PackageCheck className="w-5 h-5" />
             </div>
             <div>
@@ -166,7 +166,7 @@ export function AssignPackingModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/15 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -193,7 +193,7 @@ export function AssignPackingModal({
                     setCartonPrefix(`CTN-${lot.order_number}`)
                   }
                 }}
-                className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
               >
                 {passedTasks.map(t => (
                   <option key={t.id} value={t.id}>
@@ -212,7 +212,7 @@ export function AssignPackingModal({
             <select
               value={selectedWorkerId}
               onChange={(e) => setSelectedWorkerId(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
             >
               {packerWorkers.length === 0 ? (
                 <option value="">No registered packers found (Add worker first)</option>
@@ -227,7 +227,7 @@ export function AssignPackingModal({
           </div>
 
           {/* Cartons and Pieces Grid */}
-          <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl border border-black/10">
+          <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl border border-black/15">
             <div>
               <label className="block font-mono font-bold text-slate-700 uppercase text-[11px] mb-1">
                 Number of Cartons
@@ -260,7 +260,7 @@ export function AssignPackingModal({
 
             <div className="col-span-2 pt-2 border-t border-black/10 flex items-center justify-between text-xs">
               <span className="text-slate-500 font-mono">TOTAL CALCULATED PIECES:</span>
-              <span className="text-sm font-mono font-extrabold text-[#3A3564]">
+              <span className="text-sm font-mono font-extrabold text-[#0B1220]">
                 {totalPackedPieces.toLocaleString('en-IN')} pcs
               </span>
             </div>
@@ -317,7 +317,7 @@ export function AssignPackingModal({
             <button
               type="submit"
               disabled={passedTasks.length === 0}
-              className="w-full py-3 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <PackageCheck className="w-4 h-4" />
               <span>Create Packing Assignment ({cartonsCount} Cartons)</span>

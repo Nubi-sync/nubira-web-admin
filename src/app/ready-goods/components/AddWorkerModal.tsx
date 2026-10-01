@@ -115,7 +115,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564]/10 text-[#3A3564] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#0B1220]/10 text-[#0B1220] flex items-center justify-center">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
@@ -145,7 +145,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Ramesh Kumar Patel"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220]"
             />
           </div>
 
@@ -165,7 +165,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
                 onChange={handlePhoneChange}
                 placeholder="9876543210"
                 maxLength={10}
-                className="w-full pl-12 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full pl-12 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono focus:outline-none focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220]"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter worker password"
-                className="w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220]"
               />
               <button
                 type="button"
@@ -214,19 +214,19 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
                     }}
                     className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                       isSelected
-                        ? 'border-[#3A3564] bg-[#FAF7F0] ring-1 ring-[#3A3564]'
+                        ? 'border-[#0B1220] bg-[#F0FDFA] ring-1 ring-[#0B1220]'
                         : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      isSelected ? 'bg-[#3A3564] text-white' : 'bg-slate-100 text-slate-500'
+                      isSelected ? 'bg-[#0B1220] text-white' : 'bg-slate-100 text-slate-500'
                     }`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-900">{role.label}</span>
-                        {isSelected && <Check className="w-4 h-4 text-[#3A3564] stroke-[3]" />}
+                        {isSelected && <Check className="w-4 h-4 text-[#0B1220] stroke-[3]" />}
                       </div>
                       <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{role.desc}</p>
                     </div>
@@ -245,7 +245,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
               <select
                 value={assignedStation}
                 onChange={(e) => setAssignedStation(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-[#3A3564]"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-[#0B1220]"
               >
                 <option value="QC Inspection Table 01">QC Inspection Table 01</option>
                 <option value="QC Inspection Table 02">QC Inspection Table 02</option>
@@ -263,7 +263,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
               <select
                 value={shift}
                 onChange={(e) => setShift(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-[#3A3564]"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-[#0B1220]"
               >
                 <option value="MORNING">Morning (08:00 - 16:30)</option>
                 <option value="EVENING">Evening (16:30 - 01:00)</option>
@@ -284,7 +284,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-60 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting ? 'Registering...' : 'Register Worker'}
             </button>

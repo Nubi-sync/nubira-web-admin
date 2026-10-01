@@ -53,17 +53,17 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Hangtag &amp; Polybag Station
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 100% Barcode Match SLA
               </span>
             </div>
@@ -75,7 +75,7 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Scan Garment Hangtag</span>
@@ -84,12 +84,12 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
 
       {/* 4 Packaging Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Garments Tagged Today
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Tag className="w-4 h-4" />
             </div>
           </div>
@@ -99,12 +99,12 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
           <p className="text-xs font-semibold text-slate-500 mt-1">4 Packaging Lines Active</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               EAN Scan Match Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -114,12 +114,12 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
           <p className="text-xs font-semibold text-slate-500 mt-1">Zero Tag-to-Garment Mismatches</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Silica Desiccant Pouches
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -129,12 +129,12 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
           <p className="text-xs font-semibold text-slate-500 mt-1">Moisture Protection Verified</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Micro-Tach Fasteners
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Check className="w-4 h-4" />
             </div>
           </div>
@@ -146,14 +146,14 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
       </div>
 
       {/* Main Scans Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0FDFA]/30">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Live Hangtag Scan & Verification Manifest
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {filteredScans.length} Scans Logged
               </span>
             </div>
@@ -169,7 +169,7 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search EAN, SKU, PO, Operator..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono text-slate-900"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono text-slate-900"
             />
           </div>
         </div>
@@ -177,7 +177,7 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-black/10 bg-[#F0FDFA]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3.5 px-4">EAN-13 / UPC Barcode</th>
                 <th className="py-3.5 px-4">Order PO</th>
                 <th className="py-3.5 px-4">Buyer SKU</th>
@@ -205,8 +205,8 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
                 </tr>
               ) : (
                 filteredScans.map(scan => (
-                  <tr key={scan.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-black text-[#3A3564] flex items-center gap-2">
+                  <tr key={scan.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-black text-[#0B1220] flex items-center gap-2">
                       <QrCode className="w-3.5 h-3.5 text-slate-400" />
                       <span>{scan.scanCode}</span>
                     </td>
@@ -218,7 +218,7 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="font-semibold text-slate-900">{scan.styleName}</span>
-                      <span className="ml-1.5 px-1.5 py-0.5 rounded bg-[#FAF7F0] font-mono font-bold text-[#3A3564] border border-black/10 text-[10px]">
+                      <span className="ml-1.5 px-1.5 py-0.5 rounded bg-[#F0FDFA] font-mono font-bold text-[#0B1220] border border-black/15 text-[10px]">
                         {scan.size}
                       </span>
                     </td>
@@ -227,17 +227,17 @@ export function TaggingPolybagClient({ userEmail, companyName }: TaggingPolybagC
                     </td>
                     <td className="py-3.5 px-4 text-[10px] font-mono space-y-0.5">
                       <div className="flex items-center gap-1 text-slate-800">
-                        <Check className="w-2.5 h-2.5 text-[#3A3564]" /> Kimble Tag Gun Attached
+                        <Check className="w-2.5 h-2.5 text-[#0B1220]" /> Kimble Tag Gun Attached
                       </div>
                       <div className="flex items-center gap-1 text-slate-800">
-                        <Check className="w-2.5 h-2.5 text-[#3A3564]" /> Silica Gel Desiccant Inside
+                        <Check className="w-2.5 h-2.5 text-[#0B1220]" /> Silica Gel Desiccant Inside
                       </div>
                       <div className="flex items-center gap-1 text-slate-800">
-                        <Check className="w-2.5 h-2.5 text-[#3A3564]" /> Polybag Heat Sealed
+                        <Check className="w-2.5 h-2.5 text-[#0B1220]" /> Polybag Heat Sealed
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                         {scan.scanStatus.replace(/_/g, ' ')}
                       </span>
                     </td>

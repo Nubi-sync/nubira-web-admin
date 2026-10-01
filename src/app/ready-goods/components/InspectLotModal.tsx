@@ -146,11 +146,11 @@ export function InspectLotModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/15 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-black/10 bg-[#F0FDFA] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -158,7 +158,7 @@ export function InspectLotModal({
                 <h3 className="text-base font-bold text-slate-900">
                   Quality Inspection Check
                 </h3>
-                <span className="text-xs font-mono font-bold bg-[#3A3564] text-white px-2 py-0.5 rounded">
+                <span className="text-xs font-mono font-bold bg-[#0B1220] text-white px-2 py-0.5 rounded">
                   #{task.task_code}
                 </span>
               </div>
@@ -170,7 +170,7 @@ export function InspectLotModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/15 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -179,7 +179,7 @@ export function InspectLotModal({
         {/* Content */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
           {/* Origin Batch Context */}
-          <div className="p-3 bg-slate-50 rounded-xl border border-black/10 flex items-center justify-between text-xs">
+          <div className="p-3 bg-slate-50 rounded-xl border border-black/15 flex items-center justify-between text-xs">
             <div>
               <span className="text-slate-500 font-mono">WASH BATCH: </span>
               <span className="font-bold text-slate-800">{task.wash_batch_ref}</span>
@@ -198,7 +198,7 @@ export function InspectLotModal({
             <select
               value={selectedWorkerId}
               onChange={(e) => setSelectedWorkerId(e.target.value)}
-              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+              className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-black/15 bg-white text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
             >
               {workers.length === 0 ? (
                 <option value="">No registered floor workers (Register via + Add Worker)</option>
@@ -235,7 +235,7 @@ export function InspectLotModal({
                   type="checkbox"
                   checked={checklist.cutting_done_right}
                   onChange={(e) => setChecklist({ ...checklist, cutting_done_right: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                  className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300"
                 />
                 <div>
                   <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function InspectLotModal({
                     type="checkbox"
                     checked={checklist.printing_done_right}
                     onChange={(e) => setChecklist({ ...checklist, printing_done_right: e.target.checked })}
-                    className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                    className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300"
                   />
                   <div>
                     <div className="flex items-center gap-2">
@@ -282,7 +282,7 @@ export function InspectLotModal({
                     type="checkbox"
                     checked={checklist.embroidery_done_right}
                     onChange={(e) => setChecklist({ ...checklist, embroidery_done_right: e.target.checked })}
-                    className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                    className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300"
                   />
                   <div>
                     <div className="flex items-center gap-2">
@@ -305,7 +305,7 @@ export function InspectLotModal({
                   type="checkbox"
                   checked={checklist.washing_done_right}
                   onChange={(e) => setChecklist({ ...checklist, washing_done_right: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                  className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300"
                 />
                 <div>
                   <div className="flex items-center gap-2">
@@ -327,7 +327,7 @@ export function InspectLotModal({
                   type="checkbox"
                   checked={checklist.iron_done_right}
                   onChange={(e) => setChecklist({ ...checklist, iron_done_right: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300"
+                  className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300"
                 />
                 <div>
                   <div className="flex items-center gap-2">
@@ -400,7 +400,7 @@ export function InspectLotModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-black/10 bg-[#FAF7F0] flex items-center justify-between gap-3">
+        <div className="p-4 border-t border-black/10 bg-[#F0FDFA] flex items-center justify-between gap-3">
           {!isDefectMode ? (
             <>
               <button
@@ -416,7 +416,7 @@ export function InspectLotModal({
                 type="button"
                 onClick={handleApprove}
                 disabled={!canApprove()}
-                className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Approve &amp; Pass to Packing</span>
@@ -428,7 +428,7 @@ export function InspectLotModal({
               <button
                 type="button"
                 onClick={() => setIsDefectMode(false)}
-                className="px-3.5 py-2.5 rounded-xl border border-black/10 bg-white text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                className="px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-slate-700 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
                 Back to Checklist
               </button>

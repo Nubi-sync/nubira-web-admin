@@ -257,8 +257,8 @@ export function WorkerDashboardClient({
   if (workers.length === 0) {
     return (
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-2xl w-full mx-auto select-none pt-12">
-        <div className="bg-white p-8 sm:p-10 rounded-2xl border border-black/10 shadow-2xs text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+        <div className="bg-white p-8 sm:p-10 rounded-2xl border border-black/15 shadow-2xs text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] mx-auto shadow-2xs">
             <Users className="w-7 h-7" />
           </div>
           <h2 className="text-xl font-bold text-slate-900">
@@ -270,7 +270,7 @@ export function WorkerDashboardClient({
           <div className="pt-2">
             <Link
               href="/ready-goods"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
             >
               <span>Go to Alteration &amp; Quality Clinic &rarr;</span>
             </Link>
@@ -285,7 +285,7 @@ export function WorkerDashboardClient({
       {/* Worker Terminal Top Bar */}
       <div className="bg-white rounded-2xl border border-black/15 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#3A3564] text-white flex items-center justify-center font-extrabold text-base shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-[#0B1220] text-white flex items-center justify-center font-extrabold text-base shadow-xs">
             {currentWorker ? currentWorker.worker_name.charAt(0).toUpperCase() : 'W'}
           </div>
           <div>
@@ -326,7 +326,7 @@ export function WorkerDashboardClient({
             <select
               value={selectedWorkerId}
               onChange={(e) => setSelectedWorkerId(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#3A3564]"
+              className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#0B1220]"
             >
               {workers.map((w) => (
                 <option key={w.id} value={w.id}>
@@ -353,7 +353,7 @@ export function WorkerDashboardClient({
             onClick={() => setActiveTab('CHECKING')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'CHECKING'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -371,7 +371,7 @@ export function WorkerDashboardClient({
             onClick={() => setActiveTab('PACKING')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'PACKING'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#0B1220] text-white shadow-xs'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -388,7 +388,7 @@ export function WorkerDashboardClient({
           onClick={() => setActiveTab('LOGS')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'LOGS'
-              ? 'bg-[#3A3564] text-white shadow-xs'
+              ? 'bg-[#0B1220] text-white shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -435,12 +435,12 @@ export function WorkerDashboardClient({
                       }}
                       className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-[#3A3564] bg-[#FAF7F0] ring-1 ring-[#3A3564] shadow-xs'
+                          ? 'border-[#0B1220] bg-[#F0FDFA] ring-1 ring-[#0B1220] shadow-xs'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#3A3564]/10 px-2 py-0.5 rounded-md">
+                        <span className="text-xs font-mono font-bold text-[#0B1220] bg-[#0B1220]/10 px-2 py-0.5 rounded-md">
                           #{task.task_code}
                         </span>
                         <span className="text-xs font-mono font-extrabold text-slate-900">
@@ -476,7 +476,7 @@ export function WorkerDashboardClient({
                 {/* Article Header & Tech Pack Embellishment Badges */}
                 <div className="pb-4 border-b border-slate-100">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-mono font-bold text-[#3A3564]">
+                    <span className="text-xs font-mono font-bold text-[#0B1220]">
                       LOT: #{currentTask.task_code} • {currentTask.order_number}
                     </span>
                     <span className="text-xs font-mono font-bold text-slate-900">
@@ -533,7 +533,7 @@ export function WorkerDashboardClient({
                         type="checkbox"
                         checked={currentChecklist.cutting_done_right}
                         onChange={(e) => setCurrentChecklist({ ...currentChecklist, cutting_done_right: e.target.checked })}
-                        className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564]"
+                        className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300 focus:ring-[#0B1220]"
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -558,7 +558,7 @@ export function WorkerDashboardClient({
                           type="checkbox"
                           checked={currentChecklist.printing_done_right}
                           onChange={(e) => setCurrentChecklist({ ...currentChecklist, printing_done_right: e.target.checked })}
-                          className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564]"
+                          className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300 focus:ring-[#0B1220]"
                         />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
@@ -584,7 +584,7 @@ export function WorkerDashboardClient({
                           type="checkbox"
                           checked={currentChecklist.embroidery_done_right}
                           onChange={(e) => setCurrentChecklist({ ...currentChecklist, embroidery_done_right: e.target.checked })}
-                          className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564]"
+                          className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300 focus:ring-[#0B1220]"
                         />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
@@ -609,7 +609,7 @@ export function WorkerDashboardClient({
                         type="checkbox"
                         checked={currentChecklist.washing_done_right}
                         onChange={(e) => setCurrentChecklist({ ...currentChecklist, washing_done_right: e.target.checked })}
-                        className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564]"
+                        className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300 focus:ring-[#0B1220]"
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -633,7 +633,7 @@ export function WorkerDashboardClient({
                         type="checkbox"
                         checked={currentChecklist.iron_done_right}
                         onChange={(e) => setCurrentChecklist({ ...currentChecklist, iron_done_right: e.target.checked })}
-                        className="mt-0.5 w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564]"
+                        className="mt-0.5 w-4 h-4 text-[#0B1220] rounded border-slate-300 focus:ring-[#0B1220]"
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -697,7 +697,7 @@ export function WorkerDashboardClient({
             </div>
             <Link
               href="/ready-goods/carton-packing"
-              className="text-xs font-bold text-[#3A3564] hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#0B1220] hover:underline flex items-center gap-1"
             >
               <span>Full Carton Manifest</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -748,7 +748,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handlePackGarment(task)}
-                      className="w-full py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PackageCheck className="w-3.5 h-3.5" />
                       <span>Pack into Carton</span>
@@ -798,7 +798,7 @@ export function WorkerDashboardClient({
                 ) : (
                   completedLog.map((task) => (
                     <tr key={task.id} className="hover:bg-slate-50/50">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         #{task.task_code}
                       </td>
                       <td className="py-3 px-4">
@@ -887,7 +887,7 @@ export function WorkerDashboardClient({
                 <select
                   value={defectReason}
                   onChange={(e) => setDefectReason(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#3A3564]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#0B1220]"
                 >
                   <option value="OPEN_SEAM">Seam Open / Broken Stitch</option>
                   <option value="SKIP_STITCH">Skip Stitch / Loose Thread Tension</option>
@@ -906,7 +906,7 @@ export function WorkerDashboardClient({
                 <select
                   value={defectStation}
                   onChange={(e) => setDefectStation(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#3A3564]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#0B1220]"
                 >
                   <option value="Mending Station 01">Mending Station 01 (Collar & Neck Tailor)</option>
                   <option value="Mending Station 02">Mending Station 02 (Sleeve & Side Seams)</option>
@@ -924,7 +924,7 @@ export function WorkerDashboardClient({
                   value={defectNotes}
                   onChange={(e) => setDefectNotes(e.target.value)}
                   placeholder="e.g. Left sleeve cuff thread loose, requires re-stitching..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-[#3A3564]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-[#0B1220]"
                 />
               </div>
 

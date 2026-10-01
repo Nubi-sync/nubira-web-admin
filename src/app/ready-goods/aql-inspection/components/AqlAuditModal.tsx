@@ -164,13 +164,13 @@ export function AqlAuditModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-xl w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -210,7 +210,7 @@ export function AqlAuditModal({
                 value={auditNumber}
                 onChange={e => setAuditNumber(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 font-mono font-bold text-[#3A3564] focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 font-mono font-bold text-[#0B1220] focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               />
             </div>
             <div>
@@ -220,7 +220,7 @@ export function AqlAuditModal({
               <select
                 value={selectedCartonId}
                 onChange={e => handleCartonSelect(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               >
                 {cartons.map(c => (
                   <option key={c.id} value={c.id}>
@@ -240,7 +240,7 @@ export function AqlAuditModal({
               <select
                 value={inspectorName}
                 onChange={e => setInspectorName(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               >
                 <option value="Devendra Patel (ISO Certified Lead Auditor)">
                   Devendra Patel (ISO Certified Lead Auditor)
@@ -261,25 +261,25 @@ export function AqlAuditModal({
                 type="text"
                 value={orderNumber}
                 readOnly
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 font-mono text-slate-600"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 font-mono text-slate-600"
               />
             </div>
           </div>
 
           {/* ISO 2859-1 Sampling Telemetry Box */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold text-[#3A3564] uppercase flex items-center gap-1.5">
+              <span className="text-xs font-mono font-bold text-[#0B1220] uppercase flex items-center gap-1.5">
                 <Calculator className="w-3.5 h-3.5" />
                 ISO 2859-1 Sampling Standard
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#3A3564] text-white font-bold">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0B1220] text-white font-bold">
                 Normal Level II
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Lot Size</span>
                 <input
                   type="number"
@@ -290,13 +290,13 @@ export function AqlAuditModal({
                   className="w-full text-center font-mono font-black text-slate-900 text-xs mt-0.5 border-b border-black/10 focus:outline-none"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Sample To Inspect</span>
-                <div className="font-mono font-black text-[#3A3564] text-sm mt-0.5">
+                <div className="font-mono font-black text-[#0B1220] text-sm mt-0.5">
                   {isoLimits.sampleSize} pcs
                 </div>
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">AQL 2.5 Major SLA</span>
                 <div className="font-mono font-black text-slate-900 text-sm mt-0.5">
                   Max ≤ {isoLimits.maxMajorDefects}
@@ -352,7 +352,7 @@ export function AqlAuditModal({
                 min={0}
                 value={minorDefects}
                 onChange={e => setMinorDefects(Math.max(0, Number(e.target.value)))}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-black text-slate-800 text-center focus:outline-none"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-black text-slate-800 text-center focus:outline-none"
               />
               <span className="text-[9px] text-slate-400">Stray thread, fold crease</span>
             </div>
@@ -366,7 +366,7 @@ export function AqlAuditModal({
             <select
               value={auditDecision}
               onChange={e => setAuditDecision(e.target.value as AqlAuditDecision)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             >
               <option value="PASS">PASS — Release for Central Godown Handover (AQL_AUDIT_PASSED)</option>
               <option value="RE_AUDIT">RE_AUDIT — Secondary 100-pc Sampling Required</option>
@@ -386,7 +386,7 @@ export function AqlAuditModal({
               onChange={e => setRemarks(e.target.value)}
               rows={2}
               placeholder="e.g. 1000-lux inspection passed. Zero needle fragments detected on calibrated conveyor metal detector."
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             />
           </div>
 
@@ -395,13 +395,13 @@ export function AqlAuditModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Submit AQL 2.5 Audit</span>

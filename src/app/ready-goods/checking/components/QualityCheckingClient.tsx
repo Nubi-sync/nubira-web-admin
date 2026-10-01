@@ -78,7 +78,7 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#3A3564] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0B1220] uppercase tracking-wider mb-1">
             <Scissors className="w-4 h-4" />
             <span>Finishing Floor Quality Inspection Table</span>
           </div>
@@ -100,7 +100,7 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
           </Link>
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <span>Launch Checker Terminal</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -193,7 +193,7 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search lot, article, or buyer..."
-              className="w-full pl-9 pr-3.5 py-1.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3.5 py-1.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-[#0B1220]"
             />
           </div>
         </div>
@@ -222,7 +222,7 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
               ) : (
                 filteredTasks.map((task) => (
                   <tr key={task.id} className="hover:bg-slate-50/50">
-                    <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                    <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                       #{task.task_code}
                     </td>
 
@@ -319,7 +319,7 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
                     <td className="py-3 px-4 text-right">
                       <Link
                         href="/ready-goods/worker"
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#3A3564] hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0B1220] hover:underline"
                       >
                         <span>Audit in Terminal</span>
                         <ArrowRight className="w-3.5 h-3.5" />

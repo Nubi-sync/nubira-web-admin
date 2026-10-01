@@ -80,12 +80,12 @@ export function ScanHangtagModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
+        className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-5 my-8"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/10 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Tag className="w-5 h-5" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export function ScanHangtagModal({
               <button
                 type="button"
                 onClick={handleSimulateScan}
-                className="text-[10px] font-mono font-bold text-[#3A3564] hover:underline"
+                className="text-[10px] font-mono font-bold text-[#0B1220] hover:underline"
               >
                 Simulate Laser Scan
               </button>
@@ -134,7 +134,7 @@ export function ScanHangtagModal({
                 onChange={e => setScanCode(e.target.value)}
                 placeholder="Scan or enter 13-digit EAN barcode..."
                 required
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 font-mono font-black text-[#3A3564] focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 font-mono font-black text-[#0B1220] focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ export function ScanHangtagModal({
                 placeholder="e.g. PO-1001"
                 value={orderNumber}
                 onChange={e => setOrderNumber(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               />
             </div>
 
@@ -162,7 +162,7 @@ export function ScanHangtagModal({
                 value={sku}
                 onChange={e => setSku(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono text-slate-800"
               />
             </div>
           </div>
@@ -175,7 +175,7 @@ export function ScanHangtagModal({
               <select
                 value={size}
                 onChange={e => setSize(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-800"
               >
                 <option value="XS">XS</option>
                 <option value="S">S</option>
@@ -195,14 +195,14 @@ export function ScanHangtagModal({
                 value={operatorName}
                 onChange={e => setOperatorName(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-white text-slate-800"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-white text-slate-800"
               />
             </div>
           </div>
 
           {/* Physical Verification Checklist */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] space-y-2.5">
-            <span className="text-xs font-mono font-bold text-[#3A3564] uppercase flex items-center gap-1.5">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] space-y-2.5">
+            <span className="text-xs font-mono font-bold text-[#0B1220] uppercase flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
               Packing Station Physical Inspection Checklist
             </span>
@@ -213,7 +213,7 @@ export function ScanHangtagModal({
                   type="checkbox"
                   checked={kimbleAttached}
                   onChange={e => setKimbleAttached(e.target.checked)}
-                  className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                  className="rounded text-[#0B1220] focus:ring-[#0B1220]"
                 />
                 <span className="text-slate-700">
                   Hangtag attached with Kimble tag gun / Micro-Tach fastener (armhole/neck)
@@ -225,7 +225,7 @@ export function ScanHangtagModal({
                   type="checkbox"
                   checked={silicaInserted}
                   onChange={e => setSilicaInserted(e.target.checked)}
-                  className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                  className="rounded text-[#0B1220] focus:ring-[#0B1220]"
                 />
                 <span className="text-slate-700">
                   2g Silica Gel moisture-absorption desiccant pouch placed inside
@@ -237,7 +237,7 @@ export function ScanHangtagModal({
                   type="checkbox"
                   checked={polybagSealed}
                   onChange={e => setPolybagSealed(e.target.checked)}
-                  className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                  className="rounded text-[#0B1220] focus:ring-[#0B1220]"
                 />
                 <span className="text-slate-700">
                   Buyer-compliant polybag with warning text cleanly folded and adhesive sealed
@@ -250,13 +250,13 @@ export function ScanHangtagModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-3.5 h-3.5 text-white" />
               <span>Verify & Record Polybag</span>

@@ -67,17 +67,17 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       {/* Header Banner */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <PackageCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <PackageCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Carton Packing Manifest
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 GS1-128 &amp; Barcode Sealing
               </span>
             </div>
@@ -89,7 +89,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Seal &amp; Register Carton (Form 2)</span>
@@ -98,12 +98,12 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
 
       {/* 4 Carton Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Total Sealed Cartons
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
@@ -113,12 +113,12 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
           <p className="text-xs font-semibold text-slate-500 mt-1">{totalPcs.toLocaleString()} Garments Packed</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Export CBM Volume
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <PackageCheck className="w-4 h-4" />
             </div>
           </div>
@@ -128,12 +128,12 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
           <p className="text-xs font-semibold text-slate-500 mt-1">Ready for Container Stuffing</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Weighbridge Compliance
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Scale className="w-4 h-4" />
             </div>
           </div>
@@ -143,12 +143,12 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
           <p className="text-xs font-semibold text-slate-500 mt-1">Within ±0.15 kg BOM Target</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Godown Bay Stacking
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Warehouse className="w-4 h-4" />
             </div>
           </div>
@@ -160,14 +160,14 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
       </div>
 
       {/* Main Table: Carton Packing Manifest */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-black/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0FDFA]/30">
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)]">
                 Live Conveyor Carton Packing Manifest
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#3A3564] text-white font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#0B1220] text-white font-bold">
                 {filteredCartons.length} Cartons Shown
               </span>
             </div>
@@ -183,7 +183,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search CTN #, PO, Buyer, Style..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] font-mono text-slate-900"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] font-mono text-slate-900"
             />
           </div>
         </div>
@@ -203,7 +203,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
               onClick={() => setBayFilter(tab.id)}
               className={`px-3 py-2 text-xs font-mono font-bold rounded-t-lg transition-all border-b-2 cursor-pointer ${
                 bayFilter === tab.id
-                  ? 'border-[#3A3564] text-[#3A3564] bg-[#FAF7F0]/60'
+                  ? 'border-[#0B1220] text-[#0B1220] bg-[#F0FDFA]/60'
                   : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -216,7 +216,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-black/10 bg-[#F0FDFA]/60 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3.5 px-4">Carton Barcode</th>
                 <th className="py-3.5 px-4">Order PO & Buyer</th>
                 <th className="py-3.5 px-4">Garment & Color</th>
@@ -248,10 +248,10 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
                   return (
                     <tr
                       key={carton.id}
-                      className="hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer"
+                      className="hover:bg-[#F0FDFA]/40 transition-colors cursor-pointer"
                       onClick={() => setSelectedCarton(carton)}
                     >
-                      <td className="py-3.5 px-4 font-mono font-black text-[#3A3564] flex items-center gap-2">
+                      <td className="py-3.5 px-4 font-mono font-black text-[#0B1220] flex items-center gap-2">
                         <QrCode className="w-3.5 h-3.5 text-slate-400" />
                         <span>{carton.cartonNumber}</span>
                       </td>
@@ -269,7 +269,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
                           {Object.entries(carton.sizeBreakdown).map(([sz, qty]) => (
                             <span
                               key={sz}
-                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15"
                             >
                               {sz}:{qty}
                             </span>
@@ -281,7 +281,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
                           {carton.packedBundleIds.map(bId => (
                             <span
                               key={bId}
-                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold"
+                              className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15 font-bold"
                             >
                               {bId}
                             </span>
@@ -293,16 +293,16 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
                         <div className="text-[10px] text-slate-400">BOM: {carton.expectedGrossWeightKg.toFixed(2)} kg</div>
                       </td>
                       <td className="py-3.5 px-4 font-mono">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold border bg-[#FAF7F0] text-slate-900 border-black/10">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold border bg-[#F0FDFA] text-slate-900 border-black/10">
                           {carton.weightVarianceKg >= 0 ? '+' : ''}
                           {carton.weightVarianceKg.toFixed(2)} kg
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#0B1220]">
                         {carton.godownBay}
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/15">
                           {carton.status.replace(/_/g, ' ')}
                         </span>
                       </td>
@@ -312,9 +312,9 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
                             e.stopPropagation()
                             setSelectedCarton(carton)
                           }}
-                          className="px-2.5 py-1 rounded bg-white hover:bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-white hover:bg-[#F0FDFA] border border-black/15 text-slate-700 text-xs font-mono font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
                         >
-                          <Eye className="w-3 h-3 text-[#3A3564]" />
+                          <Eye className="w-3 h-3 text-[#0B1220]" />
                           <span>Inspect</span>
                         </button>
                       </td>
@@ -334,12 +334,12 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
           onClick={() => setSelectedCarton(null)}
         >
           <div
-            className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full p-6 space-y-4"
+            className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full p-6 space-y-4"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div className="flex items-center gap-2">
-                <PackageCheck className="w-5 h-5 text-[#3A3564]" />
+                <PackageCheck className="w-5 h-5 text-[#0B1220]" />
                 <h3 className="text-lg font-black text-slate-900">
                   Carton {selectedCarton.cartonNumber}
                 </h3>
@@ -375,11 +375,11 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Assigned Bay:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedCarton.godownBay}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedCarton.godownBay}</div>
               </div>
               <div>
                 <span className="text-slate-400 font-mono">Status:</span>
-                <div className="font-mono font-bold text-[#3A3564]">{selectedCarton.status}</div>
+                <div className="font-mono font-bold text-[#0B1220]">{selectedCarton.status}</div>
               </div>
             </div>
 
@@ -391,7 +391,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
                 {Object.entries(selectedCarton.sizeBreakdown).map(([sz, qty]) => (
                   <span
                     key={sz}
-                    className="px-2.5 py-1 rounded bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564]"
+                    className="px-2.5 py-1 rounded bg-[#F0FDFA] border border-black/15 text-xs font-mono font-bold text-[#0B1220]"
                   >
                     Size {sz}: {qty} pcs
                   </span>
@@ -423,7 +423,7 @@ export function CartonPackingClient({ userEmail, companyName }: CartonPackingCli
             <div className="pt-2 flex justify-end gap-2">
               <Link
                 href="/ready-goods/aql-inspection"
-                className="px-3 py-1.5 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2c284e] cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] cursor-pointer"
               >
                 Perform AQL Audit
               </Link>

@@ -36,7 +36,7 @@ export default async function ReadyGoodsWorkerHistoryPage() {
 
         <div className="bg-white rounded-3xl border border-black/15 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564]/10 text-[#3A3564] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#0B1220]/10 text-[#0B1220] flex items-center justify-center">
               <History className="w-5 h-5" />
             </div>
             <div>
