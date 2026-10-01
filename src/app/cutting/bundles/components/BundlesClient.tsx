@@ -152,15 +152,15 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
       {/* Top Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <QrCode className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <QrCode className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Cut Panel Bundle QR Generation
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 Serial Barcode Tracking
               </span>
             </div>
@@ -190,7 +190,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
               }}
               className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#14C8B4]" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
               <span>Dispatch All</span>
             </button>
           )}
@@ -200,7 +200,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
             onClick={() => setIsGenerateModalOpen(true)}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+            <Plus className="w-3.5 h-3.5 text-white" />
             <span>Generate QR</span>
           </button>
 

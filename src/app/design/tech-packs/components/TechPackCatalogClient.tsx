@@ -33,12 +33,12 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
-  APPROVED_BULK: { label: 'Ready for Merchandising', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold' },
-  PPS_APPROVED: { label: 'PPS Approved', badgeClass: 'bg-[#F0FDFA] text-[#0B1220] border-[#14C8B4]/30 font-semibold' },
-  PPS_SUBMITTED: { label: 'PPS Review', badgeClass: 'bg-slate-100 text-slate-800 border-slate-200 font-semibold' },
-  SAMPLE_DEV: { label: 'Sample Dev', badgeClass: 'bg-slate-50 text-slate-800 border-slate-200 font-semibold' },
-  REVISE_FIT: { label: 'Revise Fit', badgeClass: 'bg-amber-50 text-amber-800 border-amber-300 font-semibold' },
-  DRAFT: { label: 'Ready for Merchandising', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold' }
+  APPROVED_BULK: { label: 'Ready for Merchandising', badgeClass: 'bg-emerald-50 text-emerald-800 border-black/15 font-bold' },
+  PPS_APPROVED: { label: 'PPS Approved', badgeClass: 'bg-[#F0FDFA] text-[#0B1220] border-black/20 font-semibold' },
+  PPS_SUBMITTED: { label: 'PPS Review', badgeClass: 'bg-slate-100 text-slate-800 border-black/15 font-semibold' },
+  SAMPLE_DEV: { label: 'Sample Dev', badgeClass: 'bg-slate-50 text-slate-800 border-black/15 font-semibold' },
+  REVISE_FIT: { label: 'Revise Fit', badgeClass: 'bg-amber-50 text-amber-800 border-black/15 font-semibold' },
+  DRAFT: { label: 'Ready for Merchandising', badgeClass: 'bg-emerald-50 text-emerald-800 border-black/15 font-bold' }
 }
 
 interface TechPackCatalogClientProps {
@@ -142,15 +142,15 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
       {/* Action Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <FileCheck2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <FileCheck2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Tech-Pack Master Catalog
               </h1>
-              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 {totalSpecs} Specs
               </span>
             </div>
@@ -191,7 +191,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
             onClick={() => setIsCreateOpen(true)}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4 text-[#14C8B4]" />
+            <Plus className="w-4 h-4 text-white" />
             <span>Create Tech-Pack</span>
           </button>
         </div>
@@ -204,8 +204,8 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Total Specs
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <FileCheck2 className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <FileCheck2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -220,8 +220,8 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Ready for Merchandising
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -236,8 +236,8 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Sample Dev / PPS
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -252,8 +252,8 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Fit Revisions
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <Layers className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -503,8 +503,8 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-200/80 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center shadow-2xs">
-                  <GitCompare className="w-5 h-5 text-[#14C8B4]" />
+                <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center shadow-2xs">
+                  <GitCompare className="w-5 h-5 text-[#0B1220]" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">

@@ -766,7 +766,7 @@ export function CuttingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
@@ -786,7 +786,7 @@ export function CuttingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Pending Cutting
             </span>
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Clock className="w-5 h-5" />
             </div>
           </div>
@@ -806,7 +806,7 @@ export function CuttingDashboardClient({
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Completed Cutting
             </span>
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Scissors className="w-5 h-5" />
             </div>
           </div>
