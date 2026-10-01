@@ -33,8 +33,8 @@ export function AdminIdentityCard({
               <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                 {adminDisplayName}
               </h2>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#14C8B4]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                 SUPER ADMIN
               </span>
             </div>
@@ -48,9 +48,9 @@ export function AdminIdentityCard({
       {/* 3-Column Clean Executive Parameters Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4.5 pt-1">
         {/* 1. Primary Login Email */}
-        <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
-            <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+            <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0 flex-1">
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
@@ -63,9 +63,9 @@ export function AdminIdentityCard({
         </div>
 
         {/* 2. Direct Mobile Phone */}
-        <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
-            <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+            <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0 flex-1">
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
@@ -78,9 +78,9 @@ export function AdminIdentityCard({
         </div>
 
         {/* 3. Account Established */}
-        <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
-            <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0 flex-1">
             <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">

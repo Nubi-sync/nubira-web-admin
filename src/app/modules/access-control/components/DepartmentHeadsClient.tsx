@@ -308,7 +308,7 @@ export function DepartmentHeadsClient({
       {/* 1. Header Banner - Clean with Department Pill */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
         <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <ShieldCheck className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -316,7 +316,7 @@ export function DepartmentHeadsClient({
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {divisions.length} Departments
               </span>
             </div>
@@ -354,7 +354,7 @@ export function DepartmentHeadsClient({
       {/* 2. ROW 1: Written About the Owner - No pill clutter */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-all">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Crown className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -394,7 +394,7 @@ export function DepartmentHeadsClient({
       {/* 3. ROW 2: Written About the Production Manager - High Contrast & Large Touch Buttons */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-all">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Factory className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -579,7 +579,7 @@ export function DepartmentHeadsClient({
                 >
                   {/* Column 1: Department Info (5 columns) */}
                   <div className="col-span-5 flex items-center gap-3.5 min-w-0">
-                    <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                       <IconComponent className="w-6 h-6 text-[#0B1220]" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -640,7 +640,7 @@ export function DepartmentHeadsClient({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                         <IconComponent className="w-5 h-5 text-[#0B1220]" />
                       </div>
                       <div className="min-w-0">

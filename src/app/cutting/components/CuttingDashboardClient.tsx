@@ -576,8 +576,8 @@ export function CuttingDashboardClient({
         
         {/* Left: Active Buyer Info Pill */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
@@ -586,7 +586,7 @@ export function CuttingDashboardClient({
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-slate-50 text-[#0B1220] border border-slate-200">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
