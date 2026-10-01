@@ -62,10 +62,10 @@ export function CompleteRunModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
@@ -94,7 +94,7 @@ export function CompleteRunModal({
               <select
                 value={machineNumber}
                 onChange={e => setMachineNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="Machine 01 (20-Head Tajima)">Machine 01 (20-Head Tajima)</option>
                 <option value="Machine 02 (20-Head Barudan)">Machine 02 (20-Head Barudan)</option>
@@ -117,7 +117,7 @@ export function CompleteRunModal({
                 required
                 value={operatorName}
                 onChange={e => setOperatorName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none"
               />
             </div>
           </div>
@@ -131,7 +131,7 @@ export function CompleteRunModal({
                 type="text"
                 value={designCode}
                 onChange={e => setDesignCode(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -141,7 +141,7 @@ export function CompleteRunModal({
               <select
                 value={runStatus}
                 onChange={e => setRunStatus(e.target.value as EmbroideryRunStatus)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="COMPLETED">COMPLETED (Shift Target Met)</option>
                 <option value="RUNNING">RUNNING (Active Cycle)</option>
@@ -152,7 +152,7 @@ export function CompleteRunModal({
           </div>
 
           {/* Shift Counters */}
-          <div className="grid grid-cols-3 gap-3 bg-[#FAF7F0]/60 p-3.5 rounded-xl border border-black/5">
+          <div className="grid grid-cols-3 gap-3 bg-[#F0FDFA]/60 p-3.5 rounded-xl border border-black/5">
             <div>
               <label className="block font-mono font-bold text-slate-700 mb-1">
                 Panels Completed *
@@ -164,7 +164,7 @@ export function CompleteRunModal({
                 max={10000}
                 value={panelsCompleted}
                 onChange={e => setPanelsCompleted(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold text-[#0B1220]"
               />
               <span className="text-[10px] text-slate-400">Target count</span>
             </div>
@@ -178,7 +178,7 @@ export function CompleteRunModal({
                 min={0}
                 value={threadBreaks}
                 onChange={e => setThreadBreaks(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold text-amber-700"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold text-amber-700"
               />
               <span className="text-[10px] text-slate-400">Total snaps</span>
             </div>
@@ -191,7 +191,7 @@ export function CompleteRunModal({
                 required
                 value={totalStitchesRun}
                 onChange={e => setTotalStitchesRun(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold"
               />
               <span className="text-[10px] text-slate-400">Machine reading</span>
             </div>
@@ -208,14 +208,14 @@ export function CompleteRunModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+              className="px-4 py-2 rounded-xl border border-black/15 text-slate-600 hover:bg-slate-100 font-bold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Record & Complete Shift</span>

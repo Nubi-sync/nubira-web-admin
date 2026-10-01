@@ -62,11 +62,11 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
         {/* Modal Header */}
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <FileCode className="w-5 h-5" />
             </div>
             <div>
@@ -99,7 +99,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 placeholder="e.g. DST-OLLY-HD8821-CHEST"
                 value={designCode}
                 onChange={e => setDesignCode(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -111,7 +111,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 placeholder="e.g. Chest Monogram Crest"
                 value={designName}
                 onChange={e => setDesignName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none"
               />
             </div>
           </div>
@@ -126,7 +126,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 placeholder="e.g. Principal Buyer"
                 value={buyerName}
                 onChange={e => setBuyerName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               />
             </div>
             <div>
@@ -139,7 +139,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 placeholder="e.g. PO-1001"
                 value={orderId}
                 onChange={e => setOrderId(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
@@ -157,7 +157,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 max={250000}
                 value={totalStitches}
                 onChange={e => setTotalStitches(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold text-[#0B1220]"
               />
               <span className="text-[10px] text-slate-400">Min 500 – Max 250k stitches</span>
             </div>
@@ -172,7 +172,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 max={15}
                 value={colorStopsCount}
                 onChange={e => setColorStopsCount(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold"
               />
               <span className="text-[10px] text-slate-400">1 to 15 thread changes</span>
             </div>
@@ -186,7 +186,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
               <select
                 value={backingType}
                 onChange={e => setBackingType(e.target.value as BackingType)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="Tear-Away 40 GSM">Tear-Away 40 GSM</option>
                 <option value="Cut-Away 60 GSM">Cut-Away 60 GSM</option>
@@ -200,7 +200,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
               <select
                 value={threadBrand}
                 onChange={e => setThreadBrand(e.target.value as ThreadBrand)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="Madeira">Madeira Classic</option>
                 <option value="Isacord">Isacord Polyester</option>
@@ -219,7 +219,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 type="number"
                 value={widthMm}
                 onChange={e => setWidthMm(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -230,7 +230,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 type="number"
                 value={heightMm}
                 onChange={e => setHeightMm(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -242,7 +242,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 step="0.05"
                 value={ratePerThousand}
                 onChange={e => setRatePerThousand(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
@@ -259,7 +259,7 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
                 placeholder="punch_file_name.dst"
                 value={fileName}
                 onChange={e => setFileName(e.target.value)}
-                className="w-full max-w-xs px-2 py-1 text-center font-mono text-[11px] rounded-lg border border-black/10 bg-white"
+                className="w-full max-w-xs px-2 py-1 text-center font-mono text-[11px] rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-400 mt-1">
                 Auto-generates binary header and needle travel coordinates
@@ -272,14 +272,14 @@ export function UploadPunchModal({ isOpen, onClose }: UploadPunchModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+              className="px-4 py-2 rounded-xl border border-black/15 text-slate-600 hover:bg-slate-100 font-bold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Register & Save DST</span>

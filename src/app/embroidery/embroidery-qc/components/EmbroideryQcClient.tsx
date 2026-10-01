@@ -66,9 +66,9 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -76,7 +76,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Quality &amp; Thread Break QC
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Head 1–20 Diagnostics
               </span>
             </div>
@@ -90,7 +90,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/embroidery"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -99,7 +99,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Log Thread Break Incident</span>
@@ -109,7 +109,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Total Audits Logged</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {audits.length} Incidents
@@ -117,7 +117,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
           <p className="text-xs font-medium text-slate-500 mt-1">Shift maintenance events</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Thread Break Frequency</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             0.02% TBF
@@ -125,7 +125,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
           <p className="text-xs font-medium text-slate-600 mt-1">Below 0.03% threshold</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Critical Stop Events</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {criticalCount} Critical
@@ -135,7 +135,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
       </div>
 
       {/* 4. Filter and Search */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#FAF7F0]/30">
+      <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#F0FDFA]/30">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           {(['ALL', 'CRITICAL', 'MAJOR', 'MINOR'] as const).map(tab => (
             <button
@@ -143,8 +143,8 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
               onClick={() => setSeverityFilter(tab)}
               className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                 severityFilter === tab
-                  ? 'bg-[#3A3564] text-white shadow-xs'
-                  : 'bg-white text-slate-600 hover:text-[#3A3564] border border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:text-[#0B1220] border border-black/15 hover:bg-[#F0FDFA]'
               }`}
             >
               {tab}
@@ -159,17 +159,17 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
             placeholder="Search code, machine, defect..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
           />
         </div>
       </div>
 
       {/* 5. Audits Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-slate-100 bg-[#F0FDFA]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="p-4">Incident Code</th>
                 <th className="p-4">Machine & Head #</th>
                 <th className="p-4">Defect Classification</th>
@@ -182,8 +182,8 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
             <tbody className="divide-y divide-slate-100 text-slate-900">
               {filteredAudits.length > 0 ? (
                 filteredAudits.map(audit => (
-                  <tr key={audit.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="p-4 font-mono font-bold text-[#3A3564]">
+                  <tr key={audit.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
+                    <td className="p-4 font-mono font-bold text-[#0B1220]">
                       {audit.audit_code}
                     </td>
                     <td className="p-4 font-mono">
@@ -191,12 +191,12 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
                       <div className="text-[11px] text-slate-500 font-semibold">Head #{audit.head_number}</div>
                     </td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-800 text-[11px]">
+                      <span className="px-2.5 py-1 rounded-lg bg-[#F0FDFA] border border-black/15 font-mono font-bold text-slate-800 text-[11px]">
                         {audit.defect_type.replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {audit.severity}
                       </span>
                     </td>

@@ -71,9 +71,9 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <FileCode className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -81,7 +81,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 DST Punch File Library
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Tajima .DST / Barudan .DSB
               </span>
             </div>
@@ -95,7 +95,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/embroidery"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -104,7 +104,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
           <button
             type="button"
             onClick={() => setIsUploadOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Upload Punch File</span>
@@ -114,7 +114,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Total Punch Files</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {designs.length} Designs
@@ -122,7 +122,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
           <p className="text-xs font-medium text-slate-500 mt-1">Ready for 20-head transmission</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Average Stitch Count</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {avgStitches.toLocaleString()} Stitches
@@ -130,7 +130,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
           <p className="text-xs font-medium text-slate-600 mt-1">Calculated across catalog</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Default Jobwork Rate</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             ₹2.80 / 1k Stitches
@@ -140,7 +140,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
       </div>
 
       {/* 4. Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#FAF7F0]/30">
+      <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#F0FDFA]/30">
         <div className="relative w-full sm:w-80">
           <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -148,7 +148,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
             placeholder="Search by code, design name, or PO..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
           />
         </div>
 
@@ -157,7 +157,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
           <select
             value={selectedBuyer}
             onChange={e => setSelectedBuyer(e.target.value)}
-            className="px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium focus:ring-1 focus:ring-[#3A3564] outline-none text-slate-800"
+            className="px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium focus:ring-1 focus:ring-[#0B1220] outline-none text-slate-800"
           >
             <option value="ALL">All Buyers</option>
             {Array.from(new Set(designs.map(d => d.buyer_name).filter(Boolean))).map(b => (
@@ -173,12 +173,12 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
           filteredDesigns.map(design => (
             <div
               key={design.id}
-              className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs hover:border-black/20 transition-all flex flex-col justify-between space-y-4"
+              className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs hover:border-black/20 transition-all flex flex-col justify-between space-y-4"
             >
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="font-mono text-xs font-bold text-[#3A3564]">
+                    <span className="font-mono text-xs font-bold text-[#0B1220]">
                       {design.design_code}
                     </span>
                     <h3 className="font-bold text-sm text-slate-900 mt-0.5">
@@ -188,13 +188,13 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
                       Buyer: {design.buyer_name} • <span className="font-mono">{design.order_id}</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                     {design.status}
                   </span>
                 </div>
 
                 {/* Technical Spec Box */}
-                <div className="mt-3 p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5 space-y-1.5 text-xs font-mono">
+                <div className="mt-3 p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5 space-y-1.5 text-xs font-mono">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Total Stitches:</span>
                     <span className="font-bold text-slate-900">
@@ -229,9 +229,9 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setActivePreview(design)}
-                    className="px-2.5 py-1.5 rounded-lg bg-[#FAF7F0] border border-black/10 hover:bg-white text-slate-800 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
+                    className="px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-black/15 hover:bg-white text-slate-800 font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
                   >
-                    <Eye className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <Eye className="w-3.5 h-3.5 text-[#0B1220]" />
                     <span>Inspect</span>
                   </button>
                 </div>
@@ -255,10 +255,10 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
       {/* Punch Preview Modal */}
       {activePreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-black/10">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
                   <FileCode className="w-4 h-4" />
                 </div>
                 <h3 className="font-bold text-base text-slate-900">
@@ -275,10 +275,10 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
 
             <div className="py-4 space-y-3 text-xs">
               {/* Simulated needle stitch layout */}
-              <div className="h-32 bg-slate-900 rounded-xl flex items-center justify-center border border-black/10 p-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(#3A3564_1px,transparent_1px)] [background-size:12px_12px] opacity-40" />
+              <div className="h-32 bg-slate-900 rounded-xl flex items-center justify-center border border-black/15 p-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(#0B1220_1px,transparent_1px)] [background-size:12px_12px] opacity-40" />
                 <div className="text-center z-10">
-                  <div className="w-8 h-8 rounded-full bg-[#FAF7F0]/20 flex items-center justify-center mx-auto mb-1 text-[#FAF7F0]">
+                  <div className="w-8 h-8 rounded-full bg-[#F0FDFA]/20 flex items-center justify-center mx-auto mb-1 text-[#F0FDFA]">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <span className="font-mono text-[11px] text-slate-300 font-bold">
@@ -290,7 +290,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
                 </div>
               </div>
 
-              <div className="p-3 bg-[#FAF7F0] rounded-xl font-mono space-y-1 text-slate-700">
+              <div className="p-3 bg-[#F0FDFA] rounded-xl font-mono space-y-1 text-slate-700">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Binary File:</span>
                   <span className="font-bold text-slate-900">{activePreview.dst_file_name}</span>
@@ -314,7 +314,7 @@ export function PunchLibraryClient({ initialDesigns }: PunchLibraryClientProps =
 
             <button
               onClick={() => setActivePreview(null)}
-              className="w-full py-2 bg-[#3A3564] text-white font-bold rounded-xl text-xs hover:bg-[#2A2649] transition-all cursor-pointer shadow-xs"
+              className="w-full py-2 bg-[#0B1220] text-white font-bold rounded-xl text-xs hover:bg-[#162032] transition-all cursor-pointer shadow-xs"
             >
               Close Inspector
             </button>

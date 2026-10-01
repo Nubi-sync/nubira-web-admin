@@ -56,10 +56,10 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Calculator className="w-5 h-5" />
             </div>
             <div>
@@ -90,7 +90,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 required
                 value={buyerName}
                 onChange={e => setBuyerName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-medium"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 required
                 value={orderPo}
                 onChange={e => setOrderPo(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
@@ -117,7 +117,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 required
                 value={designCode}
                 onChange={e => setDesignCode(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -130,7 +130,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 min={1}
                 value={totalPieces}
                 onChange={e => setTotalPieces(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 min={500}
                 value={stitchCountPerPiece}
                 onChange={e => setStitchCountPerPiece(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold text-[#0B1220]"
               />
             </div>
             <div>
@@ -159,7 +159,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 required
                 value={ratePerThousand}
                 onChange={e => setRatePerThousand(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -172,13 +172,13 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
                 required
                 value={backingCostPerPiece}
                 onChange={e => setBackingCostPerPiece(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
 
           {/* Live Calculation Preview */}
-          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2 font-mono text-xs">
+          <div className="p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15 space-y-2 font-mono text-xs">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Commercial Formula Breakdown:
             </div>
@@ -195,7 +195,7 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
               </span>
             </div>
             <div className="flex justify-between pt-1 border-t border-black/10 text-sm">
-              <span className="font-bold text-[#3A3564]">Total Ledger Value:</span>
+              <span className="font-bold text-[#0B1220]">Total Ledger Value:</span>
               <span className="font-black text-emerald-700">
                 ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
@@ -206,14 +206,14 @@ export function CreateBillingModal({ isOpen, onClose }: CreateBillingModalProps)
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+              className="px-4 py-2 rounded-xl border border-black/15 text-slate-600 hover:bg-slate-100 font-bold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Generate Billing Record</span>

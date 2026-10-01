@@ -61,10 +61,10 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Play className="w-5 h-5" />
             </div>
             <div>
@@ -93,7 +93,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
               <select
                 value={machineNumber}
                 onChange={e => setMachineNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="Machine 01 (20-Head Tajima)">Machine 01 (20-Head Tajima)</option>
                 <option value="Machine 02 (20-Head Barudan)">Machine 02 (20-Head Barudan)</option>
@@ -116,7 +116,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
                 required
                 value={operatorName}
                 onChange={e => setOperatorName(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none"
               />
             </div>
           </div>
@@ -133,7 +133,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
                   const des = designs.find(d => d.id === e.target.value)
                   if (des) setOrderPo(des.order_id)
                 }}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 {designs.map(d => (
                   <option key={d.id} value={d.id}>
@@ -150,7 +150,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
                 type="text"
                 value={orderPo}
                 onChange={e => setOrderPo(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
                 min={20}
                 value={panelsLoaded}
                 onChange={e => setPanelsLoaded(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold"
               />
             </div>
             <div>
@@ -179,7 +179,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
                 max={1100}
                 value={rpmSpeed}
                 onChange={e => setRpmSpeed(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
               <span className="text-[10px] text-slate-400">Target 850–920 RPM</span>
             </div>
@@ -194,7 +194,7 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
               required
               value={backingSpec}
               onChange={e => setBackingSpec(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+              className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
             />
           </div>
 
@@ -202,14 +202,14 @@ export function StartRunModal({ isOpen, onClose }: StartRunModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+              className="px-4 py-2 rounded-xl border border-black/15 text-slate-600 hover:bg-slate-100 font-bold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Play className="w-4 h-4" />
               <span>Launch Run</span>

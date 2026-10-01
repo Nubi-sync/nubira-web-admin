@@ -347,16 +347,16 @@ export function WorkerDashboardClient({
 
           <Link
             href="/embroidery/worker/history"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs"
           >
-            <History className="w-3.5 h-3.5 text-[#3A3564]" />
+            <History className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>Completed History ({historyTasks.length})</span>
           </Link>
           <button
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
             title="Refresh floor assignments"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -366,20 +366,20 @@ export function WorkerDashboardClient({
       </div>
 
       {/* Layer 2: Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <Sparkles className="w-6 h-6 text-[#3A3564]" />
+          <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Sparkles className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Welcome, {displayWorkerName}
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {userRole ? userRole.replace(/_/g, ' ') : 'Embroidery Floor Operator'}
               </span>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-slate-900 border border-black/15 shadow-2xs tracking-wider">
                 {activeAssignments.length} Active Tasks
               </span>
             </div>
@@ -390,7 +390,7 @@ export function WorkerDashboardClient({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+          <span className="px-3.5 py-1.5 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs font-mono font-bold text-[#0B1220] shadow-2xs">
             {userPhone ? `+91 ${userPhone}` : userEmail}
           </span>
         </div>
@@ -400,13 +400,13 @@ export function WorkerDashboardClient({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         {/* Metric 1: Active Jobs */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               TASKS
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Briefcase className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Briefcase className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -420,13 +420,13 @@ export function WorkerDashboardClient({
         </div>
 
         {/* Metric 2: Total Pieces Assigned */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               TARGET
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Layers className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -440,13 +440,13 @@ export function WorkerDashboardClient({
         </div>
 
         {/* Metric 3: Stage 02 In Head Review */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               STAGE 02
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -460,13 +460,13 @@ export function WorkerDashboardClient({
         </div>
 
         {/* Metric 4: Cleared & Verified */}
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               CLEARED
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -495,9 +495,9 @@ export function WorkerDashboardClient({
         </div>
 
         {currentTasks.length === 0 ? (
-          <div className="bg-white p-12 rounded-3xl border border-black/10 shadow-2xs text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center mx-auto mb-2 shadow-2xs">
-              <CheckCircle2 className="w-7 h-7 text-[#3A3564]" />
+          <div className="bg-white p-12 rounded-3xl border border-black/15 shadow-2xs text-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center mx-auto mb-2 shadow-2xs">
+              <CheckCircle2 className="w-7 h-7 text-[#0B1220]" />
             </div>
             <h3 className="text-base font-bold text-slate-900">All Embroidery Tasks Cleared</h3>
             <p className="text-xs text-slate-500 font-mono max-w-sm mx-auto">
@@ -514,12 +514,12 @@ export function WorkerDashboardClient({
             return (
               <div
                 key={task.id}
-                className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden transition-all hover:shadow-md"
+                className="bg-white rounded-3xl border border-black/15 shadow-2xs overflow-hidden transition-all hover:shadow-md"
               >
                 {/* Task Header */}
-                <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="p-5 sm:p-6 border-b border-black/10 bg-[#F0FDFA]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono font-black text-sm px-3 py-1 rounded-xl bg-white border border-black/10 text-[#3A3564] shadow-2xs">
+                    <span className="font-mono font-black text-sm px-3 py-1 rounded-xl bg-white border border-black/15 text-[#0B1220] shadow-2xs">
                       #{task.task_ref}
                     </span>
                     <div>
@@ -541,8 +541,8 @@ export function WorkerDashboardClient({
                       </span>
                     )}
                     {isInProgress && (
-                      <span className="px-3 py-1 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 text-xs font-mono font-bold flex items-center gap-2 shadow-2xs">
-                        <span className="w-2 h-2 rounded-full bg-[#3A3564] animate-ping" />
+                      <span className="px-3 py-1 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-xs font-mono font-bold flex items-center gap-2 shadow-2xs">
+                        <span className="w-2 h-2 rounded-full bg-[#0B1220] animate-ping" />
                         <span>Stitching Live ({task.table_number || 'Machine 01'}) • {remaining.formatted}</span>
                       </span>
                     )}
@@ -559,7 +559,7 @@ export function WorkerDashboardClient({
                 <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white">
                   
                   {/* 1. Target Pieces */}
-                  <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
+                  <div className="p-4 rounded-2xl bg-[#F0FDFA]/50 border border-black/5 flex flex-col justify-between">
                     <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
                       Target Pieces
                     </span>
@@ -569,11 +569,11 @@ export function WorkerDashboardClient({
                   </div>
 
                   {/* 2. Assigned Machine Station */}
-                  <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
+                  <div className="p-4 rounded-2xl bg-[#F0FDFA]/50 border border-black/5 flex flex-col justify-between">
                     <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
                       Embroidery Machine
                     </span>
-                    <div className="text-lg font-black font-mono text-[#3A3564] mt-1 truncate">
+                    <div className="text-lg font-black font-mono text-[#0B1220] mt-1 truncate">
                       {task.table_number || 'Machine 01 (Tajima 20-Head)'}
                     </div>
                     <span className="text-[11px] text-slate-500 font-mono">Floor Multi-Head Unit</span>
@@ -581,9 +581,9 @@ export function WorkerDashboardClient({
 
                   {/* 3. Alloted Hours & Live Countdown Timer */}
                   {isInProgress ? (
-                    <div className="p-4 rounded-2xl bg-[#FAF7F0]/80 border border-black/10 flex flex-col justify-between shadow-2xs">
+                    <div className="p-4 rounded-2xl bg-[#F0FDFA]/80 border border-black/15 flex flex-col justify-between shadow-2xs">
                       <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <Clock className="w-3 h-3 text-[#3A3564] animate-spin" />
+                        <Clock className="w-3 h-3 text-[#0B1220] animate-spin" />
                         <span>Timer Remaining</span>
                       </span>
                       <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-1 flex items-baseline gap-1.5">
@@ -595,9 +595,9 @@ export function WorkerDashboardClient({
                       </span>
                     </div>
                   ) : isWorkerCompleted ? (
-                    <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
+                    <div className="p-4 rounded-2xl bg-[#F0FDFA]/50 border border-black/5 flex flex-col justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#3A3564]" />
+                        <Clock className="w-3 h-3 text-[#0B1220]" />
                         <span>Shift Status</span>
                       </span>
                       <div className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1">
@@ -608,9 +608,9 @@ export function WorkerDashboardClient({
                       </span>
                     </div>
                   ) : (
-                    <div className="p-4 rounded-2xl bg-[#FAF7F0]/50 border border-black/5 flex flex-col justify-between">
+                    <div className="p-4 rounded-2xl bg-[#F0FDFA]/50 border border-black/5 flex flex-col justify-between">
                       <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#3A3564]" />
+                        <Clock className="w-3 h-3 text-[#0B1220]" />
                         <span>Target Time</span>
                       </span>
                       <div className="text-xl sm:text-2xl font-black font-mono text-slate-900 mt-1">
@@ -638,7 +638,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleStartEmbroidery(task.id, task.task_ref, task.table_number, task.alloted_hours)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
                       <Play className="w-4 h-4 fill-current" />
                       <span>Start Stitching on {task.table_number || 'Machine 01'}</span>
@@ -649,7 +649,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleFinishWork(task.id, task.task_ref, task.pieces_to_embroider)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4 text-white" />
                       <span>✓ Finish Work ({task.pieces_to_embroider.toLocaleString('en-IN')} Pcs Embroidered)</span>

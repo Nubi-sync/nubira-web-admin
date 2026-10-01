@@ -55,10 +55,10 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Boxes className="w-5 h-5" />
             </div>
             <div>
@@ -87,7 +87,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
               <select
                 value={brand}
                 onChange={e => setBrand(e.target.value as ThreadBrand)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="Madeira">Madeira Classic</option>
                 <option value="Isacord">Isacord Polyester</option>
@@ -102,7 +102,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
               <select
                 value={threadType}
                 onChange={e => setThreadType(e.target.value as ThreadType)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none bg-white font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none bg-white font-medium"
               >
                 <option value="Polyester 40wt">Polyester 40wt</option>
                 <option value="Rayon Viscose 40wt">Rayon Viscose 40wt</option>
@@ -123,7 +123,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
                 placeholder="e.g. 1800 Jet Obsidian"
                 value={shadeNumber}
                 onChange={e => setShadeNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none"
               />
             </div>
             <div>
@@ -135,7 +135,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
                 placeholder="e.g. Pantone 19-4007 TCX"
                 value={pantoneMatch}
                 onChange={e => setPantoneMatch(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
@@ -150,7 +150,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
                 required
                 value={initialWeight}
                 onChange={e => setInitialWeight(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
             <div>
@@ -163,7 +163,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
                 min={1}
                 value={conesInStock}
                 onChange={e => setConesInStock(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono font-bold text-[#3A3564]"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono font-bold text-[#0B1220]"
               />
             </div>
             <div>
@@ -174,7 +174,7 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
                 type="text"
                 value={storageBin}
                 onChange={e => setStorageBin(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-black/10 focus:ring-1 focus:ring-[#3A3564] outline-none font-mono"
+                className="w-full px-3 py-2 rounded-xl border border-black/15 focus:ring-1 focus:ring-[#0B1220] outline-none font-mono"
               />
             </div>
           </div>
@@ -183,14 +183,14 @@ export function AddThreadConeModal({ isOpen, onClose }: AddThreadConeModalProps)
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-slate-600 hover:bg-slate-100 font-bold transition-all"
+              className="px-4 py-2 rounded-xl border border-black/15 text-slate-600 hover:bg-slate-100 font-bold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Store Cones</span>

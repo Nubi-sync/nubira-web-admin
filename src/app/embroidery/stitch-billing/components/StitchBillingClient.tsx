@@ -91,9 +91,9 @@ export function StitchBillingClient({
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Calculator className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -101,7 +101,7 @@ export function StitchBillingClient({
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Stitch Count &amp; Billing Ledgers
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Piecewise Calculation
               </span>
             </div>
@@ -115,7 +115,7 @@ export function StitchBillingClient({
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/embroidery"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -124,7 +124,7 @@ export function StitchBillingClient({
           <button
             type="button"
             onClick={handleExportCsv}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 hover:bg-[#FAF7F0] text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/15 hover:bg-[#F0FDFA] text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -133,7 +133,7 @@ export function StitchBillingClient({
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Create Ledger</span>
@@ -143,7 +143,7 @@ export function StitchBillingClient({
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Total Billed Value</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             ₹{totalBilledValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -151,7 +151,7 @@ export function StitchBillingClient({
           <p className="text-xs font-medium text-slate-600 mt-1">Direct jobwork ledger value</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Total Stitches Invoiced</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {(totalStitchesBilled / 1000000).toFixed(2)}M Stitches
@@ -159,7 +159,7 @@ export function StitchBillingClient({
           <p className="text-xs font-medium text-slate-500 mt-1">Across all approved runs</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Standard Billing Formula</span>
           <div className="text-sm font-bold font-mono text-slate-800 mt-2">
             (Stitches / 1k) × Rate + Backing
@@ -169,7 +169,7 @@ export function StitchBillingClient({
       </div>
 
       {/* 4. Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#FAF7F0]/30">
+      <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#F0FDFA]/30">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {(['ALL', 'APPROVED', 'INVOICED', 'PENDING_AUDIT'] as const).map(tab => (
             <button
@@ -177,8 +177,8 @@ export function StitchBillingClient({
               onClick={() => setStatusFilter(tab)}
               className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                 statusFilter === tab
-                  ? 'bg-[#3A3564] text-white shadow-xs'
-                  : 'bg-white text-slate-600 hover:text-[#3A3564] border border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'bg-white text-slate-600 hover:text-[#0B1220] border border-black/15 hover:bg-[#F0FDFA]'
               }`}
             >
               {tab.replace(/_/g, ' ')}
@@ -193,17 +193,17 @@ export function StitchBillingClient({
             placeholder="Search invoice, buyer, PO..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
           />
         </div>
       </div>
 
       {/* 5. Ledgers Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-slate-100 bg-[#F0FDFA]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="p-4">Invoice & PO</th>
                 <th className="p-4">Buyer & DST Code</th>
                 <th className="p-4">Pieces Embroidered</th>
@@ -218,14 +218,14 @@ export function StitchBillingClient({
                 filteredLedgers.map(l => {
                   const unitCost = ((l.stitch_count_per_piece / 1000) * l.rate_per_thousand) + l.backing_cost_per_piece
                   return (
-                    <tr key={l.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <tr key={l.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                       <td className="p-4">
                         <div className="font-bold text-slate-900">{l.invoice_code}</div>
                         <div className="font-mono text-[11px] text-slate-500">{l.order_po}</div>
                       </td>
                       <td className="p-4">
                         <div className="font-semibold text-slate-800">{l.buyer_name}</div>
-                        <div className="font-mono text-[11px] text-[#3A3564] font-bold">{l.design_code}</div>
+                        <div className="font-mono text-[11px] text-[#0B1220] font-bold">{l.design_code}</div>
                       </td>
                       <td className="p-4 font-mono font-bold text-slate-900">
                         {l.total_pieces.toLocaleString()} pcs
@@ -242,7 +242,7 @@ export function StitchBillingClient({
                         ₹{l.total_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="p-4">
-                        <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                           {l.billing_status.replace(/_/g, ' ')}
                         </span>
                       </td>

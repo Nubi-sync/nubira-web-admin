@@ -68,9 +68,9 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Boxes className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -78,7 +78,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Thread Store &amp; Cones Log
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Madeira • Isacord • Coats
               </span>
             </div>
@@ -92,7 +92,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/embroidery"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -101,7 +101,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
           <button
             type="button"
             onClick={() => setIsAddOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Add Spool Cones</span>
@@ -111,7 +111,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Total Cones in Stock</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {totalCones} Cones
@@ -119,7 +119,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
           <p className="text-xs font-medium text-slate-500 mt-1">Across all thread racks</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Active Thread Shades</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {cones.length} Shades
@@ -127,7 +127,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
           <p className="text-xs font-medium text-slate-600 mt-1">Pantone calibrated lab dips</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Low Stock Requisitions</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {lowStockCount} Cones Low
@@ -137,7 +137,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
       </div>
 
       {/* 4. Filters */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#FAF7F0]/30">
+      <div className="bg-white p-4 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#F0FDFA]/30">
         <div className="relative w-full sm:w-80">
           <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -145,7 +145,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
             placeholder="Search shade, Pantone, code, or bin..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] bg-white text-slate-900 placeholder:text-slate-400 font-medium"
           />
         </div>
 
@@ -154,7 +154,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
           <select
             value={brandFilter}
             onChange={e => setBrandFilter(e.target.value)}
-            className="px-3 py-2 text-xs rounded-xl border border-black/10 bg-white font-medium focus:ring-1 focus:ring-[#3A3564] outline-none text-slate-800"
+            className="px-3 py-2 text-xs rounded-xl border border-black/15 bg-white font-medium focus:ring-1 focus:ring-[#0B1220] outline-none text-slate-800"
           >
             <option value="ALL">All Manufacturers</option>
             <option value="Madeira">Madeira Classic</option>
@@ -173,11 +173,11 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
             return (
               <div
                 key={cone.id}
-                className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs hover:border-black/20 transition-all space-y-3"
+                className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs hover:border-black/20 transition-all space-y-3"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="font-mono text-xs font-bold text-[#3A3564]">
+                    <span className="font-mono text-xs font-bold text-[#0B1220]">
                       {cone.cone_code}
                     </span>
                     <h3 className="font-bold text-sm text-slate-900 mt-0.5">
@@ -188,19 +188,19 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                     {cone.status.replace(/_/g, ' ')}
                   </span>
                 </div>
 
-                <div className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 space-y-1.5 text-xs font-mono">
+                <div className="p-3 bg-[#F0FDFA]/60 rounded-xl border border-black/5 space-y-1.5 text-xs font-mono">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Pantone Reference:</span>
                     <span className="font-bold text-slate-900">{cone.pantone_match}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Inventory Quantity:</span>
-                    <span className="font-bold text-[#3A3564]">{cone.cones_in_stock} Cones</span>
+                    <span className="font-bold text-[#0B1220]">{cone.cones_in_stock} Cones</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Storage Location:</span>
@@ -218,7 +218,7 @@ export function ThreadStoreClient({ initialCones }: ThreadStoreClientProps = {})
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-[#3A3564] h-1.5 rounded-full transition-all duration-500"
+                      className="bg-[#0B1220] h-1.5 rounded-full transition-all duration-500"
                       style={{ width: `${weightPct}%` }}
                     />
                   </div>
