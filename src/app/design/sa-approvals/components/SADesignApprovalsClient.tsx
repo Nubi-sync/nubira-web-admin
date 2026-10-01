@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { 
   ShieldCheck, 
   ChevronLeft, 
@@ -90,14 +91,18 @@ interface SADesignApprovalsClientProps {
   companyName: string
   currentUserId: string
   userRole?: string
+  isModuleView?: boolean
 }
 
 export function SADesignApprovalsClient({
   initialSubmissions,
   companyName,
   currentUserId,
-  userRole
+  userRole,
+  isModuleView: isModuleViewProp
 }: SADesignApprovalsClientProps) {
+  const pathname = usePathname()
+  const isModuleView = isModuleViewProp ?? (pathname?.startsWith('/design'))
   const [submissions, setSubmissions] = useState<DesignSubmission[]>(initialSubmissions || [])
   const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
@@ -145,6 +150,7 @@ export function SADesignApprovalsClient({
             if (!isPHApproved) return
 
             const saVerdict = (cw.sa_verdict || concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+            if (isModuleView && saVerdict === 'SAVED_FOR_LATER') return
 
             const status: BriefStatus = saVerdict === 'APPROVED' 
               ? 'SA_APPROVED' 
@@ -186,6 +192,7 @@ export function SADesignApprovalsClient({
           if (!isPHApproved) return
 
           const saVerdict = (concept.sa_verdict || sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+          if (isModuleView && saVerdict === 'SAVED_FOR_LATER') return
           const status: BriefStatus = saVerdict === 'APPROVED' ? 'SA_APPROVED' : saVerdict === 'SAVED_FOR_LATER' ? 'SA_SAVED_FOR_LATER' : saVerdict === 'REJECTED' ? 'PH_REJECTED' : 'PH_APPROVED'
 
           allRows.push({
@@ -219,6 +226,7 @@ export function SADesignApprovalsClient({
       const garment = brief?.garment_type || 'Apparel'
       const category = brief?.category || 'Casual'
       const saVerdict = (sub.sa_verdict || 'PENDING') as 'APPROVED' | 'SAVED_FOR_LATER' | 'REJECTED' | 'PENDING'
+      if (isModuleView && saVerdict === 'SAVED_FOR_LATER') return
 
       allRows.push({
         key: `${sub.id}-c-1`,
@@ -372,7 +380,10 @@ export function SADesignApprovalsClient({
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-              Review Supervisor-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive
+              {isModuleView 
+                ? "Review Supervisor-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or return for revisions"
+                : "Review Supervisor-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive"
+              }
             </p>
           </div>
         </div>
@@ -439,7 +450,7 @@ export function SADesignApprovalsClient({
           </div>
           <div className="mt-3">
             <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-              SA Greenlit
+              {isModuleView ? 'Approved Designs' : 'SA Greenlit'}
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 font-[family-name:var(--font-heading)] mt-1">
               {approvedItems.length}
@@ -447,24 +458,45 @@ export function SADesignApprovalsClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1D4ED8] bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-              ARCHIVE
-            </span>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-[#1D4ED8] border border-blue-200 flex items-center justify-center shadow-xs">
-              <Bookmark className="w-5 h-5 text-[#1D4ED8]" />
+        {isModuleView ? (
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-rose-800 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
+                REVISIONS
+              </span>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shadow-xs">
+                <XCircle className="w-5 h-5 text-rose-600" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
+                Revisions Needed
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-rose-600 font-[family-name:var(--font-heading)] mt-1">
+                {rejectedItems.length}
+              </div>
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-              Seasonal Archive
+        ) : (
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1D4ED8] bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+                ARCHIVE
+              </span>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-[#1D4ED8] border border-blue-200 flex items-center justify-center shadow-xs">
+                <Bookmark className="w-5 h-5 text-[#1D4ED8]" />
+              </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-1">
-              {savedForLaterItems.length}
+            <div className="mt-3">
+              <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
+                Seasonal Archive
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-1">
+                {savedForLaterItems.length}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Layer 4 & 5: Primary Approvals Ledger Container */}
@@ -485,17 +517,6 @@ export function SADesignApprovalsClient({
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('PENDING')}
-              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
-                activeTab === 'PENDING'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
-                  : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              Awaiting Decision ({pendingItems.length})
-            </button>
-            <button
-              type="button"
               onClick={() => setActiveTab('APPROVED')}
               className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
                 activeTab === 'APPROVED'
@@ -503,30 +524,43 @@ export function SADesignApprovalsClient({
                   : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
               }`}
             >
-              Greenlit ({approvedItems.length})
+              Approved ({approvedItems.length})
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('SAVED_FOR_LATER')}
+              onClick={() => setActiveTab('REJECTED')}
               className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
-                activeTab === 'SAVED_FOR_LATER'
+                activeTab === 'REJECTED'
                   ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                   : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
               }`}
             >
-              Saved for Later ({savedForLaterItems.length})
+              Revisions Needed ({rejectedItems.length})
             </button>
-            {rejectedItems.length > 0 && (
+            {pendingItems.length > 0 && (
               <button
                 type="button"
-                onClick={() => setActiveTab('REJECTED')}
+                onClick={() => setActiveTab('PENDING')}
                 className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
-                  activeTab === 'REJECTED'
+                  activeTab === 'PENDING'
                     ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                     : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                Revisions Needed ({rejectedItems.length})
+                Awaiting Decision ({pendingItems.length})
+              </button>
+            )}
+            {!isModuleView && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('SAVED_FOR_LATER')}
+                className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
+                  activeTab === 'SAVED_FOR_LATER'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
+                    : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                Saved for Later ({savedForLaterItems.length})
               </button>
             )}
           </div>
@@ -922,15 +956,17 @@ export function SADesignApprovalsClient({
                   <span>Request Revisions</span>
                 </button>
 
-                <button
-                  type="button"
-                  disabled={isReviewing}
-                  onClick={() => handleVerdict(selectedRowItem, 'SAVED_FOR_LATER')}
-                  className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
-                >
-                  <Bookmark className="w-4 h-4 text-[#1D4ED8]" />
-                  <span>Save for Later</span>
-                </button>
+                {!isModuleView && (
+                  <button
+                    type="button"
+                    disabled={isReviewing}
+                    onClick={() => handleVerdict(selectedRowItem, 'SAVED_FOR_LATER')}
+                    className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
+                  >
+                    <Bookmark className="w-4 h-4 text-[#1D4ED8]" />
+                    <span>Save for Later</span>
+                  </button>
+                )}
 
                 <button
                   type="button"

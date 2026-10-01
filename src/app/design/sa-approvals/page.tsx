@@ -34,6 +34,7 @@ export default async function SADesignApprovalsPage() {
           companyName={tenant.companyName || 'Nubira Creation'}
           currentUserId={user.id}
           userRole={tenant.role}
+          isModuleView={true}
         />
       </div>
     </AdminShell>

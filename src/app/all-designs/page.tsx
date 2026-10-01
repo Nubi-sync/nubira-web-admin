@@ -34,6 +34,7 @@ export default async function AllDesignsPage() {
           companyName={tenant.companyName || 'Nubira Creation'}
           currentUserId={user.id}
           userRole={tenant.role}
+          isModuleView={false}
         />
       </div>
     </AdminShell>
