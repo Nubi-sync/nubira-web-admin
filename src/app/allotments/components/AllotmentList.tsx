@@ -334,7 +334,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
 
   return (
     <div 
-      className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
+      className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden"
     >
       {/* Header with dynamic Count Badge */}
       <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -363,11 +363,11 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
             className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
             title="Refresh latest factory data"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#3A3564]' : ''}`} />
+            <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#0B1220]' : ''}`} />
           </button>
 
           <div 
-            className="text-xs font-bold px-3 py-1 rounded-full border border-black/10 bg-[#FAF7F0] text-[#3A3564] max-w-max shadow-2xs"
+            className="text-xs font-bold px-3 py-1 rounded-full border border-black/15 bg-[#F0FDFA] text-[#0B1220] max-w-max shadow-2xs"
           >
             {filteredAllotments.length} {filteredAllotments.length === 1 ? 'Allotment' : 'Allotments'}
           </div>
@@ -388,7 +388,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
               setCurrentPage(1)
             }}
             placeholder="Search by article, lineman, or date..."
-            className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+            className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all shadow-2xs"
           />
         </div>
 
@@ -407,7 +407,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer outline-none ${
                   isSelected
-                    ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                    ? 'bg-[#0B1220] text-white border-transparent shadow-xs'
                     : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
@@ -422,7 +422,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
           <thead>
-            <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
+            <tr className="bg-[#F0FDFA] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
               
               {/* Sortable Date & Lineman */}
               <th 
@@ -432,7 +432,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 <div className="flex items-center gap-1.5">
                   <span>Date & Lineman</span>
                   {sortField === 'date' ? (
-                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                   ) : (
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   )}
@@ -451,7 +451,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 <div className="flex items-center gap-1.5">
                   <span>Progress</span>
                   {sortField === 'progress' ? (
-                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                    sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                   ) : (
                     <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   )}
@@ -523,7 +523,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                             onClick={() => toggleExpand(al.id)}
                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 cursor-pointer shadow-2xs"
                           >
-                            <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                            <Layers className="w-3.5 h-3.5 text-[#0B1220]" />
                             <span>{variants.length} {variants.length === 1 ? 'Variant' : 'Variants'}</span>
                             {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                           </button>
@@ -571,9 +571,9 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                           if (isStoreVerified) {
                             return (
                               <span 
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border border-black/10 bg-[#FAF7F0] text-[#3A3564] shadow-2xs"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border border-black/15 bg-[#F0FDFA] text-[#0B1220] shadow-2xs"
                               >
-                                <PackageCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                                <PackageCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                                 <span>Store Issued (Ready)</span>
                               </span>
                             )
@@ -595,7 +595,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       {/* Progress Column with horizontal bar */}
                       <td className="px-4 py-3.5">
                         <div className="flex items-baseline justify-between gap-2 text-xs font-bold font-mono">
-                          <span className="text-[#3A3564] font-extrabold">{al.achieved_qty || 0}</span>
+                          <span className="text-[#0B1220] font-extrabold">{al.achieved_qty || 0}</span>
                           <span className="text-slate-500 font-normal">/ {al.target_qty} pcs</span>
                         </div>
                         <div 
@@ -605,7 +605,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                             className="h-full rounded-full transition-all"
                             style={{
                               width: `${percent}%`,
-                              backgroundColor: percent >= 100 ? '#059669' : '#3A3564'
+                              backgroundColor: percent >= 100 ? '#059669' : '#0B1220'
                             }}
                           />
                         </div>
@@ -615,7 +615,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                       <td className="px-4 py-3.5">
                         {al.status === 'IN_PROGRESS' && (
                           <span 
-                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs"
+                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs"
                           >
                             IN PROGRESS
                           </span>
@@ -703,10 +703,10 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                             
                             {/* Buyer Golden Sample Reference Photos Gallery */}
                             {al.sample_photos && al.sample_photos.length > 0 && (
-                              <div className="p-4 bg-white rounded-xl border border-black/10 shadow-2xs space-y-2.5">
+                              <div className="p-4 bg-white rounded-xl border border-black/15 shadow-2xs space-y-2.5">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <FileText className="w-4 h-4 text-[#3A3564]" />
+                                    <FileText className="w-4 h-4 text-[#0B1220]" />
                                     <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                       Buyer Golden Sample Reference Photos ({al.sample_photos.length} photos)
                                     </span>
@@ -749,7 +749,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                               return (
                                 <div className="space-y-4">
                                   {/* Filter Buttons Toolbar */}
-                                  <div className="flex items-center justify-between gap-2.5 flex-wrap bg-white p-2.5 rounded-xl border border-black/10 shadow-2xs">
+                                  <div className="flex items-center justify-between gap-2.5 flex-wrap bg-white p-2.5 rounded-xl border border-black/15 shadow-2xs">
                                     <div className="inline-flex items-center p-1 bg-slate-100/90 rounded-lg border border-slate-200/80 gap-1 flex-wrap">
                                       {/* Tab 1: Color x Size Matrix */}
                                       <button
@@ -757,11 +757,11 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                         onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'matrix' }))}
                                         className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                           currentTab === 'matrix'
-                                            ? 'bg-white text-slate-900 shadow-2xs border border-black/10 font-extrabold'
+                                            ? 'bg-white text-slate-900 shadow-2xs border border-black/15 font-extrabold'
                                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                         }`}
                                       >
-                                        <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                                        <Layers className="w-3.5 h-3.5 text-[#0B1220]" />
                                         <span>Color × Size Matrix</span>
                                         {variants.length > 0 && (
                                           <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
@@ -776,7 +776,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                         onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'workers' }))}
                                         className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                           currentTab === 'workers'
-                                            ? 'bg-[#3A3564] text-white shadow-2xs font-extrabold'
+                                            ? 'bg-[#0B1220] text-white shadow-2xs font-extrabold'
                                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                         }`}
                                       >
@@ -797,7 +797,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                         onClick={() => setDrawerTabs(prev => ({ ...prev, [al.id]: 'materials' }))}
                                         className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                           currentTab === 'materials'
-                                            ? 'bg-white text-slate-900 shadow-2xs border border-black/10 font-extrabold'
+                                            ? 'bg-white text-slate-900 shadow-2xs border border-black/15 font-extrabold'
                                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                         }`}
                                       >
@@ -878,13 +878,13 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                       <div className="space-y-2.5">
                                         <div className="flex items-center justify-between flex-wrap gap-2">
                                           <div className="flex items-center gap-2">
-                                            <Layers className="w-4 h-4 text-[#3A3564]" />
+                                            <Layers className="w-4 h-4 text-[#0B1220]" />
                                             <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                               Color × Size Production Matrix Table
                                             </span>
                                           </div>
                                           <div className="flex items-center gap-2">
-                                            <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                            <span className="text-xs font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2.5 py-0.5 rounded-md border border-black/15 shadow-2xs">
                                               {colorList.length} {colorList.length === 1 ? 'Color' : 'Colors'} • {distinctSizes.length} Sizes
                                             </span>
                                             <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs">
@@ -893,22 +893,22 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                           </div>
                                         </div>
 
-                                        <div className="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
+                                        <div className="overflow-x-auto rounded-xl border border-black/15 bg-white shadow-2xs">
                                           <table className="w-full text-left border-collapse text-xs">
                                             <thead>
-                                              <tr className="bg-[#FAF7F0] border-b border-black/10 text-[#3A3564]">
-                                                <th className="py-2.5 px-4 font-extrabold uppercase tracking-wider text-slate-700 sticky left-0 bg-[#FAF7F0] z-10 min-w-[160px] border-r border-slate-200/80">
+                                              <tr className="bg-[#F0FDFA] border-b border-black/10 text-[#0B1220]">
+                                                <th className="py-2.5 px-4 font-extrabold uppercase tracking-wider text-slate-700 sticky left-0 bg-[#F0FDFA] z-10 min-w-[160px] border-r border-slate-200/80">
                                                   Color / Variant
                                                 </th>
                                                 {distinctSizes.map(size => (
                                                   <th 
                                                     key={size} 
-                                                    className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#3A3564] min-w-[68px] border-r border-slate-200/50"
+                                                    className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#0B1220] min-w-[68px] border-r border-slate-200/50"
                                                   >
                                                     {size}
                                                   </th>
                                                 ))}
-                                                <th className="py-2.5 px-4 text-right font-extrabold uppercase tracking-wider text-[#3A3564] min-w-[100px] border-r border-slate-200/80">
+                                                <th className="py-2.5 px-4 text-right font-extrabold uppercase tracking-wider text-[#0B1220] min-w-[100px] border-r border-slate-200/80">
                                                   Total Pcs
                                                 </th>
                                                 <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-slate-500 min-w-[65px]">
@@ -926,8 +926,8 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                                   <tr key={colorName} className="hover:bg-slate-50/80 transition-colors group">
                                                     <td className="py-2.5 px-4 font-bold text-slate-900 sticky left-0 bg-white group-hover:bg-slate-50/80 z-10 border-r border-slate-200/80">
                                                       <div className="flex items-center gap-2">
-                                                        <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564] inline-block shadow-2xs ring-1 ring-white shrink-0" />
-                                                        <span className="capitalize font-extrabold text-[#3A3564]">{colorName.toLowerCase()}</span>
+                                                        <span className="w-2.5 h-2.5 rounded-full bg-[#0B1220] inline-block shadow-2xs ring-1 ring-white shrink-0" />
+                                                        <span className="capitalize font-extrabold text-[#0B1220]">{colorName.toLowerCase()}</span>
                                                       </div>
                                                     </td>
                                                     {distinctSizes.map(size => {
@@ -947,7 +947,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                                         </td>
                                                       )
                                                     })}
-                                                    <td className="py-2.5 px-4 text-right font-mono font-extrabold text-[#3A3564] border-r border-slate-200/80">
+                                                    <td className="py-2.5 px-4 text-right font-mono font-extrabold text-[#0B1220] border-r border-slate-200/80">
                                                       {colorData.total.toLocaleString()} pcs
                                                     </td>
                                                     <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-500 text-[11px]">
@@ -967,7 +967,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                                   return (
                                                     <td 
                                                       key={size} 
-                                                      className="py-2.5 px-3 text-center font-mono font-bold text-[#3A3564] border-r border-slate-200/50"
+                                                      className="py-2.5 px-3 text-center font-mono font-bold text-[#0B1220] border-r border-slate-200/50"
                                                     >
                                                       {sizeTotal > 0 ? (
                                                         <span className="font-black text-slate-900">{sizeTotal.toLocaleString()}</span>
@@ -977,7 +977,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                                     </td>
                                                   )
                                                 })}
-                                                <td className="py-2.5 px-4 text-right font-mono font-black text-[#3A3564] text-xs sm:text-[13px] border-r border-slate-200">
+                                                <td className="py-2.5 px-4 text-right font-mono font-black text-[#0B1220] text-xs sm:text-[13px] border-r border-slate-200">
                                                   {totalAllotmentPcs.toLocaleString()} pcs
                                                 </td>
                                                 <td className="py-2.5 px-3 text-center font-mono font-bold text-emerald-700 text-[11px]">
@@ -1007,7 +1007,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                     <div className="space-y-2.5">
                                       <div className="flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2">
-                                          <PackageCheck className="w-4 h-4 text-[#3A3564]" />
+                                          <PackageCheck className="w-4 h-4 text-[#0B1220]" />
                                           <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                                             3-Way Material Handshake & Inspection Details
                                           </span>
@@ -1053,7 +1053,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                                                     : mat.lineman_received 
                                                       ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                                                       : isStoreDone 
-                                                        ? 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                                                        ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15'
                                                         : 'bg-amber-50 text-amber-800 border-amber-200'
                                                 }`}>
                                                   {isShortage 
@@ -1140,7 +1140,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                 onClick={() => setCurrentPage(pg)}
                 className={`w-8 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#3A3564] text-white border-transparent shadow-xs'
+                    ? 'bg-[#0B1220] text-white border-transparent shadow-xs'
                     : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                 }`}
               >
@@ -1233,7 +1233,7 @@ export function AllotmentList({ allotments = [] }: { allotments: Allotment[] }) 
                   <span className={`font-bold px-2.5 py-1 rounded-full text-xs ${
                     deletingAllotment.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
                     deletingAllotment.status === 'CANCELLED' ? 'bg-slate-100 text-slate-700 border border-slate-200' :
-                    'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                    'bg-[#F0FDFA] text-[#0B1220] border border-black/15'
                   }`}>
                     {deletingAllotment.status}
                   </span>

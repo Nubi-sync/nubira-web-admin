@@ -202,11 +202,11 @@ export default async function AllotmentsPage() {
         
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-          <Link href="/stitching-sewing/dashboard" className="hover:text-[#3A3564] transition-colors">
+          <Link href="/stitching-sewing/dashboard" className="hover:text-[#0B1220] transition-colors">
             Sewing Dashboard
           </Link>
           <span>/</span>
-          <Link href="/stitching-sewing/production-orders" className="hover:text-[#3A3564] transition-colors">
+          <Link href="/stitching-sewing/production-orders" className="hover:text-[#0B1220] transition-colors">
             Production Chart
           </Link>
           <span>/</span>

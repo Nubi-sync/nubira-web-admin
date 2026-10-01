@@ -1231,11 +1231,11 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
       
       {/* 2. Page Header Card */}
       <div 
-        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
+        className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
       >
         <div className="flex items-center gap-3.5">
           <div 
-            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15"
           >
             <ClipboardList className="w-5 h-5" />
           </div>
@@ -1261,7 +1261,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 Grand Target:
               </span>
               <span 
-                className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#3A3564]"
+                className="text-[28px] sm:text-[30px] font-bold font-[family-name:var(--font-heading)] leading-none text-[#0B1220]"
               >
                 {totalPieces.toLocaleString()} <span className="text-sm font-normal text-slate-500">pcs</span>
               </span>
@@ -1272,7 +1272,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               className="w-full sm:w-44 h-1.5 rounded-full mt-2.5 overflow-hidden bg-slate-100 border border-black/5"
             >
               <div 
-                className="h-full rounded-full transition-all duration-300 bg-[#3A3564]"
+                className="h-full rounded-full transition-all duration-300 bg-[#0B1220]"
                 style={{ 
                   width: totalPieces > 0 ? '100%' : '0%'
                 }}
@@ -1287,10 +1287,10 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
         
         {/* Step 1: Lineman & Article Selection Card */}
         <div 
-          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/10 shadow-2xs"
+          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/15 shadow-2xs"
         >
           <div className="flex items-center gap-2.5 mb-5 pb-3.5 border-b border-slate-100">
-            <span className="w-7 h-7 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-xs font-bold font-mono flex items-center justify-center">
+            <span className="w-7 h-7 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-xs font-bold font-mono flex items-center justify-center">
               1
             </span>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
@@ -1315,7 +1315,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   id="manager_name"
                   value={managerName}
                   onChange={(e) => setManagerName(e.target.value)}
-                  className="w-full py-2.5 pl-10 pr-3.5 text-sm font-medium rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 text-slate-900 cursor-pointer"
+                  className="w-full py-2.5 pl-10 pr-3.5 text-sm font-medium rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 text-slate-900 cursor-pointer"
                 >
                   <option value="">-- Choose Production Manager --</option>
                   {managers && managers.length > 0 ? (
@@ -1342,7 +1342,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               </label>
               <div className="grid grid-cols-3 gap-2.5 pt-0.5">
                 {[
-                  { key: 'NORMAL', label: 'Normal', activeClass: 'bg-[#FAF7F0] text-[#3A3564] border-[#3A3564] ring-2 ring-[#3A3564]/15 font-extrabold shadow-2xs' },
+                  { key: 'NORMAL', label: 'Normal', activeClass: 'bg-[#F0FDFA] text-[#0B1220] border-[#0B1220] ring-2 ring-[#0B1220]/15 font-extrabold shadow-2xs' },
                   { key: 'RUSH', label: 'Rush Order', activeClass: 'bg-amber-50 text-amber-900 border-amber-300 ring-2 ring-amber-500/20 font-extrabold shadow-2xs' },
                   { key: 'CRITICAL', label: 'Critical / Export', activeClass: 'bg-rose-50 text-rose-900 border-rose-300 ring-2 ring-rose-500/20 font-extrabold shadow-2xs' },
                 ].map((p) => (
@@ -1390,7 +1390,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                     ? 'border-rose-400 bg-rose-50/50'
                     : isLinemanSuccess
                     ? 'border-emerald-400'
-                    : 'border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10'
+                    : 'border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10'
                 }`}
               >
                 <option value="">-- Choose Floor Lineman --</option>
@@ -1431,16 +1431,16 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   className={`w-full py-2.5 px-3.5 text-sm rounded-xl border transition-all flex items-center justify-between gap-2 bg-slate-50/70 hover:bg-white text-left group cursor-pointer shadow-2xs hover:shadow-xs ${
                     isArticleError
                       ? 'border-rose-400 bg-rose-50/50'
-                      : 'border-slate-200 hover:border-[#3A3564] focus:border-[#3A3564]'
+                      : 'border-slate-200 hover:border-[#0B1220] focus:border-[#0B1220]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 text-slate-500 group-hover:text-slate-700">
-                    <Search className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-[#3A3564] transition-colors" />
+                    <Search className="w-4 h-4 text-slate-400 shrink-0 group-hover:text-[#0B1220] transition-colors" />
                     <span className="text-sm font-medium truncate">
                       Search or choose Style Article / Job Challan...
                     </span>
                   </div>
-                  <div className="px-3 py-1.5 rounded-lg bg-[#FAF7F0] group-hover:bg-[#3A3564] border border-black/10 group-hover:border-[#3A3564] text-[#3A3564] group-hover:text-white text-xs sm:text-[13px] font-bold transition-all shrink-0 flex items-center gap-1.5 shadow-2xs">
+                  <div className="px-3 py-1.5 rounded-lg bg-[#F0FDFA] group-hover:bg-[#0B1220] border border-black/15 group-hover:border-[#0B1220] text-[#0B1220] group-hover:text-white text-xs sm:text-[13px] font-bold transition-all shrink-0 flex items-center gap-1.5 shadow-2xs">
                     <span>Browse</span>
                     <ChevronRight className="w-4 h-4" />
                   </div>
@@ -1449,19 +1449,19 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <div
                   className="w-full py-2 px-3 text-sm rounded-xl border transition-all flex items-center justify-between gap-2 bg-white shadow-2xs"
                   style={{
-                    borderColor: selectedTargetSummary?.badgeColor || '#3A3564'
+                    borderColor: selectedTargetSummary?.badgeColor || '#0B1220'
                   }}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
                       className="w-3.5 h-3.5 rounded-full shrink-0 ring-2 ring-white shadow-2xs"
-                      style={{ backgroundColor: selectedTargetSummary?.badgeColor || '#3A3564' }}
+                      style={{ backgroundColor: selectedTargetSummary?.badgeColor || '#0B1220' }}
                     />
                     <span className="font-extrabold text-sm text-slate-900 truncate">
                       {selectedTargetSummary?.title || selectedArticle?.art_no}
                     </span>
                     {selectedTargetSummary?.totalPcs ? (
-                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-mono shrink-0">
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#F0FDFA] border border-black/15 text-[#0B1220] font-mono shrink-0">
                         {selectedTargetSummary.totalPcs.toLocaleString()} Pcs
                       </span>
                     ) : null}
@@ -1470,7 +1470,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   <button
                     type="button"
                     onClick={() => setIsTargetModalOpen(true)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#FAF7F0] border border-slate-200 hover:border-black/15 text-slate-700 hover:text-[#3A3564] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#F0FDFA] border border-slate-200 hover:border-black/15 text-slate-700 hover:text-[#0B1220] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
                   >
                     <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
                     <span>Change Target</span>
@@ -1506,13 +1506,13 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           {isTargetModalOpen && (
             <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
               <div 
-                className="bg-white border border-black/10 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-200"
+                className="bg-white border border-black/15 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-200"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Modal Header */}
                 <div className="p-4 sm:p-5 bg-white border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                       <Boxes className="w-5 h-5" />
                     </div>
                     <div>
@@ -1528,7 +1528,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   <button
                     type="button"
                     onClick={() => setIsTargetModalOpen(false)}
-                    className="self-end sm:self-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-[#FAF7F0] border border-slate-200 hover:border-black/15 text-slate-700 hover:text-[#3A3564] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                    className="self-end sm:self-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-[#F0FDFA] border border-slate-200 hover:border-black/15 text-slate-700 hover:text-[#0B1220] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                   >
                     <X className="w-4 h-4" />
                     <span>Close (Esc)</span>
@@ -1536,7 +1536,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 </div>
 
                 {/* Live Search Bar */}
-                <div className="p-4 sm:p-5 bg-[#FAF7F0]/40 border-b border-slate-100 shrink-0">
+                <div className="p-4 sm:p-5 bg-[#F0FDFA]/40 border-b border-slate-100 shrink-0">
                   <div className="relative">
                     <input
                       type="text"
@@ -1544,7 +1544,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                       value={targetSearchQuery}
                       onChange={e => setTargetSearchQuery(e.target.value)}
                       placeholder="Search by article number, brand, color, or challan (e.g. 9433, Ollypop, Mushroom, 457)..."
-                      className="w-full pl-11 pr-10 py-3 text-xs sm:text-sm font-medium bg-white border border-slate-200 rounded-xl shadow-2xs focus:outline-none focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all placeholder:text-slate-400 text-slate-900"
+                      className="w-full pl-11 pr-10 py-3 text-xs sm:text-sm font-medium bg-white border border-slate-200 rounded-xl shadow-2xs focus:outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all placeholder:text-slate-400 text-slate-900"
                     />
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     {targetSearchQuery && (
@@ -1565,7 +1565,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   {filteredChallans && filteredChallans.length > 0 && (
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
-                        <Boxes className="w-4 h-4 text-[#3A3564]" />
+                        <Boxes className="w-4 h-4 text-[#0B1220]" />
                         <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-800 font-mono">
                           Active Job Work Delivery Challans ({filteredChallans.length})
                         </h4>
@@ -1579,13 +1579,13 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                         return (
                           <div
                             key={ch.id}
-                            className="bg-white border border-black/10 rounded-2xl p-4 sm:p-5 shadow-2xs hover:border-slate-300 transition-all space-y-4"
+                            className="bg-white border border-black/15 rounded-2xl p-4 sm:p-5 shadow-2xs hover:border-slate-300 transition-all space-y-4"
                           >
                             {/* Challan Card Top Header */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-xs sm:text-[13px] px-3 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono shadow-2xs flex items-center gap-1.5">
-                                  <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
+                                <span className="font-bold text-xs sm:text-[13px] px-3 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 font-mono shadow-2xs flex items-center gap-1.5">
+                                  <FileText className="w-3.5 h-3.5 text-[#0B1220]" />
                                   <span>JOB #{ch.challan_no}</span>
                                 </span>
                                 <span className="px-3 py-1 rounded-lg text-xs sm:text-[13px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
@@ -1597,7 +1597,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                               </div>
 
                               <div className="text-xs sm:text-[13px] font-bold text-slate-700 font-mono">
-                                <span className="text-[#3A3564] font-extrabold">{ch.total_sets?.toLocaleString() || 0}</span> Sets <span className="text-slate-300">|</span> <span className="text-slate-900 font-extrabold">{ch.total_pcs?.toLocaleString() || 0} Pcs Total</span>
+                                <span className="text-[#0B1220] font-extrabold">{ch.total_sets?.toLocaleString() || 0}</span> Sets <span className="text-slate-300">|</span> <span className="text-slate-900 font-extrabold">{ch.total_pcs?.toLocaleString() || 0} Pcs Total</span>
                               </div>
                             </div>
 
@@ -1606,7 +1606,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                               {/* Color Line Cards */}
                               {colorLines.map((colOpt, cIdx) => {
                                 const colorLower = (colOpt.colorName || '').toLowerCase()
-                                let themeColor = '#3A3564'
+                                let themeColor = '#0B1220'
                                 if (colorLower.includes('dutch') || colorLower.includes('blue')) {
                                   themeColor = '#2563EB'
                                 } else if (colorLower.includes('scuba') || colorLower.includes('green') || colorLower.includes('seuba')) {
@@ -1618,7 +1618,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                 return (
                                   <div
                                     key={cIdx}
-                                    className="bg-white border border-black/10 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all group"
+                                    className="bg-white border border-black/15 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all group"
                                   >
                                     <div>
                                       <div className="flex items-center justify-between gap-1.5 pb-2 mb-2 border-b border-black/5">
@@ -1628,7 +1628,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                             {colOpt.colorName}
                                           </span>
                                         </div>
-                                        <span className="text-xs font-bold font-mono px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10 shadow-2xs">
+                                        <span className="text-xs font-bold font-mono px-2 py-0.5 bg-[#F0FDFA] text-[#0B1220] rounded-md border border-black/15 shadow-2xs">
                                           {colOpt.totalPcs.toLocaleString()} PCS
                                         </span>
                                       </div>
@@ -1647,7 +1647,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                     <button
                                       type="button"
                                       onClick={() => applySmartTarget(colOpt)}
-                                      className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                      className="w-full py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                     >
                                       <span>Select {colOpt.colorName}</span>
                                     </button>
@@ -1657,16 +1657,16 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
 
                               {/* Full Batch Card */}
                               {fullChallan && (
-                                <div className="bg-white border border-black/10 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all">
+                                <div className="bg-white border border-black/15 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all">
                                   <div>
                                     <div className="flex items-center justify-between gap-1.5 pb-2 mb-2 border-b border-slate-100">
                                       <div className="flex items-center gap-1.5">
-                                        <Zap className="w-4 h-4 text-[#3A3564] shrink-0" />
+                                        <Zap className="w-4 h-4 text-[#0B1220] shrink-0" />
                                         <span className="font-extrabold text-xs sm:text-[13px] text-slate-900 uppercase tracking-tight">
                                           FULL BATCH
                                         </span>
                                       </div>
-                                      <span className="text-xs font-bold font-mono px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10">
+                                      <span className="text-xs font-bold font-mono px-2 py-0.5 bg-[#F0FDFA] text-[#0B1220] rounded-md border border-black/15">
                                         {fullChallan.totalPcs.toLocaleString()} PCS
                                       </span>
                                     </div>
@@ -1679,7 +1679,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                   <button
                                     type="button"
                                     onClick={() => applySmartTarget(fullChallan)}
-                                    className="w-full py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                    className="w-full py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                   >
                                     <Zap className="w-3.5 h-3.5" />
                                     <span>Select Entire Batch</span>
@@ -1697,7 +1697,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   {filteredStandaloneArticles && filteredStandaloneArticles.length > 0 && (
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
-                        <Tag className="w-4 h-4 text-[#3A3564]" />
+                        <Tag className="w-4 h-4 text-[#0B1220]" />
                         <h4 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-slate-800 font-mono">
                           Other In-House / Standalone Styles ({filteredStandaloneArticles.length})
                         </h4>
@@ -1720,7 +1720,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                           return (
                             <div
                               key={art.id}
-                              className="bg-white border border-black/10 hover:border-slate-300 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
+                              className="bg-white border border-black/15 hover:border-slate-300 rounded-xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all"
                             >
                               <div>
                                 <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -1728,7 +1728,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                     {art.art_no}
                                   </span>
                                   {rateTag && (
-                                    <span className="text-xs font-bold px-2 py-0.5 bg-[#FAF7F0] text-[#3A3564] rounded-md border border-black/10 font-mono shadow-2xs">
+                                    <span className="text-xs font-bold px-2 py-0.5 bg-[#F0FDFA] text-[#0B1220] rounded-md border border-black/15 font-mono shadow-2xs">
                                       {rateTag}
                                     </span>
                                   )}
@@ -1741,7 +1741,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                               <button
                                 type="button"
                                 onClick={() => applyStandaloneArticle(art)}
-                                className="w-full py-2 bg-slate-100 hover:bg-[#3A3564] hover:text-white text-slate-800 text-xs sm:text-[13px] font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1"
+                                className="w-full py-2 bg-slate-100 hover:bg-[#0B1220] hover:text-white text-slate-800 text-xs sm:text-[13px] font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1"
                               >
                                 <span>Select Style</span>
                               </button>
@@ -1781,7 +1781,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full py-2.5 pl-10 pr-3 text-sm font-medium rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 outline-none text-slate-900 transition-all"
+                  className="w-full py-2.5 pl-10 pr-3 text-sm font-medium rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 outline-none text-slate-900 transition-all"
                 />
                 <Calendar className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
@@ -1801,16 +1801,16 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   value={targetHours || ''}
                   onChange={(e) => setTargetHours(parseInt(e.target.value, 10) || 16)}
                   placeholder="e.g. 16 (2 Days)"
-                  className="w-full py-2.5 pl-10 pr-3 text-sm font-mono font-bold rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 outline-none text-slate-900 transition-all"
+                  className="w-full py-2.5 pl-10 pr-3 text-sm font-mono font-bold rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 outline-none text-slate-900 transition-all"
                 />
                 <Clock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
 
             {/* Live PPC Run-Rate Card */}
-            <div className="p-3.5 bg-gradient-to-br from-[#FAF7F0] to-[#FAF7F0]/40 rounded-xl border border-black/10 flex items-center justify-between shadow-2xs">
+            <div className="p-3.5 bg-gradient-to-br from-[#F0FDFA] to-[#F0FDFA]/40 rounded-xl border border-black/15 flex items-center justify-between shadow-2xs">
               <div>
-                <span className="block text-xs font-bold uppercase tracking-wider text-[#3A3564]">
+                <span className="block text-xs font-bold uppercase tracking-wider text-[#0B1220]">
                   Target Line Speed (PPC)
                 </span>
                 <span className="text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-0.5 block">
@@ -1820,7 +1820,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   ≈ {Math.ceil(targetRunRate * 8)} pcs / shift
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
                 <Gauge className="w-5 h-5" />
               </div>
             </div>
@@ -1845,7 +1845,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   value={clientChallanNo}
                   onChange={(e) => setClientChallanNo(e.target.value)}
                   placeholder="Enter Client / Buyer Challan No."
-                  className="w-full py-2.5 pl-10 pr-3.5 text-sm rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 font-mono text-slate-900"
+                  className="w-full py-2.5 pl-10 pr-3.5 text-sm rounded-xl border border-slate-200 transition-all outline-none bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 font-mono text-slate-900"
                 />
                 <FileText className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
@@ -1864,14 +1864,14 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   <button
                     type="button"
                     onClick={() => setPhotoInputMode('upload')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${photoInputMode === 'upload' ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${photoInputMode === 'upload' ? 'bg-[#0B1220] text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                   >
                     Upload File
                   </button>
                   <button
                     type="button"
                     onClick={() => setPhotoInputMode('url')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${photoInputMode === 'url' ? 'bg-[#3A3564] text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${photoInputMode === 'url' ? 'bg-[#0B1220] text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                   >
                     Paste URL
                   </button>
@@ -1883,7 +1883,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <div>
                   {photoInputMode === 'upload' ? (
                     <label className="flex items-center justify-center gap-2 w-full py-2.5 px-4 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 transition-colors text-sm text-slate-600 border-slate-300">
-                      <Camera className="w-4 h-4 text-[#3A3564]" />
+                      <Camera className="w-4 h-4 text-[#0B1220]" />
                       <span>Click to upload sample image (Front / Back / Label)</span>
                       <input 
                         type="file" 
@@ -1900,12 +1900,12 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                         value={newPhotoUrl}
                         onChange={(e) => setNewPhotoUrl(e.target.value)}
                         placeholder="https://... image link"
-                        className="flex-1 py-2 px-3.5 text-sm rounded-xl border border-slate-300 bg-white outline-none focus:border-[#3A3564]"
+                        className="flex-1 py-2 px-3.5 text-sm rounded-xl border border-slate-300 bg-white outline-none focus:border-[#0B1220]"
                       />
                       <button
                         type="button"
                         onClick={handleAddPhotoUrl}
-                        className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                        className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
                       >
                         Add
                       </button>
@@ -1945,11 +1945,11 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
 
         {/* Step 2: Size & Color Ratio Matrix Card */}
         <div 
-          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/10 shadow-2xs space-y-6"
+          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/15 shadow-2xs space-y-6"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
-              <span className="w-7 h-7 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-xs font-bold font-mono flex items-center justify-center">
+              <span className="w-7 h-7 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-xs font-bold font-mono flex items-center justify-center">
                 2
               </span>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
@@ -1979,7 +1979,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                     }}
                     className={`px-3 py-1.5 text-xs sm:text-[13px] rounded-lg border transition-all outline-none cursor-pointer ${
                       isSelected
-                        ? 'bg-[#3A3564] text-white border-transparent font-bold shadow-2xs'
+                        ? 'bg-[#0B1220] text-white border-transparent font-bold shadow-2xs'
                         : 'bg-white text-slate-700 hover:text-slate-900 border-slate-200 hover:bg-slate-50 font-medium'
                     }`}
                   >
@@ -2001,7 +2001,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   key={size}
                   type="button"
                   onClick={() => toggleSize(size)}
-                  className="px-3 py-1.5 text-xs sm:text-[13px] font-bold rounded-lg border border-black/10 bg-[#FAF7F0] text-[#3A3564] transition-all outline-none flex items-center gap-1.5 shadow-2xs hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 cursor-pointer"
+                  className="px-3 py-1.5 text-xs sm:text-[13px] font-bold rounded-lg border border-black/15 bg-[#F0FDFA] text-[#0B1220] transition-all outline-none flex items-center gap-1.5 shadow-2xs hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 cursor-pointer"
                   title="Click to remove size"
                 >
                   <span>{size}</span>
@@ -2016,7 +2016,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   value={customSizeInput}
                   onChange={(e) => setCustomSizeInput(e.target.value)}
                   placeholder="+ Size"
-                  className="w-20 px-2.5 py-1.5 text-xs sm:text-[13px] font-medium border border-slate-200 rounded-lg outline-none bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all text-slate-900"
+                  className="w-20 px-2.5 py-1.5 text-xs sm:text-[13px] font-medium border border-slate-200 rounded-lg outline-none bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all text-slate-900"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
@@ -2046,17 +2046,17 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               <button
                 type="button"
                 onClick={addColorRow}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-[13px] font-bold border border-black/15 transition-all bg-white hover:bg-[#FAF7F0] text-[#3A3564] shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-[13px] font-bold border border-black/15 transition-all bg-white hover:bg-[#F0FDFA] text-[#0B1220] shadow-2xs cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Color Row</span>
               </button>
             </div>
 
-            <div className="overflow-x-auto border border-black/10 rounded-xl">
+            <div className="overflow-x-auto border border-black/15 rounded-xl">
               <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
                 <thead>
-                  <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
+                  <tr className="bg-[#F0FDFA] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
                     <th className="px-4 py-3.5 min-w-[160px]">Color / Shade</th>
                     {selectedSizes.map((size) => {
                       const szRate = getRateForIndividualSize(size, selectedArticle?.size_rates, selectedArticle?.stitching_rate)
@@ -2064,7 +2064,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                         <th key={size} className="px-3 py-3 text-center min-w-[75px]">
                           <div className="font-extrabold text-slate-900">{size}</div>
                           {szRate > 0 && (
-                            <div className="text-[11px] font-mono text-[#3A3564] font-semibold mt-0.5">
+                            <div className="text-[11px] font-mono text-[#0B1220] font-semibold mt-0.5">
                               ₹{szRate}/pc
                             </div>
                           )}
@@ -2087,7 +2087,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                             value={row.color}
                             onChange={(e) => updateColorName(row.id, e.target.value)}
                             placeholder="e.g. Navy Blue, Black"
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs sm:text-[13px] font-medium outline-none transition-all text-slate-900 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs sm:text-[13px] font-medium outline-none transition-all text-slate-900 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 bg-white"
                           />
                         </td>
 
@@ -2100,16 +2100,16 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                               value={row.quantities[size] || ''}
                               onChange={(e) => updateQuantity(row.id, size, parseInt(e.target.value, 10))}
                               placeholder="0"
-                              className="w-16 px-2 py-2 border border-slate-200 rounded-lg text-xs sm:text-[13px] text-center font-bold font-mono outline-none transition-all focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white"
+                              className="w-16 px-2 py-2 border border-slate-200 rounded-lg text-xs sm:text-[13px] text-center font-bold font-mono outline-none transition-all focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 bg-white"
                               style={{ 
-                                color: (row.quantities[size] || 0) > 0 ? '#3A3564' : '#64748B'
+                                color: (row.quantities[size] || 0) > 0 ? '#0B1220' : '#64748B'
                               }}
                             />
                           </td>
                         ))}
 
                         {/* Row Subtotal */}
-                        <td className="px-4 py-2.5 text-right font-extrabold font-mono text-sm text-[#3A3564]">
+                        <td className="px-4 py-2.5 text-right font-extrabold font-mono text-sm text-[#0B1220]">
                           {rowTotal} pcs
                         </td>
 
@@ -2131,14 +2131,14 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                   })}
 
                   {/* Summary Totals Row */}
-                  <tr className="bg-[#FAF7F0]/60 font-bold border-t border-black/10">
+                  <tr className="bg-[#F0FDFA]/60 font-bold border-t border-black/10">
                     <td className="px-4 py-3.5 text-xs font-mono uppercase tracking-wider text-slate-700">
                       Total By Size:
                     </td>
                     {selectedSizes.map((size) => {
                       const colSum = colorRows.reduce((acc, r) => acc + (r.quantities[size] || 0), 0)
                       return (
-                        <td key={size} className="px-3 py-3.5 text-center font-mono text-xs sm:text-[13px] font-extrabold text-[#3A3564]">
+                        <td key={size} className="px-3 py-3.5 text-center font-mono text-xs sm:text-[13px] font-extrabold text-[#0B1220]">
                           {colSum}
                         </td>
                       )
@@ -2157,11 +2157,11 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
         {/* Step 3: Material Checklist Card */}
         {/* Step 3: Raw Materials & BOM Checklist Card */}
         <div 
-          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/10 shadow-2xs space-y-5"
+          className="bg-white rounded-2xl p-6 sm:p-7 border border-black/15 shadow-2xs space-y-5"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="flex items-start gap-3">
-              <span className="w-7 h-7 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 text-xs font-bold font-mono flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-7 h-7 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-xs font-bold font-mono flex items-center justify-center shrink-0 mt-0.5">
                 3
               </span>
               <div className="space-y-1.5">
@@ -2174,8 +2174,8 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 
                 {/* Sourcing Summary Badges */}
                 <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                    <Building2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+                    <Building2 className="w-3.5 h-3.5 text-[#0B1220]" />
                     <span>Client Supplied: {materials.filter(m => m.source !== 'FACTORY_STORE').length} items</span>
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
@@ -2189,10 +2189,10 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
             <button
               type="button"
               onClick={handleAutoGenerateBOM}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all shadow-2xs cursor-pointer border border-black/15 bg-white hover:bg-[#FAF7F0] text-[#3A3564] shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all shadow-2xs cursor-pointer border border-black/15 bg-white hover:bg-[#F0FDFA] text-[#0B1220] shrink-0"
               title="Click to calculate estimated fabric meters, thread cones, and labels from matrix"
             >
-              <Sparkles className="w-4 h-4 text-[#3A3564]" />
+              <Sparkles className="w-4 h-4 text-[#0B1220]" />
               <span>Calculate Standard Estimates (Optional)</span>
             </button>
           </div>
@@ -2200,7 +2200,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           {/* Checklist Grid or Professional Empty State */}
           {materials.length === 0 ? (
             <div className="p-6 sm:p-8 text-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-black/10 text-slate-400 flex items-center justify-center mx-auto shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-black/15 text-slate-400 flex items-center justify-center mx-auto shadow-2xs">
                 <Boxes className="w-6 h-6 text-slate-500" />
               </div>
               <div className="space-y-1">
@@ -2213,9 +2213,9 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 <button
                   type="button"
                   onClick={handleAutoGenerateBOM}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer border border-black/15 bg-white hover:bg-[#FAF7F0] text-[#3A3564]"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer border border-black/15 bg-white hover:bg-[#F0FDFA] text-[#0B1220]"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
                   <span>Calculate Standard Estimates (Optional)</span>
                 </button>
               </div>
@@ -2230,7 +2230,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                     onClick={() => toggleMaterialIssued(mat.id)}
                     className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 shadow-2xs ${
                       isChecked
-                        ? 'bg-[#FAF7F0] border-[#3A3564]'
+                        ? 'bg-[#F0FDFA] border-[#0B1220]'
                         : 'bg-white border-black/10 hover:border-slate-300 hover:bg-slate-50/60'
                     }`}
                   >
@@ -2256,7 +2256,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border transition-all cursor-pointer ${
                             mat.source === 'FACTORY_STORE'
                               ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
-                              : 'bg-white hover:bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs'
+                              : 'bg-white hover:bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs'
                           }`}
                           title="Click to toggle between Client Supplied and Factory Sourced"
                         >
@@ -2267,7 +2267,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                             </>
                           ) : (
                             <>
-                              <Building2 className="w-3 h-3 text-[#3A3564]" />
+                              <Building2 className="w-3 h-3 text-[#0B1220]" />
                               <span>Client Supplied</span>
                             </>
                           )}
@@ -2279,7 +2279,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                       <div 
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
                           isChecked 
-                            ? 'bg-[#3A3564] text-white' 
+                            ? 'bg-[#0B1220] text-white' 
                             : 'border border-slate-300 bg-white'
                         }`}
                       >
@@ -2312,19 +2312,19 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                 value={newMaterialName}
                 onChange={(e) => setNewMaterialName(e.target.value)}
                 placeholder="Custom Material Name (e.g. Drawcord 45 inch, 18L Buttons, Neck Piping)"
-                className="w-full sm:flex-5 px-3.5 py-2 text-xs sm:text-[13px] border border-slate-200 rounded-xl outline-none bg-white text-slate-900 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all"
+                className="w-full sm:flex-5 px-3.5 py-2 text-xs sm:text-[13px] border border-slate-200 rounded-xl outline-none bg-white text-slate-900 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all"
               />
               <input
                 type="text"
                 value={newMaterialQty}
                 onChange={(e) => setNewMaterialQty(e.target.value)}
                 placeholder="Quantity / Unit (e.g. 3300 pcs, 25 kg, 200 Meters)"
-                className="w-full sm:flex-3 px-3.5 py-2 text-xs sm:text-[13px] border border-slate-200 rounded-xl outline-none bg-white text-slate-900 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all font-mono"
+                className="w-full sm:flex-3 px-3.5 py-2 text-xs sm:text-[13px] border border-slate-200 rounded-xl outline-none bg-white text-slate-900 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all font-mono"
               />
               <select
                 value={newMaterialSource}
                 onChange={(e) => setNewMaterialSource(e.target.value as any)}
-                className="w-full sm:flex-3 px-3 py-2 text-xs sm:text-[13px] font-semibold border border-slate-200 rounded-xl bg-slate-50 outline-none cursor-pointer text-slate-900 focus:border-[#3A3564]"
+                className="w-full sm:flex-3 px-3 py-2 text-xs sm:text-[13px] font-semibold border border-slate-200 rounded-xl bg-slate-50 outline-none cursor-pointer text-slate-900 focus:border-[#0B1220]"
               >
                 <option value="CLIENT">Client Supplied (Buyer)</option>
                 <option value="FACTORY_STORE">Factory Sourced (In-House)</option>
@@ -2332,7 +2332,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               <button
                 type="button"
                 onClick={addCustomMaterial}
-                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-[13px] font-bold rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white transition-all shrink-0 cursor-pointer shadow-xs"
+                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-[13px] font-bold rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white transition-all shrink-0 cursor-pointer shadow-xs"
               >
                 + Add Custom Item
               </button>
@@ -2357,7 +2357,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                     setNewMaterialName(preset.name)
                     setNewMaterialQty(preset.qty)
                   }}
-                  className="px-2.5 py-1 rounded-lg text-xs bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 font-medium transition-colors cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-xs bg-[#F0FDFA] hover:bg-slate-100 text-[#0B1220] border border-black/15 font-medium transition-colors cursor-pointer"
                 >
                   +{preset.name}
                 </button>
@@ -2386,7 +2386,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           <button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto px-7 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-xs bg-[#3A3564] hover:bg-[#2A2649] cursor-pointer"
+            className="w-full sm:w-auto px-7 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-xs bg-[#0B1220] hover:bg-[#162032] cursor-pointer"
           >
             {isPending ? (
               <>
