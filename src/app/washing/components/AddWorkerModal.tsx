@@ -136,13 +136,13 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl border border-black/10 shadow-2xl max-w-lg w-full overflow-hidden transition-all flex flex-col max-h-[90vh]"
+        className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-lg w-full overflow-hidden transition-all flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-[#FAF7F0] border-b border-black/10 p-5 flex items-center justify-between">
+        <div className="bg-[#F0FDFA] border-b border-black/10 p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
@@ -177,7 +177,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Ramesh Mondal"
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-black/10 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-[#3A3564] transition-all font-semibold"
+              className="w-full px-3.5 py-2 text-sm rounded-xl border border-black/15 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-[#0B1220] transition-all font-semibold"
             />
           </div>
 
@@ -197,7 +197,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                 value={phone}
                 onChange={handlePhoneChange}
                 placeholder="9876543210"
-                className="w-full pl-12 pr-3.5 py-2 text-sm rounded-xl border border-black/10 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-[#3A3564] transition-all font-mono font-bold"
+                className="w-full pl-12 pr-3.5 py-2 text-sm rounded-xl border border-black/15 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-[#0B1220] transition-all font-mono font-bold"
               />
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
@@ -218,7 +218,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Min 6 characters (e.g. wash@123)"
-                className="w-full pl-3.5 pr-10 py-2 text-sm rounded-xl border border-black/10 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-[#3A3564] transition-all font-mono"
+                className="w-full pl-3.5 pr-10 py-2 text-sm rounded-xl border border-black/15 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:border-[#0B1220] transition-all font-mono"
               />
               <button
                 type="button"
@@ -239,7 +239,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
               <select
                 value={assignedMachine}
                 onChange={e => setAssignedMachine(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden font-semibold"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-hidden font-semibold"
               >
                 <option value="Washer 01 (Tumbler 600kg)">Washer 01 (Tumbler 600kg)</option>
                 <option value="Washer 02 (Hydro 400kg)">Washer 02 (Hydro 400kg)</option>
@@ -256,7 +256,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
               <select
                 value={shift}
                 onChange={e => setShift(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden font-semibold"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-hidden font-semibold"
               >
                 <option value="MORNING">Morning (08:00 AM - 04:00 PM)</option>
                 <option value="EVENING">Evening (04:00 PM - 12:00 AM)</option>
@@ -280,13 +280,13 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                     onClick={() => toggleRole(role.id)}
                     className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#FAF7F0] border-[#3A3564] text-[#3A3564] shadow-2xs font-bold'
+                        ? 'bg-[#F0FDFA] border-[#0B1220] text-[#0B1220] shadow-2xs font-bold'
                         : 'bg-white border-black/10 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     <span className="text-xs">{role.label}</span>
                     <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-[#3A3564] border-[#3A3564] text-white' : 'border-slate-300 bg-white'
+                      isSelected ? 'bg-[#0B1220] border-[#0B1220] text-white' : 'border-slate-300 bg-white'
                     }`}>
                       {isSelected && <Check className="w-3 h-3" />}
                     </div>
@@ -301,14 +301,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-bold text-slate-600 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-bold text-slate-600 transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <>

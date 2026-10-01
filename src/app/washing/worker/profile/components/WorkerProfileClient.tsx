@@ -44,34 +44,34 @@ export function WorkerProfileClient({
         <div className="flex items-center gap-2">
           <Link
             href="/washing/worker"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs"
           >
-            <Waves className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Waves className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>Active Assignments</span>
           </Link>
           <Link
             href="/washing/worker/history"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>Completed History</span>
           </Link>
         </div>
       </div>
 
       {/* Layer 2: Profile Banner Card */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <User className="w-8 h-8 text-[#3A3564]" />
+          <div className="w-16 h-16 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <User className="w-8 h-8 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {userName || 'Washing Floor Operator'}
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-slate-900 border border-black/10 shadow-2xs tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-slate-900 border border-black/15 shadow-2xs tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                 Active Floor Operator
               </span>
             </div>
@@ -82,7 +82,7 @@ export function WorkerProfileClient({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-4 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+          <span className="px-4 py-2 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs font-mono font-bold text-[#0B1220] shadow-2xs">
             +91 {normPhone || '9876543210'}
           </span>
         </div>
@@ -92,29 +92,29 @@ export function WorkerProfileClient({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Card 1: Workstation Credentials */}
-        <div className="bg-white p-6 rounded-3xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2.5 text-[#3A3564] font-bold text-sm">
-            <Lock className="w-4.5 h-4.5 text-[#3A3564]" />
+        <div className="bg-white p-6 rounded-3xl border border-black/15 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2.5 text-[#0B1220] font-bold text-sm">
+            <Lock className="w-4.5 h-4.5 text-[#0B1220]" />
             <span>Portal Access &amp; Identity</span>
           </div>
 
           <div className="space-y-3 font-mono text-xs">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5">
               <span className="text-slate-500">Registered Name</span>
               <span className="font-bold text-slate-900">{userName || 'Washing Operator'}</span>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5">
               <span className="text-slate-500">Mobile Login ID</span>
               <span className="font-bold text-slate-900">+91 {normPhone}</span>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5">
               <span className="text-slate-500">Factory Tenant</span>
-              <span className="font-bold text-[#3A3564]">Nubira Creation</span>
+              <span className="font-bold text-[#0B1220]">Nubira Creation</span>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/5">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5">
               <span className="text-slate-500">Authentication</span>
               <span className="font-bold text-slate-900">✓ RBAC Secured</span>
             </div>
@@ -122,9 +122,9 @@ export function WorkerProfileClient({
         </div>
 
         {/* Card 2: Assigned Floor Roles */}
-        <div className="bg-white p-6 rounded-3xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex items-center gap-2.5 text-[#3A3564] font-bold text-sm">
-            <Waves className="w-4.5 h-4.5 text-[#3A3564]" />
+        <div className="bg-white p-6 rounded-3xl border border-black/15 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2.5 text-[#0B1220] font-bold text-sm">
+            <Waves className="w-4.5 h-4.5 text-[#0B1220]" />
             <span>Assigned Floor Roles</span>
           </div>
 
@@ -136,7 +136,7 @@ export function WorkerProfileClient({
             {rolesList.map(r => (
               <span
                 key={r}
-                className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs"
+                className="px-3.5 py-1.5 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs font-mono font-bold text-[#0B1220] shadow-2xs"
               >
                 {r.replace(/_/g, ' ')}
               </span>

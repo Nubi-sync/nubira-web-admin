@@ -100,12 +100,12 @@ export function WorkerListModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none">
-      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/15 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
         
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between p-5 border-b border-black/10 bg-[#FAF7F0]/60">
+        <div className="flex items-center justify-between p-5 border-b border-black/10 bg-[#F0FDFA]/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
             <div>
@@ -135,7 +135,7 @@ export function WorkerListModal({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search name, phone, machine..."
-              className="w-full pl-8.5 pr-3 py-1.5 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564]"
+              className="w-full pl-8.5 pr-3 py-1.5 text-xs rounded-xl border border-black/15 bg-white focus:outline-hidden focus:border-[#0B1220]"
             />
           </div>
 
@@ -143,7 +143,7 @@ export function WorkerListModal({
             <select
               value={roleFilter}
               onChange={e => setRoleFilter(e.target.value)}
-              className="px-2.5 py-1.5 text-xs rounded-xl border border-black/10 bg-white font-mono font-bold text-slate-700"
+              className="px-2.5 py-1.5 text-xs rounded-xl border border-black/15 bg-white font-mono font-bold text-slate-700"
             >
               <option value="ALL">All Roles ({workers.length})</option>
               <option value="WASH_MASTER">Washing Masters</option>
@@ -158,7 +158,7 @@ export function WorkerListModal({
                 onClose()
                 onOpenAddModal()
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>+ Add Worker</span>
@@ -182,7 +182,7 @@ export function WorkerListModal({
             filteredWorkers.map(worker => (
               <div key={worker.id} className="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] font-mono font-black text-sm shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] font-mono font-black text-sm shrink-0">
                     {worker.worker_name.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
@@ -224,7 +224,7 @@ export function WorkerListModal({
                   <button
                     type="button"
                     onClick={() => handleToggleStatus(worker)}
-                    className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg border border-black/10 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer"
+                    className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg border border-black/15 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer"
                   >
                     Toggle Status
                   </button>
@@ -243,12 +243,12 @@ export function WorkerListModal({
         </div>
 
         {/* Modal Bottom Footer */}
-        <div className="p-4 border-t border-black/10 bg-[#FAF7F0]/40 flex items-center justify-between text-xs text-slate-500 font-mono">
+        <div className="p-4 border-t border-black/10 bg-[#F0FDFA]/40 flex items-center justify-between text-xs text-slate-500 font-mono">
           <span>Total Operators: {workers.length}</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
+            className="px-4 py-1.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
           >
             Close
           </button>

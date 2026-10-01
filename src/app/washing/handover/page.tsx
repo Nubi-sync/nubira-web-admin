@@ -27,9 +27,9 @@ export default async function HandoverPage() {
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
         
         {/* Header Card */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               <Truck className="w-6 h-6" />
             </div>
             <div>
@@ -37,7 +37,7 @@ export default async function HandoverPage() {
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   Outward Finishing Handover
                 </h1>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
                   Gate Passes
                 </span>
               </div>
@@ -51,7 +51,7 @@ export default async function HandoverPage() {
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <Link
               href="/washing"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-white text-xs font-mono font-bold text-[#3A3564] transition-all shadow-2xs shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-white text-xs font-mono font-bold text-[#0B1220] transition-all shadow-2xs shrink-0"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Back to Dashboard</span>

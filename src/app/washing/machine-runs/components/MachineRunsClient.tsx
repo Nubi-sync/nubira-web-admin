@@ -80,7 +80,7 @@ export function MachineRunsClient() {
   return (
     <div className="space-y-6 select-none">
       {/* Action and Filter Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 max-w-md">
           <div className="relative w-full">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -89,20 +89,20 @@ export function MachineRunsClient() {
               placeholder="Search batch number, challan, machine..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 text-[11px] font-mono font-bold">
+          <div className="flex items-center gap-1 bg-[#F0FDFA] p-1 rounded-xl border border-black/15 text-[11px] font-mono font-bold">
             {['ALL', 'WASHING', 'HYDRO', 'DRYING', 'PASSED', 'FAILED'].map(st => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                   statusFilter === st
-                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    ? 'bg-[#0B1220] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -113,7 +113,7 @@ export function MachineRunsClient() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Load New Batch</span>
@@ -124,10 +124,10 @@ export function MachineRunsClient() {
       {/* 3 Machine Fleet Summary Columns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Washers Column */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+              <span className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
                 <Waves className="w-3.5 h-3.5" />
               </span>
               <span className="text-xs font-bold text-slate-900">Belly Washers ({washers.length})</span>
@@ -137,16 +137,16 @@ export function MachineRunsClient() {
 
           <div className="space-y-2">
             {washers.map(m => (
-              <div key={m.id} className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 text-xs font-mono">
+              <div key={m.id} className="p-3 bg-[#F0FDFA]/60 rounded-xl border border-black/5 text-xs font-mono">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-900">{m.name}</span>
-                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                     {m.status}
                   </span>
                 </div>
                 {m.currentBatchNumber && (
                   <div className="mt-1 pt-1 border-t border-black/5 flex justify-between text-[11px] text-slate-600">
-                    <span className="text-[#3A3564] font-bold">{m.currentBatchNumber}</span>
+                    <span className="text-[#0B1220] font-bold">{m.currentBatchNumber}</span>
                     <span>{m.timeRemainingMin} min</span>
                   </div>
                 )}
@@ -156,10 +156,10 @@ export function MachineRunsClient() {
         </div>
 
         {/* Hydro Extractors Column */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+              <span className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
                 <RotateCw className="w-3.5 h-3.5" />
               </span>
               <span className="text-xs font-bold text-slate-900">Hydro Spin ({hydros.length})</span>
@@ -169,16 +169,16 @@ export function MachineRunsClient() {
 
           <div className="space-y-2">
             {hydros.map(m => (
-              <div key={m.id} className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 text-xs font-mono">
+              <div key={m.id} className="p-3 bg-[#F0FDFA]/60 rounded-xl border border-black/5 text-xs font-mono">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-900">{m.name}</span>
-                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                     {m.status}
                   </span>
                 </div>
                 {m.currentBatchNumber && (
                   <div className="mt-1 pt-1 border-t border-black/5 flex justify-between text-[11px] text-slate-600">
-                    <span className="text-[#3A3564] font-bold">{m.currentBatchNumber}</span>
+                    <span className="text-[#0B1220] font-bold">{m.currentBatchNumber}</span>
                     <span>{m.timeRemainingMin} min</span>
                   </div>
                 )}
@@ -188,10 +188,10 @@ export function MachineRunsClient() {
         </div>
 
         {/* Tumbler Dryers Column */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+              <span className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
                 <Thermometer className="w-3.5 h-3.5" />
               </span>
               <span className="text-xs font-bold text-slate-900">Tumbler Dryers ({dryers.length})</span>
@@ -201,16 +201,16 @@ export function MachineRunsClient() {
 
           <div className="space-y-2">
             {dryers.map(m => (
-              <div key={m.id} className="p-3 bg-[#FAF7F0]/60 rounded-xl border border-black/5 text-xs font-mono">
+              <div key={m.id} className="p-3 bg-[#F0FDFA]/60 rounded-xl border border-black/5 text-xs font-mono">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-900">{m.name}</span>
-                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                     {m.status}
                   </span>
                 </div>
                 {m.currentBatchNumber && (
                   <div className="mt-1 pt-1 border-t border-black/5 flex justify-between text-[11px] text-slate-600">
-                    <span className="text-[#3A3564] font-bold">{m.currentBatchNumber}</span>
+                    <span className="text-[#0B1220] font-bold">{m.currentBatchNumber}</span>
                     <span>{m.timeRemainingMin} min</span>
                   </div>
                 )}
@@ -221,7 +221,7 @@ export function MachineRunsClient() {
       </div>
 
       {/* Detailed Batches Live Floor Schedule */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
@@ -245,15 +245,15 @@ export function MachineRunsClient() {
               return (
                 <div
                   key={b.id}
-                  className="p-4 rounded-xl border border-black/10 bg-white hover:border-black/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="p-4 rounded-xl border border-black/15 bg-white hover:border-black/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="space-y-1 min-w-[220px]">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+                      <span className="text-xs font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
                         {b.batchNumber}
                       </span>
                       <span className="text-xs font-mono text-slate-500">{b.challanId}</span>
-                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {b.status}
                       </span>
                     </div>
@@ -296,7 +296,7 @@ export function MachineRunsClient() {
                     {isWashing && (
                       <button
                         onClick={() => advanceBatch(b)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <RotateCw className="w-3.5 h-3.5" />
                         <span>Start Hydro Spin</span>
@@ -306,7 +306,7 @@ export function MachineRunsClient() {
                     {isHydro && (
                       <button
                         onClick={() => advanceBatch(b)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <Thermometer className="w-3.5 h-3.5" />
                         <span>Transfer to Dryer</span>
@@ -316,7 +316,7 @@ export function MachineRunsClient() {
                     {isDrying && (
                       <button
                         onClick={() => advanceBatch(b)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Unload & Finish</span>
@@ -324,15 +324,15 @@ export function MachineRunsClient() {
                     )}
 
                     {isPass && (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 bg-[#FAF7F0] px-3 py-1.5 rounded-xl border border-black/10 font-mono">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 bg-[#F0FDFA] px-3 py-1.5 rounded-xl border border-black/15 font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
                         <span>QC Certified</span>
                       </span>
                     )}
 
                     {isFail && (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 bg-[#FAF7F0] px-3 py-1.5 rounded-xl border border-black/10 font-mono">
-                        <AlertTriangle className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 bg-[#F0FDFA] px-3 py-1.5 rounded-xl border border-black/15 font-mono">
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#0B1220]" />
                         <span>Cutting Alerted</span>
                       </span>
                     )}

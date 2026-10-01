@@ -36,12 +36,12 @@ export function LiquorAuditClient() {
     <div className="space-y-6 select-none">
       {/* 4 Environmental KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Mean Liquor Ratio
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Droplets className="w-4 h-4" />
             </div>
           </div>
@@ -56,12 +56,12 @@ export function LiquorAuditClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Total Water Logged
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Activity className="w-4 h-4" />
             </div>
           </div>
@@ -76,12 +76,12 @@ export function LiquorAuditClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Effluent pH Standard
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -96,12 +96,12 @@ export function LiquorAuditClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Water Efficiency
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <TrendingDown className="w-4 h-4" />
             </div>
           </div>
@@ -118,7 +118,7 @@ export function LiquorAuditClient() {
       </div>
 
       {/* Audit Log Table */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
@@ -131,16 +131,16 @@ export function LiquorAuditClient() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Log Water Audit</span>
           </button>
         </div>
 
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
+        <div className="overflow-x-auto border border-black/15 rounded-xl">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
-            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
+            <thead className="bg-[#F0FDFA]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="p-3.5">Audit Date</th>
                 <th className="p-3.5">Meter Readings (Init &rarr; Final)</th>
@@ -155,14 +155,14 @@ export function LiquorAuditClient() {
             <tbody className="divide-y divide-black/5 font-sans">
               {audits.length > 0 ? (
                 audits.map(a => (
-                  <tr key={a.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={a.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                     <td className="p-3.5 font-mono font-bold text-slate-900">
                       {a.auditDate}
                     </td>
                     <td className="p-3.5 font-mono text-slate-600 text-[11px]">
                       {a.meterReadingInitial.toLocaleString()} &rarr; {a.meterReadingFinal.toLocaleString()} L
                     </td>
-                    <td className="p-3.5 font-mono font-bold text-[#3A3564]">
+                    <td className="p-3.5 font-mono font-bold text-[#0B1220]">
                       {a.litersConsumed.toLocaleString()} Liters
                     </td>
                     <td className="p-3.5 font-mono text-slate-800">
@@ -178,7 +178,7 @@ export function LiquorAuditClient() {
                       <div className="text-[10px] text-slate-500">{a.effluentTdsPpm} ppm TDS</div>
                     </td>
                     <td className="p-3.5">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {a.complianceStatus}
                       </span>
                     </td>

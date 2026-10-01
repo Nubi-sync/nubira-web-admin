@@ -43,12 +43,12 @@ export function HandoverClient() {
     <div className="space-y-6 select-none">
       {/* 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Dispatched to Ironing
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Truck className="w-4 h-4" />
             </div>
           </div>
@@ -63,12 +63,12 @@ export function HandoverClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Zero Dampness
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -83,12 +83,12 @@ export function HandoverClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Odor Neutrality
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
@@ -103,12 +103,12 @@ export function HandoverClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Piece Match Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -125,7 +125,7 @@ export function HandoverClient() {
       </div>
 
       {/* Handover Gate Passes Table */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-1 max-w-md">
             <div className="relative w-full">
@@ -135,23 +135,23 @@ export function HandoverClient() {
                 placeholder="Search gate pass, batch, challan..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
               />
             </div>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Generate Handover Gate Pass</span>
           </button>
         </div>
 
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
+        <div className="overflow-x-auto border border-black/15 rounded-xl">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
-            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
+            <thead className="bg-[#F0FDFA]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="p-3.5">Gate Pass ID</th>
                 <th className="p-3.5">Batch & Challan</th>
@@ -166,8 +166,8 @@ export function HandoverClient() {
             <tbody className="divide-y divide-black/5 font-sans">
               {filtered.length > 0 ? (
                 filtered.map(h => (
-                  <tr key={h.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-[#3A3564]">
+                  <tr key={h.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
+                    <td className="p-3.5 font-mono font-bold text-[#0B1220]">
                       {h.handoverCode}
                     </td>
                     <td className="p-3.5">
@@ -181,13 +181,13 @@ export function HandoverClient() {
                       {h.piecesTransferred.toLocaleString()} pcs
                     </td>
                     <td className="p-3.5">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {h.transferredTo}
                       </span>
                     </td>
                     <td className="p-3.5">
                       <div className="flex items-center gap-1.5 text-slate-800 font-semibold text-[11px] font-mono">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
                         <span>Dry • Odorless • Count Match</span>
                       </div>
                     </td>

@@ -178,9 +178,9 @@ export function WorkerDashboardClient({
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
             <Waves className="w-6 h-6" />
           </div>
           <div>
@@ -202,7 +202,7 @@ export function WorkerDashboardClient({
 
           <Link
             href="/washing/worker/history"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/10 text-xs font-mono font-bold transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] border border-black/15 text-xs font-mono font-bold transition-all shadow-2xs"
           >
             <History className="w-3.5 h-3.5" />
             <span>Shift History</span>
@@ -211,7 +211,7 @@ export function WorkerDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+            className="p-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] transition-all cursor-pointer shadow-2xs"
             title="Sync latest tasks"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -221,7 +221,7 @@ export function WorkerDashboardClient({
 
       {/* 2 Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs flex items-center justify-between">
           <div>
             <div className="text-xs font-mono font-bold uppercase text-slate-400">
               Active Queue (Target)
@@ -233,12 +233,12 @@ export function WorkerDashboardClient({
               {activeQueue.length} batches pending
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564]">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220]">
             <Clock className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs flex items-center justify-between">
           <div>
             <div className="text-xs font-mono font-bold uppercase text-slate-400">
               Washed &amp; Handed Over
@@ -257,7 +257,7 @@ export function WorkerDashboardClient({
       </div>
 
       {/* Task List */}
-      <div className="bg-white rounded-3xl border border-black/10 shadow-2xs p-5 sm:p-6 space-y-4">
+      <div className="bg-white rounded-3xl border border-black/15 shadow-2xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
             Floor Workstation Tasks ({activeQueue.length} Active)
@@ -282,14 +282,14 @@ export function WorkerDashboardClient({
               return (
                 <div
                   key={task.id}
-                  className="p-4 sm:p-5 rounded-2xl border border-black/10 bg-[#FAF7F0]/30 hover:bg-[#FAF7F0]/60 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-4 sm:p-5 rounded-2xl border border-black/15 bg-[#F0FDFA]/30 hover:bg-[#F0FDFA]/60 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-bold text-slate-900">
                         #{task.task_ref}
                       </span>
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {task.article_number}
                       </span>
                       <span className="text-xs font-bold text-slate-700">
@@ -309,7 +309,7 @@ export function WorkerDashboardClient({
                       <button
                         type="button"
                         onClick={() => handleStartCycle(task)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5" />
                         <span>Start Wash</span>

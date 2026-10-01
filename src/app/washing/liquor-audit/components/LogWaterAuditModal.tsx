@@ -56,10 +56,10 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Droplets className="w-4 h-4" />
             </div>
             <div>
@@ -86,7 +86,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
                 value={auditDate}
                 onChange={e => setAuditDate(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               />
             </div>
 
@@ -99,7 +99,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
                 value={dryWeightKg}
                 onChange={e => setDryWeightKg(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
@@ -114,7 +114,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
                 value={meterInitial}
                 onChange={e => setMeterInitial(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
 
@@ -127,20 +127,20 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
                 value={meterFinal}
                 onChange={e => setMeterFinal(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
 
           {/* Calculated Consumption Callout */}
-          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 flex items-center justify-between text-xs font-mono">
+          <div className="p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15 flex items-center justify-between text-xs font-mono">
             <div>
               <span className="text-slate-500 block">Total Consumed:</span>
               <strong className="text-slate-900 text-sm">{litersConsumed.toLocaleString()} Liters</strong>
             </div>
             <div className="text-right">
               <span className="text-slate-500 block">Actual Liquor Ratio:</span>
-              <strong className="text-[#3A3564] text-sm">1 : {calculatedRatio}</strong>
+              <strong className="text-[#0B1220] text-sm">1 : {calculatedRatio}</strong>
             </div>
           </div>
 
@@ -155,7 +155,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
                 value={effluentPh}
                 onChange={e => setEffluentPh(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
 
@@ -168,7 +168,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
                 value={effluentTdsPpm}
                 onChange={e => setEffluentTdsPpm(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
               value={auditorName}
               onChange={e => setAuditorName(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -196,7 +196,7 @@ export function LogWaterAuditModal({ isOpen, onClose }: LogWaterAuditModalProps)
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Record Audit</span>

@@ -107,10 +107,10 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Cpu className="w-4 h-4" />
             </div>
             <div>
@@ -144,7 +144,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={batchNumber}
                 onChange={e => setBatchNumber(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               />
               <span className="text-[10px] text-slate-400 font-mono">Pattern: WB-XXXXX</span>
             </div>
@@ -158,7 +158,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={washerMachineId}
                 onChange={e => setWasherMachineId(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               >
                 {['Washer 01', 'Washer 02', 'Washer 03', 'Washer 04', 'Washer 05', 'Washer 06'].map(w => (
                   <option key={w} value={w}>
@@ -180,7 +180,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
               value={selectedChallanId}
               onChange={e => setSelectedChallanId(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             />
           </div>
 
@@ -194,7 +194,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={operatorName}
                 onChange={e => setOperatorName(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               >
                 {OPERATORS.map(op => (
                   <option key={op} value={op}>
@@ -213,7 +213,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={recipeName}
                 onChange={e => setRecipeName(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               >
                 {recipes.map(r => (
                   <option key={r.id} value={r.recipeName}>
@@ -225,7 +225,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
           </div>
 
           {/* Dry Weight & Auto-Calculated Water Volume */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15">
             <div>
               <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
                 Dry Weight Loaded (kg) *
@@ -237,7 +237,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={dryWeightKg}
                 onChange={e => setDryWeightKg(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-500">Min: 50 kg, Max: 650 kg</span>
             </div>
@@ -245,16 +245,16 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
             <div>
               <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1 flex items-center justify-between">
                 <span>Water Volume (Liters)</span>
-                <span className="text-[10px] font-bold text-[#3A3564]">1:5.0 Auto-calc</span>
+                <span className="text-[10px] font-bold text-[#0B1220]">1:5.0 Auto-calc</span>
               </label>
               <div className="relative">
                 <input
                   type="number"
                   readOnly
                   value={autoWaterLiters}
-                  className="w-full px-3 py-2 text-xs font-mono font-bold text-[#3A3564] rounded-lg border border-black/10 bg-white/70 cursor-not-allowed"
+                  className="w-full px-3 py-2 text-xs font-mono font-bold text-[#0B1220] rounded-lg border border-black/15 bg-white/70 cursor-not-allowed"
                 />
-                <Droplets className="w-3.5 h-3.5 text-[#3A3564] absolute right-3 top-1/2 -translate-y-1/2" />
+                <Droplets className="w-3.5 h-3.5 text-[#0B1220] absolute right-3 top-1/2 -translate-y-1/2" />
               </div>
               <span className="text-[10px] text-slate-500 font-mono">
                 {dryWeightKg} kg × 5.0 = {autoWaterLiters} L water
@@ -275,7 +275,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={tumblerTempC}
                 onChange={e => setTumblerTempC(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400">Standard: 65°C thermal curve</span>
             </div>
@@ -292,7 +292,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
                 value={cycleDurationMinutes}
                 onChange={e => setCycleDurationMinutes(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400">Typical: 30 - 60 min</span>
             </div>
@@ -308,7 +308,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
               placeholder="e.g. Extra enzyme rinse requested by brand QC"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -322,7 +322,7 @@ export function LoadBatchModal({ isOpen, onClose }: LoadBatchModalProps) {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Initiate Wash Run</span>

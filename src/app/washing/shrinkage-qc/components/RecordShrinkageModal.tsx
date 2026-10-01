@@ -82,10 +82,10 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div>
@@ -115,7 +115,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
               value={selectedBatchId}
               onChange={e => setSelectedBatchId(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             >
               {batches.map(b => (
                 <option key={b.id} value={b.id}>
@@ -138,7 +138,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
                 value={samplePiecesTested}
                 onChange={e => setSamplePiecesTested(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400">Standard: 10 garments per lot</span>
             </div>
@@ -156,19 +156,19 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
                 value={colorfastnessRating}
                 onChange={e => setColorfastnessRating(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400">Buyer spec: &ge; 4.0</span>
             </div>
           </div>
 
           {/* Length Pre vs Post */}
-          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2">
+          <div className="p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-700 uppercase">
                 Garment Length Measurements (cm)
               </span>
-              <span className="text-xs font-mono font-bold text-[#3A3564]">
+              <span className="text-xs font-mono font-bold text-[#0B1220]">
                 Shrinkage: {lengthShrinkPct.toFixed(2)}%
               </span>
             </div>
@@ -181,7 +181,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
                   value={preWashLengthCm}
                   onChange={e => setPreWashLengthCm(Number(e.target.value))}
                   required
-                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
                 />
               </div>
               <div>
@@ -192,19 +192,19 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
                   value={postWashLengthCm}
                   onChange={e => setPostWashLengthCm(Number(e.target.value))}
                   required
-                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
                 />
               </div>
             </div>
           </div>
 
           {/* Width Pre vs Post */}
-          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2">
+          <div className="p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-700 uppercase">
                 Garment Width Measurements (cm)
               </span>
-              <span className="text-xs font-mono font-bold text-[#3A3564]">
+              <span className="text-xs font-mono font-bold text-[#0B1220]">
                 Shrinkage: {widthShrinkPct.toFixed(2)}%
               </span>
             </div>
@@ -217,7 +217,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
                   value={preWashWidthCm}
                   onChange={e => setPreWashWidthCm(Number(e.target.value))}
                   required
-                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
                 />
               </div>
               <div>
@@ -228,7 +228,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
                   value={postWashWidthCm}
                   onChange={e => setPostWashWidthCm(Number(e.target.value))}
                   required
-                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                  className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
                 />
               </div>
             </div>
@@ -238,7 +238,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
           <div
             className={`p-3.5 rounded-xl border flex items-center justify-between ${
               autoStatus === 'PASS'
-                ? 'bg-[#FAF7F0] border-black/10 text-slate-900'
+                ? 'bg-[#F0FDFA] border-black/10 text-slate-900'
                 : autoStatus === 'MARGINAL_WARN'
                 ? 'bg-amber-50 border-amber-200 text-amber-900'
                 : 'bg-rose-50 border-rose-200 text-rose-900'
@@ -246,7 +246,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
           >
             <div className="flex items-center gap-2">
               {autoStatus === 'PASS' ? (
-                <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+                <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
               ) : (
                 <AlertTriangle className="w-4 h-4 text-rose-700" />
               )}
@@ -280,7 +280,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
               placeholder="e.g. Approved for finishing OR Marker expansion note"
               value={actionTaken}
               onChange={e => setActionTaken(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -294,7 +294,7 @@ export function RecordShrinkageModal({ isOpen, onClose }: RecordShrinkageModalPr
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Submit QC Record</span>

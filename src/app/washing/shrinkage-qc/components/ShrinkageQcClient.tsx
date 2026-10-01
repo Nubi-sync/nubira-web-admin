@@ -49,14 +49,14 @@ export function ShrinkageQcClient() {
     <div className="space-y-6 select-none">
       {/* High Shrinkage Auto-Escalation Banner */}
       {criticalAlerts.length > 0 && (
-        <div className="bg-[#FAF7F0] border border-black/15 rounded-2xl p-5 shadow-2xs space-y-3">
+        <div className="bg-[#F0FDFA] border border-black/15 rounded-2xl p-5 shadow-2xs space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   Critical Cutting Alert Triggered
                 </span>
                 <span className="text-xs font-semibold text-slate-800">
@@ -73,7 +73,7 @@ export function ShrinkageQcClient() {
             {criticalAlerts.map(ca => (
               <div
                 key={ca.id}
-                className="bg-white p-3.5 rounded-xl border border-black/10 text-xs flex items-center justify-between shadow-2xs"
+                className="bg-white p-3.5 rounded-xl border border-black/15 text-xs flex items-center justify-between shadow-2xs"
               >
                 <div>
                   <div className="font-mono font-bold text-slate-900">
@@ -85,7 +85,7 @@ export function ShrinkageQcClient() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="px-2 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono font-bold text-[10px] uppercase">
+                  <span className="px-2 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 font-mono font-bold text-[10px] uppercase">
                     CAD Notified
                   </span>
                   <div className="text-[10px] text-slate-500 mt-1">Lay cutting suspended</div>
@@ -98,12 +98,12 @@ export function ShrinkageQcClient() {
 
       {/* 4 Statistical QC Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               QC Pass Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -120,12 +120,12 @@ export function ShrinkageQcClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Mean Length Shrinkage
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Ruler className="w-4 h-4" />
             </div>
           </div>
@@ -140,12 +140,12 @@ export function ShrinkageQcClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Mean Width Shrinkage
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Ruler className="w-4 h-4" />
             </div>
           </div>
@@ -160,12 +160,12 @@ export function ShrinkageQcClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Colorfastness Rating
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Check className="w-4 h-4" />
             </div>
           </div>
@@ -182,7 +182,7 @@ export function ShrinkageQcClient() {
       </div>
 
       {/* Action and Table Bar */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-1 max-w-md">
             <div className="relative w-full">
@@ -192,20 +192,20 @@ export function ShrinkageQcClient() {
                 placeholder="Search QC code, batch, garment style..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 text-[11px] font-mono font-bold">
+            <div className="flex items-center gap-1 bg-[#F0FDFA] p-1 rounded-xl border border-black/15 text-[11px] font-mono font-bold">
               {['ALL', 'PASS', 'MARGINAL_WARN', 'CRITICAL_FAIL'].map(st => (
                 <button
                   key={st}
                   onClick={() => setVerdictFilter(st)}
                   className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                     verdictFilter === st
-                      ? 'bg-[#3A3564] text-white shadow-xs'
+                      ? 'bg-[#0B1220] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -216,7 +216,7 @@ export function ShrinkageQcClient() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record Shrinkage QC (Form 2)</span>
@@ -225,9 +225,9 @@ export function ShrinkageQcClient() {
         </div>
 
         {/* QC Records Table */}
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
+        <div className="overflow-x-auto border border-black/15 rounded-xl">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
-            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
+            <thead className="bg-[#F0FDFA]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="p-3.5">QC Code & Date</th>
                 <th className="p-3.5">Batch & Article</th>
@@ -242,9 +242,9 @@ export function ShrinkageQcClient() {
             <tbody className="divide-y divide-black/5 font-sans">
               {filtered.length > 0 ? (
                 filtered.map(r => (
-                  <tr key={r.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={r.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                     <td className="p-3.5">
-                      <div className="font-mono font-bold text-[#3A3564]">{r.qcCode}</div>
+                      <div className="font-mono font-bold text-[#0B1220]">{r.qcCode}</div>
                       <div className="text-[11px] text-slate-500 font-mono">{r.auditDate}</div>
                     </td>
                     <td className="p-3.5">
@@ -275,11 +275,11 @@ export function ShrinkageQcClient() {
                     </td>
                     <td className="p-3.5">
                       <div className="flex flex-col gap-1">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                           {r.qcStatus.replace(/_/g, ' ')}
                         </span>
                         {r.cuttingAlertSent && (
-                          <span className="text-[9px] font-mono font-bold text-[#3A3564] uppercase bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-black/10 inline-block text-center">
+                          <span className="text-[9px] font-mono font-bold text-[#0B1220] uppercase bg-[#F0FDFA] px-1.5 py-0.5 rounded border border-black/15 inline-block text-center">
                             Cutting Notified
                           </span>
                         )}

@@ -55,10 +55,10 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <FlaskConical className="w-4 h-4" />
             </div>
             <div>
@@ -85,7 +85,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={recipeCode}
                 onChange={e => setRecipeCode(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               />
             </div>
 
@@ -96,7 +96,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value as RecipeCategory)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               >
                 <option value="BIO_POLISH">Bio-Polish Enzyme</option>
                 <option value="SILICON_SOFT">Micro-Silicon Softener</option>
@@ -116,7 +116,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
               value={recipeName}
               onChange={e => setRecipeName(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             />
           </div>
 
@@ -129,11 +129,11 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
               value={enzymeType}
               onChange={e => setEnzymeType(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-3 p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10">
+          <div className="grid grid-cols-3 gap-3 p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15">
             <div>
               <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
                 Enzyme (g/L)
@@ -144,7 +144,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={enzymeDoseGpl}
                 onChange={e => setEnzymeDoseGpl(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
             </div>
             <div>
@@ -157,7 +157,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={aceticAcidGpl}
                 onChange={e => setAceticAcidGpl(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
             </div>
             <div>
@@ -170,7 +170,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={softenerGpl}
                 onChange={e => setSoftenerGpl(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
             </div>
           </div>
@@ -185,7 +185,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={temperatureC}
                 onChange={e => setTemperatureC(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
             <div>
@@ -197,7 +197,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={cycleMinutes}
                 onChange={e => setCycleMinutes(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
             <div>
@@ -209,7 +209,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={phTarget}
                 onChange={e => setPhTarget(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
@@ -224,7 +224,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={targetHandFeel}
                 onChange={e => setTargetHandFeel(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
             <div>
@@ -236,7 +236,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
                 value={approvedBy}
                 onChange={e => setApprovedBy(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ export function CreateRecipeModal({ isOpen, onClose }: CreateRecipeModalProps) {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Save Wash Recipe</span>
