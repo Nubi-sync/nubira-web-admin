@@ -357,110 +357,110 @@ export function SADesignApprovalsClient({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Layer 1: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
-            <ShieldCheck className="w-5 h-5 text-[#0B1220]" />
+      <div className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
+            <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-                Design Executive Approvals
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                Design <span className="text-[#1D4ED8]">Executive</span> Approvals
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
                 {pendingItems.length} Awaiting Decision
               </span>
             </div>
-            <p className="text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Review Supervisor-approved designs individually with unique Art Numbers, greenlight for Tech-Pack, or save in seasonal archive
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
           <Link
             href="/design"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+            className="min-h-[46px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer text-center"
           >
-            <Palette className="w-3.5 h-3.5 text-[#14C8B4]" />
+            <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
             <span>Open Design Studio Module</span>
           </Link>
         </div>
       </div>
 
       {/* Layer 3: Informational KPI Data Boxes (Unified 4-Box Grid) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4.5">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#14C8B4]/20">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-[#14C8B4]/20">
               PIPELINE
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-xs">
-              <Layers className="w-4 h-4 text-[#0B1220]" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-xs">
+              <Layers className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               Total Designs
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
               {allRows.length}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#14C8B4]/20">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-[#14C8B4]/20">
               DECISION
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-xs">
-              <Clock className="w-4 h-4 text-[#0B1220]" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-xs">
+              <Clock className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               Awaiting Decision
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
               {pendingItems.length}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
               GREENLIT
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-xs">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-xs">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               SA Greenlit
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-emerald-600 font-[family-name:var(--font-heading)] mt-1">
               {approvedItems.length}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1D4ED8] bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
               ARCHIVE
             </span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1D4ED8] border border-blue-200 flex items-center justify-center shadow-xs">
-              <Bookmark className="w-4 h-4 text-[#1D4ED8]" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-[#1D4ED8] border border-blue-200 flex items-center justify-center shadow-xs">
+              <Bookmark className="w-5 h-5 text-[#1D4ED8]" />
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
               Seasonal Archive
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-0.5">
+            <div className="text-2xl sm:text-4xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-1">
               {savedForLaterItems.length}
             </div>
           </div>
@@ -471,11 +471,11 @@ export function SADesignApprovalsClient({
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {/* Toolbar */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
-          <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto text-xs sm:text-sm font-bold pb-1 sm:pb-0">
             <button
               type="button"
               onClick={() => setActiveTab('ALL')}
-              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
                 activeTab === 'ALL'
                   ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                   : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
@@ -486,7 +486,7 @@ export function SADesignApprovalsClient({
             <button
               type="button"
               onClick={() => setActiveTab('PENDING')}
-              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
                 activeTab === 'PENDING'
                   ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                   : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
@@ -497,7 +497,7 @@ export function SADesignApprovalsClient({
             <button
               type="button"
               onClick={() => setActiveTab('APPROVED')}
-              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
                 activeTab === 'APPROVED'
                   ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                   : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
@@ -508,7 +508,7 @@ export function SADesignApprovalsClient({
             <button
               type="button"
               onClick={() => setActiveTab('SAVED_FOR_LATER')}
-              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
                 activeTab === 'SAVED_FOR_LATER'
                   ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                   : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
@@ -520,7 +520,7 @@ export function SADesignApprovalsClient({
               <button
                 type="button"
                 onClick={() => setActiveTab('REJECTED')}
-                className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
+                className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
                   activeTab === 'REJECTED'
                     ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
                     : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
@@ -531,14 +531,14 @@ export function SADesignApprovalsClient({
             )}
           </div>
 
-          <div className="relative w-full sm:w-64 shrink-0">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="relative w-full sm:w-72 shrink-0">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search art no, colors, garment..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#F8FAFC] border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] font-medium text-[#0B1220]"
+              className="min-h-[44px] w-full pl-10 pr-4 py-2 text-xs sm:text-sm rounded-xl bg-[#F8FAFC] border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] font-medium text-[#0B1220]"
             />
           </div>
         </div>
@@ -558,15 +558,15 @@ export function SADesignApprovalsClient({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
-                    <th className="py-3 px-4">Art No. &amp; Garment</th>
-                    <th className="py-3 px-4">Designer</th>
-                    <th className="py-3 px-4">Colorway &amp; Artwork</th>
-                    <th className="py-3 px-4">Decision Status</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                  <tr className="border-b border-slate-100 text-xs font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50">
+                    <th className="py-3.5 px-4">Art No. &amp; Garment</th>
+                    <th className="py-3.5 px-4">Designer</th>
+                    <th className="py-3.5 px-4">Colorway &amp; Artwork</th>
+                    <th className="py-3.5 px-4">Decision Status</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
+                <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                   {filteredList.map(item => {
                     const isPendingSA = item.isPHApproved && (!item.saVerdict || item.saVerdict === 'PENDING')
                     const isGreenlit = item.saVerdict === 'APPROVED'
@@ -579,43 +579,43 @@ export function SADesignApprovalsClient({
                       <tr key={item.key} className="hover:bg-slate-50/80 transition-colors group">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className="font-mono font-extrabold text-[#0B1220] text-sm">
+                            <span className="font-mono font-extrabold text-[#0B1220] text-sm sm:text-base">
                               {item.artNumber}
                             </span>
-                            <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                            <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                               #{item.conceptNumber} &bull; #{item.briefId.substring(0, 6)}
                             </span>
                           </div>
-                          <span className="font-bold text-[#0B1220] text-xs block font-[family-name:var(--font-heading)]">
+                          <span className="font-bold text-[#0B1220] text-sm block font-[family-name:var(--font-heading)]">
                             {item.garment}
                           </span>
-                          <span className="text-xs text-slate-500 font-medium">
+                          <span className="text-xs sm:text-sm text-slate-500 font-medium">
                             {item.category}
                           </span>
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <span className="font-semibold text-[#0B1220] text-xs block">
+                          <span className="font-bold text-[#0B1220] text-sm block">
                             {item.designerName}
                           </span>
                           {item.designerPhone && (
-                            <span className="text-[11px] font-mono text-slate-400 block">
+                            <span className="text-xs font-mono text-slate-500 block">
                               {item.designerPhone}
                             </span>
                           )}
-                          <span className="text-[11px] text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Supervisor Approved
+                          <span className="text-xs text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Supervisor Approved
                           </span>
                         </td>
 
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                               <span 
-                                className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0 shadow-xs" 
+                                className="w-4 h-4 rounded-full border border-slate-300 shrink-0 shadow-xs" 
                                 style={{ backgroundColor: sw.bg }} 
                               />
-                              <span className="font-bold text-[#0B1220] text-xs">
+                              <span className="font-bold text-[#0B1220] text-sm">
                                 {item.colorName}
                               </span>
                             </div>
@@ -624,7 +624,7 @@ export function SADesignApprovalsClient({
                             {item.colorway.photo_front ? (
                               <div 
                                 onClick={() => setPreviewPhoto(item.colorway.photo_front)}
-                                className="w-10 h-10 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 cursor-pointer p-0.5 shadow-xs hover:border-[#0B1220] transition-all shrink-0"
+                                className="w-11 h-11 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 cursor-pointer p-0.5 shadow-xs hover:border-[#0B1220] transition-all shrink-0"
                                 title="Click to preview artwork"
                               >
                                 <img
@@ -634,29 +634,29 @@ export function SADesignApprovalsClient({
                                 />
                               </div>
                             ) : (
-                              <span className="text-slate-400 font-mono text-[10px]">No Artwork</span>
+                              <span className="text-slate-400 font-mono text-xs">No Artwork</span>
                             )}
                           </div>
                         </td>
 
                         <td className="py-3.5 px-4">
                           {isPendingSA && (
-                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
                               Awaiting SA Decision
                             </span>
                           )}
                           {isGreenlit && (
-                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                               SA Greenlit
                             </span>
                           )}
                           {isSaved && (
-                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
                               Saved in Archive
                             </span>
                           )}
                           {isRejected && (
-                            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                               Revisions Requested
                             </span>
                           )}
@@ -666,11 +666,11 @@ export function SADesignApprovalsClient({
                           <button
                             type="button"
                             onClick={() => setSelectedRowItem(item)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs transition-all cursor-pointer hover:border-slate-300 active:scale-95"
+                            className="min-h-[42px] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 shadow-xs transition-all cursor-pointer hover:border-slate-300 active:scale-[0.98]"
                           >
-                            <Eye className="w-3.5 h-3.5 text-slate-600" />
+                            <Eye className="w-4 h-4 text-slate-600" />
                             <span>View &amp; Decide</span>
-                            <ChevronRight className="w-3 h-3 text-slate-400" />
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                           </button>
                         </td>
                       </tr>
@@ -690,56 +690,56 @@ export function SADesignApprovalsClient({
                 const sw = getColorSwatchInfo(item.colorName)
 
                 return (
-                  <div key={item.key} className="p-4 space-y-3 bg-white">
+                  <div key={item.key} className="p-4 space-y-3.5 bg-white">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-extrabold text-[#0B1220] text-sm">
+                          <span className="font-mono font-extrabold text-[#0B1220] text-base">
                             {item.artNumber}
                           </span>
-                          <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                          <span className="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                             #{item.conceptNumber}
                           </span>
                         </div>
-                        <h3 className="font-bold text-[#0B1220] text-sm mt-0.5">
+                        <h3 className="font-bold text-[#0B1220] text-base mt-0.5">
                           {item.garment}
                         </h3>
-                        <p className="text-xs text-slate-500 font-medium">
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium">
                           {item.category}
                         </p>
                       </div>
 
                       {isPendingSA && (
-                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+                        <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
                           Awaiting Decision
                         </span>
                       )}
                       {isGreenlit && (
-                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+                        <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
                           Greenlit
                         </span>
                       )}
                       {isSaved && (
-                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shrink-0">
+                        <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shrink-0">
                           Archived
                         </span>
                       )}
                       {isRejected && (
-                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+                        <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
                           Revisions
                         </span>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 text-slate-600">
+                    <div className="flex items-center justify-between text-xs sm:text-sm pt-1 border-t border-slate-100 text-slate-600">
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
-                        <span className="font-bold text-[#0B1220]">{item.designerName}</span>
+                        <span className="text-slate-400 block text-xs uppercase font-bold">Designer</span>
+                        <span className="font-bold text-[#0B1220] text-sm">{item.designerName}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Colorway</span>
-                        <div className="flex items-center gap-1 font-bold text-[#0B1220] justify-end">
-                          <span className="w-2.5 h-2.5 rounded-full border border-slate-300 shrink-0" style={{ backgroundColor: sw.bg }} />
+                        <span className="text-slate-400 block text-xs uppercase font-bold">Colorway</span>
+                        <div className="flex items-center gap-1.5 font-bold text-[#0B1220] text-sm justify-end">
+                          <span className="w-3 h-3 rounded-full border border-slate-300 shrink-0" style={{ backgroundColor: sw.bg }} />
                           <span>{item.colorName}</span>
                         </div>
                       </div>
@@ -748,11 +748,11 @@ export function SADesignApprovalsClient({
                     <button
                       type="button"
                       onClick={() => setSelectedRowItem(item)}
-                      className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                      className="min-h-[46px] w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer text-center"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <Eye className="w-4 h-4" />
                       <span>View &amp; Decide {item.artNumber}</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 )
@@ -899,24 +899,24 @@ export function SADesignApprovalsClient({
             </div>
 
             {/* Action Bar */}
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   setSelectedRowItem(null)
                   setSaNotes('')
                 }}
-                className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-xs cursor-pointer transition-all"
+                className="min-h-[46px] px-5 py-2.5 text-sm sm:text-base font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-xs cursor-pointer transition-all text-center"
               >
                 Close
               </button>
 
-              <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                 <button
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'REJECTED')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-95"
+                  className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
                   <XCircle className="w-4 h-4" />
                   <span>Request Revisions</span>
@@ -926,7 +926,7 @@ export function SADesignApprovalsClient({
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'SAVED_FOR_LATER')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-95"
+                  className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
                   <Bookmark className="w-4 h-4 text-[#1D4ED8]" />
                   <span>Save for Later</span>
@@ -936,9 +936,9 @@ export function SADesignApprovalsClient({
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'APPROVED')}
-                  className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-95"
+                  className="min-h-[46px] inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-sm sm:text-base font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
-                  {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#14C8B4]" /> : <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />}
+                  {isReviewing ? <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" /> : <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />}
                   <span>Greenlight for Tech-Pack</span>
                 </button>
               </div>
