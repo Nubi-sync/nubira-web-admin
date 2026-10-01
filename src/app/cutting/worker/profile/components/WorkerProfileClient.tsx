@@ -41,7 +41,7 @@ export function WorkerProfileClient({
       {/* Top Profile Banner Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <User className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -49,7 +49,7 @@ export function WorkerProfileClient({
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {userName || 'Cutting Floor Operator'}
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-900 border border-slate-200 shadow-2xs tracking-wider flex items-center gap-1">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                 Active Operator
               </span>
