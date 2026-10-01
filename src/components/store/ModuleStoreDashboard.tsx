@@ -204,7 +204,7 @@ export function ModuleStoreDashboard({
       {/* Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <CentralStoreBespokeIcon className="w-5 h-5" />
           </div>
           <div>
@@ -212,7 +212,7 @@ export function ModuleStoreDashboard({
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {moduleName} Store
               </h1>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 DIV {moduleNumber}
               </span>
             </div>
@@ -225,7 +225,7 @@ export function ModuleStoreDashboard({
         <div className="flex items-center gap-2.5 self-end sm:self-auto flex-wrap">
           <Link
             href="/store"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
           >
             <MaterialFlowBespokeIcon className="w-4 h-4" />
             <span>Central Store Hub</span>
@@ -237,7 +237,7 @@ export function ModuleStoreDashboard({
               setFormError(null)
               setIsIssueModalOpen(true)
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Issue Challan</span>
@@ -250,10 +250,10 @@ export function ModuleStoreDashboard({
         {/* Metric 1: Received */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <ArrowDownLeft className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               INWARD
             </span>
           </div>
@@ -276,10 +276,10 @@ export function ModuleStoreDashboard({
         {/* Metric 2: Issued */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <ArrowUpRight className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               OUTWARD
             </span>
           </div>
@@ -302,10 +302,10 @@ export function ModuleStoreDashboard({
         {/* Metric 3: Pending Inward */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Clock className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               PENDING
             </span>
           </div>
@@ -328,10 +328,10 @@ export function ModuleStoreDashboard({
         {/* Metric 4: Shortages */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <AlertCircle className="w-5 h-5" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               SHORTAGE
             </span>
           </div>
@@ -362,8 +362,8 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('RECEIPTS')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'RECEIPTS'
-                  ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
               }`}
             >
               Inwards Received ({receipts.length})
@@ -374,8 +374,8 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('ISSUES')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'ISSUES'
-                  ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
               }`}
             >
               Outward Issues ({issues.length})
@@ -386,8 +386,8 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('PENDING')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'PENDING'
-                  ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
               }`}
             >
               Pending Inward ({pendingIssues.length})
@@ -401,7 +401,7 @@ export function ModuleStoreDashboard({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search challan, article, division..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220]"
             />
           </div>
         </div>
@@ -411,7 +411,7 @@ export function ModuleStoreDashboard({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50">
                   <th className="py-3 px-4">Challan Ref</th>
                   <th className="py-3 px-4">From</th>
                   <th className="py-3 px-4">Article / Material</th>
@@ -432,7 +432,7 @@ export function ModuleStoreDashboard({
                 ) : (
                   filteredReceipts.map(r => (
                     <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         {r.issue?.issue_challan_no || 'MANUAL-REC'}
                       </td>
                       <td className="py-3 px-4">
@@ -493,7 +493,7 @@ export function ModuleStoreDashboard({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50">
                   <th className="py-3 px-4">Challan Ref</th>
                   <th className="py-3 px-4">To Division</th>
                   <th className="py-3 px-4">Article / Material</th>
@@ -513,7 +513,7 @@ export function ModuleStoreDashboard({
                 ) : (
                   filteredIssues.map(i => (
                     <tr key={i.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         {i.issue_challan_no}
                       </td>
                       <td className="py-3 px-4">
@@ -562,7 +562,7 @@ export function ModuleStoreDashboard({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50">
                   <th className="py-3 px-4">Challan Ref</th>
                   <th className="py-3 px-4">From</th>
                   <th className="py-3 px-4">Article / Material</th>
@@ -581,7 +581,7 @@ export function ModuleStoreDashboard({
                 ) : (
                   filteredPending.map(p => (
                     <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         {p.issue_challan_no}
                       </td>
                       <td className="py-3 px-4">
@@ -607,7 +607,7 @@ export function ModuleStoreDashboard({
                         <button
                           type="button"
                           onClick={() => handleOpenAcknowledge(p)}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
                         >
                           Acknowledge
                         </button>
@@ -625,9 +625,9 @@ export function ModuleStoreDashboard({
       {isIssueModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+            <div className="px-6 py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                   DIV {moduleNumber} OUTWARD
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -659,7 +659,7 @@ export function ModuleStoreDashboard({
                     <select
                       value={targetDivision}
                       onChange={e => setTargetDivision(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     >
                       <option value="CUTTING">Cutting Floor</option>
                       <option value="PRINTING">Printing Division</option>
@@ -680,7 +680,7 @@ export function ModuleStoreDashboard({
                       value={issueArticleNo}
                       onChange={e => setIssueArticleNo(e.target.value)}
                       placeholder="e.g. 9437"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#0B1220] outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -695,7 +695,7 @@ export function ModuleStoreDashboard({
                       value={issueBuyerName}
                       onChange={e => setIssueBuyerName(e.target.value)}
                       placeholder="e.g. Zara / HM"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -708,7 +708,7 @@ export function ModuleStoreDashboard({
                       value={issueColor}
                       onChange={e => setIssueColor(e.target.value)}
                       placeholder="e.g. Navy Blue"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -722,7 +722,7 @@ export function ModuleStoreDashboard({
                     value={issueFabricType}
                     onChange={e => setIssueFabricType(e.target.value)}
                     placeholder="e.g. Cotton Single Jersey 220 GSM"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
 
@@ -739,7 +739,7 @@ export function ModuleStoreDashboard({
                       min="0.1"
                       step="any"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -750,7 +750,7 @@ export function ModuleStoreDashboard({
                     <select
                       value={issueUnit}
                       onChange={e => setIssueUnit(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     >
                       <option value="meters">Meters</option>
                       <option value="pcs">Pieces</option>
@@ -769,7 +769,7 @@ export function ModuleStoreDashboard({
                       onChange={e => setIssueRolls(e.target.value === '' ? '' : Number(e.target.value))}
                       placeholder="0"
                       min="0"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -783,23 +783,23 @@ export function ModuleStoreDashboard({
                     value={issueNotes}
                     onChange={e => setIssueNotes(e.target.value)}
                     placeholder="Remarks or instructions..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsIssueModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Issue'}
                 </button>
@@ -813,9 +813,9 @@ export function ModuleStoreDashboard({
       {isAcknowledgeModalOpen && selectedPendingIssue && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+            <div className="px-6 py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                   INWARD ACKNOWLEDGMENT
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -853,7 +853,7 @@ export function ModuleStoreDashboard({
                   </div>
                   <div className="flex justify-between font-mono">
                     <span className="text-slate-500">Dispatched Qty:</span>
-                    <span className="font-bold text-[#3A3564]">{selectedPendingIssue.quantity} {selectedPendingIssue.unit}</span>
+                    <span className="font-bold text-[#0B1220]">{selectedPendingIssue.quantity} {selectedPendingIssue.unit}</span>
                   </div>
                 </div>
 
@@ -870,7 +870,7 @@ export function ModuleStoreDashboard({
                       min="0.1"
                       step="any"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -885,7 +885,7 @@ export function ModuleStoreDashboard({
                       placeholder="0"
                       min="0"
                       step="any"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -900,7 +900,7 @@ export function ModuleStoreDashboard({
                       value={ackRackLocation}
                       onChange={e => setAckRackLocation(e.target.value)}
                       placeholder="e.g. CUT-STAGE-01"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono uppercase text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono uppercase text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -913,7 +913,7 @@ export function ModuleStoreDashboard({
                       value={ackReceiverName}
                       onChange={e => setAckReceiverName(e.target.value)}
                       placeholder="Supervisor Name"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -927,26 +927,26 @@ export function ModuleStoreDashboard({
                     value={ackNotes}
                     onChange={e => setAckNotes(e.target.value)}
                     placeholder="Inspection remarks..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setIsAcknowledgeModalOpen(false)
                     setSelectedPendingIssue(null)
                   }}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Receipt'}
                 </button>

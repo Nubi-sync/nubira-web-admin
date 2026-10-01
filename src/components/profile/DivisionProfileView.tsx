@@ -195,7 +195,7 @@ export function DivisionProfileView({
       {/* Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <MainIcon className="w-6 h-6 stroke-[2]" />
           </div>
           <div>
@@ -204,11 +204,11 @@ export function DivisionProfileView({
                 {divisionName} Profile
               </h1>
               {divisionCode && (
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
                   Division {divisionCode}
                 </span>
               )}
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
                 {categoryBadge}
               </span>
             </div>
@@ -221,7 +221,7 @@ export function DivisionProfileView({
         <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-wrap">
           <Link
             href={backHref}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs sm:text-sm font-mono font-bold text-slate-700 transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs sm:text-sm font-mono font-bold text-slate-700 transition-all shadow-2xs"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>{backLabel}</span>
@@ -229,7 +229,7 @@ export function DivisionProfileView({
 
           <Link
             href={divisionSlug}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <span>Enter Live Floor</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -261,7 +261,7 @@ export function DivisionProfileView({
 
               <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
                 <span className="font-semibold text-slate-500">Designation</span>
-                <span className="font-bold text-[#3A3564] font-mono text-xs">{headDesignation}</span>
+                <span className="font-bold text-[#0B1220] font-mono text-xs">{headDesignation}</span>
               </div>
 
               <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
@@ -299,10 +299,10 @@ export function DivisionProfileView({
           <div>
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h2 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2 font-[family-name:var(--font-heading)]">
-                <Settings className="w-4 h-4 text-[#3A3564]" />
+                <Settings className="w-4 h-4 text-[#0B1220]" />
                 Technical Capacity & Machinery
               </h2>
-              <span className="text-[10px] font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+              <span className="text-[10px] font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
                 OPERATIONAL
               </span>
             </div>
@@ -314,7 +314,7 @@ export function DivisionProfileView({
                   return (
                     <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50">
                       <span className="font-semibold text-slate-500 flex items-center gap-1.5">
-                        <SpecIcon className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <SpecIcon className="w-3.5 h-3.5 text-[#0B1220]" />
                         <span>{spec.label}</span>
                       </span>
                       <span className="font-bold text-slate-900 font-mono text-right max-w-[220px]">
@@ -351,7 +351,7 @@ export function DivisionProfileView({
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-400">
             <span>Plant Standards: Certified</span>
-            <span className="text-[#3A3564] font-bold">100% Traceability</span>
+            <span className="text-[#0B1220] font-bold">100% Traceability</span>
           </div>
         </div>
 
@@ -361,7 +361,7 @@ export function DivisionProfileView({
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
             <div>
@@ -369,7 +369,7 @@ export function DivisionProfileView({
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                   {divisionName} Workforce Directory
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                   {staff.length} Active
                 </span>
               </div>
@@ -386,7 +386,7 @@ export function DivisionProfileView({
               placeholder="Search personnel..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] font-medium"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] font-medium"
             />
           </div>
         </div>
@@ -395,7 +395,7 @@ export function DivisionProfileView({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[580px]">
               <thead>
-                <tr className="bg-[#FAF7F0] border-b border-black/10 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-mono font-bold uppercase tracking-wider text-xs">
                   <th className="py-3 px-4">Worker / Operator</th>
                   <th className="py-3 px-4">Assigned Role</th>
                   <th className="py-3 px-4">Floor Shift</th>
@@ -428,7 +428,7 @@ export function DivisionProfileView({
                       <tr key={person.id} className="hover:bg-slate-50/80 transition-colors">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold flex items-center justify-center shrink-0 text-xs uppercase font-mono shadow-2xs">
+                            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-black/15 text-[#0B1220] font-bold flex items-center justify-center shrink-0 text-xs uppercase font-mono shadow-2xs">
                               {person.username.substring(0, 2)}
                             </div>
                             <div>
@@ -444,7 +444,7 @@ export function DivisionProfileView({
 
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                               {person.designation || person.role}
                             </span>
                             {person.is_head && (
@@ -488,16 +488,16 @@ export function DivisionProfileView({
       </div>
 
       {/* 5. Cross-Link to Master Company Profile */}
-      <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5">
-          <Building2 className="w-4 h-4 text-[#3A3564] shrink-0" />
+          <Building2 className="w-4 h-4 text-[#0B1220] shrink-0" />
           <span className="font-semibold text-slate-700">
             Looking for company-wide GSTIN, registered factory address, and master billing?
           </span>
         </div>
         <Link
           href="/modules/profile"
-          className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#3A3564] font-bold border border-black/10 shadow-2xs shrink-0 transition-colors flex items-center gap-1.5 cursor-pointer"
+          className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-[#0B1220] font-bold border border-slate-200 shadow-2xs shrink-0 transition-colors flex items-center gap-1.5 cursor-pointer"
         >
           <span>Master Company Profile</span>
           <ArrowRight className="w-3.5 h-3.5" />
