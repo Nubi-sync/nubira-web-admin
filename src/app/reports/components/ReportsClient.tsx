@@ -482,46 +482,46 @@ export function ReportsClient({
       
       {/* 1. Page Header Card */}
       <div 
-        className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+        className="bg-white p-5 sm:p-6 md:p-7 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
       >
         {/* Left: Badge + Title + Subtitle */}
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-4">
           <div 
-            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30"
+            className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30"
           >
-            <FileText className="w-5 h-5 text-[#14C8B4]" />
+            <FileText className="w-7 h-7 sm:w-8 sm:h-8 text-[#14C8B4]" />
           </div>
           <div>
             <h1 
-              className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220]"
+              className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]"
             >
               Factory Reports & <span className="text-[#1D4ED8]">Analytics</span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 mt-1">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Real-time multi-department production, QC audit, tailor assignments, and store logs
             </p>
           </div>
         </div>
 
         {/* Right: Print, Export CSV & TV View */}
-        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
           <TvViewButton />
 
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10"
+            className="min-h-[46px] flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 text-center"
           >
-            <Printer className="w-4 h-4 text-slate-500" />
+            <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
             <span>Print</span>
           </button>
 
           <button
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-xs cursor-pointer bg-[#0B1220] hover:bg-[#162032] focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:ring-offset-1"
+            className="min-h-[46px] flex-1 sm:flex-initial flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold text-white transition-all shadow-xs cursor-pointer bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 text-center"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Export CSV</span>
           </button>
         </div>
