@@ -346,18 +346,18 @@ export function WorkerDashboardClient({
       {/* Top Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Scissors className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Welcome, {displayWorkerName}
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {userRole ? userRole.replace(/_/g, ' ') : 'Cutting Floor Operator'}
               </span>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-900 border border-slate-200 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {activeAssignments.length} Active Tasks
               </span>
             </div>
@@ -396,10 +396,10 @@ export function WorkerDashboardClient({
         {/* Metric 1: Active Jobs */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               TASKS
             </span>
-            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Briefcase className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
@@ -416,10 +416,10 @@ export function WorkerDashboardClient({
         {/* Metric 2: Total Pieces Assigned */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               TARGET
             </span>
-            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Layers className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
@@ -436,10 +436,10 @@ export function WorkerDashboardClient({
         {/* Metric 3: Stage 02 In Head Review */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               STAGE 02
             </span>
-            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
@@ -456,10 +456,10 @@ export function WorkerDashboardClient({
         {/* Metric 4: Cleared & Verified */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               CLEARED
             </span>
-            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
