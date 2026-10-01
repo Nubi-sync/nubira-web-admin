@@ -135,20 +135,20 @@ export function CompanySubscriptionCard({
         <div className="p-5 sm:p-7 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-                <CreditCard className="w-7 h-7 sm:w-8 sm:h-8 text-[#14C8B4]" />
+            <div className="flex items-center gap-3.5 sm:gap-4">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+                <CreditCard className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                     Subscription & <span className="text-[#1D4ED8]">License</span> Status
                   </h2>
-                  <span className="text-xs sm:text-sm font-mono font-bold uppercase px-3.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
                     {isTrial ? '7-DAY TRIAL' : 'ACTIVE PLAN'}
                   </span>
                 </div>
-                <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
                   License entitlement, validity cycle, and operational module coverage for {companyName}
                 </p>
               </div>
@@ -158,7 +158,7 @@ export function CompanySubscriptionCard({
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="min-h-[46px] px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs transition-all cursor-pointer w-full sm:w-auto text-center shrink-0"
+              className="min-h-[42px] px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs transition-all cursor-pointer w-full sm:w-auto text-center shrink-0"
             >
               {isTrial ? 'Activate Subscription' : 'Renew Subscription'}
             </button>
@@ -425,7 +425,7 @@ export function CompanySubscriptionCard({
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   disabled={isPending}
-                  className="min-h-[46px] w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm sm:text-base font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer text-center"
+                  className="min-h-[42px] w-full sm:w-auto px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer text-center"
                 >
                   Cancel
                 </button>
@@ -433,7 +433,7 @@ export function CompanySubscriptionCard({
                   type="button"
                   onClick={handleUpgrade}
                   disabled={isPending}
-                  className="min-h-[46px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs cursor-pointer transition-all disabled:opacity-50 text-center"
+                  className="min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs cursor-pointer transition-all disabled:opacity-50 text-center"
                 >
                   {isPending ? (
                     <>

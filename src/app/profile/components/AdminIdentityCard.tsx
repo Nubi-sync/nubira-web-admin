@@ -24,21 +24,21 @@ export function AdminIdentityCard({
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 sm:p-7 relative transition-all space-y-6">
       {/* Header with Avatar & Role */}
       <div className="flex items-center justify-between gap-4 pb-5 border-b border-slate-100">
-        <div className="flex items-center gap-4">
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#0B1220] text-white text-lg sm:text-xl font-black font-mono tracking-wider">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#0B1220] text-white text-base sm:text-lg font-black font-mono tracking-wider">
             {initials}
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                 {adminDisplayName}
               </h2>
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-                <ShieldCheck className="w-4 h-4 text-[#14C8B4]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#14C8B4]" />
                 SUPER ADMIN
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Primary factory administrator and root account holder
             </p>
           </div>
