@@ -64,7 +64,7 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> 
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
   SA_APPROVED: { label: 'SA Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
   SA_SAVED_FOR_LATER: { label: 'PH Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
-  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
+  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-slate-50 text-slate-900 border-slate-200 font-bold' }
 }
 
 function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
@@ -90,7 +90,7 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   if (norm.includes('orange') || norm.includes('coral') || norm.includes('rust')) return { bg: '#DD6B20', border: '#DD6B20', isLight: false }
   if (norm.includes('brown') || norm.includes('tan') || norm.includes('chocolate')) return { bg: '#7B341E', border: '#7B341E', isLight: false }
   if (norm.includes('purple') || norm.includes('violet') || norm.includes('lavender')) return { bg: '#6B46C1', border: '#6B46C1', isLight: false }
-  return { bg: '#3A3564', border: '#3A3564', isLight: false }
+  return { bg: '#0B1220', border: '#0B1220', isLight: false }
 }
 
 export function DesignBriefsClient({
@@ -355,7 +355,7 @@ export function DesignBriefsClient({
       <div className="flex items-center justify-between gap-4">
         <Link
           href="/design"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           <span>Design Studio</span>
@@ -366,17 +366,17 @@ export function DesignBriefsClient({
       </div>
 
       {/* Header */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <ClipboardList className="w-5 h-5 text-[#3A3564]" />
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <ClipboardList className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Design Briefs &amp; Reviews
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 {briefs.length} Briefs
               </span>
             </div>
@@ -389,7 +389,7 @@ export function DesignBriefsClient({
         <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           <Link
             href="/design/team"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#0B1220] transition-all shadow-2xs"
           >
             <Users className="w-3.5 h-3.5" />
             <span>Team</span>
@@ -397,7 +397,7 @@ export function DesignBriefsClient({
 
           <Link
             href="/design/settings"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-slate-700 hover:bg-[#FAF7F0] hover:text-[#3A3564] transition-all shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#0B1220] transition-all shadow-2xs"
           >
             <Settings className="w-3.5 h-3.5" />
             <span>Settings</span>
@@ -405,7 +405,7 @@ export function DesignBriefsClient({
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New Brief</span>
@@ -415,13 +415,13 @@ export function DesignBriefsClient({
 
       {/* Metric Cards (Unified 4-Box Grid) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               STAGE 02
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -434,13 +434,13 @@ export function DesignBriefsClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               STAGE 03
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -453,13 +453,13 @@ export function DesignBriefsClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               GREENLIT
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -472,13 +472,13 @@ export function DesignBriefsClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               ARCHIVE
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Bookmark className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <Bookmark className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -494,10 +494,10 @@ export function DesignBriefsClient({
 
       {/* Studio Target Allocation & Quota Tracker Banner */}
       {briefs.length > 0 && (
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/5 pb-3">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0">
                 <Target className="w-4 h-4" />
               </div>
               <div>
@@ -515,13 +515,13 @@ export function DesignBriefsClient({
                 <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-slate-400 block">
                   Studio Output
                 </span>
-                <span className="text-xs sm:text-sm font-bold font-mono text-[#3A3564]">
+                <span className="text-xs sm:text-sm font-bold font-mono text-[#0B1220]">
                   {totalSubmissionsCompleted} / {totalTargetDesigns} Designs ({studioProgressPct}%)
                 </span>
               </div>
-              <div className="w-24 sm:w-32 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-black/5">
+              <div className="w-24 sm:w-32 h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-100">
                 <div 
-                  className="h-full bg-[#3A3564] rounded-full transition-all duration-500"
+                  className="h-full bg-[#0B1220] rounded-full transition-all duration-500"
                   style={{ width: `${studioProgressPct}%` }}
                 />
               </div>
@@ -538,7 +538,7 @@ export function DesignBriefsClient({
               const sampleColors = catBriefs[0]?.max_colors || 3
 
               return (
-                <div key={cat} className="p-3 rounded-xl bg-[#FAF7F0] border border-black/5 flex flex-col justify-between gap-2">
+                <div key={cat} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between gap-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900 truncate">
                       {cat}
@@ -547,15 +547,15 @@ export function DesignBriefsClient({
                       {catDone}/{catTarget} ({catPct}%)
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-black/5">
+                  <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-slate-100">
                     <div 
-                      className={`h-full rounded-full transition-all ${catDone >= catTarget ? 'bg-emerald-500' : 'bg-[#3A3564]'}`}
+                      className={`h-full rounded-full transition-all ${catDone >= catTarget ? 'bg-emerald-500' : 'bg-[#0B1220]'}`}
                       style={{ width: `${catPct}%` }}
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10.5px] text-slate-500 font-mono">
                     <span className="inline-flex items-center gap-1">
-                      <Target className="w-3 h-3 text-[#3A3564]" />
+                      <Target className="w-3 h-3 text-[#0B1220]" />
                       {catTarget} Target Designs
                     </span>
                     <span className="inline-flex items-center gap-1">
@@ -571,7 +571,7 @@ export function DesignBriefsClient({
       )}
 
       {/* Filter and Queue Table */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {(['ALL', 'SUBMITTED', 'PH_APPROVED', 'SA_APPROVED', 'SA_SAVED_FOR_LATER', 'ALLOCATED', 'PH_REJECTED', 'TECH_PACK_CREATED'] as const).map(st => (
@@ -580,8 +580,8 @@ export function DesignBriefsClient({
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
                   statusFilter === st
-                    ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] shadow-2xs'
-                    : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 {st === 'ALL' ? 'All Briefs' : STATUS_CONFIG[st as BriefStatus]?.label || st}
@@ -596,24 +596,24 @@ export function DesignBriefsClient({
               placeholder="Search briefs..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-black/10 text-xs sm:text-sm font-medium bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             />
           </div>
         </div>
 
         {/* Dynamic Collection Filter Pills (Zero Emojis, Pure Lucide Assets) */}
         {existingCategories.length > 0 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 border-t border-black/5 text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 border-t border-slate-100 text-xs">
             <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px] shrink-0 flex items-center gap-1 mr-1">
-              <Tag className="w-3 h-3 text-[#3A3564]" />
+              <Tag className="w-3 h-3 text-[#0B1220]" />
               Collection Style:
             </span>
             <button
               onClick={() => setCategoryFilter('ALL')}
               className={`px-2.5 py-1 rounded-lg font-medium transition-all shrink-0 cursor-pointer border ${
                 categoryFilter === 'ALL'
-                  ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] font-bold'
-                  : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
               All ({briefs.length})
@@ -626,13 +626,13 @@ export function DesignBriefsClient({
                   onClick={() => setCategoryFilter(cat)}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-all shrink-0 cursor-pointer border inline-flex items-center gap-1.5 ${
                     categoryFilter === cat
-                      ? 'bg-[#3A3564] text-[#FAF7F0] border-[#3A3564] font-bold'
-                      : 'bg-white text-slate-600 border-black/10 hover:bg-[#FAF7F0]'
+                      ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <span>{cat}</span>
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    categoryFilter === cat ? 'bg-white/20 text-[#FAF7F0]' : 'bg-slate-100 text-slate-700'
+                    categoryFilter === cat ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
                   }`}>
                     {count}
                   </span>
@@ -655,10 +655,10 @@ export function DesignBriefsClient({
             onAction={() => setIsCreateOpen(true)}
           />
         ) : (
-          <div className="overflow-x-auto border border-black/10 rounded-xl">
+          <div className="overflow-x-auto border border-slate-200 rounded-xl">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-black/10 bg-[#FAF7F0] text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider">
                   <th className="py-3 px-4">Article Number (Art #)</th>
                   <th className="py-3 px-4">Garment / Category</th>
                   <th className="py-3 px-4">Assigned Designer</th>
@@ -791,7 +791,7 @@ export function DesignBriefsClient({
                         <td className="py-3.5 px-4">
                           {brief.designer_name ? (
                             <div className="flex items-center gap-1.5">
-                              <div className="w-6 h-6 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center text-xs font-bold font-mono">
+                              <div className="w-6 h-6 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center text-xs font-bold font-mono">
                                 {brief.designer_name.charAt(0).toUpperCase()}
                               </div>
                               <div>
@@ -813,12 +813,12 @@ export function DesignBriefsClient({
                         <td className="py-3.5 px-4 min-w-[130px]">
                           <div className="space-y-1">
                             <div className="text-xs font-bold text-slate-800 font-mono flex items-center gap-1">
-                              <Palette className="w-3 h-3 text-[#3A3564]" />
+                              <Palette className="w-3 h-3 text-[#0B1220]" />
                               <span>{item.colors.length} Color{item.colors.length === 1 ? '' : 's'}</span>
                             </div>
                             <div className="flex flex-wrap gap-1">
                               {item.colors.map((col, i) => (
-                                <span key={i} className="text-[9.5px] px-1.5 py-0.2 rounded-md bg-[#FAF7F0] border border-black/5 font-mono text-[#3A3564] font-semibold">
+                                <span key={i} className="text-[9.5px] px-1.5 py-0.2 rounded-md bg-slate-50 border border-slate-100 font-mono text-[#0B1220] font-semibold">
                                   {col}
                                 </span>
                               ))}
@@ -835,7 +835,7 @@ export function DesignBriefsClient({
                                   key={idx}
                                   type="button"
                                   onClick={() => setPreviewPhoto(photo.url)}
-                                  className="w-9 h-9 rounded-lg border border-black/10 overflow-hidden bg-slate-100 relative group cursor-pointer shrink-0 shadow-2xs hover:ring-2 hover:ring-[#3A3564]"
+                                  className="w-9 h-9 rounded-lg border border-slate-200 overflow-hidden bg-slate-100 relative group cursor-pointer shrink-0 shadow-2xs hover:ring-2 hover:ring-[#0B1220]"
                                   title={photo.label}
                                 >
                                   <img 
@@ -849,7 +849,7 @@ export function DesignBriefsClient({
                                 <button
                                   type="button"
                                   onClick={() => setPreviewPhoto(item.photos[3].url)}
-                                  className="w-9 h-9 rounded-lg border border-black/10 bg-[#FAF7F0] text-[#3A3564] hover:bg-[#F2ECE1] text-[11px] font-bold font-mono flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
+                                  className="w-9 h-9 rounded-lg border border-slate-200 bg-slate-50 text-[#0B1220] hover:bg-[slate-100] text-[11px] font-bold font-mono flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
                                 >
                                   +{item.photos.length - 3}
                                 </button>
@@ -878,7 +878,7 @@ export function DesignBriefsClient({
                             {brief.status === 'SUBMITTED' && brief.latest_submission && (
                               <button
                                 onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-[#FAF7F0] bg-[#3A3564] hover:bg-[#2A2649] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
                                 title="Supervisor Review"
                               >
                                 <Eye className="w-3.5 h-3.5" />
@@ -900,7 +900,7 @@ export function DesignBriefsClient({
                             {brief.status === 'SA_SAVED_FOR_LATER' && brief.latest_submission && (
                               <button
                                 onClick={() => setSaReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-[#3A3564] bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-[#0B1220] bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
                                 title="Revive from Seasonal Archive"
                               >
                                 <Bookmark className="w-3.5 h-3.5" />
@@ -917,7 +917,7 @@ export function DesignBriefsClient({
                                     toast.info('Brief is currently allocated and waiting for designer upload.')
                                   }
                                 }}
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
                                 title="View Brief Details"
                               >
                                 <Eye className="w-3.5 h-3.5" />
@@ -1004,9 +1004,9 @@ export function DesignBriefsClient({
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
               {/* Modal Header */}
-              <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+              <div className="px-6 py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
@@ -1056,13 +1056,13 @@ export function DesignBriefsClient({
 
                             <div className="flex items-center gap-2">
                               {variantArtNo && (
-                                <span className="font-mono font-bold text-slate-900 text-xs bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10">
+                                <span className="font-mono font-bold text-slate-900 text-xs bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-200">
                                   {variantArtNo}
                                 </span>
                               )}
 
                               {/* Colorway Verdict Toggle (Approve vs Reject this specific colorway) */}
-                              <div className="inline-flex items-center rounded-xl bg-[#FAF7F0] p-0.5 border border-black/10 gap-0.5 shadow-2xs">
+                              <div className="inline-flex items-center rounded-xl bg-slate-50 p-0.5 border border-slate-200 gap-0.5 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'APPROVED' }))}
@@ -1099,7 +1099,7 @@ export function DesignBriefsClient({
                             {cw.photo_front ? (
                               <div
                                 onClick={() => setPreviewPhoto(cw.photo_front)}
-                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                                 title="Click to view full Front Artwork"
                               >
                                 <img
@@ -1111,7 +1111,7 @@ export function DesignBriefsClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                                   Front View
                                 </span>
                               </div>
@@ -1124,7 +1124,7 @@ export function DesignBriefsClient({
                             {cw.photo_back && (
                               <div
                                 onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                                 title="Click to view full Back Artwork"
                               >
                                 <img
@@ -1136,7 +1136,7 @@ export function DesignBriefsClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                                   Back View
                                 </span>
                               </div>
@@ -1150,7 +1150,7 @@ export function DesignBriefsClient({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
                       onClick={() => setPreviewPhoto(sub.photo_url_1)}
-                      className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                      className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                     >
                       <img
                         src={sub.photo_url_1}
@@ -1161,7 +1161,7 @@ export function DesignBriefsClient({
                         <Eye className="w-4 h-4" />
                         <span>Full View</span>
                       </div>
-                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                         Front View
                       </span>
                     </div>
@@ -1169,7 +1169,7 @@ export function DesignBriefsClient({
                     {sub.photo_url_2 && (
                       <div
                         onClick={() => setPreviewPhoto(sub.photo_url_2!)}
-                        className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                        className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                       >
                         <img
                           src={sub.photo_url_2}
@@ -1180,7 +1180,7 @@ export function DesignBriefsClient({
                           <Eye className="w-4 h-4" />
                           <span>Full View</span>
                         </div>
-                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                           Back View
                         </span>
                       </div>
@@ -1194,7 +1194,7 @@ export function DesignBriefsClient({
 
                 {/* Designer Notes */}
                 {sub.designer_notes && (
-                  <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block mb-1">
                       Designer Notes:
                     </span>
@@ -1214,17 +1214,17 @@ export function DesignBriefsClient({
                     onChange={e => setPhFeedback(e.target.value)}
                     placeholder="Optional feedback for designer (required if rejecting)..."
                     rows={3}
-                    className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full p-3 rounded-xl border border-slate-200 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                   />
                 </div>
               </div>
 
               {/* Modal Footer Actions - Clean Modern Design */}
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-3 flex-wrap">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setReviewingSubmission(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1247,7 +1247,7 @@ export function DesignBriefsClient({
                         type="button"
                         disabled={isReviewing}
                         onClick={() => handlePHReviewSubmit('APPROVED')}
-                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         <span>Approve &amp; Forward to SA</span>
@@ -1273,7 +1273,7 @@ export function DesignBriefsClient({
                           const hasAnyCwApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
                           handlePHReviewSubmit(hasAnyCwApproved ? 'APPROVED' : 'REJECTED')
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                         title="Update review decisions and sync accepted colorways to Super Admin"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
@@ -1306,9 +1306,9 @@ export function DesignBriefsClient({
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
               {/* Modal Header */}
-              <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+              <div className="px-6 py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs bg-sky-50 text-sky-800 border-sky-200">
@@ -1367,7 +1367,7 @@ export function DesignBriefsClient({
                             {cw.photo_front ? (
                               <div
                                 onClick={() => setPreviewPhoto(cw.photo_front)}
-                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                                 title="Click to view full Front Artwork"
                               >
                                 <img
@@ -1379,7 +1379,7 @@ export function DesignBriefsClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                                   Front View
                                 </span>
                               </div>
@@ -1392,7 +1392,7 @@ export function DesignBriefsClient({
                             {cw.photo_back && (
                               <div
                                 onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                                 title="Click to view full Back Artwork"
                               >
                                 <img
@@ -1404,7 +1404,7 @@ export function DesignBriefsClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                                   Back View
                                 </span>
                               </div>
@@ -1418,7 +1418,7 @@ export function DesignBriefsClient({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
                       onClick={() => setPreviewPhoto(sub.photo_url_1)}
-                      className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                      className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                     >
                       <img
                         src={sub.photo_url_1}
@@ -1429,7 +1429,7 @@ export function DesignBriefsClient({
                         <Eye className="w-4 h-4" />
                         <span>Full View</span>
                       </div>
-                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                         Front View
                       </span>
                     </div>
@@ -1437,7 +1437,7 @@ export function DesignBriefsClient({
                     {sub.photo_url_2 && (
                       <div
                         onClick={() => setPreviewPhoto(sub.photo_url_2!)}
-                        className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                        className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                       >
                         <img
                           src={sub.photo_url_2}
@@ -1448,7 +1448,7 @@ export function DesignBriefsClient({
                           <Eye className="w-4 h-4" />
                           <span>Full View</span>
                         </div>
-                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                           Back View
                         </span>
                       </div>
@@ -1462,7 +1462,7 @@ export function DesignBriefsClient({
 
                 {/* Designer Notes */}
                 {sub.designer_notes && (
-                  <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block mb-1">
                       Designer Notes:
                     </span>
@@ -1494,17 +1494,17 @@ export function DesignBriefsClient({
                     onChange={e => setSaNotes(e.target.value)}
                     placeholder="Instructions for production / pattern master..."
                     rows={3}
-                    className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full p-3 rounded-xl border border-slate-200 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                   />
                 </div>
               </div>
 
               {/* Modal Footer Actions */}
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-2 flex-wrap">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setSaReviewingSubmission(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1524,7 +1524,7 @@ export function DesignBriefsClient({
                     type="button"
                     disabled={isSaReviewing}
                     onClick={() => handleSAReviewSubmit('SAVED_FOR_LATER')}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#3A3564] hover:bg-slate-100 border border-black/15 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#0B1220] hover:bg-slate-100 border border-slate-200 text-xs font-bold transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     <Bookmark className="w-4 h-4" />
                     <span>Save for Later</span>

@@ -222,16 +222,16 @@ function EditTechPackModalContent({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in select-none">
       <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-slate-200/80 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0B1220] text-white flex items-center justify-center shadow-2xs">
-              <FileText className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center shadow-2xs">
+              <FileText className="w-5 h-5 text-[#14C8B4]" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+              <h2 className="text-base sm:text-lg font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Edit Tech-Pack Specification
               </h2>
               <p className="text-xs font-mono text-slate-500">
