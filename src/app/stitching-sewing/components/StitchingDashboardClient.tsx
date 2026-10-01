@@ -507,38 +507,38 @@ export function StitchingDashboardClient({
           </div>
         </div>
 
-        {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
-          <Link
-            href="/stitching-sewing/store"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
-          >
-            <Store className="w-3.5 h-3.5 text-[#14C8B4]" />
-            <span>Floor Store</span>
-          </Link>
-          <Link
-            href="/stitching-sewing/notifications"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
-          >
-            <Bell className="w-3.5 h-3.5 text-[#14C8B4]" />
-            <span>Notifications</span>
-          </Link>
-          <Link
-            href="/stitching-sewing/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
-          >
-            <Bot className="w-3.5 h-3.5 text-[#14C8B4]" />
-            <span>Zigza AI</span>
-          </Link>
+        {/* Right side: Search Bar + Live Sync + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch lg:self-auto justify-end w-full lg:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search lot, article, tailor..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs font-mono"
+            />
+          </div>
+
           <button
             type="button"
             onClick={handleManualRefresh}
             disabled={isSyncing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F0FDFA] hover:bg-white border border-[#14C8B4]/30 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer disabled:opacity-50 shrink-0"
             title="Live Sync"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#14C8B4] ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Live Sync'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsAddTaskOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
+          >
+            <Plus className="w-4 h-4 text-white" />
+            <span>+ Assign Task</span>
           </button>
         </div>
       </div>

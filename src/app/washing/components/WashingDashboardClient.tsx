@@ -482,39 +482,39 @@ export function WashingDashboardClient({
           </div>
         </div>
 
-        {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-          <Link
-            href="/washing/store"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs"
-          >
-            <Store className="w-3.5 h-3.5 text-slate-500" />
-            <span>Floor Store</span>
-          </Link>
-          <Link
-            href="/washing/notifications"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs"
-          >
-            <Bell className="w-3.5 h-3.5 text-slate-500" />
-            <span>Notifications</span>
-          </Link>
-          <Link
-            href="/washing/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs"
-          >
-            <Bot className="w-3.5 h-3.5 text-slate-500" />
-            <span>Zigza AI</span>
-          </Link>
+        {/* Right side: Search Bar + Live Sync + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch lg:self-auto justify-end w-full lg:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search task, article, worker..."
+              value={taskSearchQuery}
+              onChange={e => setTaskSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs font-mono"
+            />
+          </div>
+
           <button
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer shrink-0"
             title="Sync latest live floor updates"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Tumbler &amp; Hydro Sync</span>
+            <span className="hidden sm:inline">Sync</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsAddTaskOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ Add Task Row</span>
           </button>
         </div>
       </div>
