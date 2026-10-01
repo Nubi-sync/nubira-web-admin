@@ -140,21 +140,21 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
   return (
     <div className="space-y-6">
       {/* Action Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <FileCheck2 className="w-5 h-5 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <FileCheck2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Tech-Pack Master Catalog
               </h1>
-              <span className="text-xs font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
                 {totalSpecs} Specs
               </span>
             </div>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Standardized technical packages, CAD vectors, SPI standards &amp; bill of materials
             </p>
           </div>
@@ -162,12 +162,12 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
 
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
           {/* Gallery / Table Switcher */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-black/10 shrink-0">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200 shrink-0">
             <button
               onClick={() => setActiveTab('gallery')}
               className={`p-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'gallery'
-                  ? 'bg-white text-[#3A3564] shadow-2xs font-bold'
+                  ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
               title="Visual Card Gallery"
@@ -178,7 +178,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
               onClick={() => setActiveTab('table')}
               className={`p-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'table'
-                  ? 'bg-white text-[#3A3564] shadow-2xs font-bold'
+                  ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
               title="Detailed Spec Table"
@@ -189,87 +189,75 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] text-[#FAF7F0] text-xs font-bold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-[#14C8B4]" />
             <span>Create Tech-Pack</span>
           </button>
         </div>
       </div>
 
-      {/* Metrics Row (Unified 4-Box Grid) */}
+      {/* Metrics Row (Unified 4-Box Grid, Minimal Pills) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              CATALOG
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Total Specs
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <FileCheck2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <FileCheck2 className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Total Specs
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {totalSpecs}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              PRODUCTION
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Ready for Merchandising
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Ready for Merchandising
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {bulkApprovedCount}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              SAMPLING
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Sample Dev / PPS
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Sample Dev / PPS
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {samplingCount}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              REVISIONS
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Fit Revisions
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Layers className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Fit Revisions
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {draftsCount}
             </div>
           </div>

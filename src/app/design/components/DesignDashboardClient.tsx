@@ -70,7 +70,7 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> 
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
   SA_APPROVED: { label: 'Super Admin Approved', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
   SA_SAVED_FOR_LATER: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
-  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#FAF7F0] text-slate-900 border-black/15 font-bold' }
+  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 font-bold' }
 }
 
 function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
@@ -96,7 +96,7 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   if (norm.includes('orange') || norm.includes('coral') || norm.includes('rust')) return { bg: '#DD6B20', border: '#DD6B20', isLight: false }
   if (norm.includes('brown') || norm.includes('tan') || norm.includes('chocolate')) return { bg: '#7B341E', border: '#7B341E', isLight: false }
   if (norm.includes('purple') || norm.includes('violet') || norm.includes('lavender')) return { bg: '#6B46C1', border: '#6B46C1', isLight: false }
-  return { bg: '#3A3564', border: '#3A3564', isLight: false }
+  return { bg: '#0B1220', border: '#0B1220', isLight: false }
 }
 
 export function DesignDashboardClient({
@@ -332,31 +332,31 @@ export function DesignDashboardClient({
     <div className="space-y-4 sm:space-y-6">
       {/* Top Welcome / Company Identification */}
       <div className="pt-1">
-        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#1D4ED8] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#14C8B4] rounded-full" />
           </span>
         </h2>
       </div>
 
       {/* Layer 2: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Palette className="w-5 h-5 text-[#3A3564]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <Palette className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Design &amp; Tech-Pack Studio
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
                 {activeBriefsCount} Active Briefs
               </span>
             </div>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Creative pipeline, multi-concept studio deck, and tech-pack generation
             </p>
           </div>
@@ -366,112 +366,100 @@ export function DesignDashboardClient({
         <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
           <Link
             href="/design/tech-packs"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
-            <FileCheck2 className="w-3.5 h-3.5 text-[#3A3564]" />
+            <FileCheck2 className="w-3.5 h-3.5 text-slate-500" />
             <span>Tech-Packs</span>
           </Link>
 
           <Link
             href="/design/team"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
-            <Users className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Users className="w-3.5 h-3.5 text-slate-500" />
             <span>Team</span>
           </Link>
 
           <Link
             href="/design/settings"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
-            <Settings className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Settings className="w-3.5 h-3.5 text-slate-500" />
             <span>Supervisor Settings</span>
           </Link>
 
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-[#14C8B4]" />
             <span>New Brief</span>
           </button>
         </div>
       </div>
 
-      {/* Layer 3: Streamlined KPI Stat Cards (4 Clean Boxes) */}
+      {/* Layer 3: Streamlined KPI Stat Cards (4 Clean Boxes, Minimal Pills) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              STAGE 01
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Active Briefs
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <ClipboardList className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <ClipboardList className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Active Briefs
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {activeBriefsCount}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              STAGE 02
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Pending Supervisor Review
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Pending Supervisor Review
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {pendingPHCount}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              STAGE 03
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Forwarded to Super Admin
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Forwarded to Super Admin
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {pendingSACount}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
-              CATALOG
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Tech-Packs Ready
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <FileCheck2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
+              <FileCheck2 className="w-4 h-4 text-[#14C8B4]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Tech-Packs Ready
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {techPacksCount}
             </div>
           </div>
@@ -479,7 +467,7 @@ export function DesignDashboardClient({
       </div>
 
       {/* Layer 4 & 5: Primary Pipeline Queue Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {/* Toolbar Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
           {/* Filter Tabs */}
@@ -491,8 +479,8 @@ export function DesignDashboardClient({
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   statusFilter === st
-                    ? 'bg-[#3A3564] text-white border-[#3A3564] font-bold shadow-2xs'
-                    : 'text-slate-700 bg-[#FAF7F0] border-black/10 hover:bg-slate-100'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
+                    : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 {st === 'ALL' ? 'All Queue' : STATUS_CONFIG[st as BriefStatus]?.label || st}
@@ -508,7 +496,7 @@ export function DesignDashboardClient({
               placeholder="Search concepts or designers..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] font-medium text-slate-900"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900"
             />
           </div>
         </div>
@@ -534,7 +522,7 @@ export function DesignDashboardClient({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                  <tr className="border-b border-slate-200/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500 bg-slate-50/70">
                     <th className="py-3 px-4">Article Number (Art #)</th>
                     <th className="py-3 px-4">Garment &amp; Theme</th>
                     <th className="py-3 px-4">Designer</th>
@@ -700,13 +688,13 @@ export function DesignDashboardClient({
                           <td className="py-3.5 px-4">
                             <div className="space-y-1">
                               <div className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                                <Palette className="w-3 h-3 text-[#3A3564]" />
+                                <Palette className="w-3 h-3 text-[#14C8B4]" />
                                 <span>{row.colors.length} Color{row.colors.length === 1 ? '' : 's'}</span>
                               </div>
                               <div className="flex flex-wrap items-center gap-1">
                                 {row.colors.slice(0, 3).map((c, i) => (
-                                  <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white border border-black/10 text-[10px] font-medium text-slate-700">
-                                    <span className="w-2 h-2 rounded-full border border-black/10" style={{ backgroundColor: getColorSwatchInfo(c).bg }} />
+                                  <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-medium text-slate-700">
+                                    <span className="w-2 h-2 rounded-full border border-slate-200" style={{ backgroundColor: getColorSwatchInfo(c).bg }} />
                                     <span>{c}</span>
                                   </span>
                                 ))}
@@ -733,9 +721,9 @@ export function DesignDashboardClient({
                                   setSelectedBriefForView(brief)
                                   setModalActiveConceptTab(row.conceptNumber)
                                 }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-[#3A3564] transition-all cursor-pointer shadow-2xs"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs"
                               >
-                                <Eye className="w-3.5 h-3.5" />
+                                <Eye className="w-3.5 h-3.5 text-slate-500" />
                                 <span>View &amp; Review</span>
                                 <ChevronRight className="w-3 h-3 text-slate-400" />
                               </button>
@@ -812,14 +800,14 @@ export function DesignDashboardClient({
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs font-medium text-slate-600 bg-[#FAF7F0] p-2.5 rounded-xl border border-black/5">
+                      <div className="flex items-center justify-between text-xs font-medium text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
                         <div>
                           <span className="text-slate-400 block text-[10px] uppercase font-bold">Designer</span>
                           <span className="font-bold text-slate-800">{brief.designer_name || 'Unassigned'}</span>
                         </div>
                         <div className="text-right">
                           <span className="text-slate-400 block text-[10px] uppercase font-bold">Colors</span>
-                          <span className="font-bold text-[#3A3564]">{(req.colors || []).length} Selected</span>
+                          <span className="font-bold text-[#0B1220]">{(req.colors || []).length} Selected</span>
                         </div>
                       </div>
 
@@ -830,7 +818,7 @@ export function DesignDashboardClient({
                             setSelectedBriefForView(brief)
                             setModalActiveConceptTab(req.concept_number)
                           }}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#3A3564] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99]"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.99]"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>View &amp; Review ({artNo})</span>
@@ -840,7 +828,7 @@ export function DesignDashboardClient({
                         <button
                           type="button"
                           onClick={() => setBriefToDelete({ brief, conceptNumber: req.concept_number, artNumber: artNo, garmentType: garment })}
-                          className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-black/10 transition-all cursor-pointer"
+                          className="p-2.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition-all cursor-pointer"
                           title="Delete Design"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -873,10 +861,10 @@ export function DesignDashboardClient({
         const isReviewable = brief.status === 'SUBMITTED' || brief.status === 'ALLOCATED'
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
               {/* Modal Header */}
-              <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+              <div className="px-6 py-5 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${STATUS_CONFIG[brief.status]?.badgeClass}`}>
@@ -886,7 +874,7 @@ export function DesignDashboardClient({
                       ART NO: {currentArtNo}
                     </span>
                   </div>
-                  <h2 className="text-xl font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
+                  <h2 className="text-lg sm:text-xl font-bold text-[#0B1220] mt-1 font-[family-name:var(--font-heading)]">
                     {currentGarment} ({currentCategory} Style)
                   </h2>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -897,7 +885,7 @@ export function DesignDashboardClient({
                 <button
                   type="button"
                   onClick={() => setSelectedBriefForView(null)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -918,7 +906,7 @@ export function DesignDashboardClient({
                           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
                             <div className="flex items-center gap-2 text-xs font-bold text-slate-900 font-[family-name:var(--font-heading)]">
                               <span
-                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                                className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0 shadow-2xs"
                                 style={{ backgroundColor: sw.bg }}
                               />
                               <span>{cw.color_name} Colorway</span>
@@ -926,13 +914,13 @@ export function DesignDashboardClient({
 
                             <div className="flex items-center gap-2">
                               {variantArtNo && (
-                                <span className="font-bold text-slate-900 text-xs bg-[#FAF7F0] px-2.5 py-0.5 rounded-md border border-black/10 font-[family-name:var(--font-heading)]">
+                                <span className="font-bold text-slate-900 text-xs bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 font-[family-name:var(--font-heading)]">
                                   {variantArtNo}
                                 </span>
                               )}
 
                               {/* Colorway Verdict Toggle (Approve vs Reject this specific colorway) */}
-                              <div className="inline-flex items-center rounded-xl bg-[#FAF7F0] p-0.5 border border-black/10 gap-0.5 shadow-2xs">
+                              <div className="inline-flex items-center rounded-xl bg-slate-100 p-0.5 border border-slate-200 gap-0.5 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => setColorwayDecisions(prev => ({ ...prev, [cw.color_name]: 'APPROVED' }))}
@@ -969,7 +957,7 @@ export function DesignDashboardClient({
                             {cw.photo_front ? (
                               <div
                                 onClick={() => setPreviewPhoto(cw.photo_front)}
-                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                                 title="Click to view full Front Artwork"
                               >
                                 <img
@@ -981,7 +969,7 @@ export function DesignDashboardClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                                   Front View
                                 </span>
                               </div>
@@ -994,7 +982,7 @@ export function DesignDashboardClient({
                             {cw.photo_back && (
                               <div
                                 onClick={() => setPreviewPhoto(cw.photo_back!)}
-                                className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                                className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                                 title="Click to view full Back Artwork"
                               >
                                 <img
@@ -1006,7 +994,7 @@ export function DesignDashboardClient({
                                   <Eye className="w-4 h-4" />
                                   <span>Full View</span>
                                 </div>
-                                <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                                <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                                   Back View
                                 </span>
                               </div>
@@ -1020,7 +1008,7 @@ export function DesignDashboardClient({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
                       onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_1)}
-                      className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                      className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                     >
                       <img
                         src={brief.latest_submission.photo_url_1}
@@ -1031,7 +1019,7 @@ export function DesignDashboardClient({
                         <Eye className="w-4 h-4" />
                         <span>Full View</span>
                       </div>
-                      <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                      <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                         Front View
                       </span>
                     </div>
@@ -1039,7 +1027,7 @@ export function DesignDashboardClient({
                     {brief.latest_submission.photo_url_2 && (
                       <div
                         onClick={() => setPreviewPhoto(brief.latest_submission!.photo_url_2!)}
-                        className="aspect-square rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
+                        className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden relative group cursor-pointer p-3 flex items-center justify-center shadow-2xs hover:shadow-md transition-all"
                       >
                         <img
                           src={brief.latest_submission.photo_url_2}
@@ -1050,7 +1038,7 @@ export function DesignDashboardClient({
                           <Eye className="w-4 h-4" />
                           <span>Full View</span>
                         </div>
-                        <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-black/10 shadow-2xs">
+                        <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-white/95 text-slate-800 px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
                           Back View
                         </span>
                       </div>
@@ -1064,7 +1052,7 @@ export function DesignDashboardClient({
 
                 {/* Designer Notes */}
                 {brief.latest_submission?.designer_notes && (
-                  <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
                       Designer Notes:
                     </span>
@@ -1085,18 +1073,18 @@ export function DesignDashboardClient({
                       onChange={e => setPhFeedback(e.target.value)}
                       placeholder="Optional feedback for designer (required if requesting revisions)..."
                       rows={3}
-                      className="w-full p-3 rounded-xl border border-black/10 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full p-3 rounded-xl border border-slate-200 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220]"
                     />
                   </div>
                 )}
               </div>
 
               {/* Modal Footer Actions - Clean, Modern Layout without Save for Later */}
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between gap-3 flex-wrap">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200/80 flex items-center justify-between gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setBriefToDelete({ brief, conceptNumber: modalActiveConceptTab, artNumber: currentArtNo, garmentType: currentGarment })}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-black/10 hover:border-rose-200 text-xs font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-xs font-bold transition-all cursor-pointer"
                   title="Delete Design"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -1107,7 +1095,7 @@ export function DesignDashboardClient({
                   <button
                     type="button"
                     onClick={() => setSelectedBriefForView(null)}
-                    className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer transition-all"
+                    className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer transition-all"
                   >
                     Close
                   </button>
@@ -1129,7 +1117,7 @@ export function DesignDashboardClient({
                         type="button"
                         disabled={isReviewing}
                         onClick={() => handlePHReviewSubmit('APPROVED')}
-                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         <span>Approve &amp; Forward to Super Admin</span>
@@ -1158,7 +1146,7 @@ export function DesignDashboardClient({
                           const hasAnyCwApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
                           handlePHReviewSubmit(hasAnyCwApproved ? 'APPROVED' : 'REJECTED')
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] text-white hover:bg-[#2A2649] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
                         title="Update review decisions and sync accepted colorways to Super Admin"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
@@ -1212,7 +1200,7 @@ export function DesignDashboardClient({
           onClick={() => setPreviewPhoto(null)}
           className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs cursor-pointer"
         >
-          <div className="relative max-w-3xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-black/10">
+          <div className="relative max-w-3xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-slate-200">
             <img 
               src={previewPhoto} 
               alt="Preview" 

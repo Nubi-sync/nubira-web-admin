@@ -34,7 +34,7 @@ function getColorSwatch(colorName: string): string {
   if (c.includes('yellow') || c.includes('mustard')) return '#eab308'
   if (c.includes('brown') || c.includes('tan') || c.includes('khaki')) return '#78350f'
   if (c.includes('pink') || c.includes('rose')) return '#f43f5e'
-  return '#3A3564'
+  return '#0B1220'
 }
 
 interface DesignInstructionItem {
@@ -353,23 +353,23 @@ export function AllocateBriefModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="px-5 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-5 py-4 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs">
-              <Palette className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center shadow-2xs">
+              <Palette className="w-4 h-4 text-[#14C8B4]" />
             </div>
-            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 font-[family-name:var(--font-heading)] leading-none">
+            <h2 className="text-base sm:text-lg font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] leading-none">
               Allocate Design Brief
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-black/5 cursor-pointer transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -387,7 +387,7 @@ export function AllocateBriefModal({
               required
               value={selectedDesignerId}
               onChange={e => setSelectedDesignerId(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-black/15 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/15 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer"
             >
               <option value="">Select Designer...</option>
               {activeTeamMembers.map(m => {
@@ -414,9 +414,9 @@ export function AllocateBriefModal({
               <button
                 type="button"
                 onClick={handleAddDesignInstruction}
-                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-[#3A3564]/30 hover:border-[#3A3564] bg-[#FAF7F0]/60 hover:bg-[#FAF7F0] text-[#3A3564] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-[#14C8B4]/40 hover:border-[#14C8B4] bg-[#F0FDFA]/50 hover:bg-[#F0FDFA] text-[#0B1220] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-[#14C8B4]" />
                 <span>Add Design Instruction</span>
               </button>
             </div>
@@ -432,19 +432,19 @@ export function AllocateBriefModal({
                 return (
                   <div 
                     key={design.id}
-                    className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-3.5 shadow-2xs"
+                    className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3.5 shadow-2xs"
                   >
                     {/* Design Card Header */}
-                    <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
+                    <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold uppercase text-[#3A3564] tracking-wider">
+                        <span className="text-xs font-mono font-bold uppercase text-[#0B1220] tracking-wider">
                           Design #{idx + 1}
                         </span>
                         {fullArtNo && (
                           <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold tracking-wider shadow-2xs flex items-center gap-1 ${
                             isDuplicateInModal || serverConflict
                               ? 'bg-rose-600 text-white'
-                              : 'bg-[#3A3564] text-white'
+                              : 'bg-[#0B1220] text-white'
                           }`}>
                             ART NO: {fullArtNo}
                           </span>
@@ -466,7 +466,7 @@ export function AllocateBriefModal({
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
                           Article Number (Art #) <span className="text-rose-500">*</span>
                         </label>
-                        <span className="text-xs font-mono font-bold text-[#3A3564] bg-white px-2.5 py-0.5 rounded-lg border border-black/10 shadow-2xs">
+                        <span className="text-xs font-mono font-bold text-[#0B1220] bg-white px-2.5 py-0.5 rounded-lg border border-slate-200 shadow-2xs">
                           Prefix: 2–4 chars (Optional) &bull; Number: 3–6 digits (Required)
                         </span>
                       </div>
@@ -482,7 +482,7 @@ export function AllocateBriefModal({
                             className={`w-full px-3 py-2 bg-white border rounded-xl text-xs font-mono font-bold text-slate-900 uppercase outline-none placeholder:font-normal placeholder:normal-case placeholder:text-slate-400 ${
                               isDuplicateInModal || serverConflict
                                 ? 'border-rose-300 focus:border-rose-500'
-                                : 'border-slate-200 focus:border-[#3A3564]'
+                                : 'border-slate-200 focus:border-[#0B1220]'
                             }`}
                           />
                         </div>
@@ -497,7 +497,7 @@ export function AllocateBriefModal({
                             className={`w-full px-3 py-2 bg-white border rounded-xl text-xs font-mono font-bold text-slate-900 outline-none placeholder:font-normal placeholder:text-slate-400 ${
                               isDuplicateInModal || serverConflict
                                 ? 'border-rose-300 focus:border-rose-500'
-                                : 'border-slate-200 focus:border-[#3A3564]'
+                                : 'border-slate-200 focus:border-[#0B1220]'
                             }`}
                           />
                           {isChecking && (
@@ -547,7 +547,7 @@ export function AllocateBriefModal({
                           placeholder="e.g. T-Shirt, Hoodie"
                           value={design.garment_type}
                           onChange={e => handleUpdateDesignField(idx, 'garment_type', e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-semibold text-slate-900 outline-none"
                         />
                         <datalist id={`garment-list-${idx}`}>
                           {existingGarments.map(g => (
@@ -567,7 +567,7 @@ export function AllocateBriefModal({
                           placeholder="e.g. Streetwear, Vintage"
                           value={design.category}
                           onChange={e => handleUpdateDesignField(idx, 'category', e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-semibold text-slate-900 outline-none"
                         />
                         <datalist id={`category-list-${idx}`}>
                           {existingCategories.map(c => (
@@ -587,15 +587,15 @@ export function AllocateBriefModal({
                         placeholder="e.g. Front Chest Graphic, Puff Print Back, Embroidery"
                         value={design.print_required}
                         onChange={e => handleUpdateDesignField(idx, 'print_required', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                        className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-semibold text-slate-900 outline-none"
                       />
                     </div>
 
                     {/* Purely Manual Colors Section */}
-                    <div className="pt-2 border-t border-black/5 space-y-2">
+                    <div className="pt-2 border-t border-slate-200/80 space-y-2">
                       <div className="flex items-center justify-between">
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-900 font-mono flex items-center gap-1.5">
-                          <Palette className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <Palette className="w-3.5 h-3.5 text-[#14C8B4]" />
                           <span>Colors ({design.colors.length}) <span className="text-rose-500">*</span></span>
                         </label>
                         <span className="text-[11px] text-slate-500">
@@ -616,12 +616,12 @@ export function AllocateBriefModal({
                               handleAddManualColor(idx)
                             }
                           }}
-                          className="flex-1 px-3 py-2 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-semibold text-slate-900 outline-none shadow-2xs"
+                          className="flex-1 px-3 py-2 bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/15 rounded-xl text-xs font-semibold text-slate-900 outline-none shadow-2xs"
                         />
                         <button
                           type="button"
                           onClick={() => handleAddManualColor(idx)}
-                          className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
+                          className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
                         >
                           + Add Color
                         </button>
@@ -633,14 +633,14 @@ export function AllocateBriefModal({
                           No colors added yet. Type a color name above and click &ldquo;+ Add Color&rdquo;.
                         </div>
                       ) : (
-                        <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                        <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
                           {design.colors.map((col, cIdx) => (
                             <div
                               key={cIdx}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FAF7F0] border border-black/10 text-xs font-bold text-slate-900 shadow-2xs"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 shadow-2xs"
                             >
                               <span 
-                                className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                                className="w-3.5 h-3.5 rounded-full border border-slate-300 shrink-0 shadow-2xs"
                                 style={{ backgroundColor: getColorSwatch(col) }}
                               />
                               <span>{col}</span>
@@ -665,9 +665,9 @@ export function AllocateBriefModal({
               <button
                 type="button"
                 onClick={handleAddDesignInstruction}
-                className="w-full py-2.5 px-3 rounded-xl border border-dashed border-[#3A3564]/30 hover:border-[#3A3564] bg-[#FAF7F0]/60 hover:bg-[#FAF7F0] text-[#3A3564] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                className="w-full py-2.5 px-3 rounded-xl border border-dashed border-[#14C8B4]/40 hover:border-[#14C8B4] bg-[#F0FDFA]/50 hover:bg-[#F0FDFA] text-[#0B1220] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
                 <span>Add Another Design</span>
               </button>
             </div>
@@ -683,12 +683,12 @@ export function AllocateBriefModal({
               placeholder="e.g. 240 GSM single jersey, minimal aesthetic"
               value={instructions}
               onChange={e => setInstructions(e.target.value)}
-              className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 focus:border-[#3A3564] rounded-xl text-xs font-medium text-slate-900 outline-none"
+              className="w-full px-3 py-2 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-medium text-slate-900 outline-none"
             />
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-2.5">
+          <div className="pt-3 border-t border-slate-200/80 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
@@ -701,7 +701,7 @@ export function AllocateBriefModal({
               disabled={!isFormValid || isSubmitting}
               className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
                 isFormValid && !isSubmitting
-                  ? 'bg-[#3A3564] hover:bg-[#2A2649] text-white cursor-pointer active:scale-[0.98]'
+                  ? 'bg-[#0B1220] hover:bg-[#162032] text-white cursor-pointer active:scale-[0.98]'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
@@ -712,7 +712,7 @@ export function AllocateBriefModal({
                 </>
               ) : (
                 <>
-                  <Palette className="w-4 h-4" />
+                  <Palette className="w-4 h-4 text-[#14C8B4]" />
                   <span>
                     {designs.length > 0 ? `Allocate Brief (${designs.length} Designs)` : 'Allocate Brief'}
                   </span>
