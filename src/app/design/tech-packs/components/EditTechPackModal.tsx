@@ -223,11 +223,11 @@ function EditTechPackModalContent({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in select-none">
-      <div className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#0B1220] text-white flex items-center justify-center shadow-2xs">
               <FileText className="w-5 h-5" />
             </div>
             <div>
@@ -251,10 +251,10 @@ function EditTechPackModalContent({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Section 0: Article Design Visuals & Mockups */}
-          <div className="bg-[#FAF7F0] border border-black/10 rounded-2xl p-4.5 space-y-3.5 shadow-2xs">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4.5 space-y-3.5 shadow-2xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                <ImageIcon className="w-4 h-4 text-[#0B1220]" />
                 <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
                   Article Design Artwork &amp; CAD Mockups
                 </h3>
@@ -265,8 +265,8 @@ function EditTechPackModalContent({
             </div>
 
             {isLoadingImages ? (
-              <div className="p-6 bg-white rounded-xl border border-black/10 flex items-center justify-center gap-2 text-xs font-mono text-slate-400">
-                <Loader2 className="w-4 h-4 animate-spin text-[#3A3564]" />
+              <div className="p-6 bg-white rounded-xl border border-slate-200 flex items-center justify-center gap-2 text-xs font-mono text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-[#0B1220]" />
                 <span>Loading article design visuals...</span>
               </div>
             ) : allImages.length > 0 ? (
@@ -277,7 +277,7 @@ function EditTechPackModalContent({
                     <div
                       key={idx}
                       onClick={() => setPreviewPhoto({ url: img.url, title: `${styleNumber} - ${img.label}` })}
-                      className="group relative bg-white rounded-xl border border-black/10 overflow-hidden cursor-pointer p-2 shadow-2xs hover:shadow-md hover:border-[#3A3564] transition-all flex flex-col items-center justify-between"
+                      className="group relative bg-white rounded-xl border border-slate-200 overflow-hidden cursor-pointer p-2 shadow-2xs hover:shadow-md hover:border-[#0B1220] transition-all flex flex-col items-center justify-between"
                     >
                       <div className="w-full h-32 flex items-center justify-center overflow-hidden rounded-lg bg-slate-50">
                         <img
@@ -288,9 +288,9 @@ function EditTechPackModalContent({
                       </div>
                       <div className="w-full mt-2 flex items-center justify-between gap-1 text-[11px] font-mono font-bold text-slate-700">
                         <span className="truncate">{img.label}</span>
-                        <Eye className="w-3.5 h-3.5 text-[#3A3564] shrink-0 opacity-60 group-hover:opacity-100" />
+                        <Eye className="w-3.5 h-3.5 text-[#0B1220] shrink-0 opacity-60 group-hover:opacity-100" />
                       </div>
-                      <div className="absolute inset-0 bg-[#3A3564]/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                      <div className="absolute inset-0 bg-[#0B1220]/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
                         <span className="px-2.5 py-1 bg-black/75 text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-sm">
                           <Eye className="w-3 h-3" /> Zoom
                         </span>
@@ -301,17 +301,17 @@ function EditTechPackModalContent({
 
                 {/* Concept & Designer Meta Bar */}
                 {(imageInfo?.color_name || imageInfo?.designer_name || imageInfo?.designer_notes) && (
-                  <div className="p-3 bg-white rounded-xl border border-black/10 text-xs space-y-2">
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       {imageInfo.color_name && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-800 font-mono font-bold text-[11px]">
-                          <Palette className="w-3 h-3 text-[#3A3564]" />
+                          <Palette className="w-3 h-3 text-[#0B1220]" />
                           <span>Colorway: {imageInfo.color_name}</span>
                         </span>
                       )}
                       {imageInfo.designer_name && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px]">
-                          <User className="w-3 h-3 text-[#3A3564]" />
+                          <User className="w-3 h-3 text-[#0B1220]" />
                           <span>Designer: <strong>{imageInfo.designer_name}</strong></span>
                         </span>
                       )}
@@ -338,7 +338,7 @@ function EditTechPackModalContent({
           {/* Section 1: Basic Information */}
           <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4.5 space-y-4">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+              <span className="w-2 h-2 rounded-full bg-[#0B1220]" />
               Core Garment Specifications
             </h3>
             <div>
@@ -350,7 +350,7 @@ function EditTechPackModalContent({
                 required
                 value={styleNumber}
                 onChange={e => setStyleNumber(e.target.value.toUpperCase())}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-mono font-bold text-[#0B1220] outline-none shadow-2xs"
               />
               {errors.styleNumber && (
                 <p className="text-xs text-rose-600 mt-1 font-medium">{errors.styleNumber}</p>
@@ -365,7 +365,7 @@ function EditTechPackModalContent({
                 <select
                   value={category}
                   onChange={e => setCategory(e.target.value as GarmentCategory)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-sm font-semibold text-slate-800 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-sm font-semibold text-slate-800 outline-none shadow-2xs"
                 >
                   {CATEGORIES.map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -384,7 +384,7 @@ function EditTechPackModalContent({
                   required
                   value={targetGsm}
                   onChange={e => setTargetGsm(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs"
                 />
               </div>
 
@@ -397,7 +397,7 @@ function EditTechPackModalContent({
                   required
                   value={baseSize}
                   onChange={e => setBaseSize(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs"
                 />
               </div>
             </div>
@@ -412,7 +412,7 @@ function EditTechPackModalContent({
                 value={fabricComposition}
                 onChange={e => setFabricComposition(e.target.value)}
                 placeholder="e.g. 100% Combed Cotton French Terry"
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-sm font-medium text-slate-900 outline-none shadow-2xs"
               />
             </div>
 
@@ -424,7 +424,7 @@ function EditTechPackModalContent({
                 <select
                   value={embellishmentSeq}
                   onChange={e => setEmbellishmentSeq(e.target.value as EmbellishmentSequence)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-800 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-semibold text-slate-800 outline-none shadow-2xs"
                 >
                   {EMBELLISHMENT_SEQUENCES.map(s => (
                     <option key={s.value} value={s.value}>{s.label}</option>
@@ -439,7 +439,7 @@ function EditTechPackModalContent({
                 <select
                   value={status}
                   onChange={e => setStatus(e.target.value as TechPackStatus)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-800 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-semibold text-slate-800 outline-none shadow-2xs"
                 >
                   {STATUSES.map(s => (
                     <option key={s.value} value={s.value}>{s.label}</option>
@@ -459,7 +459,7 @@ function EditTechPackModalContent({
                   max={20}
                   value={spi}
                   onChange={e => setSpi(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs"
                 />
               </div>
 
@@ -470,7 +470,7 @@ function EditTechPackModalContent({
                 <select
                   value={seamClass}
                   onChange={e => setSeamClass(e.target.value as SeamClass)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] rounded-xl text-xs font-semibold text-slate-800 outline-none shadow-2xs"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] rounded-xl text-xs font-semibold text-slate-800 outline-none shadow-2xs"
                 >
                   {SEAM_CLASSES.map(sc => (
                     <option key={sc} value={sc}>{sc}</option>
@@ -484,18 +484,18 @@ function EditTechPackModalContent({
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-[#3A3564]" />
+                <Package className="w-4 h-4 text-[#0B1220]" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono">
                   Bill of Materials (BOM) &amp; Trims Required
                 </h3>
-                <span className="text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
+                <span className="text-[10px] font-mono font-bold bg-slate-50 text-[#0B1220] px-2 py-0.5 rounded border border-slate-200">
                   {materials.length} Items
                 </span>
               </div>
             </div>
 
             {/* 4 Input Boxes + Add Button */}
-            <div className="bg-[#FAF7F0] p-3.5 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
                 <div className="sm:col-span-3">
                   <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 mb-1">
@@ -506,7 +506,7 @@ function EditTechPackModalContent({
                     value={newMatType}
                     onChange={e => setNewMatType(e.target.value)}
                     placeholder="e.g. Ribbon, Collar, Label"
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
                   />
                 </div>
@@ -519,7 +519,7 @@ function EditTechPackModalContent({
                     value={newMatName}
                     onChange={e => setNewMatName(e.target.value)}
                     placeholder="e.g. 1x1 Cotton Spandex Rib 380 GSM"
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
                   />
                 </div>
@@ -532,7 +532,7 @@ function EditTechPackModalContent({
                     value={newMatConsumption}
                     onChange={e => setNewMatConsumption(e.target.value)}
                     placeholder="e.g. 1 Pcs, 0.35 Mtr"
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
                   />
                 </div>
@@ -545,7 +545,7 @@ function EditTechPackModalContent({
                     value={newMatPlacement}
                     onChange={e => setNewMatPlacement(e.target.value)}
                     placeholder="e.g. Neck Seam, Placket"
-                    className="w-full px-3 py-2 rounded-xl border border-black/15 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddNewMaterial() } }}
                   />
                 </div>
@@ -553,7 +553,7 @@ function EditTechPackModalContent({
                   <button
                     type="button"
                     onClick={handleAddNewMaterial}
-                    className="w-full h-[38px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                    className="w-full h-[38px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
                     title="Add Material to Table"
                   >
                     <Plus className="w-4 h-4" />
@@ -565,15 +565,15 @@ function EditTechPackModalContent({
 
             {/* Materials List Table */}
             {materials.length === 0 ? (
-              <div className="py-6 text-center bg-white rounded-2xl border border-dashed border-black/15 p-4">
+              <div className="py-6 text-center bg-white rounded-2xl border border-dashed border-slate-200 p-4">
                 <p className="text-xs text-slate-500 font-medium">No materials added yet.</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Fill the 4 boxes above and click &quot;+&quot; to add them to this table.</p>
               </div>
             ) : (
-              <div className="rounded-2xl border border-black/10 bg-white overflow-hidden shadow-2xs">
+              <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-[#FAF7F0] border-b border-black/10 text-[10px] font-mono font-bold uppercase text-slate-600">
+                    <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-mono font-bold uppercase text-slate-600">
                       <th className="py-2.5 px-3">Component Type</th>
                       <th className="py-2.5 px-3">Item Description / Spec</th>
                       <th className="py-2.5 px-3 w-28">Consumption</th>
@@ -589,7 +589,7 @@ function EditTechPackModalContent({
                             type="text"
                             value={mat.component_type}
                             onChange={e => handleUpdateMaterial(mat.id, 'component_type', e.target.value)}
-                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:ring-1 focus:ring-[#0B1220]"
                           />
                         </td>
                         <td className="py-2 px-3">
@@ -597,7 +597,7 @@ function EditTechPackModalContent({
                             type="text"
                             value={mat.item_name}
                             onChange={e => handleUpdateMaterial(mat.id, 'item_name', e.target.value)}
-                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-900 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-medium text-slate-900 bg-white focus:ring-1 focus:ring-[#0B1220]"
                           />
                         </td>
                         <td className="py-2 px-3">
@@ -605,7 +605,7 @@ function EditTechPackModalContent({
                             type="text"
                             value={mat.consumption || ''}
                             onChange={e => handleUpdateMaterial(mat.id, 'consumption', e.target.value)}
-                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono font-bold text-slate-800 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs font-mono font-bold text-slate-800 bg-white focus:ring-1 focus:ring-[#0B1220]"
                           />
                         </td>
                         <td className="py-2 px-3">
@@ -613,7 +613,7 @@ function EditTechPackModalContent({
                             type="text"
                             value={mat.placement || ''}
                             onChange={e => handleUpdateMaterial(mat.id, 'placement', e.target.value)}
-                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#3A3564]"
+                            className="w-full px-2 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:ring-1 focus:ring-[#0B1220]"
                           />
                         </td>
                         <td className="py-2 px-2 text-right">
@@ -644,7 +644,7 @@ function EditTechPackModalContent({
               onChange={e => setInstructions(e.target.value)}
               placeholder="Enter specific garment production notes, stitching guidelines, washing instructions, and packaging details..."
               rows={3}
-              className="w-full p-3 rounded-2xl border border-black/15 text-xs text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564] shadow-2xs"
+              className="w-full p-3 rounded-2xl border border-slate-200 text-xs text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220] shadow-2xs"
             />
           </div>
 
@@ -660,7 +660,7 @@ function EditTechPackModalContent({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -684,12 +684,12 @@ function EditTechPackModalContent({
             onClick={() => setPreviewPhoto(null)}
           >
             <div
-              className="bg-white rounded-3xl border border-black/15 shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+              className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
               onClick={e => e.stopPropagation()}
             >
-              <div className="px-5 py-3.5 border-b border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+              <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                  <ImageIcon className="w-4 h-4 text-[#0B1220]" />
                   <h3 className="text-xs font-mono font-bold text-slate-900">
                     {previewPhoto.title}
                   </h3>
