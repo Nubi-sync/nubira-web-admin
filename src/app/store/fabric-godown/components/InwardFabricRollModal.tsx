@@ -219,11 +219,11 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-8">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-bold shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
             <div>
@@ -231,7 +231,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 Inward Fabric Roll &amp; 4-Point QC
               </h2>
               <p className="text-xs font-mono text-slate-500">
-                Linked PO: <span className="font-bold text-[#3A3564]">{activePo}</span> • Central Store Godown
+                Linked PO: <span className="font-bold text-[#0B1220]">{activePo}</span> • Central Store Godown
               </p>
             </div>
           </div>
@@ -245,10 +245,10 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
         </div>
 
         {/* Dynamic Color Presets from User's PO Color Matrix */}
-        <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10 space-y-2">
+        <div className="bg-[#F0FDFA] p-3.5 rounded-xl border border-black/15 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
               Your Order Colorway Rolls ({activePo}):
             </span>
             <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">
@@ -265,8 +265,8 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                   onClick={() => selectColorPreset(c.name, c.shade, idx)}
                   className={`px-3 py-1.5 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                      : 'bg-white text-slate-800 border-black/10 hover:bg-[#FAF7F0]'
+                      ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                      : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
                   }`}
                 >
                   <span>Roll {idx + 1} ({`ROL-2026-${9901 + idx}`}):</span>
@@ -290,7 +290,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={rollBarcode}
                 onChange={e => setRollBarcode(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. ROL-2026-9901"
               />
             </div>
@@ -305,7 +305,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={supplierName}
                 onChange={e => setSupplierName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. Vardhman demo mills"
               />
             </div>
@@ -320,7 +320,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={fabricType}
                 onChange={e => setFabricType(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. 100% Combed Cotton French Terry (380 GSM)"
               />
             </div>
@@ -336,7 +336,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                   required
                   value={colorShade}
                   onChange={e => setColorShade(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none capitalize"
+                  className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none capitalize"
                   placeholder="e.g. Orange"
                 />
                 {activeColors.length > 0 && (
@@ -351,7 +351,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                         setColorShade(e.target.value)
                       }
                     }}
-                    className="px-2 py-2 bg-white border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-800"
+                    className="px-2 py-2 bg-white border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-800"
                   >
                     {activeColors.map(c => (
                       <option key={c.name} value={c.name}>{c.name}</option>
@@ -368,7 +368,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
               <select
                 value={shadeGroup}
                 onChange={e => setShadeGroup(e.target.value as FabricShadeGroup)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               >
                 <option value="SHADE_A">Shade Group A (Standard Target)</option>
                 <option value="SHADE_B">Shade Group B (Slight Tint)</option>
@@ -387,7 +387,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={netMeterage}
                 onChange={e => setNetMeterage(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               />
             </div>
 
@@ -401,7 +401,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={grossWeightKg}
                 onChange={e => setGrossWeightKg(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               />
             </div>
 
@@ -416,7 +416,7 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={measuredWidthInches}
                 onChange={e => setMeasuredWidthInches(parseFloat(e.target.value) || 60)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               />
             </div>
 
@@ -429,25 +429,25 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 required
                 value={godownRackLocation}
                 onChange={e => setGodownRackLocation(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. Bin A-04"
               />
             </div>
           </div>
 
           {/* ASTM 4-Point Inspection Score Breakdown */}
-          <div className="p-4 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-3">
+          <div className="p-4 bg-[#F0FDFA] rounded-xl border border-black/15 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-900 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#3A3564]" />
+                <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
                 ASTM D5430 4-Point Defect Scoring Table
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-slate-700">
-                  Rate: <span className="font-black text-[#3A3564]">{pointsPer100SqYd} pts/100 sq yds</span>
+                  Rate: <span className="font-black text-[#0B1220]">{pointsPer100SqYd} pts/100 sq yds</span>
                 </span>
                 {verdict === 'PASSED' ? (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-white text-[#3A3564] border border-black/15 shadow-2xs">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-white text-[#0B1220] border border-black/15 shadow-2xs">
                     ✓ Passed A-Grade
                   </span>
                 ) : (
@@ -459,44 +459,44 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
             </div>
 
             <div className="grid grid-cols-4 gap-2 text-center text-xs">
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <div className="text-[10px] font-mono text-slate-500 font-bold">&le; 3" (1 pt)</div>
                 <input
                   type="number"
                   min="0"
                   value={points1}
                   onChange={e => setPoints1(parseInt(e.target.value) || 0)}
-                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#FAF7F0] rounded border border-black/10"
+                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#F0FDFA] rounded border border-black/15"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <div className="text-[10px] font-mono text-slate-500 font-bold">3"-6" (2 pts)</div>
                 <input
                   type="number"
                   min="0"
                   value={points2}
                   onChange={e => setPoints2(parseInt(e.target.value) || 0)}
-                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#FAF7F0] rounded border border-black/10"
+                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#F0FDFA] rounded border border-black/15"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <div className="text-[10px] font-mono text-slate-500 font-bold">6"-9" (3 pts)</div>
                 <input
                   type="number"
                   min="0"
                   value={points3}
                   onChange={e => setPoints3(parseInt(e.target.value) || 0)}
-                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#FAF7F0] rounded border border-black/10"
+                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#F0FDFA] rounded border border-black/15"
                 />
               </div>
-              <div className="bg-white p-2 rounded-lg border border-black/10">
+              <div className="bg-white p-2 rounded-lg border border-black/15">
                 <div className="text-[10px] font-mono text-slate-500 font-bold">&gt; 9"/Hole (4 pts)</div>
                 <input
                   type="number"
                   min="0"
                   value={points4}
                   onChange={e => setPoints4(parseInt(e.target.value) || 0)}
-                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#FAF7F0] rounded border border-black/10"
+                  className="w-full text-center font-mono font-bold text-xs py-1 mt-1 bg-[#F0FDFA] rounded border border-black/15"
                 />
               </div>
             </div>
@@ -509,9 +509,9 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
                 type="button"
                 onClick={handleInwardAllDeliveryRolls}
                 disabled={isSubmitting}
-                className="px-3.5 py-2 text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-3.5 py-2 text-xs font-mono font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FFFA] rounded-xl border border-black/15 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <Zap className="w-4 h-4 text-[#3A3564]" />
+                <Zap className="w-4 h-4 text-[#0B1220]" />
                 <span>Inward All Delivery Rolls ({activeColors.map(c => c.name).join(' + ')})</span>
               </button>
             )}
@@ -520,14 +520,14 @@ export function InwardFabricRollModal({ isOpen, onClose, onSuccess }: InwardFabr
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#F0FDFA] hover:bg-[#E6FFFA] rounded-xl border border-black/15 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#3A3564] hover:bg-[#2c284e] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Accept Current Roll into {godownRackLocation || 'Godown'}</span>

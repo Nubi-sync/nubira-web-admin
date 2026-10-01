@@ -201,11 +201,11 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-8">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-bold shadow-2xs">
               <Tag className="w-5 h-5" />
             </div>
             <div>
@@ -213,7 +213,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 Receive Trims Package &amp; Inward Stock
               </h2>
               <p className="text-xs font-mono text-slate-500">
-                Linked Order: <span className="font-bold text-[#3A3564]">{activePo}</span> • Central Trims Warehouse
+                Linked Order: <span className="font-bold text-[#0B1220]">{activePo}</span> • Central Trims Warehouse
               </p>
             </div>
           </div>
@@ -227,10 +227,10 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
         </div>
 
         {/* Quick Presets */}
-        <div className="bg-[#FAF7F0] p-3.5 rounded-xl border border-black/10 space-y-2">
+        <div className="bg-[#F0FDFA] p-3.5 rounded-xl border border-black/15 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
               Quick Fill BOM Trims for {activePo}:
             </span>
             <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">
@@ -243,8 +243,8 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('DRAWCORD')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-DRW-2026-01'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
               15mm Drawcords (1,000 pcs)
@@ -254,8 +254,8 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('LABEL')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-LBL-2026-02'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
               Woven Labels (1,000 pcs)
@@ -265,8 +265,8 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('THREAD')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-THD-2026-03'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
               Sewing Thread (50 Cones)
@@ -276,8 +276,8 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('POLYBAG')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-PKG-2026-04'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#FAF7F0]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
               Polybags (1,000 pcs)
@@ -297,7 +297,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 required
                 value={itemName}
                 onChange={e => setItemName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. 15mm Cotton Flat Drawcord with Gunmetal Aglets"
               />
             </div>
@@ -312,7 +312,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 required
                 value={itemCode}
                 onChange={e => setItemCode(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. TRM-DRW-2026-01"
               />
             </div>
@@ -325,7 +325,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value as TrimCategory)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               >
                 <option value="ELASTIC_TAPE">Elastic Tape &amp; Drawcords</option>
                 <option value="LABELS">Woven &amp; Printed Labels</option>
@@ -348,7 +348,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 min="1"
                 value={currentStock}
                 onChange={e => setCurrentStock(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               />
             </div>
 
@@ -359,7 +359,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               <select
                 value={unit}
                 onChange={e => setUnit(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               >
                 <option value="pcs">Pieces (pcs)</option>
                 <option value="cones">Cones (thread)</option>
@@ -379,7 +379,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 required
                 value={binLocation}
                 onChange={e => setBinLocation(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. Rack T-12"
               />
             </div>
@@ -394,7 +394,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 required
                 value={supplierName}
                 onChange={e => setSupplierName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. Vardhman Trim Div"
               />
             </div>
@@ -409,7 +409,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 min="0"
                 value={reorderLevel}
                 onChange={e => setReorderLevel(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
               />
             </div>
 
@@ -421,7 +421,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
                 type="text"
                 value={color}
                 onChange={e => setColor(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#3A3564] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#0B1220] focus:outline-none"
                 placeholder="e.g. Gunmetal / Black"
               />
             </div>
@@ -433,9 +433,9 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               type="button"
               onClick={handleReceiveAllStandardTrims}
               disabled={isSubmitting}
-              className="px-3.5 py-2 text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-2 text-xs font-mono font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FFFA] rounded-xl border border-black/15 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
-              <Zap className="w-4 h-4 text-[#3A3564]" />
+              <Zap className="w-4 h-4 text-[#0B1220]" />
               <span>Receive All BOM Trims Package (1-Click)</span>
             </button>
 
@@ -443,14 +443,14 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#FAF7F0] hover:bg-[#F2ECE1] rounded-xl border border-black/10 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#F0FDFA] hover:bg-[#E6FFFA] rounded-xl border border-black/15 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#3A3564] hover:bg-[#2c284e] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Accept Trims Batch into {binLocation || 'Warehouse'}</span>

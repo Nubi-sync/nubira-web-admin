@@ -82,12 +82,12 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-6 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-bold shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
             <div>
@@ -101,14 +101,14 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/15 text-slate-400 hover:text-slate-700 hover:bg-[#F0FDFA] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Live ASTM Score Banner */}
-        <div className="p-4 rounded-xl border border-black/10 bg-[#FAF7F0] flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-black/15 bg-[#F0FDFA] flex items-center justify-between">
           <div>
             <span className="text-[11px] font-mono uppercase font-bold tracking-wider text-slate-500">
               ASTM D5430 Penalty Score (SLA ≤ 28.0 pts/100 sq yd)
@@ -122,8 +122,8 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
               </span>
             </div>
           </div>
-          <div className="px-3 py-1.5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-white text-[#3A3564] border border-black/10 shadow-2xs">
-            {isPassed ? <ShieldCheck className="w-4 h-4 text-[#3A3564]" /> : <AlertTriangle className="w-4 h-4 text-[#3A3564]" />}
+          <div className="px-3 py-1.5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-white text-[#0B1220] border border-black/15 shadow-2xs">
+            {isPassed ? <ShieldCheck className="w-4 h-4 text-[#0B1220]" /> : <AlertTriangle className="w-4 h-4 text-[#0B1220]" />}
             <span>{isPassed ? 'PASS FOR CUTTING' : 'REJECT / QUARANTINE'}</span>
           </div>
         </div>
@@ -143,7 +143,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                   step="0.5"
                   value={measuredWidth}
                   onChange={(e) => setMeasuredWidth(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                   required
                 />
                 <span className="absolute right-3 top-2 text-[10px] font-mono text-slate-400">±0.5"</span>
@@ -159,7 +159,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                   type="number"
                   value={measuredGsm}
                   onChange={(e) => setMeasuredGsm(parseInt(e.target.value, 10) || 0)}
-                  className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                   required
                 />
                 <span className="absolute right-3 top-2 text-[10px] font-mono text-slate-400">±3%</span>
@@ -173,7 +173,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
               <select
                 value={shadeGroup}
                 onChange={(e) => setShadeGroup(e.target.value as FabricShadeGroup)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220] cursor-pointer"
               >
                 <option value="SHADE_A">Shade A (Standard Central)</option>
                 <option value="SHADE_B">Shade B (Slight Darker)</option>
@@ -183,7 +183,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
           </div>
 
           {/* ASTM 4-Point Defect Breakdown Matrix */}
-          <div className="p-4 rounded-xl border border-black/10 bg-[#FAF7F0]/60 space-y-3">
+          <div className="p-4 rounded-xl border border-black/15 bg-[#F0FDFA]/60 space-y-3">
             <span className="text-xs font-mono font-bold text-slate-700 uppercase tracking-wider block">
               ASTM 4-Point Defect Demerit Counts
             </span>
@@ -197,7 +197,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                   min="0"
                   value={points1}
                   onChange={(e) => setPoints1(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3 py-1.5 bg-white border border-black/15 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                 />
               </div>
 
@@ -210,7 +210,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                   min="0"
                   value={points2}
                   onChange={(e) => setPoints2(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3 py-1.5 bg-white border border-black/15 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                 />
               </div>
 
@@ -223,7 +223,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                   min="0"
                   value={points3}
                   onChange={(e) => setPoints3(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3 py-1.5 bg-white border border-black/15 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                 />
               </div>
 
@@ -236,7 +236,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                   min="0"
                   value={points4}
                   onChange={(e) => setPoints4(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                  className="w-full px-3 py-1.5 bg-white border border-black/15 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                 />
               </div>
             </div>
@@ -252,7 +252,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
                 type="text"
                 value={inspectorName}
                 onChange={(e) => setInspectorName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                 required
               />
             </div>
@@ -264,7 +264,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
               <select
                 value={godownRack}
                 onChange={(e) => setGodownRack(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
+                className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220] cursor-pointer"
               >
                 <option value="BAY_1_RACK_02">Bay 1 • Rack 02 (Single Jersey A)</option>
                 <option value="BAY_1_RACK_03">Bay 1 • Rack 03 (Single Jersey B)</option>
@@ -285,7 +285,7 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g., Clean face side, uniform selvedge, skewness 1.2%"
-              className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             />
           </div>
 
@@ -294,14 +294,14 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-2xs flex items-center gap-1.5 cursor-pointer bg-[#3A3564] hover:bg-[#2c284e] transition-all"
+              className="px-5 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-2xs flex items-center gap-1.5 cursor-pointer bg-[#0B1220] hover:bg-[#162032] transition-all"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Recording...' : 'Commit Inspection Sign-Off'}</span>

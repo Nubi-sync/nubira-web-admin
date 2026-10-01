@@ -47,12 +47,12 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-bold shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-bold shadow-2xs">
               <Tag className="w-5 h-5" />
             </div>
             <div>
@@ -66,14 +66,14 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-black/10 text-slate-400 hover:text-slate-700 hover:bg-[#FAF7F0] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-black/15 text-slate-400 hover:text-slate-700 hover:bg-[#F0FDFA] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Item Summary Card */}
-        <div className="bg-[#FAF7F0] p-4 rounded-xl border border-black/10">
+        <div className="bg-[#F0FDFA] p-4 rounded-xl border border-black/15">
           <span className="text-xs font-bold text-slate-900 block">
             {item.itemName}
           </span>
@@ -101,8 +101,8 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               onClick={() => setMode('ADD')}
               className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'ADD'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs'
-                  : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-[#F2ECE1]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                  : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-[#E6FFFA]'
               }`}
             >
               <Plus className="w-3.5 h-3.5" />
@@ -114,8 +114,8 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               onClick={() => setMode('SUBTRACT')}
               className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'SUBTRACT'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs'
-                  : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-[#F2ECE1]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                  : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-[#E6FFFA]'
               }`}
             >
               <Minus className="w-3.5 h-3.5" />
@@ -127,8 +127,8 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               onClick={() => setMode('SET')}
               className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'SET'
-                  ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-2xs'
-                  : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-[#F2ECE1]'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                  : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-[#E6FFFA]'
               }`}
             >
               <RotateCw className="w-3.5 h-3.5" />
@@ -145,13 +145,13 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               min="1"
               value={adjustmentQty}
               onChange={(e) => setAdjustmentQty(Math.max(1, parseInt(e.target.value, 10) || 1))}
-              className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               required
             />
           </div>
 
           {/* New Stock Preview */}
-          <div className="p-3 rounded-xl border border-black/10 bg-[#FAF7F0] flex items-center justify-between text-xs font-mono">
+          <div className="p-3 rounded-xl border border-black/15 bg-[#F0FDFA] flex items-center justify-between text-xs font-mono">
             <span className="text-slate-500 font-bold">Projected New Balance:</span>
             <span className="text-sm font-black text-slate-900 tabular-nums">
               {calculatedNewStock.toLocaleString()} {item.unit}
@@ -167,7 +167,7 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="e.g. GRN receipt or monthly physical audit"
-              className="w-full px-3 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               required
             />
           </div>
@@ -177,14 +177,14 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-mono font-bold text-slate-700 hover:bg-[#FAF7F0] transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-mono font-bold hover:bg-[#2c284e] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-mono font-bold hover:bg-[#162032] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Updating...' : 'Commit Stock Update'}</span>

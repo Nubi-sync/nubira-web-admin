@@ -242,9 +242,9 @@ export function ArticleConsumptionLedger({
   return (
     <div className="space-y-4 select-none">
       {/* Section Header */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center shadow-2xs shrink-0">
             <Boxes className="w-5 h-5" />
           </div>
           <div>
@@ -252,7 +252,7 @@ export function ArticleConsumptionLedger({
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
                 Live Article Material Consumption & Allotment Status
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 {articleGroups.length} Active Articles
               </span>
             </div>
@@ -271,7 +271,7 @@ export function ArticleConsumptionLedger({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Filter article or lineman..."
-              className="w-full pl-8 pr-7 py-1.5 text-xs font-semibold bg-[#FAF7F0]/60 border border-black/10 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="w-full pl-8 pr-7 py-1.5 text-xs font-semibold bg-[#F0FDFA]/60 border border-black/15 rounded-xl focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             />
             {searchQuery && (
               <button
@@ -290,8 +290,8 @@ export function ArticleConsumptionLedger({
               onClick={() => setFilterStatus('ALL')}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
                 filterStatus === 'ALL'
-                  ? 'bg-[#3A3564] text-white'
-                  : 'bg-[#FAF7F0] text-slate-700 hover:bg-[#eae3d2] border border-black/10'
+                  ? 'bg-[#0B1220] text-white'
+                  : 'bg-[#F0FDFA] text-slate-700 hover:bg-[#eae3d2] border border-black/15'
               }`}
             >
               All ({articleGroups.length})
@@ -336,17 +336,17 @@ export function ArticleConsumptionLedger({
             return (
               <div
                 key={group.artNo}
-                className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden transition-all hover:border-[#3A3564]/30"
+                className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden transition-all hover:border-[#0B1220]/30"
               >
                 {/* Compact Executive Row */}
                 <div
                   onClick={() => setExpandedArticle(isExpanded ? null : group.artNo)}
-                  className="p-4 sm:p-4.5 bg-white hover:bg-[#FAF7F0]/40 transition-colors cursor-pointer flex flex-wrap items-center justify-between gap-3.5"
+                  className="p-4 sm:p-4.5 bg-white hover:bg-[#F0FDFA]/40 transition-colors cursor-pointer flex flex-wrap items-center justify-between gap-3.5"
                 >
                   {/* Left: Article Identifier & Lineman Chips */}
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center font-mono font-black text-sm shadow-2xs shrink-0">
-                      <Tag className="w-4.5 h-4.5 text-[#3A3564]" />
+                    <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center font-mono font-black text-sm shadow-2xs shrink-0">
+                      <Tag className="w-4.5 h-4.5 text-[#0B1220]" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -358,7 +358,7 @@ export function ArticleConsumptionLedger({
                             {group.description}
                           </span>
                         )}
-                        <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                        <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                           {group.totalLots} Lots
                         </span>
                       </div>
@@ -407,7 +407,7 @@ export function ArticleConsumptionLedger({
                       </span>
                     )}
 
-                    <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-slate-600 shadow-2xs">
+                    <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-slate-600 shadow-2xs">
                       {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                     </div>
                   </div>
@@ -421,9 +421,9 @@ export function ArticleConsumptionLedger({
                       <span className="text-[11px] text-slate-400 font-medium">Consolidated Summary</span>
                     </div>
 
-                    <div className="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
+                    <div className="overflow-x-auto rounded-xl border border-black/15 bg-white shadow-2xs">
                       <table className="w-full text-left text-xs font-mono">
-                        <thead className="bg-[#FAF7F0] text-slate-700 border-b border-black/10 uppercase tracking-wider text-[10px] font-bold">
+                        <thead className="bg-[#F0FDFA] text-slate-700 border-b border-black/10 uppercase tracking-wider text-[10px] font-bold">
                           <tr>
                             <th className="py-2.5 px-3.5">Lineman</th>
                             <th className="py-2.5 px-3.5">Assigned Colors</th>
@@ -441,9 +441,9 @@ export function ArticleConsumptionLedger({
                             </tr>
                           ) : (
                             group.linemen.map(lm => (
-                              <tr key={lm.linemanName} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                              <tr key={lm.linemanName} className="hover:bg-[#F0FDFA]/40 transition-colors">
                                 <td className="py-2.5 px-3.5 font-bold text-slate-900 flex items-center gap-2">
-                                  <User className="w-3.5 h-3.5 text-[#3A3564]" />
+                                  <User className="w-3.5 h-3.5 text-[#0B1220]" />
                                   <span>{lm.linemanName}</span>
                                 </td>
                                 <td className="py-2.5 px-3.5">
@@ -454,7 +454,7 @@ export function ArticleConsumptionLedger({
                                       lm.colors.map(col => (
                                         <span
                                           key={col}
-                                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#F0FDFA] text-[#0B1220] border border-black/15"
                                         >
                                           <Palette className="w-2.5 h-2.5" />
                                           <span>{col}</span>
