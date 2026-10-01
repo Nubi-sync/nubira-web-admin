@@ -136,15 +136,15 @@ export function CompanySubscriptionCard({
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
             <div className="flex items-center gap-3.5 sm:gap-4">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-                <CreditCard className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+                <CreditCard className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
                   <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                     Subscription & <span className="text-[#1D4ED8]">License</span> Status
                   </h2>
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                     {isTrial ? '7-DAY TRIAL' : 'ACTIVE PLAN'}
                   </span>
                 </div>
@@ -167,9 +167,9 @@ export function CompanySubscriptionCard({
           {/* Details 4-Column Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4.5 pt-1">
             {/* 1. Plan Tier */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
-                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
@@ -187,9 +187,9 @@ export function CompanySubscriptionCard({
             </div>
 
             {/* 2. Start Date */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
@@ -205,9 +205,9 @@ export function CompanySubscriptionCard({
             </div>
 
             {/* 3. Valid Until */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 text-[#14C8B4] border border-slate-200 shadow-2xs">
-                <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
@@ -223,11 +223,9 @@ export function CompanySubscriptionCard({
             </div>
 
             {/* 4. Status */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#14C8B4]/40 hover:shadow-xs transition-all">
-              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center shrink-0 border border-slate-200 shadow-2xs ${
-                isAccountExpired ? 'text-rose-600' : (daysLeft <= 3 && isTrial ? 'text-amber-600' : 'text-emerald-600')
-              }`}>
-                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 border border-black/15 text-[#0B1220] shadow-2xs">
+                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
                 <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-slate-600 block">
@@ -270,8 +268,8 @@ export function CompanySubscriptionCard({
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-5 border-b border-slate-100">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
-                  <CreditCard className="w-5 h-5 text-[#14C8B4]" />
+                <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0">
+                  <CreditCard className="w-5 h-5 text-[#0B1220]" />
                 </div>
                 <div>
                   <h3 className="text-lg sm:text-xl font-extrabold text-[#0B1220]">
@@ -313,7 +311,7 @@ export function CompanySubscriptionCard({
                 <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
                   Requested License Plan
                 </label>
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#F0FDFA] border-2 border-[#14C8B4]/30 shadow-2xs">
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#F0FDFA] border border-black/15 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-base font-extrabold text-[#0B1220]">
                       {activePlanTier === 'FULL_PLANT_AI' ? 'Full Plant AI' : 'Modular Plan'}
@@ -414,7 +412,7 @@ export function CompanySubscriptionCard({
               </div>
 
               {/* Payment Info Note */}
-              <div className="text-xs text-slate-600 leading-relaxed bg-[#F0FDFA] p-3.5 rounded-xl border border-[#14C8B4]/30">
+              <div className="text-xs text-slate-600 leading-relaxed bg-[#F0FDFA] p-3.5 rounded-xl border border-black/15">
                 <p className="font-bold text-[#0B1220] mb-0.5">Direct Corporate Activation:</p>
                 Confirming updates your factory subscription immediately. Invoices with GST credit details are dispatched directly to your registered email.
               </div>
@@ -437,7 +435,7 @@ export function CompanySubscriptionCard({
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
                       <span>Activating License...</span>
                     </>
                   ) : (
