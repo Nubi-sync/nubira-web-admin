@@ -120,20 +120,22 @@ export function UniversalNotificationSideNav({
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className={`group relative flex flex-col items-center gap-2.5 py-4 px-2.5 rounded-l-2xl border-l-2 border-y shadow-2xl transition-all duration-200 cursor-pointer ${
+          className={`group relative flex flex-col items-center gap-2 py-3 px-2 rounded-l-2xl border-l border-y shadow-2xl transition-all duration-200 cursor-pointer ${
             hasNewPulse
               ? 'border-rose-400 bg-rose-950 text-white shadow-rose-500/40 translate-x-0 ring-2 ring-rose-500/50'
-              : 'bg-[#1E1B4B] text-white border-white/20 hover:border-amber-400 hover:bg-[#2B2668] hover:-translate-x-1.5'
+              : 'bg-[#0B1220] text-white border-black/15 hover:border-black/30 hover:bg-[#162032] hover:-translate-x-1'
           }`}
           title="Open Live Department Feed & Audit Notifications"
         >
           {/* Bell Icon with Badge */}
           <div className="relative">
-            <Bell className={`w-5 h-5 text-amber-300 transition-transform group-hover:scale-110 ${
-              hasNewPulse ? 'animate-bounce text-rose-300' : ''
-            }`} />
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center transition-transform group-hover:scale-105 shadow-2xs">
+              <Bell className={`w-4 h-4 text-[#0B1220] ${
+                hasNewPulse ? 'animate-bounce text-rose-600' : ''
+              }`} />
+            </div>
             {unreadCount > 0 && (
-              <span className="absolute -top-2.5 -right-3 min-w-[20px] h-[20px] px-1 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md ring-2 ring-[#1E1B4B] animate-pulse">
+              <span className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-md ring-2 ring-[#0B1220] animate-pulse">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -141,7 +143,7 @@ export function UniversalNotificationSideNav({
 
           {/* Vertical Text Label */}
           <div className="flex flex-col items-center gap-1 my-1">
-            <span className="[writing-mode:vertical-rl] rotate-180 text-[11px] font-mono font-black uppercase tracking-[2.5px] text-white/90 group-hover:text-amber-300 transition-colors">
+            <span className="[writing-mode:vertical-rl] rotate-180 text-[10px] font-mono font-black uppercase tracking-[2px] text-white/90 group-hover:text-cyan-300 transition-colors">
               Live Feed
             </span>
           </div>
@@ -162,7 +164,7 @@ export function UniversalNotificationSideNav({
 
           {/* Hover Tooltip Ribbon */}
           <div className="pointer-events-none absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden group-hover:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/95 backdrop-blur-md text-white text-xs font-mono font-bold whitespace-nowrap shadow-2xl border border-white/10">
-            <span className="text-amber-300 font-extrabold uppercase tracking-wider">Live Audit Feed</span>
+            <span className="text-cyan-300 font-extrabold uppercase tracking-wider">Live Audit Feed</span>
             <span className="text-slate-500">•</span>
             <span className={`flex items-center gap-1.5 text-[11px] ${wsStatus === 'connected' ? 'text-emerald-400' : 'text-amber-400'}`}>
               <span className={`w-2 h-2 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
