@@ -1155,12 +1155,12 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 1. FILTER CONTROLS & BRAND TABS                           */}
       {/* ========================================================= */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5 bg-white p-4 sm:p-5 rounded-2xl border border-black/15 shadow-2xs">
         
         {/* Brand Selector Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 min-w-0">
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mr-1 flex items-center gap-1.5 shrink-0">
-            <Filter className="w-3.5 h-3.5 text-[#14C8B4]" /> Brand:
+            <Filter className="w-3.5 h-3.5 text-[#0B1220]" /> Brand:
           </span>
           {brandTabs.map(brand => (
             <button
@@ -1170,7 +1170,7 @@ export default function DashboardClient({
               className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
                 selectedBrand === brand
                   ? 'bg-[#0B1220] text-white shadow-xs'
-                  : 'bg-[#F0FDFA] text-slate-700 hover:bg-teal-50 border border-black/10'
+                  : 'bg-[#F0FDFA] text-slate-700 hover:bg-teal-50 border border-black/15'
               }`}
             >
               {brand === 'ALL' ? 'All Orders' : brand === 'DIRECT' ? 'Direct Floor Lots' : brand}
@@ -1186,10 +1186,10 @@ export default function DashboardClient({
             <button
               type="button"
               onClick={() => setIsArticleMenuOpen(!isArticleMenuOpen)}
-              className="w-full text-xs font-bold bg-[#F0FDFA] hover:bg-teal-50 border border-black/10 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 cursor-pointer flex items-center justify-between gap-2 shadow-2xs transition-all"
+              className="w-full text-xs font-bold bg-[#F0FDFA] hover:bg-teal-50 border border-black/15 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 cursor-pointer flex items-center justify-between gap-2 shadow-2xs transition-all"
             >
               <div className="flex items-center gap-2 truncate">
-                <Search className="w-3.5 h-3.5 text-[#14C8B4] shrink-0" />
+                <Search className="w-3.5 h-3.5 text-[#0B1220] shrink-0" />
                 <span className="truncate">{selectedArticleDisplayText}</span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform ${isArticleMenuOpen ? 'rotate-180' : ''}`} />
@@ -1204,7 +1204,7 @@ export default function DashboardClient({
                   onClick={() => setIsArticleMenuOpen(false)}
                 />
 
-                <div className="absolute right-0 top-full mt-1.5 w-80 max-w-[90vw] bg-white border border-black/10 rounded-2xl shadow-xl z-50 p-2.5 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 top-full mt-1.5 w-80 max-w-[90vw] bg-white border border-black/15 rounded-2xl shadow-xl z-50 p-2.5 animate-in fade-in zoom-in-95 duration-100">
                   
                   {/* Search Input Box */}
                   <div className="relative mb-2">
@@ -1241,12 +1241,12 @@ export default function DashboardClient({
                       }}
                       className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
                         selectedArticleId === 'ALL'
-                          ? 'bg-[#F0FDFA] text-[#0B1220] font-extrabold border border-black/10'
+                          ? 'bg-[#F0FDFA] text-[#0B1220] font-extrabold border border-black/15'
                           : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
                       <span>All Article Styles ({articles.length} styles)</span>
-                      {selectedArticleId === 'ALL' && <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5]" />}
+                      {selectedArticleId === 'ALL' && <Check className="w-4 h-4 text-[#0B1220] stroke-[2.5]" />}
                     </button>
 
                     {/* Filtered Articles */}
@@ -1266,7 +1266,7 @@ export default function DashboardClient({
                           }}
                           className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer flex items-start justify-between gap-2 ${
                             isSelected
-                              ? 'bg-[#F0FDFA] text-[#0B1220] font-extrabold border border-black/10'
+                              ? 'bg-[#F0FDFA] text-[#0B1220] font-extrabold border border-black/15'
                               : 'hover:bg-slate-50 text-slate-700 font-semibold'
                           }`}
                         >
@@ -1280,7 +1280,7 @@ export default function DashboardClient({
                               </span>
                             )}
                           </div>
-                          {isSelected && <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0 mt-0.5" />}
+                          {isSelected && <Check className="w-4 h-4 text-[#0B1220] stroke-[2.5] shrink-0 mt-0.5" />}
                         </button>
                       )
                     })}
@@ -1310,7 +1310,7 @@ export default function DashboardClient({
                     setDateFilter('all')
                   }
                 }}
-                className="px-3 py-1.5 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] text-xs font-bold rounded-xl border border-black/10 shadow-2xs focus:outline-none cursor-pointer pr-7"
+                className="px-3 py-1.5 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] text-xs font-bold rounded-xl border border-black/15 shadow-2xs focus:outline-none cursor-pointer pr-7"
               >
                 <option value="ALL">All-Time Period</option>
                 {availableMonths.map(m => (
@@ -1321,7 +1321,7 @@ export default function DashboardClient({
               </select>
             </div>
 
-            <div className="flex items-center gap-1 bg-[#F0FDFA] p-1 rounded-xl border border-black/10 shadow-2xs">
+            <div className="flex items-center gap-1 bg-[#F0FDFA] p-1 rounded-xl border border-black/15 shadow-2xs">
               {[
                 { id: 'today', label: 'Today' },
                 { id: 'week', label: 'This Week' },
@@ -1352,10 +1352,10 @@ export default function DashboardClient({
               type="button"
               onClick={handleManualSync}
               disabled={isSyncing}
-              className="p-2.5 rounded-xl border border-black/10 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+              className="p-2.5 rounded-xl border border-black/15 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
               title="Sync latest live updates from factory floor"
             >
-              <RotateCcw className={`w-3.5 h-3.5 text-[#14C8B4] ${isSyncing ? 'animate-spin' : ''}`} />
+              <RotateCcw className={`w-3.5 h-3.5 text-[#0B1220] ${isSyncing ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
@@ -1370,13 +1370,13 @@ export default function DashboardClient({
         {/* STAGE 1: TOTAL STOCKS (PENDING / UNALLOTTED PIPELINE) */}
         <div 
           onClick={() => setActiveDrilldownStage('TOTAL_STOCKS')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#14C8B4]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             {/* Top Action Row: Icon on left, Stage indicator on right */}
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
-                <Warehouse className="w-5 h-5 text-[#14C8B4] group-hover:text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+                <Warehouse className="w-5 h-5 text-[#0B1220] group-hover:text-white" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B1220] transition-colors">
@@ -1403,7 +1403,7 @@ export default function DashboardClient({
               {metrics.unallottedStocks.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/25 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 Unallotted
               </span>
               <span className="text-[10px] font-mono text-slate-400 font-medium">
@@ -1416,12 +1416,12 @@ export default function DashboardClient({
         {/* STAGE 2: GOODS IN LINE (SEWING WIP) */}
         <div 
           onClick={() => setActiveDrilldownStage('GOODS_IN_LINE')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#14C8B4]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
-                <Activity className="w-5 h-5 text-[#14C8B4] group-hover:text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+                <Activity className="w-5 h-5 text-[#0B1220] group-hover:text-white" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B1220] transition-colors">
@@ -1446,7 +1446,7 @@ export default function DashboardClient({
               {metrics.goodsInLine.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/25 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 On Floor
               </span>
             </div>
@@ -1456,12 +1456,12 @@ export default function DashboardClient({
         {/* STAGE 3: MENDING & CHECKING (WITH SMART ALTERATION ALERT) */}
         <div 
           onClick={() => setActiveDrilldownStage('MENDING_CHECKING')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#14C8B4]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
-                <AlertTriangle className="w-5 h-5 text-[#14C8B4] group-hover:text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+                <AlertTriangle className="w-5 h-5 text-[#0B1220] group-hover:text-white" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B1220] transition-colors">
@@ -1493,7 +1493,7 @@ export default function DashboardClient({
               {metrics.mendingChecking.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/25 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 {metrics.mendingAlterationQty > 0 ? `${metrics.mendingAlterationQty} Alter` : 'Finishing Table'}
               </span>
             </div>
@@ -1503,12 +1503,12 @@ export default function DashboardClient({
         {/* STAGE 4: READY GOODS (FINISHED STOCK) */}
         <div 
           onClick={() => setActiveDrilldownStage('READY_GOODS')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#14C8B4]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
-                <PackageCheck className="w-5 h-5 text-[#14C8B4] group-hover:text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+                <PackageCheck className="w-5 h-5 text-[#0B1220] group-hover:text-white" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B1220] transition-colors">
@@ -1533,7 +1533,7 @@ export default function DashboardClient({
               {metrics.readyGoods.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/25 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 In Godown
               </span>
             </div>
@@ -1543,12 +1543,12 @@ export default function DashboardClient({
         {/* STAGE 5: RTO (RETURN TO ORIGIN / REJECTIONS) */}
         <div 
           onClick={() => setActiveDrilldownStage('RTO')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#14C8B4]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
-                <RotateCcw className="w-5 h-5 text-[#14C8B4] group-hover:text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+                <RotateCcw className="w-5 h-5 text-[#0B1220] group-hover:text-white" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B1220] transition-colors">
@@ -1573,7 +1573,7 @@ export default function DashboardClient({
               {metrics.rto.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/25 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 Defect / Reject
               </span>
             </div>
@@ -1583,12 +1583,12 @@ export default function DashboardClient({
         {/* STAGE 6: READY FOR DELIVERY / DISPATCH */}
         <div 
           onClick={() => setActiveDrilldownStage('READY_DELIVERY')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 hover:border-[#14C8B4]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
-                <Truck className="w-5 h-5 text-[#14C8B4] group-hover:text-white" />
+              <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+                <Truck className="w-5 h-5 text-[#0B1220] group-hover:text-white" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B1220] transition-colors">
@@ -1613,7 +1613,7 @@ export default function DashboardClient({
               {metrics.readyDelivery.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/25 tracking-wider shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
                 Dispatched Pcs
               </span>
             </div>
@@ -1625,11 +1625,11 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 3. LIVE VISUAL FLOW PIPELINE STEPPER BAR                   */}
       {/* ========================================================= */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs">
-              <TrendingUp className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <TrendingUp className="w-4 h-4 text-[#0B1220]" />
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
@@ -1647,7 +1647,7 @@ export default function DashboardClient({
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           
           {/* Flow 1: Sewing Machine Floor */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#1D4ED8] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/15 border-l-4 border-l-[#1D4ED8] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 1. Sewing In-Line
@@ -1672,7 +1672,7 @@ export default function DashboardClient({
           </div>
 
           {/* Flow 2: Mending & Inspection Table */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-amber-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/15 border-l-4 border-l-amber-500 rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 2. Mending & Checking
@@ -1696,7 +1696,7 @@ export default function DashboardClient({
           </div>
 
           {/* Flow 3: Finished Godown Inventory */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/15 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 3. Ready in Godown
@@ -1720,12 +1720,12 @@ export default function DashboardClient({
           </div>
 
           {/* Flow 4: Gate Pass & Dispatched */}
-          <div className="bg-white border border-black/10 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-black/15 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 4. Dispatched Out
               </span>
-              <span className="text-xs font-extrabold font-mono text-[#0B1220] bg-[#F0FDFA] border border-black/10 px-2 py-0.5 rounded-full shadow-2xs">
+              <span className="text-xs font-extrabold font-mono text-[#0B1220] bg-[#F0FDFA] border border-black/15 px-2 py-0.5 rounded-full shadow-2xs">
                 {pipelineFlow.deliveryPct}%
               </span>
             </div>
@@ -1754,12 +1754,12 @@ export default function DashboardClient({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* 1. Production Trend Card */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#14C8B4]" />
+                  <TrendingUp className="w-4 h-4 text-[#0B1220]" />
                   Production Trend
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -1859,12 +1859,12 @@ export default function DashboardClient({
         </div>
 
         {/* 2. Order Status Donut Card */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <PieChart className="w-4 h-4 text-[#14C8B4]" />
+                  <PieChart className="w-4 h-4 text-[#0B1220]" />
                   Order Status
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -1941,12 +1941,12 @@ export default function DashboardClient({
         </div>
 
         {/* 3. Production by Category Card */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-[#14C8B4]" />
+                  <BarChart3 className="w-4 h-4 text-[#0B1220]" />
                   Production by Category
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -2004,12 +2004,12 @@ export default function DashboardClient({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         {/* Left: Top Running Styles (7 Cols / ~60%) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#14C8B4]" />
+                  <Tag className="w-4 h-4 text-[#0B1220]" />
                   Top Running Styles
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -2097,12 +2097,12 @@ export default function DashboardClient({
         </div>
 
         {/* Right: Recent Activities Feed (5 Cols / ~40%) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#14C8B4]" />
+                  <Clock className="w-4 h-4 text-[#0B1220]" />
                   Recent Activities
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -2132,7 +2132,7 @@ export default function DashboardClient({
                       isReject ? 'bg-rose-50 text-rose-600 border-rose-200' :
                       isStore ? 'bg-blue-50 text-blue-600 border-blue-200' :
                       isDispatch ? 'bg-purple-50 text-purple-600 border-purple-200' :
-                      'bg-teal-50 text-[#14C8B4] border-teal-200'
+                      'bg-teal-50 text-[#0B1220] border-teal-200'
                     }`}>
                       {isQC ? (
                         <CheckCircle2 className="w-4 h-4" />
@@ -2160,7 +2160,7 @@ export default function DashboardClient({
                       </p>
                       {act.lineman && act.lineman !== 'Unassigned Floor' && (
                         <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-[#0B1220]">
-                          <UserCheck className="w-3.5 h-3.5 text-[#14C8B4]" />
+                          <UserCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>Lineman: {act.lineman}</span>
                         </div>
                       )}
@@ -2180,9 +2180,9 @@ export default function DashboardClient({
             <button 
               type="button"
               onClick={() => setIsActivityDrawerOpen(true)}
-              className="text-xs font-bold text-[#0B1220] hover:text-[#162032] inline-flex items-center justify-center gap-1.5 w-full py-2 bg-[#F0FDFA] hover:bg-teal-50 rounded-xl border border-black/10 shadow-2xs transition-all cursor-pointer"
+              className="text-xs font-bold text-[#0B1220] hover:text-[#162032] inline-flex items-center justify-center gap-1.5 w-full py-2 bg-[#F0FDFA] hover:bg-teal-50 rounded-xl border border-black/15 shadow-2xs transition-all cursor-pointer"
             >
-              <FileCheck2 className="w-3.5 h-3.5 text-[#14C8B4]" /> Full Factory Audit Logs ({recentActivities.length})
+              <FileCheck2 className="w-3.5 h-3.5 text-[#0B1220]" /> Full Factory Audit Logs ({recentActivities.length})
             </button>
           </div>
         </div>
@@ -2216,17 +2216,17 @@ export default function DashboardClient({
             <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/90 shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs">
-                    {activeDrilldownStage === 'TOTAL_STOCKS' && <Warehouse className="w-5 h-5 text-[#14C8B4]" />}
-                    {activeDrilldownStage === 'GOODS_IN_LINE' && <Activity className="w-5 h-5 text-[#14C8B4]" />}
-                    {activeDrilldownStage === 'MENDING_CHECKING' && <AlertTriangle className="w-5 h-5 text-[#14C8B4]" />}
-                    {activeDrilldownStage === 'READY_GOODS' && <PackageCheck className="w-5 h-5 text-[#14C8B4]" />}
-                    {activeDrilldownStage === 'RTO' && <RotateCcw className="w-5 h-5 text-[#14C8B4]" />}
-                    {activeDrilldownStage === 'READY_DELIVERY' && <Truck className="w-5 h-5 text-[#14C8B4]" />}
+                  <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+                    {activeDrilldownStage === 'TOTAL_STOCKS' && <Warehouse className="w-5 h-5 text-[#0B1220]" />}
+                    {activeDrilldownStage === 'GOODS_IN_LINE' && <Activity className="w-5 h-5 text-[#0B1220]" />}
+                    {activeDrilldownStage === 'MENDING_CHECKING' && <AlertTriangle className="w-5 h-5 text-[#0B1220]" />}
+                    {activeDrilldownStage === 'READY_GOODS' && <PackageCheck className="w-5 h-5 text-[#0B1220]" />}
+                    {activeDrilldownStage === 'RTO' && <RotateCcw className="w-5 h-5 text-[#0B1220]" />}
+                    {activeDrilldownStage === 'READY_DELIVERY' && <Truck className="w-5 h-5 text-[#0B1220]" />}
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                         Stage {
                           activeDrilldownStage === 'TOTAL_STOCKS' ? '01' :
                           activeDrilldownStage === 'GOODS_IN_LINE' ? '02' :
@@ -2270,7 +2270,7 @@ export default function DashboardClient({
 
               {/* Summary KPI Ribbon */}
               <div className="mt-4 grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-200 text-center">
-                <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
                   <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
                     Stage Volume
                   </span>
@@ -2284,7 +2284,7 @@ export default function DashboardClient({
                   </p>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
                   <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
                     Filter Brand
                   </span>
@@ -2293,7 +2293,7 @@ export default function DashboardClient({
                   </p>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+                <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
                   <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
                     Active Records
                   </span>
@@ -2352,9 +2352,9 @@ export default function DashboardClient({
 
                 if (filteredDrawerAllotments.length === 0) {
                   return (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 mx-auto flex items-center justify-center shadow-2xs">
-                        <Warehouse className="w-6 h-6 text-[#14C8B4]" />
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
+                        <Warehouse className="w-6 h-6 text-[#0B1220]" />
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-slate-800">No Orders in Active Pipeline</h4>
@@ -2367,7 +2367,7 @@ export default function DashboardClient({
                           href="/production-orders"
                           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
                         >
-                          <Plus className="w-3.5 h-3.5 text-[#14C8B4]" /> + New Production Order
+                          <Plus className="w-3.5 h-3.5 text-[#0B1220]" /> + New Production Order
                         </Link>
                       </div>
                     </div>
@@ -2376,10 +2376,10 @@ export default function DashboardClient({
 
                 return (
                   <div className="space-y-3">
-                    <div className="p-3.5 rounded-xl bg-white border border-black/10 shadow-2xs flex items-center justify-between">
+                    <div className="p-3.5 rounded-xl bg-white border border-black/15 shadow-2xs flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-800">Pipeline Target Allotments</span>
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                           {filteredDrawerAllotments.length} Active Lots
                         </span>
                       </div>
@@ -2398,7 +2398,7 @@ export default function DashboardClient({
                       const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
 
                       return (
-                        <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
+                        <div key={al.id} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all">
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
@@ -2411,7 +2411,7 @@ export default function DashboardClient({
                                   </span>
                                 )}
                                 {ch?.brand && (
-                                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                                     {ch.brand}
                                   </span>
                                 )}
@@ -2514,8 +2514,8 @@ export default function DashboardClient({
 
                 if (linemanGroups.length === 0) {
                   return (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
                         <Activity className="w-6 h-6" />
                       </div>
                       <div>
@@ -2527,7 +2527,7 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/allotments"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
                         >
                           Assign Floor Allotments <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
@@ -2541,7 +2541,7 @@ export default function DashboardClient({
                     {/* Linemen Toolbar */}
                     <div className="flex items-center justify-between px-1 text-xs">
                       <span className="font-extrabold text-slate-700 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <Users className="w-3.5 h-3.5 text-[#0B1220]" />
                         <span>{linemanGroups.length} {linemanGroups.length === 1 ? 'Lineman Active' : 'Linemen Active'}</span>
                       </span>
                       <div className="flex items-center gap-2 font-bold text-[11px]">
@@ -2552,7 +2552,7 @@ export default function DashboardClient({
                             linemanGroups.forEach(g => { allExpanded[g.key] = true })
                             setExpandedLinemen(allExpanded)
                           }}
-                          className="text-[#3A3564] hover:underline cursor-pointer"
+                          className="text-[#0B1220] hover:underline cursor-pointer"
                         >
                           Expand All
                         </button>
@@ -2572,7 +2572,7 @@ export default function DashboardClient({
                       const isExpanded = expandedLinemen[group.key] ?? false
 
                       return (
-                        <div key={group.key} className="rounded-xl border border-black/10 bg-white shadow-2xs overflow-hidden transition-all">
+                        <div key={group.key} className="rounded-xl border border-black/15 bg-white shadow-2xs overflow-hidden transition-all">
                           <button
                             type="button"
                             onClick={() => toggleLineman(group.key)}
@@ -2580,7 +2580,7 @@ export default function DashboardClient({
                             data-open={isExpanded}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
+                              <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
                                 <User className="w-4 h-4" />
                               </div>
                               <div className="min-w-0">
@@ -2636,7 +2636,7 @@ export default function DashboardClient({
                                 const currentTab = articleCardTabs[al.id] || 'matrix'
 
                                 return (
-                                  <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
+                                  <div key={al.id} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all">
                                     <div className="flex items-start justify-between gap-3">
                                       <div>
                                         <div className="flex items-center gap-2 flex-wrap">
@@ -2649,7 +2649,7 @@ export default function DashboardClient({
                                             </span>
                                           )}
                                           {ch?.brand && (
-                                            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                                            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                                               {ch.brand}
                                             </span>
                                           )}
@@ -2699,11 +2699,11 @@ export default function DashboardClient({
                                             onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'matrix' }))}
                                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                               currentTab === 'matrix'
-                                                ? 'bg-white text-slate-900 shadow-2xs border border-black/10'
+                                                ? 'bg-white text-slate-900 shadow-2xs border border-black/15'
                                                 : 'text-slate-500 hover:text-slate-900'
                                             }`}
                                           >
-                                            <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                                            <Layers className="w-3.5 h-3.5 text-[#0B1220]" />
                                             <span>Color × Size Matrix</span>
                                             {lotVariants.length > 0 && (
                                               <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
@@ -2716,7 +2716,7 @@ export default function DashboardClient({
                                             onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'workers' }))}
                                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                               currentTab === 'workers'
-                                                ? 'bg-[#3A3564] text-white shadow-2xs'
+                                                ? 'bg-[#0B1220] text-white shadow-2xs'
                                                 : 'text-slate-500 hover:text-slate-900'
                                             }`}
                                           >
@@ -2758,7 +2758,7 @@ export default function DashboardClient({
                                     <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
                                       <Link 
                                         href="/allotments"
-                                        className="text-[11px] font-bold text-[#3A3564] hover:underline inline-flex items-center gap-1"
+                                        className="text-[11px] font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1"
                                       >
                                         Open in Floor Allotments <ExternalLink className="w-3 h-3" />
                                       </Link>
@@ -2827,7 +2827,7 @@ export default function DashboardClient({
                     <div className="space-y-2.5">
                       <div className="flex items-center justify-between px-1">
                         <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                          <Boxes className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <Boxes className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>Mending Department Floor Lots ({mendingFloorLots.length})</span>
                         </span>
                         <span className="text-[11px] text-slate-500 font-medium">
@@ -2846,7 +2846,7 @@ export default function DashboardClient({
                         const currentTab = articleCardTabs[al.id] || 'matrix'
 
                         return (
-                          <div key={al.id} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all space-y-3">
+                          <div key={al.id} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all space-y-3">
                             <div className="flex items-start justify-between gap-3 flex-wrap">
                               <div>
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -2854,7 +2854,7 @@ export default function DashboardClient({
                                     Art {art?.art_no || 'Style'}
                                   </span>
                                   {ch?.brand && (
-                                    <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                                    <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                                       {ch.brand}
                                     </span>
                                   )}
@@ -2903,11 +2903,11 @@ export default function DashboardClient({
                                     onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'matrix' }))}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                       currentTab === 'matrix'
-                                        ? 'bg-white text-slate-900 shadow-2xs border border-black/10 font-extrabold'
+                                        ? 'bg-white text-slate-900 shadow-2xs border border-black/15 font-extrabold'
                                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                     }`}
                                   >
-                                    <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
+                                    <Layers className="w-3.5 h-3.5 text-[#0B1220]" />
                                     <span>Matrix ({lotVariants.length})</span>
                                   </button>
                                   <button
@@ -2915,7 +2915,7 @@ export default function DashboardClient({
                                     onClick={() => setArticleCardTabs(prev => ({ ...prev, [al.id]: 'workers' }))}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                                       currentTab === 'workers'
-                                        ? 'bg-[#3A3564] text-white shadow-2xs font-extrabold'
+                                        ? 'bg-[#0B1220] text-white shadow-2xs font-extrabold'
                                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                     }`}
                                   >
@@ -2959,7 +2959,7 @@ export default function DashboardClient({
                         </div>
 
                         {qcDefects.map((q, idx) => (
-                          <div key={q.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all">
+                          <div key={q.id || idx} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all">
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <span className="font-bold text-sm text-slate-900">
@@ -3014,7 +3014,7 @@ export default function DashboardClient({
                   </div>
 
                   {filteredData.store.filter(s => s.type === 'INWARD').map((s, idx) => (
-                    <div key={s.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
+                    <div key={s.id || idx} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-sm text-slate-900">
@@ -3037,8 +3037,8 @@ export default function DashboardClient({
                   ))}
 
                   {filteredData.store.filter(s => s.type === 'INWARD').length === 0 && (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
                         <PackageCheck className="w-6 h-6" />
                       </div>
                       <div>
@@ -3050,7 +3050,7 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/inventory"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
                         >
                           Open Godown & Inventory <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
@@ -3081,7 +3081,7 @@ export default function DashboardClient({
                   </div>
 
                   {filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').map((s, idx) => (
-                    <div key={s.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
+                    <div key={s.id || idx} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
                       <div>
                         <p className="text-xs font-bold text-slate-900">
                           {s.article?.art_no || 'Defective Consignment'} {s.color && `• ${s.color}`}
@@ -3097,7 +3097,7 @@ export default function DashboardClient({
                   ))}
 
                   {filteredData.store.filter(s => s.type === 'RTO' || s.type === 'REJECT').length === 0 && (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
                       <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 mx-auto flex items-center justify-center shadow-2xs">
                         <CheckCircle2 className="w-6 h-6" />
                       </div>
@@ -3117,7 +3117,7 @@ export default function DashboardClient({
                 <div className="space-y-3">
                   <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between shadow-2xs">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center shrink-0 text-[#3A3564] shadow-2xs">
+                      <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center shrink-0 text-[#0B1220] shadow-2xs">
                         <Truck className="w-4 h-4" />
                       </div>
                       <div>
@@ -3127,19 +3127,19 @@ export default function DashboardClient({
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-bold text-[#3A3564] bg-[#FAF7F0] px-3 py-1 rounded-full shadow-2xs border border-black/10">
+                    <span className="text-xs font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-3 py-1 rounded-full shadow-2xs border border-black/15">
                       {metrics.readyDelivery.toLocaleString()} pcs Dispatched
                     </span>
                   </div>
 
                   {filteredData.dispatch.map((d, idx) => (
-                    <div key={d.id || idx} className="p-4 rounded-xl border border-black/10 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
+                    <div key={d.id || idx} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-sm text-slate-900">
                             Challan #{d.challan_no}
                           </span>
-                          <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                          <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                             {d.buyer_name || 'Buyer'}
                           </span>
                         </div>
@@ -3147,15 +3147,15 @@ export default function DashboardClient({
                           Dispatched: {d.created_at?.split('T')[0]} • Status: <strong className="text-slate-800">{d.status || 'Delivered'}</strong>
                         </p>
                       </div>
-                      <span className="text-base font-extrabold text-[#3A3564] shrink-0 font-[family-name:var(--font-heading)]">
+                      <span className="text-base font-extrabold text-[#0B1220] shrink-0 font-[family-name:var(--font-heading)]">
                         {d.total_pieces?.toLocaleString()} pcs
                       </span>
                     </div>
                   ))}
 
                   {filteredData.dispatch.length === 0 && (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/10 shadow-2xs space-y-3">
-                      <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
+                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
                         <Truck className="w-6 h-6" />
                       </div>
                       <div>
@@ -3167,7 +3167,7 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/dispatch"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
                         >
                           Go to Dispatch Bay <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
@@ -3190,7 +3190,7 @@ export default function DashboardClient({
                   setActiveDrilldownStage(null)
                   setDrawerSearchQuery('')
                 }}
-                className="px-4 py-2 text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
+                className="px-4 py-2 text-xs font-bold bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
               >
                 Close Drawer
               </button>
@@ -3217,18 +3217,18 @@ export default function DashboardClient({
           />
 
           {/* Centered Floating Modal Container */}
-          <div className="relative z-10 bg-white w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col justify-between border border-black/10 animate-in zoom-in-95 fade-in duration-200 overflow-hidden">
+          <div className="relative z-10 bg-white w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col justify-between border border-black/15 animate-in zoom-in-95 fade-in duration-200 overflow-hidden">
 
             {/* Header */}
             <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/90 shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
                     <Clock className="w-5 h-5 stroke-[2.5]" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                         Live Feed
                       </span>
                       <h3 className="text-base sm:text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] truncate">
@@ -3263,7 +3263,7 @@ export default function DashboardClient({
                   placeholder="Search activities by article, lineman, challan, or notes..."
                   value={activitySearchQuery}
                   onChange={e => setActivitySearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-9 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+                  className="w-full pl-9 pr-9 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all"
                 />
                 {activitySearchQuery && (
                   <button
@@ -3291,7 +3291,7 @@ export default function DashboardClient({
                     onClick={() => setActivityFilter(chip.key as any)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                       activityFilter === chip.key
-                        ? 'bg-[#3A3564] text-white shadow-xs'
+                        ? 'bg-[#0B1220] text-white shadow-xs'
                         : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                     }`}
                   >
@@ -3318,7 +3318,7 @@ export default function DashboardClient({
                 return (
                   <div 
                     key={act.id} 
-                    className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-[#3A3564]/30 hover:shadow-xs transition-all flex items-start gap-3.5"
+                    className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-[#0B1220]/30 hover:shadow-xs transition-all flex items-start gap-3.5"
                   >
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
                       isQC ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
@@ -3357,8 +3357,8 @@ export default function DashboardClient({
                       {/* Structured Badges Row */}
                       <div className="mt-3 flex items-center gap-2 flex-wrap text-xs">
                         {act.lineman && act.lineman !== 'Unassigned Floor' && (
-                          <span className="inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 font-mono text-[11px]">
-                            <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-[#0B1220] border border-indigo-200 font-mono text-[11px]">
+                            <UserCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                             <span>Lineman: {act.lineman}</span>
                           </span>
                         )}
@@ -3403,7 +3403,7 @@ export default function DashboardClient({
                     <button
                       type="button"
                       onClick={() => setActivitySearchQuery('')}
-                      className="mt-3 text-xs font-bold text-[#3A3564] hover:underline cursor-pointer"
+                      className="mt-3 text-xs font-bold text-[#0B1220] hover:underline cursor-pointer"
                     >
                       Clear Search Query
                     </button>
@@ -3424,7 +3424,7 @@ export default function DashboardClient({
                   setActivitySearchQuery('')
                   setActivityFilter('ALL')
                 }}
-                className="px-4 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
+                className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Close Feed
               </button>
