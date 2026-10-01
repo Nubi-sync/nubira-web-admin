@@ -35,7 +35,7 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; is
   PH_APPROVED: { label: 'Approved by Supervisor', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-bold', isRed: true },
   SA_APPROVED: { label: 'Approved / Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
-  SA_SAVED_FOR_LATER: { label: 'Seasonal Archive', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  SA_SAVED_FOR_LATER: { label: 'Seasonal Archive', badgeClass: 'bg-slate-50 text-[#0B1220] border-slate-200 font-semibold' },
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true }
 }
 
@@ -62,7 +62,7 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   if (norm.includes('orange') || norm.includes('coral') || norm.includes('rust')) return { bg: '#DD6B20', border: '#DD6B20', isLight: false }
   if (norm.includes('brown') || norm.includes('tan') || norm.includes('chocolate')) return { bg: '#7B341E', border: '#7B341E', isLight: false }
   if (norm.includes('purple') || norm.includes('violet') || norm.includes('lavender')) return { bg: '#6B46C1', border: '#6B46C1', isLight: false }
-  return { bg: '#3A3564', border: '#3A3564', isLight: false }
+  return { bg: '#0B1220', border: '#0B1220', isLight: false }
 }
 
 export function DesignerHistoryClient({
@@ -112,17 +112,17 @@ export function DesignerHistoryClient({
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <Clock className="w-5 h-5 text-[#3A3564]" />
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Clock className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Submission History &amp; Review Archive
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 {designerName || 'Designer'}
               </span>
             </div>
@@ -135,12 +135,12 @@ export function DesignerHistoryClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/design/designer"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Palette className="w-3.5 h-3.5" />
             <span>Active Assignments</span>
           </Link>
-          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+          <span className="px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-[#0B1220] shadow-2xs">
             {designerPhone ? `+91 ${designerPhone}` : designerEmail}
           </span>
         </div>
@@ -148,13 +148,13 @@ export function DesignerHistoryClient({
 
       {/* 3. Metric KPI Cards (Unified 4-Box Grid) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               ARCHIVE
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Layers className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -167,13 +167,13 @@ export function DesignerHistoryClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               APPROVED
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -186,13 +186,13 @@ export function DesignerHistoryClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               STAGE 02
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -205,13 +205,13 @@ export function DesignerHistoryClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               FEEDBACK
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <AlertCircle className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <AlertCircle className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -226,7 +226,7 @@ export function DesignerHistoryClient({
       </div>
 
       {/* 4. Filter & Search Controls */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -235,7 +235,7 @@ export function DesignerHistoryClient({
               placeholder="Search by garment, style, brief #..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
             />
           </div>
 
@@ -252,8 +252,8 @@ export function DesignerHistoryClient({
                 onClick={() => setFilterStatus(tab.key)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                   filterStatus === tab.key
-                    ? 'bg-[#3A3564] text-white shadow-xs'
-                    : 'bg-[#FAF7F0] text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 {tab.label}
@@ -265,7 +265,7 @@ export function DesignerHistoryClient({
 
       {/* 5. Submissions Ledger Table / Cards */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-8">
           <EmptyState
             icon={Clock}
             title="No submissions match your filter"
@@ -275,11 +275,11 @@ export function DesignerHistoryClient({
           />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">Garment &amp; Category</th>
                   <th className="py-3 px-4">Scope &amp; Palette</th>
                   <th className="py-3 px-4">Submission Status &amp; Verdict</th>
@@ -322,7 +322,7 @@ export function DesignerHistoryClient({
                               return (
                                 <span
                                   key={cIdx}
-                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FAF7F0] border border-black/10 text-[10px] font-mono text-slate-700"
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-[10px] font-mono text-slate-700"
                                 >
                                   <span className="w-2 h-2 rounded-full border border-black/20" style={{ backgroundColor: sw.bg }} />
                                   <span>{col}</span>
@@ -378,7 +378,7 @@ export function DesignerHistoryClient({
                                 setSelectedBrief(brief)
                                 setActiveModalConceptTab(1)
                               }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#0B1220] border border-slate-200 text-xs font-bold transition-all shadow-2xs cursor-pointer"
                             >
                               <Eye className="w-3.5 h-3.5" />
                               <span>View Deck</span>
@@ -398,11 +398,11 @@ export function DesignerHistoryClient({
       {/* 6. View Submitted Deck Modal */}
       {selectedBrief && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white w-full max-w-3xl rounded-2xl border border-black/15 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white w-full max-w-3xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F0]/80">
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                   <Palette className="w-5 h-5" />
                 </div>
                 <div>
@@ -453,8 +453,8 @@ export function DesignerHistoryClient({
                         onClick={() => setActiveModalConceptTab(concept.concept_number)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                           activeModalConceptTab === concept.concept_number
-                            ? 'bg-[#3A3564] text-white shadow-xs'
-                            : 'bg-[#FAF7F0] text-slate-700 hover:bg-slate-100 border border-black/10'
+                            ? 'bg-[#0B1220] text-white shadow-xs'
+                            : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
                         }`}
                       >
                         <Layers className="w-3.5 h-3.5" />
@@ -489,7 +489,7 @@ export function DesignerHistoryClient({
                         </div>
 
                         {currentConcept.notes && (
-                          <p className="text-slate-600 bg-[#FAF7F0] p-3 rounded-xl border border-black/10 italic">
+                          <p className="text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 italic">
                             &ldquo;{currentConcept.notes}&rdquo;
                           </p>
                         )}
@@ -499,14 +499,14 @@ export function DesignerHistoryClient({
                             const sw = getColorSwatchInfo(cw.color_name)
                             const variantArtNo = getVariantArtNumber(artNo || '', idx, (currentConcept.colorways || []).length)
                             return (
-                              <div key={idx} className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 space-y-2">
+                              <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
                                 <div className="flex items-center justify-between gap-1">
                                   <span className="font-bold text-slate-900 flex items-center gap-1.5 font-mono text-xs">
                                     <span className="w-2.5 h-2.5 rounded-full border border-black/20" style={{ backgroundColor: sw.bg }} />
                                     {cw.color_name}
                                   </span>
                                   {variantArtNo && (
-                                    <span className="text-[10px] font-mono font-bold text-slate-900 bg-white px-1.5 py-0.2 rounded border border-black/10">
+                                    <span className="text-[10px] font-mono font-bold text-slate-900 bg-white px-1.5 py-0.2 rounded border border-slate-200">
                                       {variantArtNo}
                                     </span>
                                   )}
@@ -518,12 +518,12 @@ export function DesignerHistoryClient({
                                     {cw.photo_front ? (
                                       <div
                                         onClick={() => setPreviewPhoto(cw.photo_front)}
-                                        className="aspect-square bg-white rounded-lg border border-black/10 p-1 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                                        className="aspect-square bg-white rounded-lg border border-slate-200 p-1 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
                                       >
                                         <img src={cw.photo_front} alt="Front" className="h-full w-full object-contain" />
                                       </div>
                                     ) : (
-                                      <div className="aspect-square bg-white/60 rounded-lg border border-dashed border-black/10 flex items-center justify-center text-[10px] text-slate-400 font-mono">
+                                      <div className="aspect-square bg-white/60 rounded-lg border border-dashed border-slate-200 flex items-center justify-center text-[10px] text-slate-400 font-mono">
                                         No Front
                                       </div>
                                     )}
@@ -534,12 +534,12 @@ export function DesignerHistoryClient({
                                     {cw.photo_back ? (
                                       <div
                                         onClick={() => setPreviewPhoto(cw.photo_back || null)}
-                                        className="aspect-square bg-white rounded-lg border border-black/10 p-1 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                                        className="aspect-square bg-white rounded-lg border border-slate-200 p-1 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
                                       >
                                         <img src={cw.photo_back} alt="Back" className="h-full w-full object-contain" />
                                       </div>
                                     ) : (
-                                      <div className="aspect-square bg-white/60 rounded-lg border border-dashed border-black/10 flex items-center justify-center text-[10px] text-slate-400 font-mono">
+                                      <div className="aspect-square bg-white/60 rounded-lg border border-dashed border-slate-200 flex items-center justify-center text-[10px] text-slate-400 font-mono">
                                         No Back
                                       </div>
                                     )}
@@ -554,14 +554,14 @@ export function DesignerHistoryClient({
                   })()}
                 </div>
               ) : (
-                <div className="p-6 text-center text-slate-500 bg-[#FAF7F0] rounded-xl border border-black/10 font-mono">
+                <div className="p-6 text-center text-slate-500 bg-slate-50 rounded-xl border border-slate-200 font-mono">
                   No concept mockups attached for this brief.
                 </div>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-[#FAF7F0]/40">
+            <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/40">
               <span className="text-xs font-mono text-slate-500">
                 Zigza MES Design Studio Archive
               </span>
@@ -583,7 +583,7 @@ export function DesignerHistoryClient({
           onClick={() => setPreviewPhoto(null)}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs cursor-pointer"
         >
-          <div className="relative max-w-4xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-black/10">
+          <div className="relative max-w-4xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-slate-200">
             <img
               src={previewPhoto}
               alt="Full View"

@@ -80,7 +80,7 @@ const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string; is
   PH_APPROVED: { label: 'Approved by Supervisor', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
   PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-bold', isRed: true },
   SA_APPROVED: { label: 'Approved / Greenlit', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true },
-  SA_SAVED_FOR_LATER: { label: 'Seasonal Archive', badgeClass: 'bg-[#FAF7F0] text-[#3A3564] border-black/10 font-semibold' },
+  SA_SAVED_FOR_LATER: { label: 'Seasonal Archive', badgeClass: 'bg-slate-50 text-[#0B1220] border-slate-200 font-semibold' },
   TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold', isGreen: true }
 }
 
@@ -100,7 +100,7 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   if (norm.includes('orange') || norm.includes('coral') || norm.includes('rust')) return { bg: '#DD6B20', border: '#DD6B20', isLight: false }
   if (norm.includes('brown') || norm.includes('tan') || norm.includes('chocolate')) return { bg: '#7B341E', border: '#7B341E', isLight: false }
   if (norm.includes('purple') || norm.includes('violet') || norm.includes('lavender')) return { bg: '#6B46C1', border: '#6B46C1', isLight: false }
-  return { bg: '#3A3564', border: '#3A3564', isLight: false }
+  return { bg: '#0B1220', border: '#0B1220', isLight: false }
 }
 
 interface MockupDropzoneProps {
@@ -191,7 +191,7 @@ function ColorwayMockupDropzone({
 
       {photoUrl ? (
         <div className="space-y-2">
-          <div className="relative aspect-square sm:aspect-[4/3] w-full rounded-2xl border border-black/10 bg-[#FAF7F0] overflow-hidden group shadow-2xs">
+          <div className="relative aspect-square sm:aspect-[4/3] w-full rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden group shadow-2xs">
             <img
               src={photoUrl}
               alt={`${colorwayName} ${slotType}`}
@@ -208,7 +208,7 @@ function ColorwayMockupDropzone({
                 <span>Zoom</span>
               </button>
               {!disabled && (
-                <label className="px-3 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all">
+                <label className="px-3 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all">
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Replace</span>
                   <input
@@ -244,20 +244,20 @@ function ColorwayMockupDropzone({
           onDrop={handleDrop}
           className={`aspect-square sm:aspect-[4/3] w-full rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none ${
             disabled
-              ? 'border-black/10 bg-slate-50 text-slate-400 cursor-not-allowed'
+              ? 'border-slate-200 bg-slate-50 text-slate-400 cursor-not-allowed'
               : isDragging
-              ? 'border-[#3A3564] bg-[#FAF7F0] text-[#3A3564] scale-[1.01]'
-              : 'border-black/15 bg-[#FAF7F0]/40 hover:bg-[#FAF7F0] hover:border-[#3A3564] text-slate-600 shadow-2xs'
+              ? 'border-[#0B1220] bg-slate-50 text-[#0B1220] scale-[1.01]'
+              : 'border-slate-200 bg-slate-50/40 hover:bg-slate-50 hover:border-[#0B1220] text-slate-600 shadow-2xs'
           }`}
         >
           {isUploading ? (
-            <div className="flex flex-col items-center gap-1.5 text-[#3A3564]">
+            <div className="flex flex-col items-center gap-1.5 text-[#0B1220]">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-xs font-bold font-mono">Attaching Mockup...</span>
             </div>
           ) : (
             <>
-              <div className="w-10 h-10 rounded-xl bg-white border border-black/10 shadow-2xs flex items-center justify-center mb-2 text-[#3A3564]">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center mb-2 text-[#0B1220]">
                 <UploadCloud className="w-5 h-5" />
               </div>
               <span className="text-xs font-bold text-slate-800 block">
@@ -648,7 +648,7 @@ export function DesignerDashboardClient({
             <button
               type="button"
               onClick={() => setSelectedBriefId(null)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Assignments</span>
@@ -667,9 +667,9 @@ export function DesignerDashboardClient({
         </div>
 
         {/* Layer 2: Top Command Header */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
               <Palette className="w-6 h-6" />
             </div>
             <div>
@@ -677,25 +677,25 @@ export function DesignerDashboardClient({
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                   {activeBrief.garment_type} Studio Deck
                 </h1>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
                   {activeBrief.category} Style
                 </span>
               </div>
               <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
-                Target Scope: <span className="font-mono font-bold text-[#3A3564]">{targetDesignsCount} Designs</span> &times; <span className="font-mono font-bold text-[#3A3564]">{targetColorsList.length} Colors</span> = <span className="font-mono font-bold text-slate-900">{totalSlots} Mockup Slots</span>
+                Target Scope: <span className="font-mono font-bold text-[#0B1220]">{targetDesignsCount} Designs</span> &times; <span className="font-mono font-bold text-[#0B1220]">{targetColorsList.length} Colors</span> = <span className="font-mono font-bold text-slate-900">{totalSlots} Mockup Slots</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="px-3.5 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono text-xs font-bold text-slate-800 shadow-2xs">
+            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs font-bold text-slate-800 shadow-2xs">
               Attached: <span className="text-emerald-700 font-extrabold">{readySlotsCount}</span> / {totalSlots}
             </div>
           </div>
         </div>
 
         {/* Layer 3: Palette & Guidelines Card */}
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-3.5">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="font-bold text-slate-700 font-mono uppercase tracking-wider text-[11px]">
               Assigned Color Palette ({targetColorsList.length} Swatches):
@@ -706,7 +706,7 @@ export function DesignerDashboardClient({
                 return (
                   <span 
                     key={idx} 
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono text-xs font-semibold text-slate-900 shadow-2xs"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs font-semibold text-slate-900 shadow-2xs"
                   >
                     <span 
                       className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0" 
@@ -720,7 +720,7 @@ export function DesignerDashboardClient({
           </div>
 
           {activeBrief.instructions && (
-            <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 text-xs text-slate-700 space-y-1">
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
               <span className="font-mono font-bold uppercase text-[10px] text-slate-500 block">Supervisor Instructions:</span>
               <p className="italic font-medium">&ldquo;{activeBrief.instructions}&rdquo;</p>
             </div>
@@ -740,10 +740,10 @@ export function DesignerDashboardClient({
         </div>
 
         {/* Multi-Concept Tabs & Workspace */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between border-b border-black/5 pb-3">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 className="font-bold text-slate-900 text-sm flex items-center gap-2 font-[family-name:var(--font-heading)]">
-              <Layers className="w-4 h-4 text-[#3A3564]" />
+              <Layers className="w-4 h-4 text-[#0B1220]" />
               <span>Design Concepts Deck ({targetDesignsCount} Required)</span>
             </h2>
             <span className="text-xs text-slate-500 font-mono font-bold">
@@ -773,10 +773,10 @@ export function DesignerDashboardClient({
                   }}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-2xs border ${
                     isTabActive
-                      ? 'bg-[#3A3564] text-white border-[#3A3564]'
+                      ? 'bg-[#0B1220] text-white border-[#0B1220]'
                       : isFullyDone
                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                      : 'bg-[#FAF7F0] text-slate-800 border-black/15 hover:bg-slate-100'
+                      : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   {isFullyDone ? (
@@ -788,7 +788,7 @@ export function DesignerDashboardClient({
                   )}
                   {artNo ? (
                     <span className={`px-2 py-0.5 rounded-md font-mono font-extrabold tracking-wider ${
-                      isTabActive ? 'bg-white/20 text-white' : 'bg-[#3A3564] text-white'
+                      isTabActive ? 'bg-white/20 text-white' : 'bg-[#0B1220] text-white'
                     }`}>
                       ART NO: {artNo}
                     </span>
@@ -813,7 +813,7 @@ export function DesignerDashboardClient({
           </div>
 
           {/* Concept Canvas */}
-          <div className="bg-[#FAF7F0] p-4 sm:p-5 rounded-2xl border border-black/10 space-y-4">
+          <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
             {(() => {
               const currentInstructed = activeBrief.design_concepts_brief?.find(c => c.concept_number === activeConceptTab)
               const activeConceptColors = (currentInstructed?.colors && currentInstructed.colors.length > 0)
@@ -828,7 +828,7 @@ export function DesignerDashboardClient({
                         Design Concept #{activeConceptTab} Title / Theme
                       </label>
                       {currentInstructed?.art_number && (
-                        <span className="px-2.5 py-0.5 rounded-lg bg-[#3A3564] text-white text-xs font-mono font-bold tracking-wider shadow-2xs">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-[#0B1220] text-white text-xs font-mono font-bold tracking-wider shadow-2xs">
                           ART NO: {currentInstructed.art_number}
                         </span>
                       )}
@@ -839,7 +839,7 @@ export function DesignerDashboardClient({
                       placeholder={`e.g. Front Chest Arch Logo Variant #${activeConceptTab}`}
                       value={currentConcept.title}
                       onChange={e => handleUpdateConceptField(activeConceptTab, 'title', e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -863,10 +863,10 @@ export function DesignerDashboardClient({
                             onClick={() => setActiveColorwayTab(colName)}
                             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border shadow-2xs ${
                               isColorSelected
-                                ? 'bg-white text-[#3A3564] border-[#3A3564] ring-2 ring-[#3A3564]/15'
+                                ? 'bg-white text-[#0B1220] border-[#0B1220] ring-2 ring-[#0B1220]/15'
                                 : hasPhoto
                                 ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                                : 'bg-white text-slate-700 border-black/10 hover:bg-slate-50'
+                                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                             }`}
                           >
                             <span 
@@ -888,10 +888,10 @@ export function DesignerDashboardClient({
               )
             })()}
 
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 space-y-3">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-900 flex items-center gap-1.5 font-mono">
-                  <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                  <ImageIcon className="w-4 h-4 text-[#0B1220]" />
                   Mockups for [{activeColorwayTab} Base {activeBrief.garment_type}]
                 </span>
                 {currentColorwayData.photo_front && (
@@ -935,22 +935,22 @@ export function DesignerDashboardClient({
                 placeholder="e.g. 380 GSM French Terry, Plastisol high-density chest print, relaxed drop-shoulder..."
                 value={currentConcept.notes}
                 onChange={e => handleUpdateConceptField(activeConceptTab, 'notes', e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
               />
             </div>
           </div>
 
           {/* Action Toolbar */}
           {isEditable ? (
-            <div className="pt-3 border-t border-black/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   disabled={isSubmitting || readySlotsCount === 0}
                   onClick={() => handleSaveDraft()}
-                  className="px-4 py-2.5 rounded-xl border border-black/15 bg-white text-slate-800 hover:bg-slate-50 text-xs font-bold font-mono transition-all shadow-2xs cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 text-xs font-bold font-mono transition-all shadow-2xs cursor-pointer disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
                 >
-                  {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-[#3A3564]" />}
+                  {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5 text-[#0B1220]" />}
                   <span>Save Progress Draft</span>
                 </button>
 
@@ -966,7 +966,7 @@ export function DesignerDashboardClient({
                     type="button"
                     disabled={isSubmitting}
                     onClick={() => handleSaveDraft(activeConceptTab + 1)}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] border border-black/15 text-xs font-bold font-mono transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-[slate-100] text-[#0B1220] border border-slate-200 text-xs font-bold font-mono transition-all shadow-2xs cursor-pointer disabled:opacity-50"
                   >
                     <span>Save &amp; Go to Design #{activeConceptTab + 1}</span>
                     <ChevronRight className="w-4 h-4" />
@@ -987,7 +987,7 @@ export function DesignerDashboardClient({
                   className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 ${
                     readySlotsCount >= totalSlots
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      : 'bg-[#3A3564] hover:bg-[#2A2649] text-white'
+                      : 'bg-[#0B1220] hover:bg-[#162032] text-white'
                   }`}
                 >
                   {isSubmitting ? (
@@ -1032,7 +1032,7 @@ export function DesignerDashboardClient({
             onClick={() => setPreviewPhoto(null)}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs cursor-pointer"
           >
-            <div className="relative max-w-4xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-black/10">
+            <div className="relative max-w-4xl max-h-[85vh] p-2 bg-white rounded-2xl shadow-2xl border border-slate-200">
               <img 
                 src={previewPhoto} 
                 alt="Full View" 
@@ -1057,17 +1057,17 @@ export function DesignerDashboardClient({
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Layer 1: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0 shadow-2xs">
-            <Palette className="w-5 h-5 text-[#3A3564]" />
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Palette className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Welcome, {designerName || 'Designer'}
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 {activeAssignments.length} Active Tasks
               </span>
             </div>
@@ -1080,12 +1080,12 @@ export function DesignerDashboardClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/design/history"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-slate-800 hover:text-[#3A3564] hover:bg-[#F2ECE1] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-800 hover:text-[#0B1220] hover:bg-[slate-100] transition-all shadow-2xs cursor-pointer"
           >
-            <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Clock className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>Submission History &rarr;</span>
           </Link>
-          <span className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold text-[#3A3564] shadow-2xs">
+          <span className="px-3.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-[#0B1220] shadow-2xs">
             {designerPhone ? `+91 ${designerPhone}` : designerEmail}
           </span>
         </div>
@@ -1093,13 +1093,13 @@ export function DesignerDashboardClient({
 
       {/* Layer 3: Executive Metrics Strip (Unified 4-Box Grid) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               TASKS
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <ClipboardList className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <ClipboardList className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -1112,13 +1112,13 @@ export function DesignerDashboardClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               TARGET
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Layers className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -1131,13 +1131,13 @@ export function DesignerDashboardClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               STAGE 02
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -1150,13 +1150,13 @@ export function DesignerDashboardClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0] px-2 py-0.5 rounded border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
               CLEARED
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -1174,7 +1174,7 @@ export function DesignerDashboardClient({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 font-[family-name:var(--font-heading)]">
-            <Palette className="w-4 h-4 text-[#3A3564]" />
+            <Palette className="w-4 h-4 text-[#0B1220]" />
             <span>Assigned Briefs Queue ({activeAssignments.length})</span>
           </h2>
           <span className="text-xs font-mono text-slate-500 font-semibold">
@@ -1183,7 +1183,7 @@ export function DesignerDashboardClient({
         </div>
 
         {activeAssignments.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-8">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-8">
             <EmptyState
               icon={CheckCircle2}
               title="All caught up! No pending assignments"
@@ -1209,18 +1209,18 @@ export function DesignerDashboardClient({
                   className={`bg-white p-5 rounded-2xl border transition-all cursor-pointer group flex flex-col justify-between gap-4 shadow-2xs hover:shadow-md ${
                     isRejected 
                       ? 'border-rose-200 hover:border-rose-400 ring-2 ring-rose-500/10' 
-                      : 'border-black/10 hover:border-[#3A3564]'
+                      : 'border-slate-200 hover:border-[#0B1220]'
                   }`}
                 >
                   <div className="space-y-3">
                     {/* Top Art Number Badges */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap border-b border-black/5 pb-2.5">
+                    <div className="flex items-center justify-between gap-2 flex-wrap border-b border-slate-100 pb-2.5">
                       <div className="flex flex-wrap items-center gap-1.5">
                         {artNumbers.length > 0 ? (
                           artNumbers.map((art, aIdx) => (
                             <span
                               key={aIdx}
-                              className="px-2.5 py-0.5 rounded-md bg-[#3A3564] text-white text-xs font-mono font-extrabold tracking-wider shadow-2xs"
+                              className="px-2.5 py-0.5 rounded-md bg-[#0B1220] text-white text-xs font-mono font-extrabold tracking-wider shadow-2xs"
                             >
                               ART NO: {art}
                             </span>
@@ -1238,7 +1238,7 @@ export function DesignerDashboardClient({
                     </div>
 
                     <div>
-                      <h3 className="font-bold text-slate-900 text-lg font-[family-name:var(--font-heading)] group-hover:text-[#3A3564] transition-colors leading-tight">
+                      <h3 className="font-bold text-slate-900 text-lg font-[family-name:var(--font-heading)] group-hover:text-[#0B1220] transition-colors leading-tight">
                         {brief.garment_type}
                       </h3>
                       <p className="text-xs text-slate-600 font-medium mt-0.5">
@@ -1247,10 +1247,10 @@ export function DesignerDashboardClient({
                     </div>
 
                     {/* Scope Spec */}
-                    <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                       <div className="flex items-center justify-between text-xs font-mono">
                         <span className="text-slate-500">Design Scope:</span>
-                        <span className="font-bold text-[#3A3564]">{brief.target_designs || 1} Concepts &times; {brief.max_colors} Colors</span>
+                        <span className="font-bold text-[#0B1220]">{brief.target_designs || 1} Concepts &times; {brief.max_colors} Colors</span>
                       </div>
 
                       {/* Swatch palette preview */}
@@ -1260,7 +1260,7 @@ export function DesignerDashboardClient({
                           return (
                             <span 
                               key={idx}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-black/10 text-[10px] font-mono font-semibold text-slate-800"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-mono font-semibold text-slate-800"
                             >
                               <span className="w-2 h-2 rounded-full border border-black/20" style={{ backgroundColor: sw.bg }} />
                               <span>{col}</span>
@@ -1283,7 +1283,7 @@ export function DesignerDashboardClient({
                     ) : null}
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#3A3564]">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0B1220]">
                     <span className="font-mono text-[11px] text-slate-400 font-normal">
                       {brief.company_name || companyName}
                     </span>
