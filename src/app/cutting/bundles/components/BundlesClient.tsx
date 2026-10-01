@@ -150,9 +150,9 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -160,7 +160,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Cut Panel Bundle QR Generation
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 Serial Barcode Tracking
               </span>
             </div>
@@ -174,7 +174,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/cutting"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -188,9 +188,9 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 setBundles(updated)
                 localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(updated))
               }}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-slate-900 hover:bg-slate-100 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 hover:bg-slate-100 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
               <span>Dispatch All</span>
             </button>
           )}
@@ -198,7 +198,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
           <button
             type="button"
             onClick={() => setIsGenerateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Generate QR</span>
@@ -206,35 +206,35 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
 
           <Link
             href="/printing"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-800 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-800 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <span>Printing</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[#3A3564]" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#0B1220]" />
           </Link>
         </div>
       </div>
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Total Active Bundles</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{totalBundles} tags</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">100% serialized with QR</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Banded / In Transit</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{inTransitCount} bundles</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">En route to factory units</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Handover Confirmed</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{confirmedCount} bundles</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Received by target lines</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Dispatched Cut Pieces</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{totalDispatchedPieces.toLocaleString()} pcs</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Confirmed received</p>
@@ -242,7 +242,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
       </div>
 
       {/* 4. Filter & Search */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
           <div className="relative w-full lg:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -251,7 +251,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
               placeholder="Search bundle #, PO, style, QR..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
             />
           </div>
 
@@ -270,8 +270,8 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                     onClick={() => setDestFilter(dst)}
                     className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                       destFilter === dst
-                        ? 'bg-[#3A3564] text-white'
-                        : 'bg-[#FAF7F0] text-slate-600 hover:bg-slate-100'
+                        ? 'bg-[#0B1220] text-white'
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     {label}
@@ -291,7 +291,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                   className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                     statusFilter === st
                       ? 'bg-slate-900 text-white'
-                      : 'bg-[#FAF7F0] text-slate-600 hover:bg-slate-100'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   {st === 'HANDOVER_CONFIRMED' ? 'CONFIRMED' : st.replace(/_/g, ' ')}
@@ -303,7 +303,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
       </div>
 
       {/* 5. Bundles Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {filteredBundles.length === 0 ? (
           <div className="p-8">
             <EmptyState
@@ -316,7 +316,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[720px]">
-              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+              <thead className="bg-slate-50 text-[#0B1220] font-mono uppercase text-[10px] tracking-wider border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4 font-bold">Bundle Serial</th>
                   <th className="py-3 px-4 font-bold">Style & Color</th>
@@ -329,7 +329,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
               </thead>
               <tbody className="divide-y divide-black/5 font-medium">
                 {filteredBundles.map(bundle => {
-                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  let badge = 'bg-slate-50 text-[#0B1220] border border-slate-200'
                   if (bundle.status === 'GENERATED') badge = 'bg-slate-100 text-slate-700 border border-slate-200'
                   if (bundle.status === 'HANDOVER_CONFIRMED') badge = 'bg-slate-900 text-white border border-slate-900'
 
@@ -360,12 +360,12 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                         <div className="text-[11px] text-slate-600 font-bold">{bundle.pieces_count} pieces</div>
                       </td>
                       <td className="py-3.5 px-4 font-mono text-slate-700">
-                        <span className="px-2 py-0.5 rounded bg-[#FAF7F0] border border-black/10 font-bold">
+                        <span className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 font-bold">
                           Plies {bundle.ply_range_start} - {bundle.ply_range_end}
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-mono text-xs font-bold text-[#3A3564]">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs font-bold text-[#0B1220]">
                           {destIcon}
                           <span>{destName}</span>
                         </div>
@@ -380,14 +380,14 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                           {bundle.status !== 'HANDOVER_CONFIRMED' && (
                             <button
                               onClick={() => handleAdvanceStatus(bundle)}
-                              className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold"
+                              className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-white text-[#0B1220] border border-slate-200 font-mono text-[10px] font-bold"
                             >
                               Advance →
                             </button>
                           )}
                           <button
                             onClick={() => setSelectedBundle(bundle)}
-                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs inline-flex items-center gap-1"
+                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 font-mono text-[11px] text-[#0B1220] font-bold shadow-2xs inline-flex items-center gap-1"
                           >
                             <Printer className="w-3 h-3" />
                             <span>QR Tag</span>
@@ -406,8 +406,8 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
       {/* Batch Generator Modal */}
       {isGenerateModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-xl w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-xl w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <h3 className="font-bold text-base text-slate-900">Batch Generate Serial QR Bundles</h3>
               <button onClick={() => setIsGenerateModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
                 <X className="w-4 h-4" />
@@ -415,9 +415,9 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
             </div>
 
             {/* Step 4.4 Quick Fill Preset */}
-            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
                 Step 4.4 Bundle Preset:
               </span>
               <button
@@ -430,7 +430,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                   setGenTotalPieces(1000)
                   setGenDestination('04_PRINTING')
                 }}
-                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-slate-200 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
               >
                 40 Bundles (1,000 pcs • 04 Printing)
               </button>
@@ -442,7 +442,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 <select
                   value={genLayId}
                   onChange={e => setGenLayId(e.target.value)}
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                  className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                 >
                   {lays.map(l => (
                     <option key={l.id} value={l.id}>
@@ -461,7 +461,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                   <select
                     value={genColor}
                     onChange={e => setGenColor(e.target.value)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-bold text-slate-900"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-bold text-slate-900"
                   >
                     {availableColors.map(col => (
                       <option key={col} value={col}>
@@ -475,7 +475,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                   <select
                     value={genSize}
                     onChange={e => setGenSize(e.target.value)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   >
                     <option value="XS">XS</option>
                     <option value="S">S</option>
@@ -496,7 +496,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                     max="100"
                     value={genPiecesPerBundle}
                     onChange={e => setGenPiecesPerBundle(Number(e.target.value))}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
                 <div>
@@ -507,7 +507,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                     max="1000"
                     value={genTotalPieces}
                     onChange={e => setGenTotalPieces(Number(e.target.value))}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
               </div>
@@ -526,8 +526,8 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                       onClick={() => setGenDestination(item.key)}
                       className={`p-2 rounded-xl border text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
                         genDestination === item.key
-                          ? 'bg-[#3A3564] text-white border-[#3A3564]'
-                          : 'bg-[#FAF7F0] text-slate-700 border-black/10 hover:bg-white'
+                          ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white'
                       }`}
                     >
                       <item.icon className="w-3.5 h-3.5" />
@@ -537,21 +537,21 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono text-slate-700 text-xs">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 font-mono text-slate-700 text-xs">
                 Calculated Bundles: <strong>{Math.ceil(genTotalPieces / genPiecesPerBundle)} bundles</strong> ({genPiecesPerBundle} pcs/bundle)
               </div>
 
-              <div className="pt-3 border-t border-black/10 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsGenerateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-slate-700"
+                  className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold"
                 >
                   Generate {Math.ceil(genTotalPieces / genPiecesPerBundle)} Bundles
                 </button>
@@ -564,8 +564,8 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
       {/* Printable Thermal QR Tag Modal */}
       {selectedBundle && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-sm w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-black/10">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
               <span className="text-[10px] font-mono uppercase text-slate-500 font-bold">Thermal Sticker Tag</span>
               <button onClick={() => setSelectedBundle(null)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
                 <X className="w-4 h-4" />
@@ -576,7 +576,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
             <div className="p-4 rounded-xl border-2 border-dashed border-slate-900 bg-white space-y-3 font-mono">
               <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                 <div>
-                  <span className="text-[10px] font-black tracking-widest text-[#3A3564]">ZIGZA GARMENTS</span>
+                  <span className="text-[10px] font-black tracking-widest text-[#0B1220]">ZIGZA GARMENTS</span>
                   <div className="text-[9px] text-slate-600">CUT PANEL BUNDLE TICKET</div>
                 </div>
                 <div className="text-right">
@@ -627,7 +627,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
             <div className="pt-2 flex justify-end gap-2">
               <button
                 onClick={() => window.print()}
-                className="px-4 py-2 rounded-xl bg-[#3A3564] text-white text-xs font-bold hover:bg-[#2e2a50] flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#2e2a50] flex items-center gap-1.5"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print Tag</span>

@@ -177,9 +177,9 @@ export function CuttingReportsClient() {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <FileBarChart2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -187,7 +187,7 @@ export function CuttingReportsClient() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Cutting Floor Reports &amp; Efficiency
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 Telemetry &amp; Analytics
               </span>
             </div>
@@ -201,7 +201,7 @@ export function CuttingReportsClient() {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/cutting"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -210,18 +210,18 @@ export function CuttingReportsClient() {
           <button
             type="button"
             onClick={handleExportCSV}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F0] text-slate-800 border border-black/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-[#3A3564]" />
+            <Download className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>Export CSV</span>
           </button>
         </div>
       </div>
 
       {/* 3. Controls & Date Filtering */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shrink-0">
             <Calendar className="w-4 h-4" />
           </div>
           <div>
@@ -236,7 +236,7 @@ export function CuttingReportsClient() {
             <select
               value={dateRange}
               onChange={e => setDateRange(e.target.value)}
-              className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             >
               <option value="THIS_WEEK">This Week</option>
               <option value="THIS_MONTH">This Month (Current)</option>
@@ -250,7 +250,7 @@ export function CuttingReportsClient() {
             <select
               value={selectedShift}
               onChange={e => setSelectedShift(e.target.value)}
-              className="px-3 py-1.5 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#3A3564]"
+              className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0B1220]"
             >
               <option value="ALL">All Shifts</option>
               <option value="SHIFT_A">Shift A (Morning)</option>
@@ -263,7 +263,7 @@ export function CuttingReportsClient() {
 
       {/* 4. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Total Cut Panels MTD</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">
             {totalPiecesCut.toLocaleString()} pcs
@@ -273,7 +273,7 @@ export function CuttingReportsClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">Floor Fabric Yield</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{avgYield}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -281,7 +281,7 @@ export function CuttingReportsClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">CNC Cutter Uptime</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{uptimePercent}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">
@@ -289,7 +289,7 @@ export function CuttingReportsClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500">End-Loss Scrap Rate</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{scrapRate}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Target allowance is &lt;2.5%</p>
@@ -299,13 +299,13 @@ export function CuttingReportsClient() {
       {/* 5. Two Column Analytics Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Style Yield vs CAD Benchmarks */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4 min-w-0">
-          <div className="flex items-center justify-between pb-3 border-b border-black/10">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 min-w-0">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
             <div>
               <h3 className="font-bold text-base text-slate-900">Fabric Yield vs CAD Benchmarks</h3>
               <p className="text-xs text-slate-500">Comparing actual cut yield with CAD marker nesting targets</p>
             </div>
-            <TrendingUp className="w-5 h-5 text-[#3A3564]" />
+            <TrendingUp className="w-5 h-5 text-[#0B1220]" />
           </div>
 
           <div className="space-y-3">
@@ -320,7 +320,7 @@ export function CuttingReportsClient() {
               />
             ) : (
               styleYields.map(s => (
-                <div key={s.style} className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 space-y-1.5">
+                <div key={s.style} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-900">{s.style}</span>
                     <span className="font-mono font-black text-slate-900">{s.variance}</span>
@@ -331,7 +331,7 @@ export function CuttingReportsClient() {
                   </div>
                   <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
                     <div
-                      className="h-full bg-[#3A3564] rounded-full"
+                      className="h-full bg-[#0B1220] rounded-full"
                       style={{ width: `${Math.min(100, s.actualYield)}%` }}
                     />
                   </div>
@@ -342,13 +342,13 @@ export function CuttingReportsClient() {
         </div>
 
         {/* Defect Pareto Breakdown */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4 min-w-0">
-          <div className="flex items-center justify-between pb-3 border-b border-black/10">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 min-w-0">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
             <div>
               <h3 className="font-bold text-base text-slate-900">Defect Pareto Breakdown</h3>
               <p className="text-xs text-slate-500">Distribution of cut floor non-conformances & waste vectors</p>
             </div>
-            <Scissors className="w-5 h-5 text-[#3A3564]" />
+            <Scissors className="w-5 h-5 text-[#0B1220]" />
           </div>
 
           <div className="space-y-3">
@@ -368,9 +368,9 @@ export function CuttingReportsClient() {
                     <span className="text-slate-800">{d.category}</span>
                     <span className="font-mono font-bold text-slate-900">{d.count} occurrences ({d.share})</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-slate-50 border border-slate-200 overflow-hidden">
                     <div
-                      className="h-full bg-[#3A3564] rounded-full"
+                      className="h-full bg-[#0B1220] rounded-full"
                       style={{ width: d.share }}
                     />
                   </div>
@@ -379,25 +379,25 @@ export function CuttingReportsClient() {
             )}
           </div>
 
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-slate-700 text-xs">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs">
             <strong className="text-slate-900 font-bold">Tolerance Standard:</strong> Automated CNC spreaders maintain variance within +/- 1.0mm per ASTM standards.
           </div>
         </div>
       </div>
 
       {/* 6. Cutting Table Throughput Logs */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4 min-w-0">
-        <div className="flex items-center justify-between pb-3 border-b border-black/10">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 min-w-0">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div>
             <h3 className="font-bold text-base text-slate-900">Cutting Table Throughput & Machine Capacity</h3>
             <p className="text-xs text-slate-500">Machine capacity, blade operational hours, and output piece volumes</p>
           </div>
-          <Cpu className="w-5 h-5 text-[#3A3564]" />
+          <Cpu className="w-5 h-5 text-[#0B1220]" />
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-xs">
-            <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+            <thead className="bg-slate-50 text-[#0B1220] font-mono uppercase text-[10px] tracking-wider border-b border-slate-200">
               <tr>
                 <th className="py-3 px-4 font-bold">Cutting Unit</th>
                 <th className="py-3 px-4 font-bold">Spreading Model & Vacuum</th>
@@ -434,7 +434,7 @@ export function CuttingReportsClient() {
                       {isTableActive ? '14.5 hrs' : '0.0 hrs'}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 font-mono text-[10px] font-bold">
                         {t.status}
                       </span>
                     </td>

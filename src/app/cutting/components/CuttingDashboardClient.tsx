@@ -510,17 +510,17 @@ export function CuttingDashboardClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
 
       {/* Module Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <Scissors className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -528,7 +528,7 @@ export function CuttingDashboardClient({
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Cutting &amp; Lay Floor
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 {workers.length} Workers Registered
               </span>
             </div>
@@ -542,28 +542,28 @@ export function CuttingDashboardClient({
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Link
             href="/cutting/lay-sheets"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
             <Layers className="w-3.5 h-3.5" />
             <span>Lay Sheets</span>
           </Link>
           <Link
             href="/cutting/markers"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
             <Maximize2 className="w-3.5 h-3.5" />
             <span>CAD Markers</span>
           </Link>
           <Link
             href="/cutting/bundles"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>Bundle QR</span>
           </Link>
           <Link
             href="/cutting/zigza-ai"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Zigza AI</span>
@@ -572,11 +572,11 @@ export function CuttingDashboardClient({
       </div>
 
       {/* Buyer Selection & Worker Controls Bar */}
-      <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-4">
+      <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-4">
         
         {/* Left: Active Buyer Info Pill */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
@@ -586,7 +586,7 @@ export function CuttingDashboardClient({
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-slate-50 text-[#0B1220] border border-slate-200">
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
@@ -596,17 +596,17 @@ export function CuttingDashboardClient({
                 <button
                   type="button"
                   onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
-                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] cursor-pointer transition-all shadow-2xs"
+                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-[#0B1220] cursor-pointer transition-all shadow-2xs"
                   title="Click to view or change downstream manufacturing process route"
                 >
-                  <GitBranch className="w-3 h-3 text-[#3A3564]" />
+                  <GitBranch className="w-3 h-3 text-[#0B1220]" />
                   <span>Route: {activeRouteConfig.shortLabel}</span>
                   <ChevronDown className={`w-3 h-3 transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isRouteMenuOpen && (
-                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
-                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-black/5">
+                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
+                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                       Select Manufacturing Route
                     </div>
                     {ALL_ROUTE_OPTIONS.map(opt => (
@@ -616,8 +616,8 @@ export function CuttingDashboardClient({
                         onClick={() => handleSelectRoute(opt.value)}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
                           activeRoute === opt.value
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                            ? 'bg-[#0B1220] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <div>
@@ -644,17 +644,17 @@ export function CuttingDashboardClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <Users className="w-4 h-4 text-[#0B1220] shrink-0" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isBuyerMenuOpen && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-full sm:w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-full sm:w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -662,7 +662,7 @@ export function CuttingDashboardClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -674,10 +674,10 @@ export function CuttingDashboardClient({
                       setSelectedBuyerId('ALL')
                       setIsBuyerMenuOpen(false)
                     }}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-slate-100 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div>
@@ -704,8 +704,8 @@ export function CuttingDashboardClient({
                         }}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                           activeSelectedBuyerId === b.id
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                            ? 'bg-[#0B1220] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <div className="truncate pr-2">
@@ -727,9 +727,9 @@ export function CuttingDashboardClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-[#0B1220]" />
             <span>Worker List ({workers.length})</span>
           </button>
 
@@ -737,7 +737,7 @@ export function CuttingDashboardClient({
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Worker</span>
@@ -748,7 +748,7 @@ export function CuttingDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync latest live floor updates"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -761,12 +761,12 @@ export function CuttingDashboardClient({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
         
         {/* 1. In Hand */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </div>
@@ -781,12 +781,12 @@ export function CuttingDashboardClient({
         </div>
 
         {/* 2. Pending Cutting */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Pending Cutting
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
               <Clock className="w-5 h-5" />
             </div>
           </div>
@@ -801,12 +801,12 @@ export function CuttingDashboardClient({
         </div>
 
         {/* 3. Completed Cutting */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Completed Cutting
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs">
               <Scissors className="w-5 h-5" />
             </div>
           </div>
@@ -823,13 +823,13 @@ export function CuttingDashboardClient({
       </div>
 
       {/* SPREADSHEET MATRIX: Worker Shift & Piece Allocation Layout */}
-      <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xs overflow-hidden space-y-0">
         
         {/* Spreadsheet Header Bar */}
-        <div className="p-4 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-4">
+        <div className="p-4 sm:p-6 border-b border-slate-200 bg-slate-50/40 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
                 <TableProperties className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -854,12 +854,12 @@ export function CuttingDashboardClient({
                 value={taskSearchQuery}
                 onChange={e => setTaskSearchQuery(e.target.value)}
                 placeholder="Search worker, article, task..."
-                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
 
             {/* Status Tabs */}
-            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-black/10 overflow-x-auto w-full sm:w-auto">
+            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 overflow-x-auto w-full sm:w-auto">
               {[
                 { id: 'ALL', label: 'All' },
                 { id: 'ACTIVE', label: 'Active Queue' },
@@ -872,8 +872,8 @@ export function CuttingDashboardClient({
                   onClick={() => setStatusFilter(st.id as any)}
                   className={`flex-1 sm:flex-initial px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
                     statusFilter === st.id
-                      ? 'bg-[#3A3564] text-white'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F0]'
+                      ? 'bg-[#0B1220] text-white'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
                   {st.label}
@@ -885,7 +885,7 @@ export function CuttingDashboardClient({
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Task Row</span>
@@ -898,7 +898,7 @@ export function CuttingDashboardClient({
         <div className="overflow-x-auto">
           {filteredTasks.length === 0 ? (
             <div className="py-16 px-4 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center mx-auto text-[#3A3564] mb-3 shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto text-[#0B1220] mb-3 shadow-2xs">
                 <TableProperties className="w-7 h-7" />
               </div>
               <h3 className="text-base font-bold text-slate-900">No Matching Cutting Tasks</h3>
@@ -911,7 +911,7 @@ export function CuttingDashboardClient({
                 <button
                   type="button"
                   onClick={() => setIsAddTaskOpen(true)}
-                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
+                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Assign Task Row</span>
@@ -920,7 +920,7 @@ export function CuttingDashboardClient({
             </div>
           ) : (
             <table className="w-full text-left text-xs min-w-[900px]">
-              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[11px] tracking-wider border-b border-black/10">
+              <thead className="bg-slate-50 text-[#0B1220] font-mono uppercase text-[11px] tracking-wider border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4 font-bold"># Task Ref</th>
                   <th className="py-3 px-4 font-bold">Worker &amp; Contact</th>
@@ -942,11 +942,11 @@ export function CuttingDashboardClient({
                   const isAssigned = task.status === 'ASSIGNED'
 
                   return (
-                    <tr key={task.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                    <tr key={task.id} className="hover:bg-slate-50/40 transition-colors">
                       
                       {/* Task Ref */}
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 text-[#3A3564] font-bold text-xs whitespace-nowrap shadow-2xs">
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[#0B1220] font-bold text-xs whitespace-nowrap shadow-2xs">
                           #{task.task_ref}
                         </span>
                       </td>
@@ -954,7 +954,7 @@ export function CuttingDashboardClient({
                       {/* Worker & Contact */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-white border border-black/10 flex items-center justify-center font-bold text-xs text-[#3A3564] shadow-2xs shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-bold text-xs text-[#0B1220] shadow-2xs shrink-0">
                             {task.worker_name.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
@@ -978,7 +978,7 @@ export function CuttingDashboardClient({
 
                       {/* Table / Station */}
                       <td className="py-3.5 px-4 font-mono text-xs whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] border border-black/10 font-bold text-slate-900 shadow-2xs">
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 font-bold text-slate-900 shadow-2xs">
                           {task.table_number || 'Table 01'}
                         </span>
                       </td>
@@ -993,7 +993,7 @@ export function CuttingDashboardClient({
                       {/* Alloted Timeline */}
                       <td className="py-3.5 px-4 font-mono text-center whitespace-nowrap">
                         <div className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-bold">
-                          <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <Clock className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>{task.alloted_hours} Hrs</span>
                         </div>
                       </td>
@@ -1013,25 +1013,25 @@ export function CuttingDashboardClient({
                       {/* Status Badge */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {isAssigned && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-black/10 text-xs font-mono font-bold">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-xs font-mono font-bold">
                             Assigned
                           </span>
                         )}
                         {isInProgress && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#3A3564] border border-indigo-200 text-xs font-mono font-bold">
-                            <Scissors className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-[#0B1220] border border-indigo-200 text-xs font-mono font-bold">
+                            <Scissors className="w-3.5 h-3.5 text-[#0B1220]" />
                             Cutting Live
                           </span>
                         )}
                         {isWorkerCompleted && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold shadow-2xs">
-                            <Clock className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 text-slate-900 border border-slate-200 text-xs font-mono font-bold shadow-2xs">
+                            <Clock className="w-3.5 h-3.5 text-[#0B1220]" />
                             Submitted
                           </span>
                         )}
                         {isVerified && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-900 border border-black/10 text-xs font-mono font-bold">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 text-slate-900 border border-slate-200 text-xs font-mono font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
                             Verified &amp; Moved
                           </span>
                         )}
@@ -1044,7 +1044,7 @@ export function CuttingDashboardClient({
                             <button
                               type="button"
                               onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_cut)}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer whitespace-nowrap"
+                              className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer whitespace-nowrap"
                               title="Verify work and move pieces from Pending to Completed Cutting"
                             >
                               <CheckCircle2 className="w-4 h-4 text-white" />
@@ -1092,14 +1092,14 @@ export function CuttingDashboardClient({
         </div>
 
         {/* Spreadsheet Footer Summary */}
-        <div className="p-4 bg-slate-50/80 border-t border-black/10 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-600 font-mono gap-2">
+        <div className="p-4 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-600 font-mono gap-2">
           <div>
             Showing <strong>{filteredTasks.length}</strong> task allocations across <strong>{workers.length}</strong> registered workers
           </div>
           <div className="flex items-center gap-4">
             <span>In Hand: <strong className="text-slate-900">{inHandPieces.toLocaleString('en-IN')}</strong></span>
             <span>•</span>
-            <span>Pending: <strong className="text-[#3A3564]">{pendingCuttingPieces.toLocaleString('en-IN')}</strong></span>
+            <span>Pending: <strong className="text-[#0B1220]">{pendingCuttingPieces.toLocaleString('en-IN')}</strong></span>
             <span>•</span>
             <span>Completed: <strong className="text-slate-900">{completedCuttingPieces.toLocaleString('en-IN')}</strong></span>
           </div>
@@ -1160,10 +1160,10 @@ export function CuttingDashboardClient({
         }}
       >
         {taskToDelete && (
-          <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10 text-left space-y-2 mt-2 font-mono text-xs">
-            <div className="flex items-center justify-between border-b border-black/5 pb-2">
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 mt-2 font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <span className="text-slate-500">Task Reference:</span>
-              <span className="font-bold text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10">
+              <span className="font-bold text-[#0B1220] bg-white px-2 py-0.5 rounded-md border border-slate-200">
                 #{taskToDelete.taskRef}
               </span>
             </div>
@@ -1177,7 +1177,7 @@ export function CuttingDashboardClient({
                 {taskToDelete.buyerName} • {taskToDelete.articleNumber}
               </span>
             </div>
-            <div className="flex items-center justify-between border-t border-black/5 pt-2">
+            <div className="flex items-center justify-between border-t border-slate-100 pt-2">
               <span className="text-slate-500">Quantity to Cut:</span>
               <span className="font-bold text-rose-600">{taskToDelete.pieces.toLocaleString('en-IN')} Pcs</span>
             </div>

@@ -129,9 +129,9 @@ export function MarkersClient() {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <Maximize2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -139,7 +139,7 @@ export function MarkersClient() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 CAD Marker Efficiency &amp; Nesting Library
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 Fabric Yield Optimization
               </span>
             </div>
@@ -153,7 +153,7 @@ export function MarkersClient() {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/cutting"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -162,7 +162,7 @@ export function MarkersClient() {
           <button
             type="button"
             onClick={() => setIsNewModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ New CAD Marker</span>
@@ -172,25 +172,25 @@ export function MarkersClient() {
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Average CAD Yield</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{avgEfficiency}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Floor target is &gt;86.0%</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Top Yield Benchmark</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{highestYield}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Optimized by CAD Nesting</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Markers &gt;88% Yield</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{targetAbove88Count} of {markers.length}</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">High-utilization profiles</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">CAD Systems Synced</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{cadEnginesCount} Engines</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Gerber, Lectra, Optitex, Tukatech</p>
@@ -198,7 +198,7 @@ export function MarkersClient() {
       </div>
 
       {/* 4. Filter & Search */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -207,7 +207,7 @@ export function MarkersClient() {
               placeholder="Search marker, style ref, size..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
             />
           </div>
 
@@ -218,8 +218,8 @@ export function MarkersClient() {
                 onClick={() => setSoftwareFilter(sw)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                   softwareFilter === sw
-                    ? 'bg-[#3A3564] text-white'
-                    : 'bg-[#FAF7F0] text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[#0B1220] text-white'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 {sw.replace(/_/g, ' ')}
@@ -231,7 +231,7 @@ export function MarkersClient() {
 
       {/* 5. Markers Visual Grid */}
       {filteredMarkers.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-8">
           <EmptyState
             title="No CAD markers cataloged"
             description="Archive a new CAD nesting marker to benchmark fabric yield and cutting tolerances."
@@ -245,20 +245,20 @@ export function MarkersClient() {
             return (
               <div
                 key={marker.id}
-                className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs space-y-4 hover:border-black/20 transition-all"
+                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4 hover:border-black/20 transition-all"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-black text-base text-slate-900">{marker.marker_name}</h3>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold uppercase">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 font-bold uppercase">
                         {marker.cad_software.replace(/_/g, ' ')}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 font-mono mt-0.5">Style: {marker.style_ref}</p>
                   </div>
 
-                  <div className="px-3 py-1.5 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] font-mono font-black text-sm flex flex-col items-end">
+                  <div className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[#0B1220] font-mono font-black text-sm flex flex-col items-end">
                     <span>{marker.efficiency_percent}%</span>
                     <span className="text-[9px] uppercase tracking-wider font-semibold">Yield</span>
                   </div>
@@ -270,31 +270,31 @@ export function MarkersClient() {
                     <span>Fabric Nesting Utilization</span>
                     <span>{marker.efficiency_percent}% / 100%</span>
                   </div>
-                  <div className="w-full h-2.5 rounded-full bg-[#FAF7F0] border border-black/10 overflow-hidden">
+                  <div className="w-full h-2.5 rounded-full bg-slate-50 border border-slate-200 overflow-hidden">
                     <div
-                      className="h-full bg-[#3A3564] rounded-full transition-all"
+                      className="h-full bg-[#0B1220] rounded-full transition-all"
                       style={{ width: `${marker.efficiency_percent}%` }}
                     />
                   </div>
                 </div>
 
                 {/* Marker Specs */}
-                <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-black/5 font-mono">
-                  <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                <div className="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-slate-100 font-mono">
+                  <div className="p-2 rounded-lg bg-slate-50/60 border border-slate-100">
                     <span className="text-[9px] text-slate-500 uppercase block">Width Bed:</span>
                     <strong>{marker.fabric_width_inches}&quot; cut width</strong>
                   </div>
-                  <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                  <div className="p-2 rounded-lg bg-slate-50/60 border border-slate-100">
                     <span className="text-[9px] text-slate-500 uppercase block">Length:</span>
                     <strong>{marker.marker_length_meters} meters</strong>
                   </div>
-                  <div className="p-2 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                  <div className="p-2 rounded-lg bg-slate-50/60 border border-slate-100">
                     <span className="text-[9px] text-slate-500 uppercase block">Ratio:</span>
                     <strong>{marker.ratio}</strong>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-black/5 text-xs">
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-[10px] font-mono text-slate-400">SIZES:</span>
                     {(Array.isArray(marker.sizes_included) ? marker.sizes_included : [String(marker.sizes_included || '')]).map((sz: string) => (
@@ -314,8 +314,8 @@ export function MarkersClient() {
       {/* New Marker Modal */}
       {isNewModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-xl w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-xl w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <h3 className="font-bold text-base text-slate-900">Archive New CAD Nesting Marker</h3>
               <button onClick={() => setIsNewModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
                 <X className="w-4 h-4" />
@@ -323,15 +323,15 @@ export function MarkersClient() {
             </div>
 
             {/* Quick Fill Preset for Step 4.1 */}
-            <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
                 Step 4.1 Marker Preset:
               </span>
               <button
                 type="button"
                 onClick={applyPreset41}
-                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-slate-200 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
               >
                 MKR-ZARA-HD-8801 (89.6% Yield)
               </button>
@@ -347,7 +347,7 @@ export function MarkersClient() {
                     placeholder="e.g. MKR-ZARA-HD-8801"
                     value={formData.marker_name}
                     onChange={e => setFormData({ ...formData, marker_name: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
                 <div>
@@ -355,7 +355,7 @@ export function MarkersClient() {
                   <select
                     value={formData.style_ref}
                     onChange={e => setFormData({ ...formData, style_ref: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono font-bold text-slate-900"
                   >
                     {availableStyles.map(s => (
                       <option key={s.ref} value={s.ref}>
@@ -372,7 +372,7 @@ export function MarkersClient() {
                   <select
                     value={formData.cad_software}
                     onChange={e => setFormData({ ...formData, cad_software: e.target.value as CADSoftware })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   >
                     <option value="GERBER_ACCUMARK">Gerber AccuMark</option>
                     <option value="LECTRA_MODARIS">Lectra Modaris / Diamino</option>
@@ -386,7 +386,7 @@ export function MarkersClient() {
                     type="number"
                     value={formData.fabric_width_inches}
                     onChange={e => setFormData({ ...formData, fabric_width_inches: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
               </div>
@@ -399,7 +399,7 @@ export function MarkersClient() {
                     step="0.01"
                     value={formData.marker_length_meters}
                     onChange={e => setFormData({ ...formData, marker_length_meters: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
                 <div>
@@ -411,7 +411,7 @@ export function MarkersClient() {
                     max="100"
                     value={formData.efficiency_percent}
                     onChange={e => setFormData({ ...formData, efficiency_percent: Number(e.target.value) })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold text-slate-900"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono font-bold text-slate-900"
                   />
                 </div>
               </div>
@@ -423,7 +423,7 @@ export function MarkersClient() {
                     type="text"
                     value={formData.sizes_included}
                     onChange={e => setFormData({ ...formData, sizes_included: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
                 <div>
@@ -432,7 +432,7 @@ export function MarkersClient() {
                     type="text"
                     value={formData.ratio}
                     onChange={e => setFormData({ ...formData, ratio: e.target.value })}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   />
                 </div>
               </div>
@@ -443,21 +443,21 @@ export function MarkersClient() {
                   type="text"
                   value={formData.pattern_master}
                   onChange={e => setFormData({ ...formData, pattern_master: e.target.value })}
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                  className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200"
                 />
               </div>
 
-              <div className="pt-3 border-t border-black/10 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsNewModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-slate-700"
+                  className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold"
                 >
                   Save Marker Record
                 </button>

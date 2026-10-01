@@ -93,9 +93,9 @@ export function PanelQcClient() {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -103,7 +103,7 @@ export function PanelQcClient() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Cut Panel QC Audits &amp; Tolerance Inspection
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 Multi-Ply Precision
               </span>
             </div>
@@ -117,7 +117,7 @@ export function PanelQcClient() {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/cutting"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -126,7 +126,7 @@ export function PanelQcClient() {
           <button
             type="button"
             onClick={() => setIsNewAuditModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Log QC Audit</span>
@@ -136,25 +136,25 @@ export function PanelQcClient() {
 
       {/* 3. Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">QC Audits Conducted</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{totalAudits} audits</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Across all live lay runs</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">First-Time Pass Rate</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{passRate}%</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Tolerance window &lt;1.0mm</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Avg Top/Bottom Variance</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{avgVariance} mm</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Blade deflection tolerance</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">Recut Directives</span>
           <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 mt-2">{recutOrdersCount} panels</div>
           <p className="text-xs font-semibold text-slate-500 mt-1">Routed to end-bit recut rack</p>
@@ -162,7 +162,7 @@ export function PanelQcClient() {
       </div>
 
       {/* 4. Filter & Search */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -171,7 +171,7 @@ export function PanelQcClient() {
               placeholder="Search audit #, lay, component, auditor..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20"
             />
           </div>
 
@@ -182,8 +182,8 @@ export function PanelQcClient() {
                 onClick={() => setResultFilter(res)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                   resultFilter === res
-                    ? 'bg-[#3A3564] text-white'
-                    : 'bg-[#FAF7F0] text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[#0B1220] text-white'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 {res.replace(/_/g, ' ')}
@@ -194,7 +194,7 @@ export function PanelQcClient() {
       </div>
 
       {/* 5. Audits Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {filteredAudits.length === 0 ? (
           <div className="p-8">
             <EmptyState
@@ -207,7 +207,7 @@ export function PanelQcClient() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[720px]">
-              <thead className="bg-[#FAF7F0] text-[#3A3564] font-mono uppercase text-[10px] tracking-wider border-b border-black/10">
+              <thead className="bg-slate-50 text-[#0B1220] font-mono uppercase text-[10px] tracking-wider border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4 font-bold">Audit Ref</th>
                   <th className="py-3 px-4 font-bold">Lay Sheet</th>
@@ -221,7 +221,7 @@ export function PanelQcClient() {
               </thead>
               <tbody className="divide-y divide-black/5 font-medium">
                 {filteredAudits.map(audit => {
-                  let badge = 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+                  let badge = 'bg-slate-50 text-[#0B1220] border border-slate-200'
                   if (audit.result === 'RECUT_REQUIRED') {
                     badge = 'bg-slate-900 text-white border border-slate-900'
                   }
@@ -237,7 +237,7 @@ export function PanelQcClient() {
                           {new Date(audit.audit_timestamp).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-[#3A3564] font-bold">
+                      <td className="py-3.5 px-4 font-mono text-[#0B1220] font-bold">
                         {audit.lay_number}
                       </td>
                       <td className="py-3.5 px-4">
@@ -245,7 +245,7 @@ export function PanelQcClient() {
                         <div className="text-[10px] text-slate-500 line-clamp-1">{audit.sampled_plies.join(', ')}</div>
                       </td>
                       <td className="py-3.5 px-4 font-mono text-slate-700">
-                        <span className="px-2 py-0.5 rounded bg-[#FAF7F0] border border-black/10 font-bold text-[10px]">
+                        <span className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 font-bold text-[10px]">
                           {audit.notch_alignment_check}
                         </span>
                       </td>
@@ -265,7 +265,7 @@ export function PanelQcClient() {
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setSelectedAudit(audit)}
-                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FAF7F0] border border-black/10 font-mono text-[11px] text-[#3A3564] font-bold shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 font-mono text-[11px] text-[#0B1220] font-bold shadow-2xs"
                         >
                           Findings
                         </button>
@@ -282,8 +282,8 @@ export function PanelQcClient() {
       {/* Log Audit Modal */}
       {isNewAuditModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-xl w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-xl w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <h3 className="font-bold text-base text-slate-900">Log Cut Panel QC Inspection</h3>
               <button onClick={() => setIsNewAuditModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
                 <X className="w-4 h-4" />
@@ -297,7 +297,7 @@ export function PanelQcClient() {
                   <select
                     value={formLayId}
                     onChange={e => setFormLayId(e.target.value)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   >
                     {lays.map(l => (
                       <option key={l.id} value={l.id}>
@@ -314,7 +314,7 @@ export function PanelQcClient() {
                     value={formComponent}
                     onChange={e => setFormComponent(e.target.value)}
                     placeholder="e.g. Front Body Panel, Sleeve, Rib Collar"
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200"
                   />
                 </div>
               </div>
@@ -326,7 +326,7 @@ export function PanelQcClient() {
                   required
                   value={formSampledPlies}
                   onChange={e => setFormSampledPlies(e.target.value)}
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                  className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                 />
               </div>
 
@@ -336,7 +336,7 @@ export function PanelQcClient() {
                   <select
                     value={formNotchCheck}
                     onChange={e => setFormNotchCheck(e.target.value as any)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono"
                   >
                     <option value="ACCURATE">Accurate / In-Spec</option>
                     <option value="SHIFTED_1MM">Shifted by ~1mm</option>
@@ -350,7 +350,7 @@ export function PanelQcClient() {
                     step="0.05"
                     value={formVarianceMm}
                     onChange={e => setFormVarianceMm(Number(e.target.value))}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono font-bold"
                   />
                 </div>
               </div>
@@ -362,7 +362,7 @@ export function PanelQcClient() {
                   value={formDefectsFound}
                   onChange={e => setFormDefectsFound(e.target.value)}
                   placeholder="e.g. Minor fraying on edge, None"
-                  className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                  className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200"
                 />
               </div>
 
@@ -373,7 +373,7 @@ export function PanelQcClient() {
                     type="text"
                     value={formAuditor}
                     onChange={e => setFormAuditor(e.target.value)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200"
                   />
                 </div>
                 <div>
@@ -381,7 +381,7 @@ export function PanelQcClient() {
                   <select
                     value={formResult}
                     onChange={e => setFormResult(e.target.value as PanelQcResult)}
-                    className="w-full mt-1 p-2 rounded-xl bg-[#FAF7F0] border border-black/10 font-mono font-bold"
+                    className="w-full mt-1 p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono font-bold"
                   >
                     <option value="PASSED">PASSED</option>
                     <option value="PASSED_WITH_CONDITIONS">PASSED WITH CONDITIONS</option>
@@ -390,17 +390,17 @@ export function PanelQcClient() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-black/10 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsNewAuditModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 text-xs font-bold text-slate-700"
+                  className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2e2a50] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold"
                 >
                   Record Audit Findings
                 </button>
@@ -413,8 +413,8 @@ export function PanelQcClient() {
       {/* Selected Audit Findings Modal */}
       {selectedAudit && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl border border-black/15 shadow-xl max-w-lg w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">QC Inspection Report</span>
                 <h3 className="font-black text-lg text-slate-900">{selectedAudit.audit_number}</h3>
@@ -426,21 +426,21 @@ export function PanelQcClient() {
 
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100">
                   <span className="text-[10px] font-mono text-slate-500 uppercase">Lay Sheet</span>
                   <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedAudit.lay_number}</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100">
                   <span className="text-[10px] font-mono text-slate-500 uppercase">Component Checked</span>
                   <p className="font-bold text-slate-900 mt-0.5">{selectedAudit.component_name}</p>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+              <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Sampled Plies Range</span>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {selectedAudit.sampled_plies.map((p: string) => (
-                    <span key={p} className="px-2 py-0.5 rounded bg-white border border-black/10 font-mono text-[10px] font-bold text-[#3A3564]">
+                    <span key={p} className="px-2 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] font-bold text-[#0B1220]">
                       {p}
                     </span>
                   ))}
@@ -448,22 +448,22 @@ export function PanelQcClient() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100">
                   <span className="text-[10px] font-mono text-slate-500 uppercase">Notch Alignment</span>
                   <p className="font-mono font-bold text-slate-900 mt-0.5">{selectedAudit.notch_alignment_check}</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+                <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100">
                   <span className="text-[10px] font-mono text-slate-500 uppercase">Top/Bottom Ply Variance</span>
                   <p className="font-mono font-bold text-slate-900 mt-0.5">±{selectedAudit.top_bottom_ply_variance_mm} mm</p>
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5">
+              <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Defects Noted</span>
                 <p className="font-medium text-slate-800 mt-0.5">{selectedAudit.defects_found.join(', ')}</p>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-[#FAF7F0]/60 border border-black/5 flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-50/60 border border-slate-100 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono text-slate-500 uppercase">QC Inspector</span>
                   <p className="font-bold text-slate-900 mt-0.5">{selectedAudit.auditor_name}</p>
@@ -477,7 +477,7 @@ export function PanelQcClient() {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-black/10 flex justify-end">
+            <div className="pt-3 border-t border-slate-200 flex justify-end">
               <button
                 onClick={() => setSelectedAudit(null)}
                 className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
