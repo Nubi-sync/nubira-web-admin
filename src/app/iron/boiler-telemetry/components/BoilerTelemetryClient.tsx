@@ -42,12 +42,12 @@ export function BoilerTelemetryClient() {
     <div className="space-y-6 select-none">
       {/* 4 Boiler Telemetry Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Steam Header Pressure
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Gauge className="w-4 h-4" />
             </div>
           </div>
@@ -64,12 +64,12 @@ export function BoilerTelemetryClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Steam Core Temp
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Thermometer className="w-4 h-4" />
             </div>
           </div>
@@ -84,12 +84,12 @@ export function BoilerTelemetryClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Feed Water Tank Level
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Droplets className="w-4 h-4" />
             </div>
           </div>
@@ -104,12 +104,12 @@ export function BoilerTelemetryClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Condensate Traps
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -126,7 +126,7 @@ export function BoilerTelemetryClient() {
       </div>
 
       {/* Boiler Logs Table */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
@@ -139,16 +139,16 @@ export function BoilerTelemetryClient() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Log Boiler Telemetry</span>
           </button>
         </div>
 
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
+        <div className="overflow-x-auto border border-black/15 rounded-xl">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
-            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
+            <thead className="bg-[#F0FDFA]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="p-3.5">Log Time</th>
                 <th className="p-3.5">Steam Pressure</th>
@@ -163,18 +163,18 @@ export function BoilerTelemetryClient() {
             <tbody className="divide-y divide-black/5 font-sans">
               {logs.length > 0 ? (
                 logs.map(log => (
-                  <tr key={log.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={log.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                     <td className="p-3.5 font-mono font-bold text-slate-900">
                       {log.logTime}
                     </td>
-                    <td className="p-3.5 font-mono font-bold text-[#3A3564] text-sm">
+                    <td className="p-3.5 font-mono font-bold text-[#0B1220] text-sm">
                       {log.steamPressureBar.toFixed(1)} Bar
                     </td>
                     <td className="p-3.5 font-mono text-slate-800">
                       {log.boilerTempC}°C
                     </td>
                     <td className="p-3.5 font-mono">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {log.condensateTrapStatus}
                       </span>
                     </td>
@@ -184,7 +184,7 @@ export function BoilerTelemetryClient() {
                     <td className="p-3.5">
                       {log.blowdownDone ? (
                         <span className="text-slate-800 font-mono font-bold text-[11px] flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>Completed</span>
                         </span>
                       ) : (

@@ -131,12 +131,12 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
 
   return (
     <div 
-      className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-6 space-y-5"
+      className="bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-6 space-y-5"
     >
       {/* Card Header */}
       <div className="flex items-center gap-3">
         <div 
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15"
         >
           <UserPlus className="w-4 h-4" />
         </div>
@@ -174,7 +174,7 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. ramesh_stitch"
-            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs outline-none transition-all"
+            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs outline-none transition-all"
           />
         </div>
 
@@ -193,7 +193,7 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs outline-none transition-all"
+            className="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 placeholder-slate-400 shadow-2xs outline-none transition-all"
           />
         </div>
 
@@ -214,7 +214,7 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
                 setTouchedRole(true)
               }}
               onBlur={() => setTouchedRole(true)}
-              className={`w-full bg-slate-50/70 hover:bg-white focus:bg-white border focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer ${
+              className={`w-full bg-slate-50/70 hover:bg-white focus:bg-white border focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition-all cursor-pointer ${
                 touchedRole && !isRoleValid
                   ? 'border-rose-300 bg-rose-50/50 text-rose-900'
                   : 'border-slate-200'
@@ -275,7 +275,7 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
         >
           {isPending ? (
             <>

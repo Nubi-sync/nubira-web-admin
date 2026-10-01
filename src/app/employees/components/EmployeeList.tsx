@@ -33,7 +33,7 @@ type Profile = {
 // Role Badge Styling Lookup
 const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   ADMIN: {
-    bg: '#3A3564',
+    bg: '#0B1220',
     text: '#FFFFFF',
     label: 'ADMIN'
   },
@@ -68,13 +68,13 @@ const ROLE_BADGE_STYLES: Record<string, { bg: string; text: string; label: strin
     label: 'STORE'
   },
   LINEMAN: {
-    bg: '#FAF7F0',
-    text: '#3A3564',
+    bg: '#F0FDFA',
+    text: '#0B1220',
     label: 'LINEMAN'
   },
   STITCHING: {
-    bg: '#FAF7F0',
-    text: '#3A3564',
+    bg: '#F0FDFA',
+    text: '#0B1220',
     label: 'TAILOR'
   },
   STITCHING_SUPERVISOR: {
@@ -281,7 +281,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
 
   return (
     <div 
-      className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden"
+      className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden"
     >
       {/* Search Toolbar */}
       <div 
@@ -291,7 +291,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
           <span className="text-sm font-bold text-slate-900">
             Staff Directory
           </span>
-          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
             {filteredEmployees.length} {filteredEmployees.length === 1 ? 'user' : 'users'}
           </span>
         </div>
@@ -304,7 +304,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
             placeholder="Search by username..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+            className="w-full pl-8 pr-3 py-1.5 bg-white border border-black/15 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
           />
         </div>
       </div>
@@ -317,7 +317,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
             onClick={() => setSelectedDivision('ALL')}
             className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
               selectedDivision === 'ALL'
-                ? 'bg-white text-[#3A3564] shadow-xs border border-slate-200 ring-1 ring-black/5'
+                ? 'bg-white text-[#0B1220] shadow-xs border border-slate-200 ring-1 ring-black/5'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
@@ -335,7 +335,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                 onClick={() => setSelectedDivision(div.route)}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
                   selectedDivision === div.route
-                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    ? 'bg-[#0B1220] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
@@ -355,7 +355,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[660px]">
           <thead>
-            <tr className="bg-[#FAF7F0] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
+            <tr className="bg-[#F0FDFA] border-b border-black/10 text-xs font-mono uppercase tracking-wider font-bold text-slate-700">
               
               {/* Sortable Username */}
               <th 
@@ -365,9 +365,9 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                 <div className="flex items-center gap-1.5">
                   <span>Username</span>
                   {sortOrder === 'asc' ? (
-                    <ArrowUp className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" />
                   ) : (
-                    <ArrowDown className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
                   )}
                 </div>
               </th>
@@ -409,7 +409,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                         <span>{emp.username}</span>
                         {isAdminAccount && (
                           <span 
-                            className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                            className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-[#F0FDFA] text-[#0B1220] border border-black/15"
                           >
                             Primary
                           </span>
@@ -431,7 +431,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                           }
                           return (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#0B1220]" />
                               <span>Unit {divDef.code}: {divDef.name.split('&')[0].trim()}</span>
                             </span>
                           )
@@ -502,9 +502,9 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                                 setResetError(null)
                                 setResetSuccess(false)
                               }}
-                              className="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-slate-100 text-[#3A3564] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
+                              className="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-black/15 bg-[#F0FDFA] hover:bg-slate-100 text-[#0B1220] transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
                             >
-                              <KeyRound className="w-3.5 h-3.5 text-[#3A3564]" />
+                              <KeyRound className="w-3.5 h-3.5 text-[#0B1220]" />
                               <span>Reset Password</span>
                             </button>
 
@@ -549,7 +549,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
       {selectedEmp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div 
-            className="w-full max-w-sm bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/10 relative space-y-4 animate-in zoom-in-95 duration-200"
+            className="w-full max-w-sm bg-white rounded-2xl p-5 sm:p-6 shadow-2xl border border-black/15 relative space-y-4 animate-in zoom-in-95 duration-200"
           >
             <button
               type="button"
@@ -561,7 +561,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
 
             <div className="flex items-center gap-3">
               <div 
-                className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs"
+                className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs"
               >
                 <KeyRound className="w-5 h-5" />
               </div>
@@ -595,7 +595,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter at least 6 characters"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none bg-slate-50/70 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 transition-all shadow-2xs"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold outline-none bg-slate-50/70 focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 transition-all shadow-2xs"
                   />
                 </div>
 
@@ -616,7 +616,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                   <button
                     type="submit"
                     disabled={isResetting}
-                    className="flex-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60 shadow-xs bg-[#3A3564] hover:bg-[#2A2649] active:scale-[0.98]"
+                    className="flex-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60 shadow-xs bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98]"
                   >
                     {isResetting ? 'Saving...' : 'Set Password'}
                   </button>

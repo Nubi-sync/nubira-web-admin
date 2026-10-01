@@ -57,9 +57,9 @@ export function ScreensClient() {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Layers className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -67,7 +67,7 @@ export function ScreensClient() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Screen &amp; Stencil Library
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Mesh 120–305 Catalog
               </span>
             </div>
@@ -81,7 +81,7 @@ export function ScreensClient() {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/printing"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -90,7 +90,7 @@ export function ScreensClient() {
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Register Screen</span>
@@ -100,7 +100,7 @@ export function ScreensClient() {
 
       {/* 3. Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Total Inventory
           </span>
@@ -110,7 +110,7 @@ export function ScreensClient() {
           <p className="text-xs text-slate-500 mt-1 font-medium">Aluminum tension frames</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Ready for Table
           </span>
@@ -120,7 +120,7 @@ export function ScreensClient() {
           <p className="text-xs text-slate-500 mt-1 font-medium">Pin-hole checked & blocked</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Currently In-Use
           </span>
@@ -130,7 +130,7 @@ export function ScreensClient() {
           <p className="text-xs text-slate-500 mt-1 font-medium">Clamped on 60m tables</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Needs Reclamation
           </span>
@@ -142,8 +142,8 @@ export function ScreensClient() {
       </div>
 
       {/* 4. Filter Toolbar & Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 flex-wrap bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 flex-wrap bg-[#F0FDFA]/30">
           <div className="flex items-center gap-2 flex-wrap">
             {['ALL', 'READY_FOR_PRINT', 'IN_USE', 'NEEDS_RECLAMATION', 'DAMAGED_MESH'].map(status => (
               <button
@@ -151,8 +151,8 @@ export function ScreensClient() {
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                   statusFilter === status
-                    ? 'bg-[#3A3564] text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:text-[#3A3564] border border-black/10 hover:bg-[#FAF7F0]'
+                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-[#0B1220] border border-black/15 hover:bg-[#F0FDFA]'
                 }`}
               >
                 {status.replace(/_/g, ' ')}
@@ -167,7 +167,7 @@ export function ScreensClient() {
               placeholder="Search code, artwork, rack..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>
         </div>
@@ -176,7 +176,7 @@ export function ScreensClient() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-slate-100 bg-[#F0FDFA]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Screen Code</th>
                 <th className="py-3 px-4">Artwork Ref & Separation</th>
                 <th className="py-3 px-4">Mesh</th>
@@ -190,13 +190,13 @@ export function ScreensClient() {
             <tbody className="divide-y divide-slate-100 text-xs text-slate-900">
               {filteredScreens.length > 0 ? (
                 filteredScreens.map(scr => (
-                  <tr key={scr.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={scr.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">
                       {scr.screen_code}
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-bold text-slate-900">{scr.artwork_ref}</div>
-                      <div className="text-[11px] font-mono text-[#3A3564]">
+                      <div className="text-[11px] font-mono text-[#0B1220]">
                         Channel: {scr.color_separation}
                       </div>
                     </td>
@@ -213,7 +213,7 @@ export function ScreensClient() {
                       {scr.exposures_count.toLocaleString()}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {scr.status}
                       </span>
                     </td>
@@ -221,7 +221,7 @@ export function ScreensClient() {
                       {scr.status === 'READY_FOR_PRINT' && (
                         <button
                           onClick={() => handleUpdateStatus(scr, 'IN_USE')}
-                          className="px-2.5 py-1 rounded-lg bg-[#3A3564] hover:bg-[#2A2649] text-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
                         >
                           Mount on Table
                         </button>
@@ -229,7 +229,7 @@ export function ScreensClient() {
                       {scr.status === 'IN_USE' && (
                         <button
                           onClick={() => handleUpdateStatus(scr, 'NEEDS_RECLAMATION')}
-                          className="px-2.5 py-1 rounded-lg bg-white border border-black/10 hover:bg-slate-50 text-slate-700 text-[11px] font-mono font-bold transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-white border border-black/15 hover:bg-slate-50 text-slate-700 text-[11px] font-mono font-bold transition-all cursor-pointer"
                         >
                           Strip & Wash
                         </button>
@@ -237,7 +237,7 @@ export function ScreensClient() {
                       {scr.status === 'NEEDS_RECLAMATION' && (
                         <button
                           onClick={() => handleUpdateStatus(scr, 'READY_FOR_PRINT')}
-                          className="px-2.5 py-1 rounded-lg bg-[#FAF7F0] text-slate-800 border border-black/10 hover:bg-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg bg-[#F0FDFA] text-slate-800 border border-black/15 hover:bg-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
                         >
                           Mark Cleaned
                         </button>

@@ -45,10 +45,10 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Truck className="w-4 h-4" />
             </div>
             <div>
@@ -79,7 +79,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
                 value={trolleyCode}
                 onChange={e => setTrolleyCode(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               />
             </div>
 
@@ -93,7 +93,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
                 value={piecesTransferred}
                 onChange={e => setPiecesTransferred(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
                 value={selectedChallanId}
                 onChange={e => setSelectedChallanId(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               />
             </div>
             <div>
@@ -122,13 +122,13 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
                 value={articleName}
                 onChange={e => setArticleName(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               />
             </div>
           </div>
 
           {/* Verification checklist */}
-          <div className="p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10 space-y-2">
+          <div className="p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15 space-y-2">
             <span className="text-xs font-mono font-bold text-slate-700 uppercase block">
               Finishing Gate Pass Verifications
             </span>
@@ -138,7 +138,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
                 type="checkbox"
                 checked={wrinkleFreeVerified}
                 onChange={e => setWrinkleFreeVerified(e.target.checked)}
-                className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                className="rounded text-[#0B1220] focus:ring-[#0B1220]"
               />
               <span>100% Wrinkle-Free: Placket, sleeves, and hems steam shaped</span>
             </label>
@@ -148,7 +148,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
                 type="checkbox"
                 checked={zeroShineVerified}
                 onChange={e => setZeroShineVerified(e.target.checked)}
-                className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                className="rounded text-[#0B1220] focus:ring-[#0B1220]"
               />
               <span>Zero Shine & Glaze: Teflon protection verified under 1000-lux</span>
             </label>
@@ -163,7 +163,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
               value={supervisorSignoff}
               onChange={e => setSupervisorSignoff(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -177,7 +177,7 @@ export function CreateTrolleyModal({ isOpen, onClose }: CreateTrolleyModalProps)
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Dispatch Trolley</span>

@@ -71,11 +71,11 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-lg rounded-2xl border border-black/10 shadow-xl overflow-hidden">
+      <div className="bg-white w-full max-w-lg rounded-2xl border border-black/15 shadow-xl overflow-hidden">
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F0]/60">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
@@ -95,15 +95,15 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
 
         {/* Step 5.3 Quick Log Preset */}
         <div className="px-5 pt-4">
-          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+          <div className="bg-[#F0FDFA] p-3 rounded-xl border border-black/15 flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
               Step 5.3 Log Preset:
             </span>
             <button
               type="button"
               onClick={applyPreset53Log}
-              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-black/15 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
             >
               996 Passed • 4 Rejects (Pinhole)
             </button>
@@ -120,7 +120,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
           )}
 
           {/* Job Overview Pill */}
-          <div className="p-3 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs space-y-1">
+          <div className="p-3 rounded-xl bg-[#F0FDFA] border border-black/15 text-xs space-y-1">
             <div className="flex justify-between text-slate-600">
               <span className="font-mono text-slate-400">Total Issued:</span>
               <span className="font-mono font-bold text-slate-900">{run.total_panels_issued.toLocaleString()} Pcs</span>
@@ -140,7 +140,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
                 type="number"
                 value={completedCount}
                 onChange={e => setCompletedCount(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
                 required
               />
             </div>
@@ -153,7 +153,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
                 type="number"
                 value={rejectedCount}
                 onChange={e => setRejectedCount(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
               <select
                 value={defectReason}
                 onChange={e => setDefectReason(e.target.value as DefectReason)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               >
                 {DEFECT_REASONS.map(d => (
                   <option key={d} value={d}>{d.replace(/_/g, ' ')}</option>
@@ -184,7 +184,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
                 type="number"
                 value={tempReading}
                 onChange={e => setTempReading(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               />
             </div>
 
@@ -194,7 +194,7 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
                   type="checkbox"
                   checked={curingTempVerified}
                   onChange={e => setCuringTempVerified(e.target.checked)}
-                  className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                  className="rounded text-[#0B1220] focus:ring-[#0B1220]"
                 />
                 <span className="text-xs font-bold text-slate-700">Thermal Strip Verified (160°C)</span>
               </label>
@@ -206,13 +206,13 @@ export function LogProductionModal({ isOpen, onClose, run, onSuccess }: LogProdu
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Update Run Ledger</span>

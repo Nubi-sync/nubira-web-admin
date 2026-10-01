@@ -31,7 +31,7 @@ function IndiaFlag({ className = "w-5 h-3.5" }: { className?: string }) {
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-slate-900 flex flex-col justify-between selection:bg-[#3A3564] selection:text-white">
+    <div className="min-h-screen bg-[#FDFBF7] text-slate-900 flex flex-col justify-between selection:bg-[#0B1220] selection:text-white">
       {/* Minimal Top Header */}
       <header className="px-6 py-5 sm:px-10 flex items-center justify-between border-b border-slate-200/80 bg-white/70 backdrop-blur-md">
         <Link href="/" className="inline-flex items-center gap-2 group">
@@ -59,13 +59,13 @@ export default function NotFound() {
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
         <div className="max-w-md sm:max-w-lg w-full bg-white border border-black rounded-3xl p-8 sm:p-12 shadow-sm text-center">
           {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FAF7F0] border border-black/15 text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F0FDFA] border border-black/15 text-[11px] font-mono font-bold uppercase tracking-wider text-[#0B1220] mb-6">
             <FileQuestion className="w-3.5 h-3.5" />
             <span>ERROR 404 · NOT FOUND</span>
           </div>
 
           {/* Minimal 404 Numeral */}
-          <div className="text-7xl sm:text-8xl font-black tracking-tight text-[#3A3564] font-mono mb-3 leading-none">
+          <div className="text-7xl sm:text-8xl font-black tracking-tight text-[#0B1220] font-mono mb-3 leading-none">
             404
           </div>
 
@@ -83,14 +83,14 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-sm cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-sm cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
             </Link>
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FAF7F0] hover:bg-slate-100 border border-black/15 text-slate-900 rounded-xl text-sm font-bold transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#F0FDFA] hover:bg-slate-100 border border-black/15 text-slate-900 rounded-xl text-sm font-bold transition-all cursor-pointer"
             >
               <span>Staff Portal Sign In</span>
             </Link>

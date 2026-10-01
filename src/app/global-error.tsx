@@ -15,7 +15,7 @@ export default function GlobalError({
         margin: 0,
         padding: 0,
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        backgroundColor: '#FAF7F0',
+        backgroundColor: '#F0FDFA',
         color: '#0F172A',
         minHeight: '100vh',
         display: 'flex',
@@ -85,7 +85,7 @@ export default function GlobalError({
             <button
               onClick={() => reset()}
               style={{
-                backgroundColor: '#3A3564',
+                backgroundColor: '#0B1220',
                 color: '#FFFFFF',
                 border: 'none',
                 padding: '12px 24px',
@@ -101,7 +101,7 @@ export default function GlobalError({
             <button
               onClick={() => { window.location.href = '/login' }}
               style={{
-                backgroundColor: '#FAF7F0',
+                backgroundColor: '#F0FDFA',
                 color: '#0F172A',
                 border: '1px solid rgba(0, 0, 0, 0.15)',
                 padding: '12px 20px',

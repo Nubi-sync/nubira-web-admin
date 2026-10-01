@@ -61,10 +61,10 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div>
@@ -94,7 +94,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
                 value={selectedTableNumber}
                 onChange={e => setSelectedTableNumber(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               >
                 {tables.map(t => (
                   <option key={t.id} value={t.tableNumber}>
@@ -115,7 +115,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
                 value={samplePcs}
                 onChange={e => setSamplePcs(Number(e.target.value))}
                 required
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
               />
               <span className="text-[10px] text-slate-400">Standard: 20 pcs per trolley</span>
             </div>
@@ -127,7 +127,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
           </div>
 
           {/* 3 Inspection Criteria */}
-          <div className="grid grid-cols-3 gap-3 p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10">
+          <div className="grid grid-cols-3 gap-3 p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15">
             <div>
               <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
                 Fabric Glaze / Shine
@@ -138,7 +138,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
                 value={glazeDefects}
                 onChange={e => setGlazeDefects(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-400">Teflon shoe check</span>
             </div>
@@ -153,7 +153,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
                 value={waterSpots}
                 onChange={e => setWaterSpots(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-400">Steam spit check</span>
             </div>
@@ -168,7 +168,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
                 value={unalignedSeams}
                 onChange={e => setUnalignedSeams(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-400">Placket symmetry</span>
             </div>
@@ -178,13 +178,13 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
           <div
             className={`p-3.5 rounded-xl border flex items-center justify-between ${
               autoStatus === 'PASS'
-                ? 'bg-[#FAF7F0] border-black/10 text-slate-900'
+                ? 'bg-[#F0FDFA] border-black/10 text-slate-900'
                 : 'bg-rose-50 border-rose-200 text-rose-950'
             }`}
           >
             <div className="flex items-center gap-2">
               {autoStatus === 'PASS' ? (
-                <CheckCircle2 className="w-4 h-4 text-[#3A3564]" />
+                <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
               ) : (
                 <AlertTriangle className="w-4 h-4 text-rose-700" />
               )}
@@ -206,7 +206,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
               value={auditorName}
               onChange={e => setAuditorName(e.target.value)}
               required
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -219,7 +219,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
               placeholder="e.g. Cleared for packing OR Rework routed to 10 Alteration"
               value={actionTaken}
               onChange={e => setActionTaken(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -233,7 +233,7 @@ export function RecordQcModal({ isOpen, onClose }: RecordQcModalProps) {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Submit Finish QC Audit</span>

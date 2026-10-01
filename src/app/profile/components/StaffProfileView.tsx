@@ -54,7 +54,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
     <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6">
       {/* 1. Breadcrumb */}
       <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
-        <Link href="/store" className="hover:text-[#3A3564] transition-colors flex items-center gap-1.5">
+        <Link href="/store" className="hover:text-[#0B1220] transition-colors flex items-center gap-1.5">
           <Warehouse className="w-3.5 h-3.5" />
           Store Dashboard
         </Link>
@@ -63,9 +63,9 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
       </div>
 
       {/* 2. Page Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Warehouse className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -87,7 +87,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
         {/* Quick launcher to store */}
         <Link
           href="/store"
-          className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2c284e] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
+          className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
         >
           <span>Open Store Dashboard</span>
           <ArrowUpRight className="w-4 h-4" />
@@ -97,12 +97,12 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
       {/* 3. Info Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         {/* Left 2 Cols: Supervisor Identification & Department */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-7 flex flex-col justify-between">
           <div>
             {/* Header info */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-[#3A3564] text-white text-xl sm:text-2xl font-black">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-[#0B1220] text-white text-xl sm:text-2xl font-black">
                   {initials}
                 </div>
                 <div>
@@ -110,7 +110,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 capitalize font-[family-name:var(--font-heading)]">
                       {username}
                     </h2>
-                    <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/15 uppercase">
+                    <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 uppercase">
                       {roleName}
                     </span>
                   </div>
@@ -124,7 +124,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
             {/* Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
-                <User className="w-5 h-5 text-[#3A3564] shrink-0 mt-0.5" />
+                <User className="w-5 h-5 text-[#0B1220] shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Username / Staff ID</div>
                   <div className="text-base sm:text-lg font-bold text-slate-900 truncate font-mono mt-0.5">{username}</div>
@@ -132,7 +132,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
-                <Mail className="w-5 h-5 text-[#3A3564] shrink-0 mt-0.5" />
+                <Mail className="w-5 h-5 text-[#0B1220] shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Login Credential</div>
                   <div className="text-base sm:text-lg font-semibold text-slate-900 truncate font-mono mt-0.5">{displayEmail}</div>
@@ -140,7 +140,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
-                <Building2 className="w-5 h-5 text-[#3A3564] shrink-0 mt-0.5" />
+                <Building2 className="w-5 h-5 text-[#0B1220] shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Assigned Facility</div>
                   <div className="text-base sm:text-lg font-semibold text-slate-900 truncate mt-0.5">{companyName || 'Apparel Manufacturing Facility'}</div>
@@ -168,10 +168,10 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
         </div>
 
         {/* Right 1 Col: Access Scope & Restrictions Summary */}
-        <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-7 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
-              <ShieldCheck className="w-5 h-5 text-[#3A3564]" />
+              <ShieldCheck className="w-5 h-5 text-[#0B1220]" />
               <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
                 Department Access Level
               </h3>

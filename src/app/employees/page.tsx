@@ -74,7 +74,7 @@ export default async function EmployeesPage({ forcedModule, moduleName }: Employ
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
           <Link 
             href={effectiveModule ? `${effectiveModule}/dashboard` : '/modules'} 
-            className="hover:text-[#3A3564] transition-colors"
+            className="hover:text-[#0B1220] transition-colors"
           >
             {resolvedModuleName || 'Workspace Hub'}
           </Link>
@@ -91,11 +91,11 @@ export default async function EmployeesPage({ forcedModule, moduleName }: Employ
 
         {/* 2. Page Header */}
         <div 
-          className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex items-center justify-between gap-4 transition-all"
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex items-center justify-between gap-4 transition-all"
         >
           <div className="flex items-center gap-3.5">
             <div 
-              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15"
             >
               <Users className="w-5 h-5" />
             </div>

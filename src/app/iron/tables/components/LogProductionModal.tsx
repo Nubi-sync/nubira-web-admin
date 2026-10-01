@@ -58,10 +58,10 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white border border-black/10 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
-        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]">
+      <div className="bg-white border border-black/15 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden my-8">
+        <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-white text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
               <Calculator className="w-4 h-4" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
                 value={selectedTableNumber}
                 onChange={e => setSelectedTableNumber(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
               >
                 {tables.map(t => (
                   <option key={t.id} value={t.tableNumber}>
@@ -111,7 +111,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
                 type="text"
                 readOnly
                 value={activeTable?.operatorName || 'Unassigned'}
-                className="w-full px-3 py-2 text-xs font-bold text-slate-800 rounded-xl border border-black/10 bg-slate-100/70 cursor-not-allowed"
+                className="w-full px-3 py-2 text-xs font-bold text-slate-800 rounded-xl border border-black/15 bg-slate-100/70 cursor-not-allowed"
               />
             </div>
           </div>
@@ -123,7 +123,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
             </div>
             <div className="text-right">
               <span className="text-slate-400 block text-[10px] uppercase font-mono">Piece Rate</span>
-              <strong className="text-[#3A3564] font-mono text-sm">₹{rate.toFixed(2)}/pc</strong>
+              <strong className="text-[#0B1220] font-mono text-sm">₹{rate.toFixed(2)}/pc</strong>
             </div>
           </div>
 
@@ -139,13 +139,13 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
               value={piecesPressed}
               onChange={e => setPiecesPressed(Number(e.target.value))}
               required
-              className="w-full px-3 py-2 text-sm font-mono font-bold text-slate-900 rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+              className="w-full px-3 py-2 text-sm font-mono font-bold text-slate-900 rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
             />
             <span className="text-[10px] text-slate-400">100% wrinkle-free inspected pieces</span>
           </div>
 
           {/* Defects Log (Shine & Water Spot) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-[#FAF7F0] rounded-xl border border-black/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3.5 bg-[#F0FDFA] rounded-xl border border-black/15">
             <div>
               <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
                 Fabric Glaze / Shine Defects
@@ -156,7 +156,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
                 value={defectShineCount}
                 onChange={e => setDefectShineCount(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-500">Sent to 10 Alteration</span>
             </div>
@@ -171,14 +171,14 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
                 value={waterStainCount}
                 onChange={e => setWaterStainCount(Number(e.target.value))}
                 required
-                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/10 bg-white"
+                className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-black/15 bg-white"
               />
               <span className="text-[10px] text-slate-500">Steam spit spots</span>
             </div>
           </div>
 
           {/* Auto-Calculated Wages Banner */}
-          <div className="p-3.5 rounded-xl border border-black/10 bg-[#FAF7F0] text-slate-900 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl border border-black/15 bg-[#F0FDFA] text-slate-900 flex items-center justify-between">
             <div>
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Calculated Shift Earnings
@@ -201,7 +201,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
               placeholder="e.g. Completed lot ahead of schedule"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white"
             />
           </div>
 
@@ -215,7 +215,7 @@ export function LogProductionModal({ isOpen, onClose, defaultTable }: LogProduct
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Submit Production & Wages</span>

@@ -17,7 +17,7 @@ export default function RootError({
   }, [error])
 
   return (
-    <div className="min-h-screen bg-[#FAF7F0] text-slate-900 flex flex-col justify-between selection:bg-[#3A3564] selection:text-white font-sans">
+    <div className="min-h-screen bg-[#F0FDFA] text-slate-900 flex flex-col justify-between selection:bg-[#0B1220] selection:text-white font-sans">
       {/* Header */}
       <header className="px-6 py-4 sm:px-10 flex items-center justify-between border-b border-black/10 bg-white/70 backdrop-blur-md">
         <div className="inline-flex items-center gap-2">
@@ -36,7 +36,7 @@ export default function RootError({
           href="/modules"
           className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-950 transition-colors"
         >
-          <LayoutGrid className="w-4 h-4 text-[#3A3564]" />
+          <LayoutGrid className="w-4 h-4 text-[#0B1220]" />
           <span>Workspace Hub</span>
         </Link>
       </header>
@@ -72,14 +72,14 @@ export default function RootError({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               onClick={() => reset()}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Retry / Re-render View</span>
             </button>
             <Link
               href="/modules"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FAF7F0] hover:bg-slate-100 border border-black/15 text-slate-800 rounded-xl text-sm font-bold transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#F0FDFA] hover:bg-slate-100 border border-black/15 text-slate-800 rounded-xl text-sm font-bold transition-all cursor-pointer"
             >
               <LayoutGrid className="w-4 h-4 text-slate-600" />
               <span>Workspace Hub</span>

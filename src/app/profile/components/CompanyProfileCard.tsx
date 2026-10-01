@@ -47,12 +47,12 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 relative transition-all flex flex-col justify-between">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs p-5 sm:p-7 relative transition-all flex flex-col justify-between">
         <div>
           {/* Header with Title & Edit Button */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                 <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
@@ -60,7 +60,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                   <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                     {companyName}
                   </h2>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#FAF7F0] text-slate-900 border border-black/15 shadow-2xs">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F0FDFA] text-slate-900 border border-black/15 shadow-2xs">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     Active Facility
                   </span>
@@ -74,7 +74,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 shadow-2xs transition-all cursor-pointer w-fit self-start sm:self-center"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FFFA] border border-black/15 shadow-2xs transition-all cursor-pointer w-fit self-start sm:self-center"
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>Edit Info</span>
@@ -85,7 +85,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-5">
             {/* Factory Address */}
             <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 transition-all shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
+              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0 text-[#0B1220] border border-slate-200 shadow-2xs">
                 <MapPin className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
@@ -100,7 +100,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
 
             {/* GSTIN No */}
             <div className="flex items-start gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 transition-all shadow-2xs">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0 text-[#3A3564] border border-slate-200 shadow-2xs">
+              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0 text-[#0B1220] border border-slate-200 shadow-2xs">
                 <FileText className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
@@ -120,12 +120,12 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
           <div 
-            className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-black/10 my-auto animate-in zoom-in-95 duration-200"
+            className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-black/15 my-auto animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0">
                   <Building2 className="w-5 h-5" />
                 </div>
                 <div>
@@ -166,7 +166,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                   name="company_name"
                   required
                   defaultValue={companyName}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all"
                   placeholder="e.g. Factory or Company Name"
                 />
               </div>
@@ -179,7 +179,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                   name="factory_address"
                   rows={2}
                   defaultValue={factoryAddress === 'Address not configured' ? '' : factoryAddress}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all resize-none"
                   placeholder="Factory premises, street, city, pin code..."
                 />
               </div>
@@ -192,7 +192,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                   type="text"
                   name="gstin"
                   defaultValue={gstin === 'Not configured' ? '' : gstin}
-                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-mono border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-mono border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220] transition-all"
                   placeholder="e.g. 19AADCO1064C1ZK"
                 />
               </div>
@@ -209,7 +209,7 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2d294e] shadow-2xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#2d294e] shadow-2xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
                 >
                   {isPending ? (
                     <>

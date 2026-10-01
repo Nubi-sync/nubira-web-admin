@@ -116,11 +116,11 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/10 shadow-xl overflow-hidden">
+      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/15 shadow-xl overflow-hidden">
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F0]/60">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <FileCheck2 className="w-5 h-5" />
             </div>
             <div>
@@ -140,15 +140,15 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
 
         {/* Step 5.1 Quick Fill Preset */}
         <div className="px-5 pt-4">
-          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+          <div className="bg-[#F0FDFA] p-3 rounded-xl border border-black/15 flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
               Step 5.1 Strike-Off Preset:
             </span>
             <button
               type="button"
               onClick={applyPreset51}
-              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-black/15 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
             >
               SO-2026-041 (PO-2026-9901 • ΔE 0.32)
             </button>
@@ -172,7 +172,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               <select
                 value={poNumber}
                 onChange={e => handleSelectPo(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
                 required
               >
                 {availablePos.map(p => (
@@ -193,7 +193,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               <select
                 value={styleRef}
                 onChange={e => setStyleRef(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
                 required
               >
                 {availablePos.map(p => (
@@ -218,7 +218,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
                 list="pantone-suggestions"
                 value={pantoneTarget}
                 onChange={e => setPantoneTarget(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
                 required
               />
               <datalist id="pantone-suggestions">
@@ -235,7 +235,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               <select
                 value={technique}
                 onChange={e => setTechnique(e.target.value as PrintTechnique)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               >
                 {TECHNIQUES.map(t => (
                   <option key={t} value={t}>{t}</option>
@@ -256,7 +256,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
                 max="5.00"
                 value={spectroDeltaE}
                 onChange={e => setSpectroDeltaE(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900"
                 required
               />
             </div>
@@ -269,18 +269,18 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
                 type="number"
                 value={curingTemp}
                 onChange={e => setCuringTemp(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 p-3 rounded-xl bg-[#FAF7F0]/60 border border-black/10">
+          <div className="grid grid-cols-2 gap-4 p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/15">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={stretchTestPass}
                 onChange={e => setStretchTestPass(e.target.checked)}
-                className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                className="rounded text-[#0B1220] focus:ring-[#0B1220]"
               />
               <span className="text-xs font-bold text-slate-700">100% Stretch No-Crack Pass</span>
             </label>
@@ -290,7 +290,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
                 type="checkbox"
                 checked={crockingTestPass}
                 onChange={e => setCrockingTestPass(e.target.checked)}
-                className="rounded text-[#3A3564] focus:ring-[#3A3564]"
+                className="rounded text-[#0B1220] focus:ring-[#0B1220]"
               />
               <span className="text-xs font-bold text-slate-700">Dry/Wet Crocking Pass</span>
             </label>
@@ -304,7 +304,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               <select
                 value={washFastness}
                 onChange={e => setWashFastness(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
               >
                 <option value="5.0">5.0 (Flawless)</option>
                 <option value="4.5">4.5 (AATCC Standard Pass)</option>
@@ -321,7 +321,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               <select
                 value={approvalStatus}
                 onChange={e => setApprovalStatus(e.target.value as StrikeOffStatus)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono font-bold"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono font-bold"
               >
                 <option value="APPROVED">APPROVED (Authorized for Bulk)</option>
                 <option value="REVISE_RECIPE">REVISE_RECIPE (Adjust Pigment)</option>
@@ -339,7 +339,7 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
               rows={2}
               value={remarks}
               onChange={e => setRemarks(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-medium"
+              className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-medium"
             />
           </div>
 
@@ -348,13 +348,13 @@ export function SubmitStrikeOffModal({ isOpen, onClose, onSuccess }: SubmitStrik
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Record Strike-Off Test</span>

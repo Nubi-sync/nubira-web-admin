@@ -51,12 +51,12 @@ export function FinishQcClient() {
     <div className="space-y-6 select-none">
       {/* 4 Quality Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Finishing Pass Rate
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -73,12 +73,12 @@ export function FinishQcClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               1000-Lux Inspections
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
@@ -93,12 +93,12 @@ export function FinishQcClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Quarantine to Alteration
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
@@ -113,12 +113,12 @@ export function FinishQcClient() {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500">
               Teflon Shoe Protection
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -135,7 +135,7 @@ export function FinishQcClient() {
       </div>
 
       {/* QC Audit Records Table */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs space-y-4">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-1 max-w-md">
             <div className="relative w-full">
@@ -145,20 +145,20 @@ export function FinishQcClient() {
                 placeholder="Search audit code, table, operator, lot..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 text-[11px] font-mono font-bold">
+            <div className="flex items-center gap-1 bg-[#F0FDFA] p-1 rounded-xl border border-black/15 text-[11px] font-mono font-bold">
               {['ALL', 'PASS', 'REWORK_ALTERATION'].map(st => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     statusFilter === st
-                      ? 'bg-[#3A3564] text-white shadow-xs'
+                      ? 'bg-[#0B1220] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -169,7 +169,7 @@ export function FinishQcClient() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record QC Audit</span>
@@ -177,9 +177,9 @@ export function FinishQcClient() {
           </div>
         </div>
 
-        <div className="overflow-x-auto border border-black/10 rounded-xl">
+        <div className="overflow-x-auto border border-black/15 rounded-xl">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
-            <thead className="bg-[#FAF7F0]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
+            <thead className="bg-[#F0FDFA]/60 border-b border-black/10 text-slate-600 font-mono uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="p-3.5">Audit Code & Time</th>
                 <th className="p-3.5">Table & Operator</th>
@@ -194,9 +194,9 @@ export function FinishQcClient() {
             <tbody className="divide-y divide-black/5 font-sans">
               {filtered.length > 0 ? (
                 filtered.map(a => (
-                  <tr key={a.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={a.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                     <td className="p-3.5 font-mono">
-                      <div className="font-bold text-[#3A3564]">{a.auditCode}</div>
+                      <div className="font-bold text-[#0B1220]">{a.auditCode}</div>
                       <div className="text-[11px] text-slate-500">{a.timestamp}</div>
                     </td>
                     <td className="p-3.5">
@@ -218,7 +218,7 @@ export function FinishQcClient() {
                     </td>
                     <td className="p-3.5">
                       <span
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#F0FDFA] text-[#0B1220] border border-black/15"
                       >
                         {a.qcStatus.replace(/_/g, ' ')}
                       </span>

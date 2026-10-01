@@ -76,11 +76,11 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/10 shadow-xl overflow-hidden">
+      <div className="bg-white w-full max-w-xl rounded-2xl border border-black/15 shadow-xl overflow-hidden">
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#FAF7F0]/60">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-[#F0FDFA]/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center">
               <Layers className="w-5 h-5" />
             </div>
             <div>
@@ -100,15 +100,15 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
 
         {/* Step 5.2 Quick Fill Preset */}
         <div className="px-5 pt-4">
-          <div className="bg-[#FAF7F0] p-3 rounded-xl border border-black/10 flex items-center justify-between">
+          <div className="bg-[#F0FDFA] p-3 rounded-xl border border-black/15 flex items-center justify-between">
             <span className="text-xs font-mono font-bold text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3A3564]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0B1220]" />
               Step 5.2 Screen Preset:
             </span>
             <button
               type="button"
               onClick={applyPreset52}
-              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#3A3564] border border-black/10 rounded-lg hover:bg-[#3A3564] hover:text-white transition-all shadow-2xs cursor-pointer"
+              className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-black/15 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
             >
               SCR-2026-112 (140T / 160T • 24 N/cm)
             </button>
@@ -134,7 +134,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
                 placeholder="SCR-NV-160-A"
                 value={screenCode}
                 onChange={e => setScreenCode(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
                 required
               />
             </div>
@@ -148,7 +148,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
                 placeholder="ART-HOODIE-CHEST-LOGO"
                 value={artworkRef}
                 onChange={e => setArtworkRef(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
                 required
               />
             </div>
@@ -164,7 +164,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
                 placeholder="Base White / Highlight Gold"
                 value={colorSeparation}
                 onChange={e => setColorSeparation(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900"
               />
             </div>
 
@@ -175,7 +175,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
               <select
                 value={meshCount}
                 onChange={e => setMeshCount(Number(e.target.value) as ScreenMesh)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               >
                 {AVAILABLE_MESHES.map(m => (
                   <option key={m} value={m}>
@@ -197,7 +197,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
                 placeholder="25.0"
                 value={tensionNewtons}
                 onChange={e => setTensionNewtons(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               />
             </div>
 
@@ -210,7 +210,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
                 placeholder="Rack S-02 / Bin 08"
                 value={rackLocation}
                 onChange={e => setRackLocation(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               />
             </div>
           </div>
@@ -225,7 +225,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
                 placeholder="Murakami One-Pot SBQ"
                 value={emulsionType}
                 onChange={e => setEmulsionType(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900"
               />
             </div>
 
@@ -236,7 +236,7 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value as ScreenStatus)}
-                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 font-mono"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 font-mono"
               >
                 <option value="READY_FOR_PRINT">READY_FOR_PRINT</option>
                 <option value="IN_USE">IN_USE</option>
@@ -251,13 +251,13 @@ export function CreateScreenModal({ isOpen, onClose, onSuccess }: CreateScreenMo
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/10 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Register Screen</span>

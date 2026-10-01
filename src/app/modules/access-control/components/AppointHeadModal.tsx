@@ -197,7 +197,7 @@ export function AppointHeadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-7 border border-black/10 relative my-auto max-h-[92vh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-7 border border-black/15 relative my-auto max-h-[92vh] flex flex-col">
         
         {/* Close Button */}
         <button
@@ -211,12 +211,12 @@ export function AppointHeadModal({
 
         {/* Modal Header */}
         <div className="flex items-start gap-3.5 mb-5 pb-4 border-b border-slate-100 shrink-0">
-          <div className="w-11 h-11 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
             <UserCheck className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 {isEditing ? 'EDIT HEAD' : division ? `DIVISION ${division.code}` : 'APPOINT HEAD'}
               </span>
               <span className="text-xs font-mono font-medium text-slate-400">•</span>
@@ -243,7 +243,7 @@ export function AppointHeadModal({
                 placeholder="e.g. Mohd. Aslam"
                 value={displayName}
                 onChange={(e) => handleNameChange(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all"
               />
             </div>
 
@@ -257,7 +257,7 @@ export function AppointHeadModal({
                 placeholder="e.g. aslam_cutting"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
               />
             </div>
           </div>
@@ -274,7 +274,7 @@ export function AppointHeadModal({
                 placeholder="e.g. Cutting Master / CAD Head"
                 value={designation}
                 onChange={(e) => setDesignation(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all"
               />
             </div>
 
@@ -282,7 +282,7 @@ export function AppointHeadModal({
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 font-mono mb-1.5">
                 Phone / WhatsApp (Optional)
               </label>
-              <div className="relative flex rounded-xl border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all overflow-hidden">
+              <div className="relative flex rounded-xl border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10 transition-all overflow-hidden">
                 <div className="flex items-center px-3 bg-slate-100 text-slate-600 font-mono text-xs border-r border-slate-200 select-none">
                   +91
                 </div>
@@ -306,12 +306,12 @@ export function AppointHeadModal({
               <button
                 type="button"
                 onClick={() => generateRandomPassword(displayName || (division ? division.name : 'Factory'))}
-                className="text-[11px] text-[#3A3564] hover:underline font-bold"
+                className="text-[11px] text-[#0B1220] hover:underline font-bold"
               >
                 Auto-Generate Strong
               </button>
             </div>
-            <div className="relative flex rounded-xl border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-[#3A3564] focus-within:ring-2 focus-within:ring-[#3A3564]/10 transition-all overflow-hidden">
+            <div className="relative flex rounded-xl border border-slate-200 bg-slate-50 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10 transition-all overflow-hidden">
               <input
                 type="text"
                 required={!isEditing}
@@ -367,21 +367,21 @@ export function AppointHeadModal({
                     }}
                     className={`flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer select-none transition-all ${
                       isChecked
-                        ? 'bg-[#FAF7F0] border-[#3A3564] text-slate-900 shadow-2xs ring-1 ring-[#3A3564]/30'
+                        ? 'bg-[#F0FDFA] border-[#0B1220] text-slate-900 shadow-2xs ring-1 ring-[#0B1220]/30'
                         : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     <div
                       className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 border transition-all ${
                         isChecked
-                          ? 'border-[#3A3564] bg-white ring-2 ring-[#3A3564]/20'
+                          ? 'border-[#0B1220] bg-white ring-2 ring-[#0B1220]/20'
                           : 'border-slate-300 bg-white'
                       }`}
                     >
-                      {isChecked && <div className="w-2 h-2 rounded-full bg-[#3A3564]" />}
+                      {isChecked && <div className="w-2 h-2 rounded-full bg-[#0B1220]" />}
                     </div>
 
-                    <div className="w-7 h-7 rounded-lg bg-white border border-black/10 text-[#3A3564] flex items-center justify-center shrink-0 shadow-2xs">
+                    <div className="w-7 h-7 rounded-lg bg-white border border-black/15 text-[#0B1220] flex items-center justify-center shrink-0 shadow-2xs">
                       <IconComponent className="w-3.5 h-3.5" />
                     </div>
 
@@ -409,8 +409,8 @@ export function AppointHeadModal({
 
           {/* Success Notification */}
           {success && (
-            <div className="p-3 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs text-[#3A3564] font-bold flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#3A3564] shrink-0" />
+            <div className="p-3 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs text-[#0B1220] font-bold flex items-center gap-2">
+              <Check className="w-4 h-4 text-[#0B1220] shrink-0" />
               <span>Department Head Appointed & Credentials Saved!</span>
             </div>
           )}
@@ -428,7 +428,7 @@ export function AppointHeadModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
               {isSubmitting ? (
                 <>

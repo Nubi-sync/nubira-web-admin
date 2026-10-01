@@ -46,9 +46,9 @@ export function WorkerAssignmentsTable({
 
   if (!assignments || assignments.length === 0) {
     return (
-      <div className="py-8 px-4 text-center bg-white rounded-xl border border-black/10 shadow-2xs space-y-2">
-        <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center shadow-2xs">
-          <User className="w-5 h-5 text-[#3A3564]" />
+      <div className="py-8 px-4 text-center bg-white rounded-xl border border-black/15 shadow-2xs space-y-2">
+        <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
+          <User className="w-5 h-5 text-[#0B1220]" />
         </div>
         <p className="text-xs font-bold text-slate-800">No Tailor Operations Assigned Yet</p>
         <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
@@ -143,18 +143,18 @@ export function WorkerAssignmentsTable({
     <div className="space-y-3">
       {/* 1. Tailor Operations KPI Summary Header */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-        <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+        <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
           <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
             Active Tailors
           </span>
           <p className="text-sm font-extrabold text-slate-900 mt-0.5 flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5 text-[#3A3564]" />
+            <User className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>{uniqueWorkers.length} Tailors</span>
             <span className="text-[10.5px] font-normal text-slate-400">({assignments.length} batches)</span>
           </p>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+        <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
           <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
             Total Completed
           </span>
@@ -164,7 +164,7 @@ export function WorkerAssignmentsTable({
           </p>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+        <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
           <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
             Floor Progress
           </span>
@@ -172,7 +172,7 @@ export function WorkerAssignmentsTable({
             <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all ${
-                  progressPercent >= 100 ? 'bg-emerald-500' : 'bg-[#3A3564]'
+                  progressPercent >= 100 ? 'bg-emerald-500' : 'bg-[#0B1220]'
                 }`}
                 style={{ width: `${progressPercent}%` }}
               />
@@ -181,7 +181,7 @@ export function WorkerAssignmentsTable({
           </div>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white border border-black/10 shadow-2xs">
+        <div className="p-2.5 rounded-xl bg-white border border-black/15 shadow-2xs">
           <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
             Earned Piece-Rate
           </span>
@@ -193,10 +193,10 @@ export function WorkerAssignmentsTable({
       </div>
 
       {/* 2. Interactive Tailor Assignment Breakdown Table */}
-      <div className="overflow-x-auto rounded-xl border border-black/10 bg-white shadow-2xs">
+      <div className="overflow-x-auto rounded-xl border border-black/15 bg-white shadow-2xs">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="bg-[#FAF7F0] border-b border-black/10 text-[#3A3564]">
+            <tr className="bg-[#F0FDFA] border-b border-black/10 text-[#0B1220]">
               <th className="py-2.5 px-3.5 font-extrabold uppercase tracking-wider text-slate-700 min-w-[150px]">
                 Tailor / Worker
               </th>
@@ -206,7 +206,7 @@ export function WorkerAssignmentsTable({
               <th className="py-2.5 px-3 font-extrabold uppercase tracking-wider text-slate-700 min-w-[130px]">
                 Color & Size
               </th>
-              <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#3A3564] min-w-[100px]">
+              <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#0B1220] min-w-[100px]">
                 Output / Target
               </th>
               <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-slate-700 min-w-[90px]">
@@ -215,7 +215,7 @@ export function WorkerAssignmentsTable({
               <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-slate-700 min-w-[90px]">
                 Completed At
               </th>
-              <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#3A3564] min-w-[85px]">
+              <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-[#0B1220] min-w-[85px]">
                 Duration
               </th>
               <th className="py-2.5 px-3 text-center font-extrabold uppercase tracking-wider text-slate-700 min-w-[80px]">
@@ -274,9 +274,9 @@ export function WorkerAssignmentsTable({
                   {/* Color & Size Variant */}
                   <td className="py-2.5 px-3">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-700">
-                      <span className="w-2 h-2 rounded-full bg-[#3A3564] shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-[#0B1220] shrink-0" />
                       <span className="truncate max-w-[90px]">{ass.color || 'Standard'}</span>
-                      {ass.size && <span className="text-[#3A3564]">({ass.size})</span>}
+                      {ass.size && <span className="text-[#0B1220]">({ass.size})</span>}
                     </div>
                   </td>
 
@@ -306,7 +306,7 @@ export function WorkerAssignmentsTable({
                   </td>
 
                   {/* Duration Taken */}
-                  <td className="py-2.5 px-3 text-center font-mono font-bold text-xs text-[#3A3564]">
+                  <td className="py-2.5 px-3 text-center font-mono font-bold text-xs text-[#0B1220]">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
                       <Clock className="w-3 h-3 text-slate-400" />
                       <span>{durationStr}</span>

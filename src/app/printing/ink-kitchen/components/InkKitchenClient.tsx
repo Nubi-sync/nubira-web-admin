@@ -47,9 +47,9 @@ export function InkKitchenClient() {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b] select-none">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Palette className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -57,7 +57,7 @@ export function InkKitchenClient() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Ink Kitchen &amp; Formulation Chemistry
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 Exact Chemical Grams Ledger
               </span>
             </div>
@@ -71,7 +71,7 @@ export function InkKitchenClient() {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/printing"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-mono font-bold text-slate-700 hover:text-[#3A3564] hover:bg-[#FAF7F0] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -80,7 +80,7 @@ export function InkKitchenClient() {
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Formulate Recipe</span>
@@ -90,7 +90,7 @@ export function InkKitchenClient() {
 
       {/* 3. Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Active Shade Recipes
           </span>
@@ -100,7 +100,7 @@ export function InkKitchenClient() {
           <p className="text-xs text-slate-500 mt-1 font-medium">Calibrated for bulk table runs</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Total Batched Volume
           </span>
@@ -110,7 +110,7 @@ export function InkKitchenClient() {
           <p className="text-xs text-slate-500 mt-1 font-medium">Ready in color kitchen buckets</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Eco Compliance SLA
           </span>
@@ -120,7 +120,7 @@ export function InkKitchenClient() {
           <p className="text-xs text-slate-600 font-medium">OEKO-TEX & GOTS 6.0 verified</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="bg-white p-5 rounded-2xl border border-black/15 shadow-2xs">
           <span className="text-xs font-mono font-bold text-slate-500 block mb-2">
             Standard Viscosity
           </span>
@@ -132,8 +132,8 @@ export function InkKitchenClient() {
       </div>
 
       {/* 4. Filter Toolbar & Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 flex-wrap bg-[#FAF7F0]/30">
+      <div className="bg-white rounded-2xl border border-black/15 shadow-2xs overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 flex-wrap bg-[#F0FDFA]/30">
           <div className="flex items-center gap-2 flex-wrap">
             {['ALL', 'PLASTISOL', 'WATER_BASED', 'DISCHARGE', 'HIGH_DENSITY'].map(tech => (
               <button
@@ -141,8 +141,8 @@ export function InkKitchenClient() {
                 onClick={() => setTechniqueFilter(tech)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                   techniqueFilter === tech
-                    ? 'bg-[#3A3564] text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:text-[#3A3564] border border-black/10 hover:bg-[#FAF7F0]'
+                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-[#0B1220] border border-black/15 hover:bg-[#F0FDFA]'
                 }`}
               >
                 {tech.replace(/_/g, ' ')}
@@ -157,7 +157,7 @@ export function InkKitchenClient() {
               placeholder="Search recipe, color, chemist..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white border border-black/10 focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white border border-black/15 focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>
         </div>
@@ -166,7 +166,7 @@ export function InkKitchenClient() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 bg-[#FAF7F0]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-slate-100 bg-[#F0FDFA]/60 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3 px-4">Recipe Code</th>
                 <th className="py-3 px-4">Color & Pantone</th>
                 <th className="py-3 px-4">Technique</th>
@@ -179,7 +179,7 @@ export function InkKitchenClient() {
             <tbody className="divide-y divide-slate-100 text-xs text-slate-900">
               {filteredRecipes.length > 0 ? (
                 filteredRecipes.map(rcp => (
-                  <tr key={rcp.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={rcp.id} className="hover:bg-[#F0FDFA]/40 transition-colors">
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">
                       {rcp.recipe_code}
                     </td>
@@ -188,7 +188,7 @@ export function InkKitchenClient() {
                       <div className="text-[11px] font-mono text-slate-500">{rcp.pantone_code}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {rcp.technique}
                       </span>
                     </td>
@@ -207,7 +207,7 @@ export function InkKitchenClient() {
                       {rcp.batch_volume_kg} kg
                     </td>
                     <td className="py-3 px-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         {rcp.eco_compliance}
                       </span>
                       <div className="text-[10px] text-slate-500 mt-0.5">{rcp.prepared_by}</div>

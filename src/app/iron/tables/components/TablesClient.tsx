@@ -60,7 +60,7 @@ export function TablesClient() {
   return (
     <div className="space-y-6 select-none">
       {/* Top Action & Filter Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 max-w-md">
           <div className="relative w-full">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -69,20 +69,20 @@ export function TablesClient() {
               placeholder="Search table, operator, challan..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#3A3564] text-slate-900 placeholder:text-slate-400 font-medium"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0B1220] text-slate-900 placeholder:text-slate-400 font-medium"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 bg-[#FAF7F0] p-1 rounded-xl border border-black/10 text-[11px] font-mono font-bold">
+          <div className="flex items-center gap-1 bg-[#F0FDFA] p-1 rounded-xl border border-black/15 text-[11px] font-mono font-bold">
             {['ALL', 'ACTIVE', 'IDLE'].map(st => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                   statusFilter === st
-                    ? 'bg-[#3A3564] text-white shadow-xs'
+                    ? 'bg-[#0B1220] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -93,7 +93,7 @@ export function TablesClient() {
 
           <button
             onClick={() => handleOpenAllot()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#FAF7F0] hover:bg-white text-[#3A3564] border border-black/10 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#F0FDFA] hover:bg-white text-[#0B1220] border border-black/15 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Allot Table (Form 1)</span>
@@ -101,7 +101,7 @@ export function TablesClient() {
 
           <button
             onClick={() => handleOpenLog()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
           >
             <Calculator className="w-4 h-4" />
             <span>Log Production (Form 2)</span>
@@ -120,20 +120,20 @@ export function TablesClient() {
                 key={t.id}
                 className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
                   isActive
-                    ? 'bg-white border-[#3A3564]/20 shadow-2xs ring-1 ring-[#3A3564]/10'
+                    ? 'bg-white border-[#0B1220]/20 shadow-2xs ring-1 ring-[#0B1220]/10'
                     : 'bg-slate-50/70 border-slate-200 text-slate-600'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#3A3564]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#0B1220]" />
                       <h3 className="text-base font-black text-slate-900 font-mono">
                         {t.tableNumber}
                       </h3>
                     </div>
                     <span
-                      className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                      className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15"
                     >
                       {t.status}
                     </span>
@@ -152,12 +152,12 @@ export function TablesClient() {
 
                     <div className="flex items-center justify-between text-slate-700">
                       <span className="text-slate-500">Inward Challan:</span>
-                      <span className="font-mono font-bold text-[#3A3564]">
+                      <span className="font-mono font-bold text-[#0B1220]">
                         {t.challanId}
                       </span>
                     </div>
 
-                    <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-black/5 space-y-1">
+                    <div className="p-2.5 bg-[#F0FDFA] rounded-xl border border-black/5 space-y-1">
                       <div className="font-bold text-slate-900 truncate">{t.articleName}</div>
                       <div className="flex items-center justify-between text-[11px] font-mono text-slate-600">
                         <span>Rate: <strong>₹{t.pieceRate.toFixed(2)}/pc</strong></span>
@@ -175,7 +175,7 @@ export function TablesClient() {
                         </div>
                         <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
                           <span className="flex items-center gap-1 text-slate-800 font-bold">
-                            <Thermometer className="w-3 h-3 text-[#3A3564]" />
+                            <Thermometer className="w-3 h-3 text-[#0B1220]" />
                             {t.ironTempC}°C
                           </span>
                           <span className="text-slate-700 font-bold">Vacuum Suction OK</span>
@@ -199,7 +199,7 @@ export function TablesClient() {
                   </button>
                   <button
                     onClick={() => handleOpenLog(t.tableNumber)}
-                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-xs text-center cursor-pointer"
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs text-center cursor-pointer"
                   >
                     Log Output
                   </button>
