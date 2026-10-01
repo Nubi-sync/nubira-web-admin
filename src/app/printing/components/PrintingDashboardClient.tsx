@@ -638,57 +638,28 @@ export function PrintingDashboardClient({
           </div>
         </div>
 
-        {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
-          <Link
-            href="/printing/strike-offs"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
+        {/* Right side: Search Bar + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search worker, article, table..."
+              value={taskSearchQuery}
+              onChange={e => setTaskSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs font-mono"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span>Strike-Offs</span>
-          </Link>
-          <Link
-            href="/printing/table-runs"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <TableProperties className="w-3.5 h-3.5 text-slate-500" />
-            <span>Table Runs</span>
-          </Link>
-          <Link
-            href="/printing/screens"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Layers className="w-3.5 h-3.5 text-slate-500" />
-            <span>Screens</span>
-          </Link>
-          <Link
-            href="/printing/ink-kitchen"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-slate-500" />
-            <span>Ink Kitchen</span>
-          </Link>
-          <Link
-            href="/printing/curing-qc"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Flame className="w-3.5 h-3.5 text-slate-500" />
-            <span>Curing QC</span>
-          </Link>
-          <Link
-            href="/printing/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Bot className="w-3.5 h-3.5 text-slate-500" />
-            <span>Zigza AI</span>
-          </Link>
-          <Link
-            href="/printing/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Users className="w-3.5 h-3.5 text-slate-500" />
-            <span>Division Profile</span>
-          </Link>
+            <UserPlus className="w-4 h-4 text-white" />
+            <span>+ Add Worker</span>
+          </button>
         </div>
       </div>
 

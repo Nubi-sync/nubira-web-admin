@@ -636,57 +636,28 @@ export function EmbroideryDashboardClient({
           </div>
         </div>
 
-        {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
-          <Link
-            href="/embroidery/punch-library"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
+        {/* Right side: Search Bar + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search worker, article, machine..."
+              value={taskSearchQuery}
+              onChange={e => setTaskSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs font-mono"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
-            <FileCode className="w-3.5 h-3.5 text-slate-500" />
-            <span>Punch Library</span>
-          </Link>
-          <Link
-            href="/embroidery/machine-runs"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Cpu className="w-3.5 h-3.5 text-slate-500" />
-            <span>Machine Runs</span>
-          </Link>
-          <Link
-            href="/embroidery/thread-store"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Package className="w-3.5 h-3.5 text-slate-500" />
-            <span>Thread Store</span>
-          </Link>
-          <Link
-            href="/embroidery/embroidery-qc"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
-            <span>Embroidery QC</span>
-          </Link>
-          <Link
-            href="/embroidery/stitch-billing"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Receipt className="w-3.5 h-3.5 text-slate-500" />
-            <span>Stitch Billing</span>
-          </Link>
-          <Link
-            href="/embroidery/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Bot className="w-3.5 h-3.5 text-slate-500" />
-            <span>Zigza AI</span>
-          </Link>
-          <Link
-            href="/embroidery/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
-          >
-            <Users className="w-3.5 h-3.5 text-slate-500" />
-            <span>Division Profile</span>
-          </Link>
+            <UserPlus className="w-4 h-4 text-white" />
+            <span>+ Add Worker</span>
+          </button>
         </div>
       </div>
 

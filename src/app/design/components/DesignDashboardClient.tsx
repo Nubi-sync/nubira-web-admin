@@ -20,7 +20,6 @@ import {
   Sparkles,
   Trash2,
   X,
-  Settings,
   RefreshCw,
   Bell
 } from 'lucide-react'
@@ -203,17 +202,24 @@ export function DesignDashboardClient({
         matchesStatus = b.status === statusFilter
       }
     }
-    const q = searchQuery.toLowerCase()
-    const matchesSearch = 
+    const q = searchQuery.toLowerCase().trim()
+    const matchesSearch = !q ||
       b.garment_type.toLowerCase().includes(q) ||
       b.category.toLowerCase().includes(q) ||
       (b.designer_name && b.designer_name.toLowerCase().includes(q)) ||
-      (b.instructions && b.instructions.toLowerCase().includes(q))
+      (b.instructions && b.instructions.toLowerCase().includes(q)) ||
+      (b.id && b.id.toLowerCase().includes(q)) ||
+      (b.design_concepts_brief && b.design_concepts_brief.some(c => 
+        (c.art_number && c.art_number.toLowerCase().includes(q)) ||
+        (c.category_style && c.category_style.toLowerCase().includes(q)) ||
+        (c.notes && c.notes.toLowerCase().includes(q)) ||
+        (c.colors && c.colors.some(col => col.toLowerCase().includes(q)))
+      ))
     return matchesStatus && matchesSearch
   })
 
-  // Dynamic KPI counts
-  const activeBriefsCount = briefs.filter(b => b.status === 'ALLOCATED' || b.status === 'SUBMITTED').length
+  // Dynamic KPI counts - Count all active briefs in studio pipeline
+  const activeBriefsCount = briefs.length
   const pendingPHCount = briefs.filter(b => b.status === 'SUBMITTED').length
   const pendingSACount = briefs.filter(b => b.status === 'PH_APPROVED').length
   const techPacksCount = techPacks.length
@@ -362,44 +368,24 @@ export function DesignDashboardClient({
           </div>
         </div>
 
-        {/* Quick Nav Actions */}
-        <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
-          <Link
-            href="/design/sa-approvals"
-            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-slate-500" />
-            <span>Approved Designs</span>
-          </Link>
-
-          <Link
-            href="/design/tech-packs"
-            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
-          >
-            <FileCheck2 className="w-3.5 h-3.5 text-slate-500" />
-            <span>Tech-Packs</span>
-          </Link>
-
-          <Link
-            href="/design/team"
-            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
-          >
-            <Users className="w-3.5 h-3.5 text-slate-500" />
-            <span>Team</span>
-          </Link>
-
-          <Link
-            href="/design/settings"
-            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
-          >
-            <Settings className="w-3.5 h-3.5 text-slate-500" />
-            <span>Supervisor Settings</span>
-          </Link>
+        {/* Right side: Search Bar + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search Art # or designer..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs"
+            />
+          </div>
 
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
             <Plus className="w-4 h-4 text-white" />
             <span>New Brief</span>
@@ -497,18 +483,6 @@ export function DesignDashboardClient({
                 {st === 'ALL' ? 'All Queue' : STATUS_CONFIG[st as BriefStatus]?.label || st}
               </button>
             ))}
-          </div>
-
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64 shrink-0">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search concepts or designers..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900"
-            />
           </div>
         </div>
 

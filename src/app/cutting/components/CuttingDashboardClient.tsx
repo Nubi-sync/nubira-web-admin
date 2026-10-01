@@ -538,36 +538,28 @@ export function CuttingDashboardClient({
           </div>
         </div>
 
-        {/* Quick Nav Chips */}
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <Link
-            href="/cutting/lay-sheets"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
+        {/* Right side: Search Bar + Primary Action Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto justify-end w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-64 md:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search worker, article, task..."
+              value={taskSearchQuery}
+              onChange={e => setTaskSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAddWorkerOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
           >
-            <Layers className="w-3.5 h-3.5 text-slate-500" />
-            <span>Lay Sheets</span>
-          </Link>
-          <Link
-            href="/cutting/markers"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
-          >
-            <Maximize2 className="w-3.5 h-3.5 text-slate-500" />
-            <span>CAD Markers</span>
-          </Link>
-          <Link
-            href="/cutting/bundles"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
-          >
-            <QrCode className="w-3.5 h-3.5 text-slate-500" />
-            <span>Bundle QR</span>
-          </Link>
-          <Link
-            href="/cutting/zigza-ai"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
-          >
-            <Bot className="w-3.5 h-3.5 text-slate-500" />
-            <span>Zigza AI</span>
-          </Link>
+            <UserPlus className="w-4 h-4 text-white" />
+            <span>+ Add Worker</span>
+          </button>
         </div>
       </div>
 
