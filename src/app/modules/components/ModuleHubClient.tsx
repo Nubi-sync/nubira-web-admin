@@ -211,23 +211,29 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
       {/* 1. Page Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <LayoutGrid className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 {resolvedCompany ? (
-                  <>Welcome, <span className="text-[#1D4ED8]">{resolvedCompany}</span></>
+                  <>
+                    Welcome,{' '}
+                    <span className="text-[#0B1220] relative inline-block font-extrabold">
+                      {resolvedCompany}
+                      <span className="absolute -bottom-1 left-0 w-full h-[2.5px] bg-[#0B1220]/25 rounded-full" />
+                    </span>
+                  </>
                 ) : (
-                  <>Enterprise <span className="text-[#1D4ED8]">Workspace</span> Hub</>
+                  <>Enterprise Workspace Hub</>
                 )}
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {visibleModules.length} Operating Units
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               {headingSubtitle}
             </p>
           </div>
@@ -242,7 +248,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search modules & divisions..."
-              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 rounded-xl transition-all outline-none"
+              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/20 rounded-xl transition-all outline-none"
             />
             {searchQuery && (
               <button
@@ -261,7 +267,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
       {/* 2. Equalized Enterprise Module Cards Grid */}
       {filteredModules.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center space-y-4 shadow-xs">
-          <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] mx-auto shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] mx-auto shadow-xs">
             <Search className="w-7 h-7 text-slate-400" />
           </div>
           <h3 className="text-lg sm:text-xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)]">
@@ -302,7 +308,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 {/* Top animated progress bar when launching */}
                 {isLaunching && (
                   <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0B1220] overflow-hidden rounded-t-3xl z-20">
-                    <div className="w-full h-full bg-gradient-to-r from-[#0B1220] via-[#14C8B4] to-[#0B1220] animate-pulse" />
+                    <div className="w-full h-full bg-[#0B1220] animate-pulse" />
                   </div>
                 )}
 
@@ -313,7 +319,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                     {isLaunching ? (
                       <Loader2 className="w-7 h-7 text-[#0B1220] stroke-[2] animate-spin" />
                     ) : (
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
                         <Icon className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220] stroke-[1.75]" />
                       </div>
                     )}
@@ -323,7 +329,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                       className={`text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg uppercase tracking-wider transition-colors ${
                         isLaunching
                           ? 'bg-[#0B1220] text-white'
-                          : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs'
+                          : 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs'
                       }`}
                     >
                       {isLaunching ? 'OPENING...' : mod.badge}
@@ -333,7 +339,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                   {/* Card Title */}
                   <h2
                     className={`text-lg sm:text-xl font-bold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
-                      isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#1D4ED8]'
+                      isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#0B1220]'
                     }`}
                   >
                     {mod.title}
@@ -348,7 +354,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                   <div className="mt-3.5 flex flex-col gap-2">
                     {mod.features.slice(0, 2).map((feat, idx) => (
                       <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-700">
-                        <span className="w-2 h-2 rounded-full bg-[#14C8B4] shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-[#0B1220]/60 shrink-0" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -359,13 +365,13 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 <div className="mt-5 flex items-center justify-end">
                   {isLaunching ? (
                     <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs">
-                      <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
                       <span>Opening...</span>
                     </div>
                   ) : (
                     <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] active:scale-[0.98] transition-all cursor-pointer text-center">
                       <span>Launch</span>
-                      <ArrowRight className="w-4 h-4 text-[#14C8B4] transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="w-4 h-4 text-white transition-transform group-hover:translate-x-1" />
                     </div>
                   )}
                 </div>

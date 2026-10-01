@@ -159,6 +159,7 @@ interface ProductionOrdersClientProps {
   linemenList?: any[]
   brandsList?: any[]
   vendorsList?: any[]
+  companyName?: string
 }
 
 export function ProductionOrdersClient({
@@ -166,7 +167,8 @@ export function ProductionOrdersClient({
   articlesList = [],
   linemenList = [],
   brandsList = [],
-  vendorsList = []
+  vendorsList = [],
+  companyName = ''
 }: ProductionOrdersClientProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -1178,7 +1180,7 @@ export function ProductionOrdersClient({
       if (c.includes('PURPLE') || c.includes('VIOLET') || c.includes('LAVENDER')) {
         return { themeColor: '#7E22CE', bgLight: '#FAF5FF', borderTheme: '#E9D5FF' }
       }
-      return { themeColor: '#3A3564', bgLight: '#FAF7F0', borderTheme: '#E5E0D8' }
+      return { themeColor: '#0B1220', bgLight: '#F0FDFA', borderTheme: '#E2E8F0' }
     }
 
     if (!challan.articles || challan.articles.length === 0) return []
@@ -1429,19 +1431,29 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Layers className="w-5 h-5" />
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Layers className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                Production & Job Work Challans
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                {companyName ? (
+                  <>
+                    Welcome,{' '}
+                    <span className="text-[#0B1220] relative inline-block font-extrabold">
+                      {companyName}
+                      <span className="absolute -bottom-1 left-0 w-full h-[2.5px] bg-[#0B1220]/25 rounded-full" />
+                    </span>
+                  </>
+                ) : (
+                  'Production & Job Work Challans'
+                )}
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 MES Multi-Article
               </span>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
               Real-world job work challans with multi-article size grids, BOM fabrics & lineman allotments
             </p>
           </div>
@@ -1460,22 +1472,21 @@ export function ProductionOrdersClient({
             type="button"
             disabled={isImporting}
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-[#3A3564]/30 bg-[#FAF7F0] hover:bg-[#F2ECE0] text-[#3A3564] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-black/15 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
             title="Import multi-article cutting challans from Excel (.xlsx, .xls, .csv)"
           >
             {isImporting ? (
-              <Loader2 className="w-4 h-4 text-[#3A3564] animate-spin" />
+              <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin" />
             ) : (
-              <FileSpreadsheet className="w-4 h-4 text-[#3A3564]" />
+              <FileSpreadsheet className="w-4 h-4 text-[#0B1220]" />
             )}
             <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
           </button>
 
-
           <button
             type="button"
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-black/15 bg-white hover:bg-slate-50 text-slate-700 transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] transition-all shadow-2xs cursor-pointer"
           >
             <Printer className="w-4 h-4 text-slate-500" />
             <span>Print Chart</span>
@@ -1484,9 +1495,9 @@ export function ProductionOrdersClient({
           <button
             type="button"
             onClick={handleOpenNewChallan}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-white" />
             <span>New Delivery Challan</span>
           </button>
 
@@ -1504,7 +1515,7 @@ export function ProductionOrdersClient({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Challans
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <FileSpreadsheet className="w-4 h-4" />
             </div>
           </div>
@@ -1530,22 +1541,22 @@ export function ProductionOrdersClient({
               setShowArticleHistoryModal(true)
             }
           }}
-          className="p-4.5 sm:p-5 rounded-2xl border border-[#3A3564]/30 bg-gradient-to-b from-white to-[#FAF7F0]/60 hover:to-[#FAF7F0] hover:border-[#3A3564] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group select-none relative overflow-hidden flex flex-col justify-between ring-1 ring-transparent hover:ring-[#3A3564]/15"
+          className="p-4.5 sm:p-5 rounded-2xl border border-[#0B1220]/30 bg-gradient-to-b from-white to-[#F0FDFA]/60 hover:to-[#F0FDFA] hover:border-[#0B1220] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group select-none relative overflow-hidden flex flex-col justify-between ring-1 ring-transparent hover:ring-[#0B1220]/15"
           title="Click to open Article Style Master Ledger & Production History"
         >
           {/* Subtle Top Accent Ribbon Indicator */}
-          <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#3A3564]/40 to-transparent group-hover:via-[#3A3564] transition-all" />
+          <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#0B1220]/40 to-transparent group-hover:via-[#0B1220] transition-all" />
 
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 group-hover:text-[#3A3564] transition-colors">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 group-hover:text-[#0B1220] transition-colors">
                 Article Styles
               </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#3A3564] bg-[#FAF7F0] group-hover:bg-[#3A3564] group-hover:text-white border border-[#3A3564]/20 px-2 py-0.5 rounded-md transition-all shadow-2xs">
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] group-hover:bg-[#0B1220] group-hover:text-white border border-[#0B1220]/20 px-2 py-0.5 rounded-md transition-all shadow-2xs">
                 Explorer <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </div>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] group-hover:bg-[#3A3564] group-hover:text-white border border-[#3A3564]/20 flex items-center justify-center shrink-0 shadow-2xs transition-all">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] group-hover:bg-[#0B1220] group-hover:text-white border border-[#0B1220]/20 flex items-center justify-center shrink-0 shadow-2xs transition-all">
               <Tag className="w-4 h-4" />
             </div>
           </div>
@@ -1554,7 +1565,7 @@ export function ProductionOrdersClient({
           </p>
           <div className="flex items-center justify-between text-xs sm:text-[13px] text-slate-500 font-medium mt-1">
             <span className="truncate">Master Articles ({summary.totalArticleLines} Variants)</span>
-            <span className="text-[11px] font-mono font-bold text-[#3A3564] group-hover:translate-x-0.5 transition-all shrink-0 ml-1">
+            <span className="text-[11px] font-mono font-bold text-[#0B1220] group-hover:translate-x-0.5 transition-all shrink-0 ml-1">
               View Ledger →
             </span>
           </div>
@@ -1566,7 +1577,7 @@ export function ProductionOrdersClient({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Sets
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <Layers className="w-4 h-4" />
             </div>
           </div>
@@ -1580,7 +1591,7 @@ export function ProductionOrdersClient({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Pieces
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -1594,7 +1605,7 @@ export function ProductionOrdersClient({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               In Production
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <Clock className="w-4 h-4" />
             </div>
           </div>
@@ -1608,7 +1619,7 @@ export function ProductionOrdersClient({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Ready / Out
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
               <Truck className="w-4 h-4" />
             </div>
           </div>
@@ -1626,7 +1637,7 @@ export function ProductionOrdersClient({
           onClick={() => setSelectedStatus('PENDING')}
           className={`px-4.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all cursor-pointer border shrink-0 ${
             selectedStatus === 'PENDING'
-              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+              ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
               : 'bg-white text-slate-700 hover:bg-slate-50 border-black/10'
           }`}
         >
@@ -1644,14 +1655,14 @@ export function ProductionOrdersClient({
           onClick={() => setSelectedStatus('IN_PROGRESS')}
           className={`px-4.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all cursor-pointer border shrink-0 ${
             selectedStatus === 'IN_PROGRESS'
-              ? 'bg-[#3A3564] text-white border-[#3A3564] shadow-xs'
+              ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
               : 'bg-white text-slate-700 hover:bg-slate-50 border-black/10'
           }`}
         >
-          <Zap className={`w-4 h-4 ${selectedStatus === 'IN_PROGRESS' ? 'text-indigo-300' : 'text-[#3A3564]'}`} />
+          <Zap className={`w-4 h-4 ${selectedStatus === 'IN_PROGRESS' ? 'text-indigo-300' : 'text-[#0B1220]'}`} />
           <span>Allotted Challans (In Production)</span>
           <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold ${
-            selectedStatus === 'IN_PROGRESS' ? 'bg-white/20 text-white' : 'bg-[#FAF7F0] text-[#3A3564] border border-black/10'
+            selectedStatus === 'IN_PROGRESS' ? 'bg-white/20 text-white' : 'bg-[#F0FDFA] text-[#0B1220] border border-black/10'
           }`}>
             {statusCounts.inProgress}
           </span>
@@ -1669,7 +1680,7 @@ export function ProductionOrdersClient({
             placeholder="Search by Article No, Challan No (e.g. 42, 9433)..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2 bg-slate-50 border border-black/10 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+            className="w-full pl-10 pr-9 py-2 bg-slate-50 border border-black/10 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
           />
           {searchQuery.trim() !== '' && (
             <button
@@ -1727,17 +1738,17 @@ export function ProductionOrdersClient({
 
       {/* Search Active Indicator Banner */}
       {searchQuery.trim() !== '' && (
-        <div className="flex items-center justify-between px-4.5 py-3 bg-[#FAF7F0] border border-black/10 rounded-2xl text-xs sm:text-sm font-medium text-slate-700 shadow-2xs">
+        <div className="flex items-center justify-between px-4.5 py-3 bg-[#F0FDFA] border border-black/10 rounded-2xl text-xs sm:text-sm font-medium text-slate-700 shadow-2xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <Search className="w-4 h-4 text-[#3A3564]" />
+            <Search className="w-4 h-4 text-[#0B1220]" />
             <span>
-              Searching across all records for <strong className="text-[#3A3564] font-bold">"{searchQuery.trim()}"</strong> • Found <strong className="text-slate-900 font-bold">{filteredOrders.length}</strong> Challan{filteredOrders.length === 1 ? '' : 's'} (both Allotted & Pending)
+              Searching across all records for <strong className="text-[#0B1220] font-bold">"{searchQuery.trim()}"</strong> • Found <strong className="text-slate-900 font-bold">{filteredOrders.length}</strong> Challan{filteredOrders.length === 1 ? '' : 's'} (both Allotted & Pending)
             </span>
           </div>
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="text-xs font-bold text-[#3A3564] hover:text-[#2A2649] flex items-center gap-1 cursor-pointer bg-white px-3 py-1 rounded-xl border border-black/10 shadow-2xs transition-all"
+            className="text-xs font-bold text-[#0B1220] hover:text-[#162032] flex items-center gap-1 cursor-pointer bg-white px-3 py-1 rounded-xl border border-black/10 shadow-2xs transition-all"
           >
             <X className="w-3.5 h-3.5" />
             <span>Clear Filter</span>
@@ -1750,15 +1761,15 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       {filteredOrders.length === 0 ? (
         <div className="p-12 bg-white border border-black/10 rounded-2xl text-center shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 mx-auto flex items-center justify-center mb-4 shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 mx-auto flex items-center justify-center mb-4 shadow-2xs">
             {searchQuery.trim() !== '' ? (
-              <Search className="w-7 h-7 text-[#3A3564]" />
+              <Search className="w-7 h-7 text-[#0B1220]" />
             ) : selectedStatus === 'PENDING' ? (
               <Clock className="w-7 h-7 text-amber-600" />
             ) : selectedStatus === 'IN_PROGRESS' ? (
-              <Zap className="w-7 h-7 text-[#3A3564]" />
+              <Zap className="w-7 h-7 text-[#0B1220]" />
             ) : (
-              <FileSpreadsheet className="w-7 h-7 text-[#3A3564]" />
+              <FileSpreadsheet className="w-7 h-7 text-[#0B1220]" />
             )}
           </div>
           <h3 className="text-base font-extrabold text-slate-900">
@@ -1788,7 +1799,7 @@ export function ProductionOrdersClient({
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Clear Search & View All</span>
@@ -1799,7 +1810,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={() => setSelectedStatus('IN_PROGRESS')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     <Zap className="w-4 h-4" />
                     <span>View Allotted Challans ({statusCounts.inProgress})</span>
@@ -1809,7 +1820,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={() => setSelectedStatus('PENDING')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     <Clock className="w-4 h-4" />
                     <span>View Pending Allotments ({statusCounts.pending})</span>
@@ -1846,10 +1857,10 @@ export function ProductionOrdersClient({
                   <div className="flex items-center gap-3.5">
                     <button
                       type="button"
-                      className="w-8 h-8 rounded-xl bg-[#FAF7F0] border border-black/10 shadow-2xs hover:bg-[#F2ECE0] text-[#3A3564] flex items-center justify-center shrink-0 transition-transform"
+                      className="w-8 h-8 rounded-xl bg-[#F0FDFA] border border-black/10 shadow-2xs hover:bg-[#E6FFFA] text-[#0B1220] flex items-center justify-center shrink-0 transition-transform"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-[#3A3564]" />
+                        <ChevronDown className="w-4 h-4 text-[#0B1220]" />
                       ) : (
                         <ChevronRight className="w-4 h-4 text-slate-500" />
                       )}
@@ -1857,8 +1868,8 @@ export function ProductionOrdersClient({
 
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-xs sm:text-sm px-3 py-1 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 tracking-tight flex items-center gap-1.5 shadow-2xs font-mono">
-                          <FileText className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <span className="font-extrabold text-xs sm:text-sm px-3 py-1 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 tracking-tight flex items-center gap-1.5 shadow-2xs font-mono">
+                          <FileText className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>Challan {challan.challan_no}</span>
                         </span>
 
@@ -1894,7 +1905,7 @@ export function ProductionOrdersClient({
                         )}
 
                         {challan.sample_given && (
-                          <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center gap-1.5 shadow-2xs">
+                          <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center gap-1.5 shadow-2xs">
                             <Check className="w-3.5 h-3.5 text-emerald-600" />
                             <span>Sample Attached</span>
                           </span>
@@ -1926,9 +1937,9 @@ export function ProductionOrdersClient({
                   </div>
 
                   <div className="flex items-center gap-3.5 flex-wrap self-end md:self-center" onClick={e => e.stopPropagation()}>
-                    <div className="text-right px-4 py-2 bg-[#FAF7F0] border border-black/10 rounded-xl shadow-2xs">
+                    <div className="text-right px-4 py-2 bg-[#F0FDFA] border border-black/10 rounded-xl shadow-2xs">
                       <div className="text-xs sm:text-sm font-bold text-slate-900 font-mono">
-                        <span className="font-extrabold text-[#3A3564]">{challan.total_sets.toLocaleString()}</span> Sets <span className="text-slate-300">|</span> <span className="text-slate-900 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
+                        <span className="font-extrabold text-[#0B1220]">{challan.total_sets.toLocaleString()}</span> Sets <span className="text-slate-300">|</span> <span className="text-slate-900 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
                       </div>
                       {(() => {
                         const pricedLines = (challan.articles || []).filter(a => a.stitching_rate && Number(a.stitching_rate) > 0)
@@ -1955,8 +1966,8 @@ export function ProductionOrdersClient({
                       const firstAssigned = challan.articles?.find(a => a.assigned_lineman_name && a.assigned_lineman_name !== 'Unassigned (Floor Order)')?.assigned_lineman_name
                       if (!firstAssigned || challan.status !== 'IN_PROGRESS') return null
                       return (
-                        <div className="px-3 py-1.5 bg-white border border-[#3A3564]/30 rounded-xl text-xs font-bold text-[#3A3564] flex items-center gap-1.5 shadow-2xs font-mono">
-                          <UserCheck className="w-3.5 h-3.5 text-[#3A3564]" />
+                        <div className="px-3 py-1.5 bg-white border border-[#0B1220]/30 rounded-xl text-xs font-bold text-[#0B1220] flex items-center gap-1.5 shadow-2xs font-mono">
+                          <UserCheck className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>Lineman: <strong className="text-slate-900 font-extrabold">{firstAssigned}</strong></span>
                         </div>
                       )
@@ -1975,8 +1986,8 @@ export function ProductionOrdersClient({
                           <span>Dispatched</span>
                         </span>
                       ) : challan.status === 'IN_PROGRESS' ? (
-                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#FAF7F0] text-[#3A3564] border border-black/15 flex items-center gap-1.5 shadow-2xs font-mono animate-pulse">
-                          <Zap className="w-4 h-4 text-[#3A3564]" />
+                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center gap-1.5 shadow-2xs font-mono animate-pulse">
+                          <Zap className="w-4 h-4 text-[#0B1220]" />
                           <span>In Production</span>
                         </span>
                       ) : challan.status === 'PARTIALLY_ALLOTTED' ? (
@@ -2012,9 +2023,9 @@ export function ProductionOrdersClient({
                       disabled={isPending}
                       onClick={() => handleOpenEditChallan(challan)}
                       title="Edit Challan Details & Articles"
-                      className="px-2.5 py-1.5 text-slate-600 hover:text-[#3A3564] rounded-xl hover:bg-[#FAF7F0] border border-black/10 hover:border-black/20 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold shadow-2xs"
+                      className="px-2.5 py-1.5 text-slate-600 hover:text-[#0B1220] rounded-xl hover:bg-[#F0FDFA] border border-black/10 hover:border-black/20 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold shadow-2xs"
                     >
-                      <Pencil className="w-3.5 h-3.5 text-[#3A3564]" />
+                      <Pencil className="w-3.5 h-3.5 text-[#0B1220]" />
                       <span className="hidden sm:inline">Edit</span>
                     </button>
 
@@ -2046,7 +2057,7 @@ export function ProductionOrdersClient({
                     {/* BOM & Lots Summary Bar if present */}
                     {challan.bom_details && challan.bom_details.length > 0 && (
                       <div className="px-5 py-3.5 bg-slate-50/60 border-b border-black/5 flex items-center gap-2.5 flex-wrap text-xs sm:text-[13px]">
-                        <div className="w-6 h-6 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-6 h-6 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                           <Tag className="w-3.5 h-3.5" />
                         </div>
                         <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
@@ -2057,10 +2068,10 @@ export function ProductionOrdersClient({
                             key={bIdx}
                             className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-black/10 rounded-lg text-xs sm:text-[13px] text-slate-800 shadow-2xs"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0B1220]" />
                             <strong className="text-slate-900 font-semibold">{bom.item_name}</strong>
                             {bom.lot_no && (
-                              <span className="text-[11px] px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] font-bold font-mono border border-black/10">
+                              <span className="text-[11px] px-2 py-0.5 rounded bg-[#F0FDFA] text-[#0B1220] font-bold font-mono border border-black/10">
                                 Lot #{bom.lot_no}
                               </span>
                             )}
@@ -2075,7 +2086,7 @@ export function ProductionOrdersClient({
                     <div className="p-5 sm:p-6 border-b border-black/10 bg-slate-50/50">
                       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                             <Sparkles className="w-4 h-4" />
                           </div>
                           <div>
@@ -2083,7 +2094,7 @@ export function ProductionOrdersClient({
                               <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-900">
                                 Smart Line Allotment Hub
                               </h4>
-                              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/10">
                                 Continuous Sewing Optimizer
                               </span>
                             </div>
@@ -2097,7 +2108,7 @@ export function ProductionOrdersClient({
                       {/* 1. Full Challan 1-Click Allotment Card */}
                       <div className="p-4 sm:p-4.5 bg-white border border-black/10 rounded-2xl shadow-2xs mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-3.5">
-                          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                             <Zap className="w-5 h-5" />
                           </div>
                           <div>
@@ -2124,7 +2135,7 @@ export function ProductionOrdersClient({
                             type="button"
                             disabled={isPending}
                             onClick={() => handleAllotEntireChallan(challan.id)}
-                            className="px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shrink-0"
+                            className="px-4 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shrink-0"
                           >
                             <Zap className="w-4 h-4" />
                             <span>Allot Full Challan</span>
@@ -2141,7 +2152,7 @@ export function ProductionOrdersClient({
                           <div>
                             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                               <div className="flex items-center gap-2.5">
-                                <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                                <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                                   <Palette className="w-3.5 h-3.5" />
                                 </div>
                                 <span className="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
@@ -2177,7 +2188,7 @@ export function ProductionOrdersClient({
                                         </div>
                                       </div>
 
-                                      <div className="px-3 py-1 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] font-mono shadow-2xs">
+                                      <div className="px-3 py-1 rounded-xl border border-black/10 bg-[#F0FDFA] text-[#0B1220] font-mono shadow-2xs">
                                         <span className="text-xs sm:text-sm font-extrabold block">
                                           {cg.totalPcs.toLocaleString()} PCS
                                         </span>
@@ -2253,7 +2264,7 @@ export function ProductionOrdersClient({
                                       className={`w-full py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 ${
                                         cg.assignedLinemanName
                                           ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-black/10'
-                                          : 'bg-[#3A3564] hover:bg-[#2A2649] text-white'
+                                          : 'bg-[#0B1220] hover:bg-[#162032] text-white'
                                       }`}
                                     >
                                       <UserCheck className="w-4 h-4" />
@@ -2276,13 +2287,13 @@ export function ProductionOrdersClient({
                     <div className="p-5 sm:p-6">
                       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                             <FileSpreadsheet className="w-3.5 h-3.5" />
                           </div>
                           <h5 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-900">
                             Challan Article Reference Sheet
                           </h5>
-                          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10">
                             {challan.articles?.length || 0} Lines
                           </span>
                         </div>
@@ -2294,7 +2305,7 @@ export function ProductionOrdersClient({
                       <div className="overflow-x-auto border border-black/10 rounded-2xl bg-white shadow-2xs">
                         <table className="w-full text-left border-collapse text-xs sm:text-[13.5px]">
                           <thead>
-                            <tr className="bg-[#FAF7F0]/60 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                            <tr className="bg-[#F0FDFA]/60 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-600">
                               <th className="py-3.5 px-4 w-12 text-center">#</th>
                               <th className="py-3.5 px-4 w-36">Art No.</th>
                               <th className="py-3.5 px-4 w-32">Pattern</th>
@@ -2319,7 +2330,7 @@ export function ProductionOrdersClient({
                                   <div className="flex items-center gap-2">
                                     <span className="font-mono text-sm">{line.art_no}</span>
                                     {line.sub_art_no && (
-                                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono shadow-2xs">
+                                      <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/10 font-mono shadow-2xs">
                                         {line.sub_art_no}
                                       </span>
                                     )}
@@ -2334,7 +2345,7 @@ export function ProductionOrdersClient({
                                 {/* Color Combination */}
                                 <td className="py-3.5 px-4 font-semibold text-slate-800">
                                   <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-[#3A3564] shrink-0" />
+                                    <span className="w-2 h-2 rounded-full bg-[#0B1220] shrink-0" />
                                     <span>{line.color_pattern}</span>
                                   </div>
                                 </td>
@@ -2357,7 +2368,7 @@ export function ProductionOrdersClient({
                                         type="button"
                                         onClick={() => openRateEditModal(challan, line, lIdx)}
                                         title="Update Rate for this size"
-                                        className="p-1 text-slate-400 hover:text-[#3A3564] hover:bg-[#FAF7F0] rounded-md transition-colors cursor-pointer"
+                                        className="p-1 text-slate-400 hover:text-[#0B1220] hover:bg-[#F0FDFA] rounded-md transition-colors cursor-pointer"
                                       >
                                         <Pencil className="w-3.5 h-3.5" />
                                       </button>
@@ -2399,8 +2410,8 @@ export function ProductionOrdersClient({
                                 {/* Assigned Line (Clean Auto-Badge) */}
                                 <td className="py-3.5 px-4">
                                   {line.assigned_lineman_name && line.assigned_lineman_name !== 'Unassigned' && line.assigned_lineman_name !== 'Unassigned (Floor Order)' ? (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                                      <User className="w-3.5 h-3.5 text-[#3A3564]" />
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
+                                      <User className="w-3.5 h-3.5 text-[#0B1220]" />
                                       <span>{line.assigned_lineman_name}</span>
                                     </span>
                                   ) : (
@@ -2489,9 +2500,9 @@ export function ProductionOrdersClient({
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
               
               {/* Modal Header */}
-              <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+              <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA] flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#3A3564] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#0B1220] text-white flex items-center justify-center shrink-0 shadow-2xs">
                     <FileSpreadsheet className="w-5 h-5" />
                   </div>
                   <div>
@@ -2499,7 +2510,7 @@ export function ProductionOrdersClient({
                       <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                         Bulk Delivery Challan Import Detected
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#3A3564] text-white">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#0B1220] text-white">
                         {multiChallanImportData.totalChallans} Challans Found
                       </span>
                     </div>
@@ -2530,7 +2541,7 @@ export function ProductionOrdersClient({
                       setBulkPreviewPage(1)
                     }}
                     placeholder="Search Challan #, Brand, Art, Color..."
-                    className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:border-[#3A3564] focus:outline-hidden transition-all"
+                    className="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-black/15 bg-slate-50 focus:bg-white focus:border-[#0B1220] focus:outline-hidden transition-all"
                   />
                   {bulkPreviewSearch && (
                     <button
@@ -2550,7 +2561,7 @@ export function ProductionOrdersClient({
                   <span className="px-2 py-1 rounded-lg bg-slate-100 border border-black/5">
                     <strong>{multiChallanImportData.grandTotalLines}</strong> Lines
                   </span>
-                  <span className="px-2 py-1 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-bold border border-black/10">
+                  <span className="px-2 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] font-bold border border-black/10">
                     <strong>{multiChallanImportData.grandTotalPcs.toLocaleString()}</strong> Pcs
                   </span>
                   <span className="px-2 py-1 rounded-lg bg-slate-100 border border-black/5">
@@ -2581,7 +2592,7 @@ export function ProductionOrdersClient({
                             {/* Header Row */}
                             <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-black/5 flex-wrap">
                               <div className="flex items-center gap-2">
-                                <span className="w-8 h-8 rounded-lg bg-[#FAF7F0] text-[#3A3564] font-extrabold text-xs flex items-center justify-center border border-black/10">
+                                <span className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] font-extrabold text-xs flex items-center justify-center border border-black/10">
                                   #{globalIdx + 1}
                                 </span>
                                 <div>
@@ -2624,7 +2635,7 @@ export function ProductionOrdersClient({
                                 {ch.articles_summary.slice(0, 5).map((art, aIdx) => (
                                   <span
                                     key={aIdx}
-                                    className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                                    className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/10"
                                   >
                                     Art {art}
                                   </span>
@@ -2659,8 +2670,8 @@ export function ProductionOrdersClient({
                                 (ch.mending_summary && ch.mending_summary.length > 0)) && (
                                 <div className="pt-2 border-t border-black/5 flex items-center gap-2 flex-wrap text-[11px]">
                                   {ch.linemen_summary && ch.linemen_summary.length > 0 && (
-                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold font-mono">
-                                      <UserCheck className="w-3 h-3 text-[#3A3564]" />
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/10 font-bold font-mono">
+                                      <UserCheck className="w-3 h-3 text-[#0B1220]" />
                                       <span>Lineman: {ch.linemen_summary.join(', ')}</span>
                                     </div>
                                   )}
@@ -2684,7 +2695,7 @@ export function ProductionOrdersClient({
                           {/* Footer Totals */}
                           <div className="pt-3 border-t border-black/5 flex items-center justify-between text-xs sm:text-sm font-mono font-bold bg-slate-50/80 -mx-4 -mb-4 sm:-mx-5 sm:-mb-5 p-3 sm:px-4 rounded-b-2xl">
                             <span className="text-slate-500">{ch.articleLines.length} Lines Matrix</span>
-                            <span className="text-[#3A3564] font-extrabold text-sm">{ch.total_pcs.toLocaleString()} PCS</span>
+                            <span className="text-[#0B1220] font-extrabold text-sm">{ch.total_pcs.toLocaleString()} PCS</span>
                           </div>
                         </div>
                       )
@@ -2751,7 +2762,7 @@ export function ProductionOrdersClient({
                     type="button"
                     disabled={isBulkSaving}
                     onClick={handleConfirmBulkImport}
-                    className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-[#0B1220] hover:bg-[#162032] text-white flex items-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                   >
                     {isBulkSaving ? (
                       <>
@@ -2781,10 +2792,10 @@ export function ProductionOrdersClient({
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA] flex-wrap gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-                  {editingChallanId ? <Pencil className="w-4 h-4 text-[#3A3564]" /> : <FileSpreadsheet className="w-4 h-4 text-[#3A3564]" />}
+                <div className="w-9 h-9 rounded-xl bg-white text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  {editingChallanId ? <Pencil className="w-4 h-4 text-[#0B1220]" /> : <FileSpreadsheet className="w-4 h-4 text-[#0B1220]" />}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -2822,7 +2833,7 @@ export function ProductionOrdersClient({
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isImporting}
-                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#3A3564] hover:bg-[#2A2649] text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0B1220] hover:bg-[#162032] text-white flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                       title="Import from Excel or CSV"
                     >
                       <UploadCloud className="w-3.5 h-3.5 text-white" />
@@ -2872,7 +2883,7 @@ export function ProductionOrdersClient({
               {/* SECTION A: CHALLAN HEADER */}
               <div className="p-4 sm:p-5 bg-slate-50/70 border border-black/10 rounded-2xl space-y-4">
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+                  <span className="w-2 h-2 rounded-full bg-[#0B1220]" />
                   <span>1. Challan Header</span>
                 </div>
 
@@ -2897,7 +2908,7 @@ export function ProductionOrdersClient({
                             className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 ${
                               isDup
                                 ? 'border-rose-500 focus:ring-rose-500 text-rose-900 bg-rose-50/50'
-                                : 'border-black/10 focus:ring-[#3A3564]'
+                                : 'border-black/10 focus:ring-[#0B1220]'
                             }`}
                           />
                           {isDup && (
@@ -2920,7 +2931,7 @@ export function ProductionOrdersClient({
                       required
                       value={formChallanDate}
                       onChange={e => setFormChallanDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     />
                   </div>
 
@@ -2935,7 +2946,7 @@ export function ProductionOrdersClient({
                       placeholder="Enter Brand / Buyer Name"
                       value={formBrand}
                       onChange={e => setFormBrand(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     />
                     <datalist id="brands-datalist">
                       {dynamicBrands.map((b: string) => (
@@ -2963,7 +2974,7 @@ export function ProductionOrdersClient({
                           setFormVendorName('')
                         }
                       }}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     >
                       <option value="">In-House / Default Unit</option>
                       {(formBrand
@@ -2986,7 +2997,7 @@ export function ProductionOrdersClient({
                       placeholder="Enter Fabric Quality / Type"
                       value={formFabric}
                       onChange={e => setFormFabric(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     />
                   </div>
                 </div>
@@ -3000,7 +3011,7 @@ export function ProductionOrdersClient({
                       type="date"
                       value={formDeliveryDate}
                       onChange={e => setFormDeliveryDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     />
                   </div>
 
@@ -3010,7 +3021,7 @@ export function ProductionOrdersClient({
                       id="sample_given_cb"
                       checked={formSampleGiven}
                       onChange={e => setFormSampleGiven(e.target.checked)}
-                      className="w-4 h-4 text-[#3A3564] rounded border-slate-300 focus:ring-[#3A3564] cursor-pointer"
+                      className="w-4 h-4 text-[#0B1220] rounded border-slate-300 focus:ring-[#0B1220] cursor-pointer"
                     />
                     <label htmlFor="sample_given_cb" className="text-xs sm:text-sm font-bold text-slate-800 cursor-pointer select-none">
                       Ready Sample Given (Approved by Buyer)
@@ -3026,7 +3037,7 @@ export function ProductionOrdersClient({
                       placeholder="Enter special instructions or remarks..."
                       value={formNotes}
                       onChange={e => setFormNotes(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full px-3.5 py-2.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     />
                   </div>
                 </div>
@@ -3037,7 +3048,7 @@ export function ProductionOrdersClient({
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+                      <span className="w-2 h-2 rounded-full bg-[#0B1220]" />
                       <span>2. Article Lines Matrix ({articleLines.length} Lines)</span>
                     </span>
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -3069,7 +3080,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={handleAddArticleLine}
-                    className="px-3.5 py-2 bg-[#FAF7F0] hover:bg-[#F2ECE0] text-[#3A3564] border border-black/10 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                    className="px-3.5 py-2 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] border border-black/10 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Article Line</span>
@@ -3080,7 +3091,7 @@ export function ProductionOrdersClient({
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse text-xs sm:text-[13px] min-w-[1020px]">
                       <thead>
-                        <tr className="bg-[#FAF7F0]/80 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                        <tr className="bg-[#F0FDFA]/80 border-b border-black/10 text-xs font-extrabold uppercase tracking-wider text-slate-700">
                           <th className="py-3 px-3 w-10 text-center">#</th>
                           <th className="py-3 px-3 min-w-[125px]">Art No *</th>
                           <th className="py-3 px-3 min-w-[160px]">Colour *</th>
@@ -3110,7 +3121,7 @@ export function ProductionOrdersClient({
                                 placeholder="Art No"
                                 value={line.art_no}
                                 onChange={e => handleLineChange(idx, 'art_no', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                               />
                             </td>
 
@@ -3122,7 +3133,7 @@ export function ProductionOrdersClient({
                                 placeholder="Colour / Shade"
                                 value={line.color_pattern}
                                 onChange={e => handleLineChange(idx, 'color_pattern', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                               />
                             </td>
 
@@ -3133,7 +3144,7 @@ export function ProductionOrdersClient({
                                 placeholder="Category"
                                 value={line.category || ''}
                                 onChange={e => handleLineChange(idx, 'category', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                                className="w-full px-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                               />
                             </td>
 
@@ -3147,7 +3158,7 @@ export function ProductionOrdersClient({
                                   handleLineChange(idx, 'product', e.target.value)
                                   handleLineChange(idx, 'pattern_no', e.target.value)
                                 }}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                               />
                             </td>
 
@@ -3159,7 +3170,7 @@ export function ProductionOrdersClient({
                                 placeholder="Size (e.g. L, 32)"
                                 value={line.size_range}
                                 onChange={e => handleLineChange(idx, 'size_range', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                               />
                             </td>
 
@@ -3174,7 +3185,7 @@ export function ProductionOrdersClient({
                                   placeholder="0.00"
                                   value={line.stitching_rate !== undefined && line.stitching_rate !== null ? line.stitching_rate : ''}
                                   onChange={e => handleLineChange(idx, 'stitching_rate', e.target.value)}
-                                  className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
+                                  className="w-full pl-6 pr-2.5 py-1.5 bg-white border border-black/10 rounded-xl text-xs sm:text-sm font-bold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220] font-mono"
                                 />
                               </div>
                             </td>
@@ -3187,7 +3198,7 @@ export function ProductionOrdersClient({
                                 placeholder="0"
                                 value={line.order_qty !== undefined && line.order_qty !== '' ? line.order_qty : ''}
                                 onChange={e => handleLineChange(idx, 'order_qty', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-right text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
+                                className="w-full px-3 py-1.5 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-semibold text-right text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220] font-mono"
                               />
                             </td>
 
@@ -3200,7 +3211,7 @@ export function ProductionOrdersClient({
                                 placeholder="0"
                                 value={line.total_pcs || ''}
                                 onChange={e => handleLineChange(idx, 'total_pcs', e.target.value)}
-                                className="w-full px-3 py-1.5 bg-[#FAF7F0] border border-black/15 rounded-xl text-xs sm:text-sm font-extrabold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3A3564] font-mono"
+                                className="w-full px-3 py-1.5 bg-[#F0FDFA] border border-black/15 rounded-xl text-xs sm:text-sm font-extrabold text-right text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0B1220] font-mono"
                               />
                             </td>
 
@@ -3209,7 +3220,7 @@ export function ProductionOrdersClient({
                               <select
                                 value={line.assigned_lineman_id || ''}
                                 onChange={e => handleLineChange(idx, 'assigned_lineman_id', e.target.value)}
-                                className="w-full bg-slate-50 border border-black/10 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#3A3564] cursor-pointer"
+                                className="w-full bg-slate-50 border border-black/10 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1220] cursor-pointer"
                               >
                                 <option value="">Select Lineman (Optional)</option>
                                 {linemenList.map(lm => (
@@ -3227,7 +3238,7 @@ export function ProductionOrdersClient({
                                   type="button"
                                   onClick={() => handleDuplicateLine(idx)}
                                   title="Duplicate Row"
-                                  className="p-1.5 text-slate-400 hover:text-[#3A3564] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                                  className="p-1.5 text-slate-400 hover:text-[#0B1220] rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                                 >
                                   <Copy className="w-3.5 h-3.5" />
                                 </button>
@@ -3253,7 +3264,7 @@ export function ProductionOrdersClient({
               <div className="p-4 sm:p-5 bg-slate-50/70 border border-black/10 rounded-2xl space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#3A3564]" />
+                    <span className="w-2 h-2 rounded-full bg-[#0B1220]" />
                     <span>3. BOM / Raw Materials & Lots (Optional)</span>
                   </div>
 
@@ -3332,7 +3343,7 @@ export function ProductionOrdersClient({
                   )}
                   <div>
                     <span className="text-slate-500 font-medium">Challan Qty:</span>{' '}
-                    <strong className="text-[#3A3564] font-extrabold font-mono text-base">{formGrandPcs.toLocaleString()} Pcs</strong>
+                    <strong className="text-[#0B1220] font-extrabold font-mono text-base">{formGrandPcs.toLocaleString()} Pcs</strong>
                   </div>
                   {formGrandAmount > 0 && (
                     <div className="pl-4 border-l border-black/10">
@@ -3354,7 +3365,7 @@ export function ProductionOrdersClient({
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="w-1/2 sm:w-auto px-6 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                    className="w-1/2 sm:w-auto px-6 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                   >
                     {isPending ? (
                       <>
@@ -3384,9 +3395,9 @@ export function ProductionOrdersClient({
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden border border-black/10 my-auto animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0] flex-wrap gap-3">
+            <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA] flex-wrap gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                   <History className="w-5 h-5" />
                 </div>
                 <div>
@@ -3394,7 +3405,7 @@ export function ProductionOrdersClient({
                     <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                       Article Style Master Ledger & Production History
                     </h2>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs uppercase">
                       2+ Year Archives
                     </span>
                   </div>
@@ -3426,7 +3437,7 @@ export function ProductionOrdersClient({
                       placeholder="Search Article #, Brand, Color, Fabric..."
                       value={articleHistorySearch}
                       onChange={e => setArticleHistorySearch(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-black/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     />
                   </div>
 
@@ -3457,7 +3468,7 @@ export function ProductionOrdersClient({
                           onClick={() => setSelectedArticleForHistory(art.art_no)}
                           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-2xs shrink-0 ${
                             isSelected
-                              ? 'bg-[#3A3564] text-white shadow-xs'
+                              ? 'bg-[#0B1220] text-white shadow-xs'
                               : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-black/10'
                           }`}
                         >
@@ -3479,7 +3490,7 @@ export function ProductionOrdersClient({
                   {/* Article Master Header Card */}
                   <div className="bg-white p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                      <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
                         <Tag className="w-6 h-6" />
                       </div>
                       <div>
@@ -3501,9 +3512,9 @@ export function ProductionOrdersClient({
                     </div>
 
                     <div className="flex items-center gap-3 self-end md:self-center">
-                      <div className="text-right px-4 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl shadow-2xs">
+                      <div className="text-right px-4 py-2.5 bg-[#F0FDFA] border border-black/10 rounded-xl shadow-2xs">
                         <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Stitching Rate</span>
-                        <span className="text-base font-extrabold text-[#3A3564] font-mono">₹{selectedArticleHistory.stitching_rate.toFixed(2)} <span className="text-xs font-medium text-slate-500">/ pc</span></span>
+                        <span className="text-base font-extrabold text-[#0B1220] font-mono">₹{selectedArticleHistory.stitching_rate.toFixed(2)} <span className="text-xs font-medium text-slate-500">/ pc</span></span>
                       </div>
                     </div>
                   </div>
@@ -3517,7 +3528,7 @@ export function ProductionOrdersClient({
 
                     <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs">
                       <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">Delivery Challans</span>
-                      <p className="text-xl sm:text-2xl font-extrabold text-[#3A3564] font-mono mt-1">{selectedArticleHistory.totalLifetimeChallans} <span className="text-xs font-medium text-slate-500">Batches</span></p>
+                      <p className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono mt-1">{selectedArticleHistory.totalLifetimeChallans} <span className="text-xs font-medium text-slate-500">Batches</span></p>
                     </div>
 
                     <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs">
@@ -3535,7 +3546,7 @@ export function ProductionOrdersClient({
                   <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
                     <div className="p-4 sm:p-5 border-b border-black/10 flex items-center justify-between bg-slate-50/80 flex-wrap gap-2">
                       <div className="flex items-center gap-2.5">
-                        <FileText className="w-4 h-4 text-[#3A3564]" />
+                        <FileText className="w-4 h-4 text-[#0B1220]" />
                         <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
                           Complete Production & Delivery History for Art #{selectedArticleHistory.art_no}
                         </h4>
@@ -3595,8 +3606,8 @@ export function ProductionOrdersClient({
 
                                 <td className="py-3.5 px-4">
                                   {rec.linemanName && rec.linemanName !== 'Unassigned' && rec.linemanName !== 'Unassigned (Floor Order)' ? (
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs">
-                                      <User className="w-3.5 h-3.5 text-[#3A3564]" />
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
+                                      <User className="w-3.5 h-3.5 text-[#0B1220]" />
                                       <span>{rec.linemanName}</span>
                                     </span>
                                   ) : (
@@ -3645,7 +3656,7 @@ export function ProductionOrdersClient({
               <button
                 type="button"
                 onClick={() => setShowArticleHistoryModal(false)}
-                className="px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer"
+                className="px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer"
               >
                 Close Explorer
               </button>
@@ -3659,9 +3670,9 @@ export function ProductionOrdersClient({
       {rateEditModal && rateEditModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl max-w-md w-full border border-black/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#FAF7F0]/60">
+            <div className="p-5 border-b border-black/10 flex items-center justify-between bg-[#F0FDFA]/60">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
+                <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shadow-2xs">
                   <Pencil className="w-4 h-4" />
                 </div>
                 <div>
@@ -3697,7 +3708,7 @@ export function ProductionOrdersClient({
                     autoFocus
                     value={rateEditModal.newRate}
                     onChange={e => setRateEditModal(prev => prev ? { ...prev, newRate: e.target.value } : null)}
-                    className="w-full pl-8 pr-3 py-2 bg-white border border-black/15 rounded-xl text-base font-extrabold text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#3A3564]"
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-black/15 rounded-xl text-base font-extrabold text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#0B1220]"
                     placeholder="25.00"
                   />
                 </div>
@@ -3718,7 +3729,7 @@ export function ProductionOrdersClient({
                     type="checkbox"
                     checked={rateEditModal.updateMaster}
                     onChange={e => setRateEditModal(prev => prev ? { ...prev, updateMaster: e.target.checked } : null)}
-                    className="mt-0.5 rounded text-[#3A3564] focus:ring-[#3A3564]"
+                    className="mt-0.5 rounded text-[#0B1220] focus:ring-[#0B1220]"
                   />
                   <div className="text-xs">
                     <span className="font-semibold text-slate-800 block">
@@ -3742,7 +3753,7 @@ export function ProductionOrdersClient({
                 <button
                   type="submit"
                   disabled={isUpdatingRate}
-                  className="px-5 py-2 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs font-bold shadow-xs transition-all disabled:opacity-50 flex items-center gap-1.5"
+                  className="px-5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold shadow-xs transition-all disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {isUpdatingRate ? (
                     <>

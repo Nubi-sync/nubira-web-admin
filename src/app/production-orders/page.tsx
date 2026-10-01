@@ -81,16 +81,16 @@ export default async function ProductionOrdersPage() {
         
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/stitching-sewing/dashboard" className="hover:text-[#3A3564] transition-colors">
-            Sewing Dashboard
+          <Link href="/modules" className="hover:text-[#0B1220] transition-colors">
+            Workspace Hub
           </Link>
           <span>/</span>
           <span>Production</span>
           <span>/</span>
-          <span className="font-bold text-slate-900">
+          <span className="font-bold text-[#0B1220]">
             Production & Job Work Challans
           </span>
-          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] ml-auto border border-black/15">
             {tenant.companyName}
           </span>
         </div>
@@ -102,6 +102,7 @@ export default async function ProductionOrdersPage() {
           linemenList={filteredLinemen}
           brandsList={filteredBrands}
           vendorsList={filteredVendors}
+          companyName={tenant.companyName}
         />
 
       </div>
