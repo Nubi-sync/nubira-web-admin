@@ -227,8 +227,8 @@ function EditTechPackModalContent({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-200/80 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center shadow-2xs">
-              <FileText className="w-5 h-5 text-[#14C8B4]" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center shadow-2xs">
+              <FileText className="w-5 h-5 text-[#0B1220]" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">

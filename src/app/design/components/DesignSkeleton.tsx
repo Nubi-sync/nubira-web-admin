@@ -12,7 +12,7 @@ export function SkeletonHeader({
   return (
     <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-pulse">
       <div className="flex items-center gap-3.5">
-        <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/20 shrink-0" />
+        <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 shrink-0" />
         <div className="space-y-2">
           <div className="h-7 w-60 sm:w-72 bg-slate-200 rounded-lg" />
           <div className="h-4 w-72 sm:w-96 bg-slate-100 rounded" />
@@ -40,7 +40,7 @@ export function SkeletonMetricCards({ count = 4 }: { count?: number }) {
         >
           <div className="flex items-center justify-between">
             <div className="h-3.5 w-28 bg-slate-200 rounded" />
-            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/20 shrink-0" />
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-black/15 shrink-0" />
           </div>
           <div className="h-8 w-28 bg-slate-200 rounded-lg" />
           <div className="pt-2 border-t border-slate-100">
@@ -172,7 +172,7 @@ export function DesignPageSkeleton({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-pulse">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
-                <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/20" />
+                <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-black/15" />
                 <div className="h-4 w-36 bg-slate-200 rounded" />
                 <div className="h-3 w-48 bg-slate-100 rounded" />
               </div>

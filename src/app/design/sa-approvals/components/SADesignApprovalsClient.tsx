@@ -51,7 +51,7 @@ function getColorSwatchInfo(colorName: string): { bg: string; border: string; is
   if (norm.includes('red') || norm.includes('maroon') || norm.includes('crimson')) return { bg: '#C53030', border: '#C53030', isLight: false }
   if (norm.includes('beige') || norm.includes('cream') || norm.includes('khaki') || norm.includes('sand')) return { bg: '#F5F5DC', border: '#CBD5E1', isLight: true }
   if (norm.includes('blue') || norm.includes('cyan') || norm.includes('sky')) return { bg: '#1D4ED8', border: '#1D4ED8', isLight: false }
-  if (norm.includes('green') || norm.includes('mint') || norm.includes('emerald')) return { bg: '#14C8B4', border: '#14C8B4', isLight: false }
+  if (norm.includes('green') || norm.includes('mint') || norm.includes('emerald')) return { bg: '#10B981', border: '#10B981', isLight: false }
   if (norm.includes('yellow') || norm.includes('mustard') || norm.includes('gold')) return { bg: '#ECC94B', border: '#D69E2E', isLight: true }
   if (norm.includes('pink') || norm.includes('rose') || norm.includes('fuchsia')) return { bg: '#D53F8C', border: '#D53F8C', isLight: false }
   if (norm.includes('orange') || norm.includes('coral') || norm.includes('rust')) return { bg: '#DD6B20', border: '#DD6B20', isLight: false }
