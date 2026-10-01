@@ -209,15 +209,15 @@ export function MerchandiseStoreClient({
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
-            <CentralStoreBespokeIcon className="w-5 h-5" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <CentralStoreBespokeIcon className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Merchandise Fabric Store
               </h1>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 DIV 02
               </span>
             </div>
@@ -232,7 +232,7 @@ export function MerchandiseStoreClient({
             href="/store"
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-2xs transition-all cursor-pointer"
           >
-            <MaterialFlowBespokeIcon className="w-4 h-4" />
+            <MaterialFlowBespokeIcon className="w-4 h-4 text-[#0B1220]" />
             <span>Central Store Hub</span>
           </Link>
 
@@ -241,7 +241,7 @@ export function MerchandiseStoreClient({
             onClick={() => handleOpenIssueModal()}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Scissors className="w-4 h-4" />
+            <Scissors className="w-4 h-4 text-white" />
             <span>Issue to Cutting</span>
           </button>
         </div>
@@ -252,10 +252,10 @@ export function MerchandiseStoreClient({
         {/* Metric 1: Available Fabric */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-              <Box className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Box className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               AVAILABLE
             </span>
           </div>
@@ -269,7 +269,7 @@ export function MerchandiseStoreClient({
             <div className="text-2xl sm:text-[28px] font-bold font-mono tabular-nums text-slate-900">
               {totalAvailableMeters.toLocaleString()}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               Meters
             </span>
           </div>
@@ -278,10 +278,10 @@ export function MerchandiseStoreClient({
         {/* Metric 2: Booked Fabric */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-              <Bookmark className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Bookmark className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               RESERVED
             </span>
           </div>
@@ -295,7 +295,7 @@ export function MerchandiseStoreClient({
             <div className="text-2xl sm:text-[28px] font-bold font-mono tabular-nums text-slate-900">
               {totalBookedMeters.toLocaleString()}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               Meters
             </span>
           </div>
@@ -304,10 +304,10 @@ export function MerchandiseStoreClient({
         {/* Metric 3: Total On-Hand */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-              <Layers className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Layers className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               TOTAL
             </span>
           </div>
@@ -321,7 +321,7 @@ export function MerchandiseStoreClient({
             <div className="text-2xl sm:text-[28px] font-bold font-mono tabular-nums text-slate-900">
               {totalFabricMeters.toLocaleString()}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               Meters
             </span>
           </div>
@@ -330,10 +330,10 @@ export function MerchandiseStoreClient({
         {/* Metric 4: Dispatched to Cutting */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
-              <Scissors className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
+              <Scissors className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded border border-black/15">
               CUTTING
             </span>
           </div>
@@ -347,7 +347,7 @@ export function MerchandiseStoreClient({
             <div className="text-2xl sm:text-[28px] font-bold font-mono tabular-nums text-slate-900">
               {totalDispatchedMeters.toLocaleString()}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
               Meters
             </span>
           </div>

@@ -31,10 +31,10 @@ export function EmptyState({
     : `text-center flex flex-col items-center justify-center ${compact ? 'py-6 px-3 space-y-2' : 'py-10 sm:py-14 px-4 space-y-3'} w-full ${className}`
 
   const iconBoxClasses = compact
-    ? "w-9 h-9 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs shrink-0"
-    : "w-11 h-11 rounded-xl bg-[#FAF7F0] border border-black/10 text-[#3A3564] flex items-center justify-center shadow-2xs shrink-0"
+    ? "w-9 h-9 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center shadow-2xs shrink-0"
+    : "w-11 h-11 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center shadow-2xs shrink-0"
 
-  const iconClasses = compact ? "w-4 h-4" : "w-5 h-5"
+  const iconClasses = compact ? "w-4 h-4 text-[#0B1220]" : "w-5 h-5 text-[#0B1220]"
 
   return (
     <div className={containerClasses}>
@@ -68,7 +68,7 @@ export function EmptyState({
             <button
               type="button"
               onClick={onAction}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#3A3564] text-[#FAF7F0] text-xs font-semibold hover:bg-[#2A2649] transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0B1220] text-white text-xs font-semibold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
             >
               {actionLabel}
             </button>
