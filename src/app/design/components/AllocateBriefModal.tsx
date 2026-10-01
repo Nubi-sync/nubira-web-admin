@@ -414,9 +414,9 @@ export function AllocateBriefModal({
               <button
                 type="button"
                 onClick={handleAddDesignInstruction}
-                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-[#14C8B4]/40 hover:border-[#14C8B4] bg-[#F0FDFA]/50 hover:bg-[#F0FDFA] text-[#0B1220] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                className="w-full py-3 px-4 rounded-xl border border-dashed border-black/25 hover:border-black/50 bg-[#F0FDFA]/60 hover:bg-[#F0FDFA] text-[#0B1220] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
               >
-                <Plus className="w-4 h-4 text-[#14C8B4]" />
+                <Plus className="w-4 h-4 text-[#0B1220]" />
                 <span>Add Design Instruction</span>
               </button>
             </div>
@@ -665,9 +665,9 @@ export function AllocateBriefModal({
               <button
                 type="button"
                 onClick={handleAddDesignInstruction}
-                className="w-full py-2.5 px-3 rounded-xl border border-dashed border-[#14C8B4]/40 hover:border-[#14C8B4] bg-[#F0FDFA]/50 hover:bg-[#F0FDFA] text-[#0B1220] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                className="w-full py-2.5 px-3 rounded-xl border border-dashed border-black/25 hover:border-black/50 bg-[#F0FDFA]/60 hover:bg-[#F0FDFA] text-[#0B1220] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
               >
-                <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+                <Plus className="w-3.5 h-3.5 text-[#0B1220]" />
                 <span>Add Another Design</span>
               </button>
             </div>

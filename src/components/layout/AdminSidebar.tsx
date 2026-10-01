@@ -852,22 +852,22 @@ export function AdminSidebar({
         }}
         onClick={(e) => handleNavClick(e, item.href)}
         title={!isExpanded ? item.label : undefined}
-        className={`relative flex items-center rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#3A3564] cursor-pointer ${
+        className={`relative flex items-center rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#0B1220] cursor-pointer ${
           isExpanded 
             ? 'px-3 py-2.5 justify-between w-full transition-all duration-200 ease-out' 
             : 'w-10 h-10 mx-auto justify-center transition-all duration-500 ease-in-out'
         } ${
           isActive
-            ? 'font-bold text-[#3A3564] bg-[#FAF7F0] border border-black/10 shadow-2xs'
+            ? 'font-bold text-[#0B1220] bg-[#F0FDFA]'
             : isLoading
-              ? 'font-semibold text-[#3A3564] bg-[#FAF7F0]/80 border border-black/15 shadow-2xs'
+              ? 'font-semibold text-[#0B1220] bg-[#F0FDFA]/80'
               : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50'
         }`}
       >
         {/* Left active accent bar */}
         {isActive && (
           <div 
-            className={`absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[#3A3564] transition-all ${
+            className={`absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[#0B1220] transition-all ${
               isExpanded ? 'w-[3.5px] h-6 duration-200' : 'w-[3px] h-5 duration-500'
             }`}
           />
@@ -878,15 +878,15 @@ export function AdminSidebar({
         }`}>
           {isLoading ? (
             <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0">
-              <Loader2 className="w-[18px] h-[18px] text-[#3A3564] animate-spin" />
+              <Loader2 className="w-[18px] h-[18px] text-[#0B1220] animate-spin" />
             </div>
           ) : (
             <div className="relative shrink-0 flex items-center justify-center">
               <Icon className={`w-[18px] h-[18px] shrink-0 ${
-                isActive ? 'text-[#3A3564]' : 'text-slate-500'
+                isActive ? 'text-[#0B1220]' : 'text-slate-500'
               }`} />
               {isNotification && unreadCount > 0 && !isExpanded && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#3A3564] ring-2 ring-white" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#0B1220] ring-2 ring-white" />
               )}
             </div>
           )}
@@ -903,7 +903,7 @@ export function AdminSidebar({
 
         {/* Notification unread badge when expanded */}
         {isNotification && isExpanded && unreadCount > 0 && (
-          <span className="px-1.5 py-0.5 rounded-full bg-[#3A3564] text-white text-[10px] font-mono font-bold shadow-xs shrink-0 ml-auto">
+          <span className="px-1.5 py-0.5 rounded-full bg-[#0B1220] text-white text-[10px] font-mono font-bold shadow-xs shrink-0 ml-auto">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -915,7 +915,7 @@ export function AdminSidebar({
               ? 'opacity-100 duration-200 ease-out' 
               : 'opacity-0 duration-400 ease-in-out'
           }`}>
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3A3564]" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0B1220]" />
           </div>
         )}
       </Link>
@@ -1034,7 +1034,7 @@ export function AdminSidebar({
         {/* Bottom User Profile Block */}
         <div className={`p-3.5 border-t transition-colors flex items-center overflow-hidden h-[65px] ${
           isProfileActive
-            ? 'bg-[#FAF7F0] border-[#3A3564]/30 shadow-2xs'
+            ? 'bg-[#F0FDFA] border-slate-200 shadow-2xs'
             : 'border-slate-200 bg-[#FAFAF8] hover:bg-slate-50'
         }`}>
           <Link
@@ -1042,10 +1042,10 @@ export function AdminSidebar({
             className="flex items-center min-w-0 flex-1 group"
             title="Open Profile"
           >
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] mx-auto transition-all ${
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#0B1220] mx-auto transition-all ${
               isProfileActive
-                ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
-                : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
+                ? 'ring-2 ring-[#0B1220] ring-offset-2 ring-offset-[#F0FDFA]'
+                : 'group-hover:ring-2 group-hover:ring-[#0B1220]/30'
             }`}>
               {initials}
             </div>
@@ -1058,7 +1058,7 @@ export function AdminSidebar({
               <div className="flex flex-col min-w-0 flex-1">
                 <span 
                   className={`text-[13px] font-bold truncate leading-tight transition-colors ${
-                    pathname === '/profile' ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                    pathname === '/profile' ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#0B1220]'
                   }`}
                   title={userEmail}
                 >
@@ -1066,7 +1066,7 @@ export function AdminSidebar({
                 </span>
                 <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
                   <span>{roleLabel}</span>
-                  <span className="text-[#3A3564] font-bold group-hover:underline text-[10px] tracking-tight shrink-0">
+                  <span className="text-[#0B1220] font-bold group-hover:underline text-[10px] tracking-tight shrink-0">
                     Profile ↗
                   </span>
                 </span>
@@ -1123,7 +1123,7 @@ export function AdminSidebar({
             </Link>
 
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15">
+              <span className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                 {isStoreUser ? 'STORE MES' : 'ERP MES'}
               </span>
               {onMobileClose && (
@@ -1157,7 +1157,7 @@ export function AdminSidebar({
         {/* Bottom User with Sign Out */}
         <div className={`p-4 border-t transition-colors flex items-center justify-between gap-3 shrink-0 ${
           isProfileActive
-            ? 'bg-[#FAF7F0] border-[#3A3564]/30'
+            ? 'bg-[#F0FDFA] border-slate-200 shadow-2xs'
             : 'border-slate-200 bg-[#FAFAF8]'
         }`}>
           <Link
@@ -1165,22 +1165,22 @@ export function AdminSidebar({
             onClick={onMobileClose}
             className="flex items-center gap-3 min-w-0 flex-1 group"
           >
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#3A3564] transition-all ${
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-xs bg-[#0B1220] transition-all ${
               isProfileActive
-                ? 'ring-2 ring-[#3A3564] ring-offset-2 ring-offset-[#FAF7F0]'
-                : 'group-hover:ring-2 group-hover:ring-[#3A3564]/30'
+                ? 'ring-2 ring-[#0B1220] ring-offset-2 ring-offset-[#F0FDFA]'
+                : 'group-hover:ring-2 group-hover:ring-[#0B1220]/30'
             }`}>
               {initials}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
               <span className={`text-[13px] font-bold truncate leading-tight transition-colors ${
-                isProfileActive ? 'text-[#3A3564]' : 'text-slate-900 group-hover:text-[#3A3564]'
+                isProfileActive ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#0B1220]'
               }`}>
                 {userEmail}
               </span>
               <span className="text-[11px] font-mono text-slate-500 flex items-center justify-between gap-1.5 mt-0.5">
                 <span>{roleLabel}</span>
-                <span className="text-[#3A3564] font-bold text-[10px] tracking-tight shrink-0">
+                <span className="text-[#0B1220] font-bold text-[10px] tracking-tight shrink-0">
                   Profile ↗
                 </span>
               </span>
