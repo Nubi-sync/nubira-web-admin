@@ -364,10 +364,21 @@ export function SADesignApprovalsClient({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Layer 1: Encapsulated Top Header Card */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* Top Welcome / Company Identification */}
+      <div className="pt-1">
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+          <span className="text-slate-600 font-semibold">Welcome, </span>
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
+            {companyName || 'Demo Industries'}
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
+          </span>
+        </h2>
+      </div>
+
+      {/* Layer 2: Encapsulated Top Header Card */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <ShieldCheck className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -375,7 +386,7 @@ export function SADesignApprovalsClient({
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Approved Designs
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 {pendingItems.length} Awaiting Decision
               </span>
             </div>
@@ -388,110 +399,95 @@ export function SADesignApprovalsClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto w-full sm:w-auto">
+        <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto">
           <Link
             href="/design"
-            className="min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
-            <Palette className="w-4 h-4 text-white" />
-            <span>Open Design Studio Module</span>
+            <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
+            <span>Design Studio</span>
           </Link>
         </div>
       </div>
 
-      {/* Layer 3: Informational KPI Data Boxes (Unified 4-Box Grid) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4.5">
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      {/* Layer 3: Streamlined KPI Stat Cards (4 Clean Boxes matching Design Studio) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-black/20">
-              PIPELINE
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Total Designs
             </span>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-xs">
-              <Layers className="w-5 h-5 text-[#0B1220]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Layers className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-              Total Designs
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {allRows.length}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-black/20">
-              DECISION
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Awaiting Decision
             </span>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-xs">
-              <Clock className="w-5 h-5 text-[#0B1220]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-              Awaiting Decision
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220] font-[family-name:var(--font-heading)] mt-1">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {pendingItems.length}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-              GREENLIT
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Approved Designs
             </span>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shadow-xs">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-              {isModuleView ? 'Approved Designs' : 'SA Greenlit'}
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 font-[family-name:var(--font-heading)] mt-1">
+          <div className="mt-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
               {approvedItems.length}
             </div>
           </div>
         </div>
 
         {isModuleView ? (
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-rose-800 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
-                REVISIONS
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Revisions Needed
               </span>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shadow-xs">
-                <XCircle className="w-5 h-5 text-rose-600" />
+              <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+                <XCircle className="w-4 h-4 text-[#0B1220]" />
               </div>
             </div>
-            <div className="mt-3">
-              <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-                Revisions Needed
-              </div>
-              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-rose-600 font-[family-name:var(--font-heading)] mt-1">
+            <div className="mt-2">
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
                 {rejectedItems.length}
               </div>
             </div>
           </div>
         ) : (
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1D4ED8] bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-                ARCHIVE
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Seasonal Archive
               </span>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-[#1D4ED8] border border-blue-200 flex items-center justify-center shadow-xs">
-                <Bookmark className="w-5 h-5 text-[#1D4ED8]" />
+              <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+                <Bookmark className="w-4 h-4 text-[#0B1220]" />
               </div>
             </div>
-            <div className="mt-3">
-              <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 font-mono">
-                Seasonal Archive
-              </div>
-              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#1D4ED8] font-[family-name:var(--font-heading)] mt-1">
+            <div className="mt-2">
+              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#0B1220]">
                 {savedForLaterItems.length}
               </div>
             </div>
@@ -500,17 +496,17 @@ export function SADesignApprovalsClient({
       </div>
 
       {/* Layer 4 & 5: Primary Approvals Ledger Container */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        {/* Toolbar */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        {/* Toolbar Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
-          <div className="flex items-center gap-2 overflow-x-auto text-xs sm:text-sm font-bold pb-1 sm:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold pb-1 sm:pb-0">
             <button
               type="button"
               onClick={() => setActiveTab('ALL')}
-              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'ALL'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
-                  : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                  : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
               All Designs ({allRows.length})
@@ -518,10 +514,10 @@ export function SADesignApprovalsClient({
             <button
               type="button"
               onClick={() => setActiveTab('APPROVED')}
-              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'APPROVED'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
-                  : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                  : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
               Approved ({approvedItems.length})
@@ -529,10 +525,10 @@ export function SADesignApprovalsClient({
             <button
               type="button"
               onClick={() => setActiveTab('REJECTED')}
-              className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
+              className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'REJECTED'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
-                  : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
+                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                  : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
               Revisions Needed ({rejectedItems.length})
@@ -541,10 +537,10 @@ export function SADesignApprovalsClient({
               <button
                 type="button"
                 onClick={() => setActiveTab('PENDING')}
-                className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
+                className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   activeTab === 'PENDING'
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
-                    : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                    : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 Awaiting Decision ({pendingItems.length})
@@ -554,10 +550,10 @@ export function SADesignApprovalsClient({
               <button
                 type="button"
                 onClick={() => setActiveTab('SAVED_FOR_LATER')}
-                className={`min-h-[42px] px-4 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer border flex items-center justify-center ${
+                className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   activeTab === 'SAVED_FOR_LATER'
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
-                    : 'text-slate-700 bg-[#F8FAFC] border-slate-200 hover:bg-slate-100'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                    : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 Saved for Later ({savedForLaterItems.length})
