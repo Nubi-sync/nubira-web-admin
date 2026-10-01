@@ -64,13 +64,13 @@ interface DesignDashboardClientProps {
 }
 
 const STATUS_CONFIG: Record<BriefStatus, { label: string; badgeClass: string }> = {
-  ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' },
-  SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-amber-200 font-semibold' },
-  PH_APPROVED: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
-  PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' },
-  SA_APPROVED: { label: 'Super Admin Approved', badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold' },
-  SA_SAVED_FOR_LATER: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-sky-200 font-semibold' },
-  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 font-bold' }
+  ALLOCATED: { label: 'Pending Upload', badgeClass: 'bg-slate-100 text-slate-700 border-black/15' },
+  SUBMITTED: { label: 'In Review', badgeClass: 'bg-amber-50 text-amber-800 border-black/15 font-semibold' },
+  PH_APPROVED: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-black/15 font-semibold' },
+  PH_REJECTED: { label: 'Revisions Needed', badgeClass: 'bg-rose-50 text-rose-700 border-black/15 font-semibold' },
+  SA_APPROVED: { label: 'Super Admin Approved', badgeClass: 'bg-emerald-50 text-[#0B1220] border-black/20 font-bold' },
+  SA_SAVED_FOR_LATER: { label: 'Supervisor Approved', badgeClass: 'bg-sky-50 text-sky-800 border-black/15 font-semibold' },
+  TECH_PACK_CREATED: { label: 'Tech-Pack Created', badgeClass: 'bg-[#F0FDFA] text-[#0B1220] border-black/20 font-bold' }
 }
 
 function getVariantArtNumber(baseArtNo: string, index: number, totalCount: number): string {
@@ -334,9 +334,9 @@ export function DesignDashboardClient({
       <div className="pt-1">
         <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#1D4ED8] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#14C8B4] rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
@@ -344,15 +344,15 @@ export function DesignDashboardClient({
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            <Palette className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Palette className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Design &amp; Tech-Pack Studio
               </h1>
-              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 {activeBriefsCount} Active Briefs
               </span>
             </div>
@@ -393,7 +393,7 @@ export function DesignDashboardClient({
             onClick={() => setIsCreateOpen(true)}
             className="inline-flex items-center gap-1.5 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4 text-[#14C8B4]" />
+            <Plus className="w-4 h-4 text-white" />
             <span>New Brief</span>
           </button>
         </div>
@@ -406,8 +406,8 @@ export function DesignDashboardClient({
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Active Briefs
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <ClipboardList className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <ClipboardList className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -422,8 +422,8 @@ export function DesignDashboardClient({
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Pending Supervisor Review
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -438,8 +438,8 @@ export function DesignDashboardClient({
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Forwarded to Super Admin
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -454,8 +454,8 @@ export function DesignDashboardClient({
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
               Tech-Packs Ready
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <FileCheck2 className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <FileCheck2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -688,7 +688,7 @@ export function DesignDashboardClient({
                           <td className="py-3.5 px-4">
                             <div className="space-y-1">
                               <div className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                                <Palette className="w-3 h-3 text-[#14C8B4]" />
+                                <Palette className="w-3 h-3 text-[#0B1220]" />
                                 <span>{row.colors.length} Color{row.colors.length === 1 ? '' : 's'}</span>
                               </div>
                               <div className="flex flex-wrap items-center gap-1">
