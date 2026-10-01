@@ -608,9 +608,9 @@ export function EmbroideryDashboardClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
@@ -618,15 +618,15 @@ export function EmbroideryDashboardClient({
       {/* Module Title Header Card */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Multi-Head Embroidery Studio
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 {workers.length} Workers Registered
               </span>
             </div>
@@ -640,51 +640,51 @@ export function EmbroideryDashboardClient({
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
           <Link
             href="/embroidery/punch-library"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <FileCode className="w-3.5 h-3.5" />
+            <FileCode className="w-3.5 h-3.5 text-slate-500" />
             <span>Punch Library</span>
           </Link>
           <Link
             href="/embroidery/machine-runs"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Cpu className="w-3.5 h-3.5" />
+            <Cpu className="w-3.5 h-3.5 text-slate-500" />
             <span>Machine Runs</span>
           </Link>
           <Link
             href="/embroidery/thread-store"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Package className="w-3.5 h-3.5" />
+            <Package className="w-3.5 h-3.5 text-slate-500" />
             <span>Thread Store</span>
           </Link>
           <Link
             href="/embroidery/embroidery-qc"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
             <span>Embroidery QC</span>
           </Link>
           <Link
             href="/embroidery/stitch-billing"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Receipt className="w-3.5 h-3.5" />
+            <Receipt className="w-3.5 h-3.5 text-slate-500" />
             <span>Stitch Billing</span>
           </Link>
           <Link
             href="/embroidery/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-slate-500" />
             <span>Zigza AI</span>
           </Link>
           <Link
             href="/embroidery/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-slate-500" />
             <span>Division Profile</span>
           </Link>
         </div>
@@ -695,8 +695,8 @@ export function EmbroideryDashboardClient({
         
         {/* Left: Active Buyer Info Pill + Interactive Route Selector */}
         <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
@@ -705,7 +705,7 @@ export function EmbroideryDashboardClient({
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}              {/* Route Pill with Dropdown Selector */}
@@ -713,13 +713,13 @@ export function EmbroideryDashboardClient({
                 <button
                   type="button"
                   onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
-                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] cursor-pointer transition-all shadow-2xs"
+                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/15 bg-[#F0FDFA] hover:bg-cyan-50/80 text-[#0B1220] cursor-pointer transition-all shadow-2xs"
                   title="Click to view or change manufacturing process route"
                 >
-                  <GitBranch className="w-3 h-3 text-[#3A3564]" />
+                  <GitBranch className="w-3 h-3 text-[#0B1220]" />
                   <span>Route: {activeRouteConfig.shortLabel}</span>
                   <span className="text-[10px] text-slate-500 font-normal">({routeDetails.badgeLabel})</span>
-                  <ChevronDown className={`w-3 h-3 text-[#3A3564] transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 text-[#0B1220] transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isRouteMenuOpen && (
@@ -734,13 +734,13 @@ export function EmbroideryDashboardClient({
                         onClick={() => handleSelectRoute(opt.value)}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
                           activeRoute === opt.value
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                            ? 'bg-[#0B1220] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <div>
                           <div className="font-bold">{opt.shortLabel}</div>
-                          <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-indigo-200' : 'text-slate-500'}`}>
+                          <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-slate-300' : 'text-slate-500'}`}>
                             {opt.flowDescription}
                           </div>
                         </div>
@@ -763,10 +763,10 @@ export function EmbroideryDashboardClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564]" />
+                <Users className="w-4 h-4 text-slate-700" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
@@ -781,7 +781,7 @@ export function EmbroideryDashboardClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -795,13 +795,13 @@ export function EmbroideryDashboardClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-slate-300' : 'text-slate-500'}`}>
                         Show all {allocations.length} floor task allocations
                       </div>
                     </div>
@@ -832,13 +832,13 @@ export function EmbroideryDashboardClient({
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                             activeSelectedBuyerId === b.id
-                              ? 'bg-[#3A3564] text-white font-bold'
-                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                              ? 'bg-[#0B1220] text-white font-bold'
+                              : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <div className="truncate pr-2">
                             <div className="font-bold">{b.buyer_name}</div>
-                            <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-slate-300' : 'text-slate-500'}`}>
                               {bCut.toLocaleString('en-IN')} Cut Pcs (of {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} BPO) {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
                             </div>
                           </div>
@@ -856,9 +856,9 @@ export function EmbroideryDashboardClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-slate-600" />
             <span>View Worker List ({workers.length})</span>
           </button>
 
@@ -866,7 +866,7 @@ export function EmbroideryDashboardClient({
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Add Worker</span>
@@ -877,7 +877,7 @@ export function EmbroideryDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync latest live floor updates"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -890,13 +890,13 @@ export function EmbroideryDashboardClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         
         {/* 1. In Hand (Strict Route Controlled) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
+              <ShoppingBag className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -916,13 +916,13 @@ export function EmbroideryDashboardClient({
         </div>
 
         {/* 2. Pending Embroidery */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Pending Embroidery
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -936,13 +936,13 @@ export function EmbroideryDashboardClient({
         </div>
 
         {/* 3. Completed Embroidery */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Completed Embroidery
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Sparkles className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -961,10 +961,10 @@ export function EmbroideryDashboardClient({
       <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
         
         {/* Spreadsheet Header Bar */}
-        <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div className="p-5 sm:p-6 border-b border-black/10 bg-slate-50/60 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
                 <TableProperties className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -988,18 +988,18 @@ export function EmbroideryDashboardClient({
                 value={taskSearchQuery}
                 onChange={e => setTaskSearchQuery(e.target.value)}
                 placeholder="Search worker, article, machine..."
-                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564] font-mono"
+                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#0B1220] font-mono"
               />
             </div>
 
             {/* Status Filter Tabs */}
-            <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold">
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-mono font-bold">
               <button
                 type="button"
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'ALL'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1010,7 +1010,7 @@ export function EmbroideryDashboardClient({
                 onClick={() => setStatusFilter('ACTIVE')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'ACTIVE'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1021,7 +1021,7 @@ export function EmbroideryDashboardClient({
                 onClick={() => setStatusFilter('NEEDS_VERIFY')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'NEEDS_VERIFY'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1032,7 +1032,7 @@ export function EmbroideryDashboardClient({
                 onClick={() => setStatusFilter('COMPLETED')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'COMPLETED'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1044,7 +1044,7 @@ export function EmbroideryDashboardClient({
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Task Row</span>
@@ -1056,7 +1056,7 @@ export function EmbroideryDashboardClient({
         <div className="overflow-x-auto">
           {filteredTasks.length === 0 ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] mx-auto shadow-2xs">
                 <TableProperties className="w-6 h-6" />
               </div>
               <div className="text-base font-bold text-slate-800">
@@ -1068,7 +1068,7 @@ export function EmbroideryDashboardClient({
               <button
                 type="button"
                 onClick={() => setIsAddTaskOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Assign Task Row</span>
@@ -1077,7 +1077,7 @@ export function EmbroideryDashboardClient({
           ) : (
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono uppercase text-[11px] text-slate-600 font-bold tracking-wider">
+                <tr className="bg-slate-50 border-b border-slate-200 font-mono uppercase text-[11px] text-slate-600 font-bold tracking-wider">
                   <th className="py-3.5 px-4">Task #</th>
                   <th className="py-3.5 px-4">Worker &amp; Contact</th>
                   <th className="py-3.5 px-4">Buyer &amp; Article</th>
@@ -1097,13 +1097,13 @@ export function EmbroideryDashboardClient({
                   return (
                     <tr 
                       key={task.id}
-                      className={`hover:bg-[#FAF7F0]/60 transition-colors ${
+                      className={`hover:bg-slate-50/80 transition-colors ${
                         isVerified ? 'bg-slate-50/40 opacity-80' : isWorkerDone ? 'bg-amber-50/30' : ''
                       }`}
                     >
                       {/* 1. Task # */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
-                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 shadow-2xs">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#0B1220]">
+                        <span className="px-2 py-0.5 rounded-md bg-[#F0FDFA] border border-black/15 shadow-2xs">
                           #{task.task_ref}
                         </span>
                       </td>
@@ -1122,7 +1122,7 @@ export function EmbroideryDashboardClient({
                       {/* 3. Buyer & Article */}
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900">{task.buyer_name}</div>
-                        <div className="text-[11px] font-mono text-[#3A3564] font-semibold">
+                        <div className="text-[11px] font-mono text-[#0B1220] font-semibold">
                           {task.article_number}
                         </div>
                       </td>
@@ -1161,8 +1161,8 @@ export function EmbroideryDashboardClient({
                             <span>NEEDS VERIFY</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 font-mono text-[10px] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0B1220]" />
                             <span>IN PROGRESS</span>
                           </span>
                         )}
@@ -1285,10 +1285,10 @@ export function EmbroideryDashboardClient({
         }}
       >
         {taskToDelete && (
-          <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10 text-left space-y-2 mt-2 font-mono text-xs">
+          <div className="p-3.5 rounded-2xl bg-[#F0FDFA] border border-black/15 text-left space-y-2 mt-2 font-mono text-xs">
             <div className="flex items-center justify-between border-b border-black/5 pb-2">
               <span className="text-slate-500">Task Reference:</span>
-              <span className="font-bold text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10">
+              <span className="font-bold text-[#0B1220] bg-white px-2 py-0.5 rounded-md border border-black/10">
                 #{taskToDelete.taskRef}
               </span>
             </div>

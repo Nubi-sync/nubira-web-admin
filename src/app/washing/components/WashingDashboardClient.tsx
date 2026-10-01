@@ -454,9 +454,9 @@ export function WashingDashboardClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
@@ -464,15 +464,15 @@ export function WashingDashboardClient({
       {/* Module Title Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
         <div className="flex items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Waves className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Waves className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Industrial Washing Floor
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20">
                 {workers.length} Washers Registered
               </span>
             </div>
@@ -486,30 +486,30 @@ export function WashingDashboardClient({
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           <Link
             href="/washing/store"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs"
           >
-            <Store className="w-3.5 h-3.5" />
+            <Store className="w-3.5 h-3.5 text-slate-500" />
             <span>Floor Store</span>
           </Link>
           <Link
             href="/washing/notifications"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs"
           >
-            <Bell className="w-3.5 h-3.5" />
+            <Bell className="w-3.5 h-3.5 text-slate-500" />
             <span>Notifications</span>
           </Link>
           <Link
             href="/washing/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs"
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-slate-500" />
             <span>Zigza AI</span>
           </Link>
           <button
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-mono font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
             title="Sync latest live floor updates"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
@@ -524,8 +524,8 @@ export function WashingDashboardClient({
         
         {/* Left: Active Buyer Info Pill */}
         <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
@@ -534,7 +534,7 @@ export function WashingDashboardClient({
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
@@ -550,10 +550,10 @@ export function WashingDashboardClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564]" />
+                <Users className="w-4 h-4 text-slate-700" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
@@ -568,7 +568,7 @@ export function WashingDashboardClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -582,13 +582,13 @@ export function WashingDashboardClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-slate-300' : 'text-slate-500'}`}>
                         Show all {allocations.length} floor task allocations
                       </div>
                     </div>
@@ -610,13 +610,13 @@ export function WashingDashboardClient({
                         }}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                           activeSelectedBuyerId === b.id
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                            ? 'bg-[#0B1220] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <div className="truncate pr-2">
                           <div className="font-bold">{b.buyer_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-slate-300' : 'text-slate-500'}`}>
                             {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} BPO Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
                           </div>
                         </div>
@@ -633,9 +633,9 @@ export function WashingDashboardClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-800 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs shrink-0"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-slate-600" />
             <span>View Worker List ({workers.length})</span>
           </button>
 
@@ -643,7 +643,7 @@ export function WashingDashboardClient({
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Add Worker</span>
@@ -654,7 +654,7 @@ export function WashingDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync latest live floor updates"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -667,13 +667,13 @@ export function WashingDashboardClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         
         {/* 1. In Hand */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl border border-black/15 bg-[#F0FDFA] text-[#0B1220] flex items-center justify-center shadow-2xs">
+              <ShoppingBag className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -689,13 +689,13 @@ export function WashingDashboardClient({
         </div>
 
         {/* 2. Processing (Pending Washing) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Processing / In Progress
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -711,13 +711,13 @@ export function WashingDashboardClient({
         </div>
 
         {/* 3. Complete (Verified Washed) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Complete / Verified
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Waves className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Waves className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -738,10 +738,10 @@ export function WashingDashboardClient({
       <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
         
         {/* Spreadsheet Header Bar */}
-        <div className="p-5 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div className="p-5 sm:p-6 border-b border-black/10 bg-slate-50/60 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+              <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs">
                 <TableProperties className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -765,18 +765,18 @@ export function WashingDashboardClient({
                 value={taskSearchQuery}
                 onChange={e => setTaskSearchQuery(e.target.value)}
                 placeholder="Search worker, article, machine..."
-                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564] font-mono"
+                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#0B1220] font-mono"
               />
             </div>
 
             {/* Status Filter Tabs */}
-            <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold">
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-mono font-bold">
               <button
                 type="button"
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'ALL'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -787,7 +787,7 @@ export function WashingDashboardClient({
                 onClick={() => setStatusFilter('ACTIVE')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'ACTIVE'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -798,7 +798,7 @@ export function WashingDashboardClient({
                 onClick={() => setStatusFilter('NEEDS_VERIFY')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'NEEDS_VERIFY'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -809,7 +809,7 @@ export function WashingDashboardClient({
                 onClick={() => setStatusFilter('COMPLETED')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   statusFilter === 'COMPLETED'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -821,7 +821,7 @@ export function WashingDashboardClient({
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Task Row</span>
@@ -833,7 +833,7 @@ export function WashingDashboardClient({
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-black/10 bg-[#FAF7F0]/80 text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-3 px-4">Task Ref</th>
                 <th className="py-3 px-4">Buyer / Brand</th>
                 <th className="py-3 px-4">Article No</th>
@@ -859,14 +859,16 @@ export function WashingDashboardClient({
                 </tr>
               ) : (
                 filteredTasks.map(task => (
-                  <tr key={task.id} className="hover:bg-[#FAF7F0]/40 transition-colors">
+                  <tr key={task.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-4 font-bold text-slate-900">
-                      #{task.task_ref}
+                      <span className="px-2 py-0.5 rounded-md bg-[#F0FDFA] border border-black/15 shadow-2xs text-[#0B1220]">
+                        #{task.task_ref}
+                      </span>
                     </td>
                     <td className="py-3 px-4 font-sans font-semibold text-slate-800">
                       {task.buyer_name}
                     </td>
-                    <td className="py-3 px-4 font-bold text-[#3A3564]">
+                    <td className="py-3 px-4 font-bold text-[#0B1220]">
                       {task.article_number}
                     </td>
                     <td className="py-3 px-4 font-sans text-slate-700">
@@ -894,7 +896,7 @@ export function WashingDashboardClient({
                           : task.status === 'WORKER_COMPLETED'
                           ? 'bg-blue-50 text-blue-800 border-blue-200'
                           : task.status === 'IN_PROGRESS'
-                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/20'
                           : 'bg-slate-50 text-slate-700 border-slate-200'
                       }`}>
                         {task.status.replace(/_/g, ' ')}
@@ -951,11 +953,11 @@ export function WashingDashboardClient({
             filteredTasks.map(task => {
               const progress = Math.min(100, Math.round(((task.completed_pieces || 0) / (task.pieces_to_wash || 1)) * 100))
               return (
-                <div key={task.id} className="p-4 space-y-3 bg-white hover:bg-[#FAF7F0]/30 transition-colors">
+                <div key={task.id} className="p-4 space-y-3 bg-white hover:bg-slate-50/80 transition-colors">
                   {/* Card Header: Task Ref, Status, Actions */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                         #{task.task_ref}
                       </span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
@@ -964,7 +966,7 @@ export function WashingDashboardClient({
                           : task.status === 'WORKER_COMPLETED'
                           ? 'bg-blue-50 text-blue-800 border-blue-200'
                           : task.status === 'IN_PROGRESS'
-                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/20'
                           : 'bg-slate-50 text-slate-700 border-slate-200'
                       }`}>
                         {task.status.replace(/_/g, ' ')}
@@ -1009,12 +1011,12 @@ export function WashingDashboardClient({
                     </div>
                     <div className="text-right">
                       <div className="text-[10px] font-mono text-slate-400 uppercase">Article No</div>
-                      <div className="font-mono font-bold text-[#3A3564]">{task.article_number}</div>
+                      <div className="font-mono font-bold text-[#0B1220]">{task.article_number}</div>
                     </div>
                   </div>
 
                   {/* Operator & Machine */}
-                  <div className="grid grid-cols-2 gap-2 text-xs bg-[#FAF7F0]/60 p-2.5 rounded-xl border border-black/5">
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-[#F0FDFA]/60 p-2.5 rounded-xl border border-black/10">
                     <div>
                       <div className="text-[10px] font-mono text-slate-400 uppercase">Washer Operator</div>
                       <div className="font-semibold text-slate-800 truncate">{task.worker_name}</div>
@@ -1040,7 +1042,7 @@ export function WashingDashboardClient({
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className={`h-full transition-all duration-300 ${
-                          progress >= 100 ? 'bg-emerald-500' : 'bg-[#3A3564]'
+                          progress >= 100 ? 'bg-emerald-500' : 'bg-[#0B1220]'
                         }`}
                         style={{ width: `${progress}%` }}
                       />

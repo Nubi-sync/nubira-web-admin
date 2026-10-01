@@ -610,25 +610,25 @@ export function PrintingDashboardClient({
       <div className="pt-1">
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#3A3564] font-extrabold relative inline-block">
+          <span className="text-[#0B1220] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#3A3564]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
           </span>
         </h2>
       </div>
 
       {/* Module Title Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
-            <Printer className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Printer className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Screen &amp; Digital Printing Studio
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 {workers.length} Workers Registered
               </span>
             </div>
@@ -642,62 +642,62 @@ export function PrintingDashboardClient({
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
           <Link
             href="/printing/strike-offs"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="w-3.5 h-3.5 text-slate-500" />
             <span>Strike-Offs</span>
           </Link>
           <Link
             href="/printing/table-runs"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <TableProperties className="w-3.5 h-3.5" />
+            <TableProperties className="w-3.5 h-3.5 text-slate-500" />
             <span>Table Runs</span>
           </Link>
           <Link
             href="/printing/screens"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="w-3.5 h-3.5 text-slate-500" />
             <span>Screens</span>
           </Link>
           <Link
             href="/printing/ink-kitchen"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-slate-500" />
             <span>Ink Kitchen</span>
           </Link>
           <Link
             href="/printing/curing-qc"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Flame className="w-3.5 h-3.5" />
+            <Flame className="w-3.5 h-3.5 text-slate-500" />
             <span>Curing QC</span>
           </Link>
           <Link
             href="/printing/zigza-ai"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-slate-500" />
             <span>Zigza AI</span>
           </Link>
           <Link
             href="/printing/profile"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F0] hover:bg-white border border-black/10 text-xs font-bold text-[#3A3564] transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-slate-500" />
             <span>Division Profile</span>
           </Link>
         </div>
       </div>
 
       {/* Buyer Selection & Strict Manufacturing Route Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         
         {/* Left: Active Buyer Info Pill + Interactive Route Selector */}
         <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
@@ -707,7 +707,7 @@ export function PrintingDashboardClient({
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/20">
                   Article: {selectedBuyer.linked_article_number}
                 </span>
               )}
@@ -717,18 +717,18 @@ export function PrintingDashboardClient({
                 <button
                   type="button"
                   onClick={() => setIsRouteMenuOpen(!isRouteMenuOpen)}
-                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] cursor-pointer transition-all shadow-2xs"
+                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-0.5 rounded-md border border-black/20 bg-[#F0FDFA] hover:bg-teal-50 text-[#0B1220] cursor-pointer transition-all shadow-2xs"
                   title="Click to view or change manufacturing process route"
                 >
-                  <GitBranch className="w-3 h-3 text-[#3A3564]" />
+                  <GitBranch className="w-3 h-3 text-[#0B1220]" />
                   <span>Route: {activeRouteConfig.shortLabel}</span>
                   <span className="text-[10px] text-slate-500 font-normal">({routeDetails.badgeLabel})</span>
-                  <ChevronDown className={`w-3 h-3 text-[#3A3564] transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 text-[#0B1220] transition-transform ${isRouteMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isRouteMenuOpen && (
-                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
-                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-black/5">
+                  <div className="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-40 p-2 space-y-1 animate-in fade-in zoom-in-95">
+                    <div className="px-2 py-1 text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                       Select Manufacturing Route
                     </div>
                     {ALL_ROUTE_OPTIONS.map(opt => (
@@ -738,8 +738,8 @@ export function PrintingDashboardClient({
                         onClick={() => handleSelectRoute(opt.value)}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
                           activeRoute === opt.value
-                            ? 'bg-[#3A3564] text-white font-bold'
-                            : 'text-slate-700 hover:bg-[#FAF7F0]'
+                            ? 'bg-[#0B1220] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <div>
@@ -767,17 +767,17 @@ export function PrintingDashboardClient({
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
             >
               <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#3A3564] shrink-0" />
+                <Users className="w-4 h-4 text-[#0B1220] shrink-0" />
                 <span className="truncate">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isBuyerMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-black/10 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
+              <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -785,7 +785,7 @@ export function PrintingDashboardClient({
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
                     placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-black/10 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#3A3564]"
+                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
                     autoFocus
                   />
                 </div>
@@ -797,10 +797,10 @@ export function PrintingDashboardClient({
                       setSelectedBuyerId('ALL')
                       setIsBuyerMenuOpen(false)
                     }}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-slate-100 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#3A3564] text-white font-bold'
-                        : 'text-slate-700 hover:bg-[#FAF7F0]'
+                        ? 'bg-[#0B1220] text-white font-bold'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div>
@@ -836,8 +836,8 @@ export function PrintingDashboardClient({
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                             activeSelectedBuyerId === b.id
-                              ? 'bg-[#3A3564] text-white font-bold'
-                              : 'text-slate-700 hover:bg-[#FAF7F0]'
+                              ? 'bg-[#0B1220] text-white font-bold'
+                              : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <div className="truncate pr-2">
@@ -860,9 +860,9 @@ export function PrintingDashboardClient({
           <button
             type="button"
             onClick={() => setIsWorkerListOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-black/10 bg-white hover:bg-[#FAF7F0] text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-mono font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
           >
-            <Users className="w-4 h-4 text-[#3A3564]" />
+            <Users className="w-4 h-4 text-[#0B1220]" />
             <span>Workers ({workers.length})</span>
           </button>
 
@@ -870,7 +870,7 @@ export function PrintingDashboardClient({
           <button
             type="button"
             onClick={() => setIsAddWorkerOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Add Worker</span>
@@ -881,7 +881,7 @@ export function PrintingDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
             title="Sync latest live floor updates"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -894,13 +894,13 @@ export function PrintingDashboardClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
         {/* 1. In Hand (Strict Route Controlled) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               In Hand
             </span>
-            <div className="w-10 h-10 rounded-xl border border-black/10 bg-[#FAF7F0] text-[#3A3564] flex items-center justify-center shadow-2xs">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <ShoppingBag className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -920,13 +920,13 @@ export function PrintingDashboardClient({
         </div>
 
         {/* 2. Pending Printing */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Pending Printing
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Clock className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -940,13 +940,13 @@ export function PrintingDashboardClient({
         </div>
 
         {/* 3. Completed Printing */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Completed Printing
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <Printer className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Printer className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -960,13 +960,13 @@ export function PrintingDashboardClient({
         </div>
 
         {/* 4. Strike Off (Static Placeholder Box) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
               Strike Off
             </span>
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs">
-              <FileText className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <FileText className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
           <div>
@@ -985,10 +985,10 @@ export function PrintingDashboardClient({
       <div className="bg-white rounded-3xl border border-black/10 shadow-2xs overflow-hidden space-y-0">
         
         {/* Spreadsheet Header Bar */}
-        <div className="p-4 sm:p-6 border-b border-black/10 bg-[#FAF7F0]/40 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 border-b border-black/10 bg-slate-50/60 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                 <TableProperties className="w-4.5 h-4.5" />
               </div>
               <div>
@@ -1012,18 +1012,18 @@ export function PrintingDashboardClient({
                 value={taskSearchQuery}
                 onChange={e => setTaskSearchQuery(e.target.value)}
                 placeholder="Search worker, article, table..."
-                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#3A3564] font-mono"
+                className="w-full pl-8.5 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-hidden focus:border-[#0B1220] font-mono"
               />
             </div>
 
             {/* Status Filter Tabs */}
-            <div className="flex items-center p-1 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs font-mono font-bold overflow-x-auto max-w-full">
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-mono font-bold overflow-x-auto max-w-full">
               <button
                 type="button"
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'ALL'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1034,7 +1034,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('ACTIVE')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'ACTIVE'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1045,7 +1045,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('NEEDS_VERIFY')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'NEEDS_VERIFY'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1056,7 +1056,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('COMPLETED')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'COMPLETED'
-                    ? 'bg-[#3A3564] text-white shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1068,7 +1068,7 @@ export function PrintingDashboardClient({
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Task Row</span>
@@ -1080,7 +1080,7 @@ export function PrintingDashboardClient({
         <div className="overflow-x-auto">
           {filteredTasks.length === 0 ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] mx-auto shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] mx-auto shadow-2xs">
                 <TableProperties className="w-6 h-6" />
               </div>
               <div className="text-base font-bold text-slate-800">
@@ -1092,7 +1092,7 @@ export function PrintingDashboardClient({
               <button
                 type="button"
                 onClick={() => setIsAddTaskOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Assign Task Row</span>
@@ -1101,7 +1101,7 @@ export function PrintingDashboardClient({
           ) : (
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#FAF7F0] border-b border-black/10 font-mono uppercase text-[11px] text-slate-600 font-bold tracking-wider">
+                <tr className="bg-slate-50 border-b border-slate-200 font-mono uppercase text-[11px] text-slate-600 font-bold tracking-wider">
                   <th className="py-3.5 px-4">Task #</th>
                   <th className="py-3.5 px-4">Worker &amp; Contact</th>
                   <th className="py-3.5 px-4">Buyer &amp; Article</th>
@@ -1121,13 +1121,13 @@ export function PrintingDashboardClient({
                   return (
                     <tr 
                       key={task.id}
-                      className={`hover:bg-[#FAF7F0]/60 transition-colors ${
+                      className={`hover:bg-slate-50/80 transition-colors ${
                         isVerified ? 'bg-slate-50/40 opacity-80' : isWorkerDone ? 'bg-amber-50/30' : ''
                       }`}
                     >
                       {/* 1. Task # */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#3A3564]">
-                        <span className="px-2 py-0.5 rounded-md bg-[#FAF7F0] border border-black/10 shadow-2xs">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#0B1220]">
+                        <span className="px-2 py-0.5 rounded-md bg-[#F0FDFA] border border-black/15 shadow-2xs">
                           #{task.task_ref}
                         </span>
                       </td>
@@ -1146,7 +1146,7 @@ export function PrintingDashboardClient({
                       {/* 3. Buyer & Article */}
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900">{task.buyer_name}</div>
-                        <div className="text-[11px] font-mono text-[#3A3564] font-semibold">
+                        <div className="text-[11px] font-mono text-[#0B1220] font-semibold">
                           {task.article_number}
                         </div>
                       </td>
@@ -1185,8 +1185,8 @@ export function PrintingDashboardClient({
                             <span>NEEDS VERIFY</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-mono text-[10px] font-bold">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#3A3564]" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 font-mono text-[10px] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0B1220]" />
                             <span>IN PROGRESS</span>
                           </span>
                         )}
@@ -1309,10 +1309,10 @@ export function PrintingDashboardClient({
         }}
       >
         {taskToDelete && (
-          <div className="p-3.5 rounded-2xl bg-[#FAF7F0] border border-black/10 text-left space-y-2 mt-2 font-mono text-xs">
+          <div className="p-3.5 rounded-2xl bg-[#F0FDFA] border border-black/15 text-left space-y-2 mt-2 font-mono text-xs">
             <div className="flex items-center justify-between border-b border-black/5 pb-2">
               <span className="text-slate-500">Task Reference:</span>
-              <span className="font-bold text-[#3A3564] bg-white px-2 py-0.5 rounded-md border border-black/10">
+              <span className="font-bold text-[#0B1220] bg-white px-2 py-0.5 rounded-md border border-black/10">
                 #{taskToDelete.taskRef}
               </span>
             </div>
