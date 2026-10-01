@@ -100,6 +100,15 @@ export type UpdateChallanPayload = CreateChallanPayload & {
   challan_id: string
 }
 
+export type ChallanColorAllotment = {
+  allotment_id: string
+  color: string
+  lineman_id: string
+  lineman_name: string
+  target_qty: number
+  status: string
+}
+
 export type ChallanGroupedOrder = {
   id: string // challan_id
   challan_no: string
@@ -115,6 +124,7 @@ export type ChallanGroupedOrder = {
   total_pcs: number
   status: string
   bom_details: ChallanBomItem[]
+  color_allotments?: ChallanColorAllotment[]
   articles: Array<ChallanArticleLine & {
     allotment_id: string
     status: string
@@ -284,7 +294,12 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
           const normChNo = chNo.replace(/^JOB-?/i, '').trim()
           const normAlChNo = alChNo.replace(/^JOB-?/i, '').trim()
 
-          if (normChNo && normAlChNo && (normChNo === normAlChNo || chNo === alChNo)) return true
+          if (normChNo && normAlChNo) {
+            if (normChNo === normAlChNo || chNo === alChNo) return true
+            const baseCh = normChNo.split(/[\s(]/)[0].trim()
+            const baseAl = normAlChNo.split(/[\s(]/)[0].trim()
+            if (baseCh && baseAl && baseCh === baseAl) return true
+          }
 
           return false
         })
@@ -483,6 +498,41 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
           challanStatus = 'PENDING'
         }
 
+        // Build color-wise allotment mapping directly from live floor allotments
+        const colorAllotments: ChallanColorAllotment[] = []
+        chAllotments.forEach((al: any) => {
+          const linemanObj: any = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
+          const lmId = al.lineman_id || ''
+          const lmName = linemanObj?.username || linemanObj?.full_name || 'Lineman'
+          const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
+          const alMats = materials?.filter((m: any) => m.allotment_id === al.id) || []
+
+          const foundColors = new Set<string>()
+          alVars.forEach((v: any) => {
+            if (v.color && v.color.trim()) foundColors.add(v.color.trim().toUpperCase())
+          })
+          alMats.forEach((m: any) => {
+            if (m.notes) {
+              try {
+                const n = JSON.parse(m.notes)
+                if (n.color_pattern) foundColors.add(String(n.color_pattern).trim().toUpperCase())
+                if (n.color_focus) foundColors.add(String(n.color_focus).trim().toUpperCase())
+              } catch (_) {}
+            }
+          })
+
+          foundColors.forEach(col => {
+            colorAllotments.push({
+              allotment_id: al.id,
+              color: col,
+              lineman_id: lmId,
+              lineman_name: lmName,
+              target_qty: Number(al.target_qty) || 0,
+              status: al.status || 'IN_PROGRESS'
+            })
+          })
+        })
+
         challanGroups.push({
           id: ch.id,
           challan_no: ch.challan_no || 'CHALLAN',
@@ -498,6 +548,7 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
           total_pcs: totalPcs,
           status: challanStatus,
           bom_details: bomItems,
+          color_allotments: colorAllotments,
           articles: articles,
           created_at: ch.created_at
         })

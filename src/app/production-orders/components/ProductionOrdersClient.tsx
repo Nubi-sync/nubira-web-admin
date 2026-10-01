@@ -1232,6 +1232,22 @@ export function ProductionOrdersClient({
       })
     })
 
+    // 2. Direct lookup in Challan's active color allotments
+    const colorAllotments = (challan as any).color_allotments || []
+    if (colorAllotments.length > 0) {
+      Object.values(colorMap).forEach(cg => {
+        const cUpper = cg.colorName.trim().toUpperCase()
+        const match = colorAllotments.find((ca: any) => {
+          const caCol = (ca.color || '').trim().toUpperCase()
+          return caCol === cUpper || cUpper.includes(caCol) || caCol.includes(cUpper)
+        })
+        if (match && match.lineman_id && match.lineman_name && match.lineman_name !== 'Unassigned' && match.lineman_name !== 'Unassigned (Floor Order)') {
+          cg.assignedLinemanId = match.lineman_id
+          cg.assignedLinemanName = match.lineman_name
+        }
+      })
+    }
+
     return Object.values(colorMap).filter(c => c.totalPcs > 0)
   }
 
