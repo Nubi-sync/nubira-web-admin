@@ -364,17 +364,6 @@ export function SADesignApprovalsClient({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Top Welcome / Company Identification */}
-      <div className="pt-1">
-        <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-          <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#0B1220] font-extrabold relative inline-block">
-            {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
-          </span>
-        </h2>
-      </div>
-
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5 sm:gap-4">
@@ -588,12 +577,13 @@ export function SADesignApprovalsClient({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-50">
-                    <th className="py-3.5 px-4">Art No. &amp; Garment</th>
-                    <th className="py-3.5 px-4">Designer</th>
-                    <th className="py-3.5 px-4">Colorway &amp; Artwork</th>
-                    <th className="py-3.5 px-4">Decision Status</th>
-                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  <tr className="border-b border-slate-100 text-xs font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50/70">
+                    <th className="py-3 px-4">Article Number (Art #)</th>
+                    <th className="py-3 px-4">Garment &amp; Theme</th>
+                    <th className="py-3 px-4">Designer</th>
+                    <th className="py-3 px-4">Colorway &amp; Artwork</th>
+                    <th className="py-3 px-4">Status</th>
+                    {!isModuleView && <th className="py-3 px-4 text-right">Actions</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
@@ -607,54 +597,59 @@ export function SADesignApprovalsClient({
 
                     return (
                       <tr key={item.key} className="hover:bg-slate-50/80 transition-colors group">
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="font-mono font-extrabold text-[#0B1220] text-sm sm:text-base">
+                        {/* 1. Article Number (Art #) */}
+                        <td className="py-3 px-4">
+                          <div className="space-y-0.5">
+                            <span className="font-bold text-slate-900 text-sm block font-[family-name:var(--font-heading)]">
                               {item.artNumber}
                             </span>
-                            <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            <span className="text-[11px] text-slate-400 font-medium block">
                               #{item.conceptNumber} &bull; #{item.briefId.substring(0, 6)}
                             </span>
                           </div>
-                          <span className="font-bold text-[#0B1220] text-sm block font-[family-name:var(--font-heading)]">
+                        </td>
+
+                        {/* 2. Garment & Theme */}
+                        <td className="py-3 px-4">
+                          <span className="font-bold text-slate-900 text-sm block font-[family-name:var(--font-heading)]">
                             {item.garment}
                           </span>
-                          <span className="text-xs sm:text-sm text-slate-500 font-medium">
-                            {item.category}
+                          <span className="text-xs text-slate-500 font-medium">
+                            {item.category} Style
                           </span>
                         </td>
 
-                        <td className="py-3.5 px-4">
-                          <span className="font-bold text-[#0B1220] text-sm block">
-                            {item.designerName}
-                          </span>
-                          {item.designerPhone && (
-                            <span className="text-xs font-mono text-slate-500 block">
-                              {item.designerPhone}
+                        {/* 3. Designer */}
+                        <td className="py-3 px-4">
+                          <div>
+                            <span className="font-semibold text-slate-800 text-xs block">
+                              {item.designerName}
                             </span>
-                          )}
-                          <span className="text-xs text-emerald-700 font-mono inline-flex items-center gap-1 font-bold mt-0.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Supervisor Approved
-                          </span>
+                            <span className="text-[11px] text-emerald-700 font-medium inline-flex items-center gap-1 mt-0.5">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Supervisor Approved
+                            </span>
+                          </div>
                         </td>
 
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
+                        {/* 4. Colorway & Artwork */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-1.5">
                               <span 
-                                className="w-4 h-4 rounded-full border border-slate-300 shrink-0 shadow-xs" 
+                                className="w-3 h-3 rounded-full border border-slate-300 shrink-0 shadow-2xs" 
                                 style={{ backgroundColor: sw.bg }} 
                               />
-                              <span className="font-bold text-[#0B1220] text-sm">
+                              <span className="text-xs font-bold text-slate-800">
                                 {item.colorName}
                               </span>
                             </div>
 
                             {/* Mini Thumbnail */}
                             {item.colorway.photo_front ? (
-                              <div 
+                              <button
+                                type="button"
                                 onClick={() => setPreviewPhoto(item.colorway.photo_front)}
-                                className="w-11 h-11 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 cursor-pointer p-0.5 shadow-xs hover:border-[#0B1220] transition-all shrink-0"
+                                className="w-9 h-9 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 cursor-pointer p-0.5 shadow-2xs hover:border-[#0B1220] transition-all shrink-0"
                                 title="Click to preview artwork"
                               >
                                 <img
@@ -662,47 +657,51 @@ export function SADesignApprovalsClient({
                                   alt={`${item.artNumber} Preview`}
                                   className="w-full h-full object-contain"
                                 />
-                              </div>
+                              </button>
                             ) : (
-                              <span className="text-slate-400 font-mono text-xs">No Artwork</span>
+                              <span className="text-slate-400 text-[11px] italic">No Artwork</span>
                             )}
                           </div>
                         </td>
 
-                        <td className="py-3.5 px-4">
+                        {/* 5. Status Badge */}
+                        <td className="py-3 px-4">
                           {isPendingSA && (
-                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                            <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border bg-amber-50 text-amber-800 border-amber-200">
                               Awaiting SA Decision
                             </span>
                           )}
                           {isGreenlit && (
-                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-800 border-emerald-200">
                               SA Greenlit
                             </span>
                           )}
                           {isSaved && (
-                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20">
+                            <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border bg-[#F0FDFA] text-[#0B1220] border-black/20">
                               Saved in Archive
                             </span>
                           )}
                           {isRejected && (
-                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                              Revisions Requested
+                            <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border bg-rose-50 text-rose-700 border-rose-200">
+                              Revisions Needed
                             </span>
                           )}
                         </td>
 
-                        <td className="py-3.5 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedRowItem(item)}
-                            className="min-h-[42px] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 shadow-xs transition-all cursor-pointer hover:border-slate-300 active:scale-[0.98]"
-                          >
-                            <Eye className="w-4 h-4 text-slate-600" />
-                            <span>View &amp; Decide</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                          </button>
-                        </td>
+                        {/* 6. Action Button (Only for Owner outside module) */}
+                        {!isModuleView && (
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedRowItem(item)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-slate-500" />
+                              <span>View &amp; Decide</span>
+                              <ChevronRight className="w-3 h-3 text-slate-400" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
@@ -775,15 +774,17 @@ export function SADesignApprovalsClient({
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRowItem(item)}
-                      className="min-h-[40px] sm:min-h-[42px] w-full inline-flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>View &amp; Decide {item.artNumber}</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                    {!isModuleView && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRowItem(item)}
+                        className="min-h-[40px] sm:min-h-[42px] w-full inline-flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>View &amp; Decide {item.artNumber}</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )
               })}
