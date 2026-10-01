@@ -365,6 +365,14 @@ export function DesignDashboardClient({
         {/* Quick Nav Actions */}
         <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
           <Link
+            href="/design/sa-approvals"
+            className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-slate-500" />
+            <span>Approved Designs</span>
+          </Link>
+
+          <Link
             href="/design/tech-packs"
             className="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
@@ -433,13 +441,16 @@ export function DesignDashboardClient({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+        <Link
+          href="/design/sa-approvals"
+          className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-black/30 transition-all cursor-pointer group"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Forwarded to Super Admin
+            <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 group-hover:text-[#0B1220] transition-colors">
+              Approved Designs
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+              <Sparkles className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-2">
@@ -447,7 +458,7 @@ export function DesignDashboardClient({
               {pendingSACount}
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">

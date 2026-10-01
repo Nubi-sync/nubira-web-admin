@@ -73,7 +73,7 @@ const navSections: NavSection[] = [
     section: 'Workspace Hub',
     items: [
       { label: 'All Modules', href: '/modules', icon: LayoutGrid },
-      { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
+      { label: 'Approved Designs', href: '/design/sa-approvals', icon: Sparkles },
     ],
   },
   {
@@ -380,7 +380,7 @@ export function AdminSidebar({
         items: [
           { label: 'All Modules', href: '/modules', icon: LayoutGrid },
           { label: 'Department Heads', href: '/modules/access-control', icon: ShieldCheck },
-          { label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles },
+          { label: 'Approved Designs', href: '/design/sa-approvals', icon: Sparkles },
           { label: 'Company Profile', href: '/modules/profile', icon: Building2 },
         ],
       },
@@ -414,7 +414,7 @@ export function AdminSidebar({
         items: [
           { label: 'Studio Dashboard', href: '/design', icon: Palette },
           { label: 'Notification', href: '/design/notifications', icon: Bell },
-          ...(isAdmin ? [{ label: 'SA Design Approvals', href: '/design/sa-approvals', icon: Sparkles }] : []),
+          { label: 'Approved Designs', href: '/design/sa-approvals', icon: Sparkles },
           { label: 'Tech-Pack Catalog', href: '/design/tech-packs', icon: FileCheck2 },
           { label: 'Team Management', href: '/design/team', icon: Users },
           { label: 'PH Settings', href: '/design/settings', icon: Settings },
@@ -799,6 +799,12 @@ export function AdminSidebar({
     if (
       (href === '/modules/access-control' || href === '/access-control') &&
       (currentPath === '/modules/access-control' || currentPath === '/access-control')
+    ) {
+      return true
+    }
+    if (
+      (href === '/design/sa-approvals' || href === '/all-designs') &&
+      (currentPath === '/design/sa-approvals' || currentPath === '/all-designs')
     ) {
       return true
     }

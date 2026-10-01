@@ -365,7 +365,7 @@ export function SADesignApprovalsClient({
           <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-                Design Executive Approvals
+                Approved Designs
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-xs tracking-wider">
                 {pendingItems.length} Awaiting Decision

@@ -81,8 +81,6 @@ function AdminShellContent({
     pathname?.startsWith('/modules/access-control') ||
     pathname === '/all-designs' ||
     pathname?.startsWith('/all-designs') ||
-    pathname === '/design/sa-approvals' ||
-    pathname?.startsWith('/design/sa-approvals') ||
     pathname === '/zigza-ai' ||
     pathname?.startsWith('/zigza-ai') ||
     pathname === '/reports' ||
