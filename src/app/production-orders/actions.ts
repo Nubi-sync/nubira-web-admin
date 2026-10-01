@@ -561,8 +561,8 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
         return []
       }
     },
-    120,
-    [`company:${normComp}:production_orders`, 'production_orders']
+    10,
+    [`company:${normComp}:production_orders`, 'production_orders', 'allotments']
   )
 }
 
