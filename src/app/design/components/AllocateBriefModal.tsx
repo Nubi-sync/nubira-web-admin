@@ -359,8 +359,8 @@ export function AllocateBriefModal({
         {/* Header */}
         <div className="px-5 py-4 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center shadow-2xs">
-              <Palette className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center shadow-2xs">
+              <Palette className="w-4 h-4 text-[#0B1220]" />
             </div>
             <h2 className="text-base sm:text-lg font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] leading-none">
               Allocate Design Brief
@@ -595,7 +595,7 @@ export function AllocateBriefModal({
                     <div className="pt-2 border-t border-slate-200/80 space-y-2">
                       <div className="flex items-center justify-between">
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-900 font-mono flex items-center gap-1.5">
-                          <Palette className="w-3.5 h-3.5 text-[#14C8B4]" />
+                          <Palette className="w-3.5 h-3.5 text-[#0B1220]" />
                           <span>Colors ({design.colors.length}) <span className="text-rose-500">*</span></span>
                         </label>
                         <span className="text-[11px] text-slate-500">
@@ -712,7 +712,7 @@ export function AllocateBriefModal({
                 </>
               ) : (
                 <>
-                  <Palette className="w-4 h-4 text-[#14C8B4]" />
+                  <Palette className="w-4 h-4 text-white" />
                   <span>
                     {designs.length > 0 ? `Allocate Brief (${designs.length} Designs)` : 'Allocate Brief'}
                   </span>

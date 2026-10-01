@@ -359,7 +359,7 @@ export function SADesignApprovalsClient({
       {/* Layer 1: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-xs">
             <ShieldCheck className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -367,7 +367,7 @@ export function SADesignApprovalsClient({
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Design <span className="text-[#1D4ED8]">Executive</span> Approvals
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-xs tracking-wider">
                 {pendingItems.length} Awaiting Decision
               </span>
             </div>
@@ -382,7 +382,7 @@ export function SADesignApprovalsClient({
             href="/design"
             className="min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
           >
-            <Palette className="w-4 h-4 text-[#14C8B4]" />
+            <Palette className="w-4 h-4 text-white" />
             <span>Open Design Studio Module</span>
           </Link>
         </div>
@@ -392,10 +392,10 @@ export function SADesignApprovalsClient({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4.5">
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-[#14C8B4]/20">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-black/20">
               PIPELINE
             </span>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-xs">
               <Layers className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
@@ -411,10 +411,10 @@ export function SADesignApprovalsClient({
 
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-[#14C8B4]/20">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-md border border-black/20">
               DECISION
             </span>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-xs">
               <Clock className="w-5 h-5 text-[#0B1220]" />
             </div>
           </div>
@@ -651,7 +651,7 @@ export function SADesignApprovalsClient({
                             </span>
                           )}
                           {isSaved && (
-                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+                            <span className="text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20">
                               Saved in Archive
                             </span>
                           )}
@@ -720,7 +720,7 @@ export function SADesignApprovalsClient({
                         </span>
                       )}
                       {isSaved && (
-                        <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shrink-0">
+                        <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shrink-0">
                           Archived
                         </span>
                       )}
@@ -769,7 +769,7 @@ export function SADesignApprovalsClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="px-6 py-5 bg-[#F0FDFA] border-b border-[#14C8B4]/20 flex items-center justify-between shrink-0">
+            <div className="px-6 py-5 bg-[#F0FDFA] border-b border-black/15 flex items-center justify-between shrink-0">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs">
@@ -784,7 +784,7 @@ export function SADesignApprovalsClient({
                     </span>
                   )}
                   {selectedRowItem.saVerdict === 'SAVED_FOR_LATER' && (
-                    <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
+                    <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-xs">
                       Saved in Archive
                     </span>
                   )}
@@ -938,7 +938,7 @@ export function SADesignApprovalsClient({
                   onClick={() => handleVerdict(selectedRowItem, 'APPROVED')}
                   className="min-h-[42px] inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
-                  {isReviewing ? <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" /> : <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />}
+                  {isReviewing ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <CheckCircle2 className="w-4 h-4 text-white" />}
                   <span>Greenlight for Tech-Pack</span>
                 </button>
               </div>

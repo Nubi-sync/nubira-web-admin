@@ -368,15 +368,15 @@ export function DesignBriefsClient({
       {/* Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <ClipboardList className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <ClipboardList className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Design Briefs &amp; Reviews
               </h1>
-              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/20 shadow-2xs tracking-wider">
                 {briefs.length} Briefs
               </span>
             </div>
@@ -407,7 +407,7 @@ export function DesignBriefsClient({
             onClick={() => setIsCreateOpen(true)}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4 text-[#14C8B4]" />
+            <Plus className="w-4 h-4 text-white" />
             <span>New Brief</span>
           </button>
         </div>
@@ -420,8 +420,8 @@ export function DesignBriefsClient({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               STAGE 02
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -439,8 +439,8 @@ export function DesignBriefsClient({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               STAGE 03
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -458,8 +458,8 @@ export function DesignBriefsClient({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               GREENLIT
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -477,8 +477,8 @@ export function DesignBriefsClient({
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               ARCHIVE
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-              <Bookmark className="w-4 h-4 text-[#14C8B4]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs">
+              <Bookmark className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
