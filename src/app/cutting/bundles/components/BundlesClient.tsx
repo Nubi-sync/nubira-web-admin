@@ -150,21 +150,21 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto select-none text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
-            <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <QrCode className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Cut Panel Bundle QR Generation
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
                 Serial Barcode Tracking
               </span>
             </div>
-            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Ply banding tags, thermal sticker QR generation, and automated handover routing to Printing, Embroidery &amp; Sewing
             </p>
           </div>
@@ -174,7 +174,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/cutting"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -188,9 +188,9 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 setBundles(updated)
                 localStorage.setItem('zigza_cutting_bundles_v2', JSON.stringify(updated))
               }}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 hover:bg-slate-100 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#14C8B4]" />
               <span>Dispatch All</span>
             </button>
           )}
@@ -198,15 +198,15 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
           <button
             type="button"
             onClick={() => setIsGenerateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>+ Generate QR</span>
+            <Plus className="w-3.5 h-3.5 text-[#14C8B4]" />
+            <span>Generate QR</span>
           </button>
 
           <Link
             href="/printing"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-800 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-800 hover:text-[#0B1220] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
           >
             <span>Printing</span>
             <ArrowRight className="w-3.5 h-3.5 text-[#0B1220]" />

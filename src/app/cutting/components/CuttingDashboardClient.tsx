@@ -508,31 +508,31 @@ export function CuttingDashboardClient({
       
       {/* Top Welcome / Company Identification */}
       <div className="pt-1">
-        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
-          <span className="text-[#0B1220] font-extrabold relative inline-block">
+          <span className="text-[#1D4ED8] font-extrabold relative inline-block">
             {companyName || 'Demo Industries'}
-            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#0B1220]/25 rounded-full" />
+            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#14C8B4] rounded-full" />
           </span>
         </h2>
       </div>
 
       {/* Module Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
-            <Scissors className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+            <Scissors className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#14C8B4]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Cutting &amp; Lay Floor
               </h1>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs tracking-wider">
                 {workers.length} Workers Registered
               </span>
             </div>
-            <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Automated spreading plies, worker task matrix, pieces per shift tracking, and vacuum knife execution
             </p>
           </div>
@@ -542,30 +542,30 @@ export function CuttingDashboardClient({
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Link
             href="/cutting/lay-sheets"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="w-3.5 h-3.5 text-slate-500" />
             <span>Lay Sheets</span>
           </Link>
           <Link
             href="/cutting/markers"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <Maximize2 className="w-3.5 h-3.5" />
+            <Maximize2 className="w-3.5 h-3.5 text-slate-500" />
             <span>CAD Markers</span>
           </Link>
           <Link
             href="/cutting/bundles"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <QrCode className="w-3.5 h-3.5" />
+            <QrCode className="w-3.5 h-3.5 text-slate-500" />
             <span>Bundle QR</span>
           </Link>
           <Link
             href="/cutting/zigza-ai"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 text-xs font-bold text-[#0B1220] transition-colors shadow-2xs"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Bot className="w-3.5 h-3.5 text-slate-500" />
             <span>Zigza AI</span>
           </Link>
         </div>
