@@ -104,13 +104,13 @@ export function LinkArticleModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
-        className="bg-white w-full max-w-xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white w-full max-w-xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-5 sm:p-6 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="p-5 sm:p-6 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
             <div>
@@ -132,7 +132,7 @@ export function LinkArticleModal({
         </div>
 
         {/* Buyer Summary Card */}
-        <div className="p-4 sm:px-6 bg-slate-50/70 border-b border-black/5 flex items-center justify-between gap-4 flex-wrap">
+        <div className="p-4 sm:px-6 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">
           <div>
             <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block">Buyer Contract</span>
             <span className="text-sm font-bold text-slate-900">{buyer.buyer_name}</span>
@@ -142,7 +142,7 @@ export function LinkArticleModal({
           <div className="flex items-center gap-4">
             <div className="text-right">
               <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block">Contracted Volume</span>
-              <span className="text-sm font-mono font-bold text-[#3A3564]">
+              <span className="text-sm font-mono font-bold text-[#0B1220]">
                 {buyer.contracted_volume.toLocaleString('en-IN')} Pcs
               </span>
             </div>
@@ -175,7 +175,7 @@ export function LinkArticleModal({
                   required
                   value={selectedArticleId}
                   onChange={e => setSelectedArticleId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all cursor-pointer"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all cursor-pointer"
                 >
                   <option value="" disabled>-- Select an Article Number with Approved Tech Pack --</option>
                   {articles.map(art => (
@@ -191,10 +191,10 @@ export function LinkArticleModal({
 
               {/* Selected Article Detail Preview Card */}
               {selectedArticle && (
-                <div className="p-4 rounded-xl bg-[#FAF7F0] border border-black/10 space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#3A3564] text-white">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#0B1220] text-white">
                         {selectedArticle.art_number}
                       </span>
                       <span className="text-xs font-bold text-slate-900">
@@ -206,7 +206,7 @@ export function LinkArticleModal({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-black/5">
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
                     <div>
                       <span className="text-slate-400 font-mono text-[10px] uppercase block">Category &amp; Brand</span>
                       <span className="font-semibold text-slate-800">{selectedArticle.category} • {selectedArticle.brand_name}</span>
@@ -218,7 +218,7 @@ export function LinkArticleModal({
                   </div>
 
                   {selectedArticle.embellishment_sequence && (
-                    <div className="pt-2 border-t border-black/5 text-xs">
+                    <div className="pt-2 border-t border-slate-100 text-xs">
                       <span className="text-slate-400 font-mono text-[10px] uppercase block">Embellishment Flow</span>
                       <span className="font-medium text-slate-700">
                         {selectedArticle.embellishment_sequence.replace(/_/g, ' ')}
@@ -230,7 +230,7 @@ export function LinkArticleModal({
 
               {/* Impact Callout */}
               <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100 flex items-start gap-2.5 text-xs text-indigo-900">
-                <Sparkles className="w-4 h-4 text-[#3A3564] shrink-0 mt-0.5" />
+                <Sparkles className="w-4 h-4 text-[#0B1220] shrink-0 mt-0.5" />
                 <p>
                   Linking this article will immediately activate <span className="font-bold">{buyer.contracted_volume.toLocaleString('en-IN')} pieces</span> in the Merchandising Dashboard <span className="font-bold">In Order</span> tracker!
                 </p>
@@ -243,14 +243,14 @@ export function LinkArticleModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !selectedArticle || articles.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isSubmitting ? 'Linking...' : 'Confirm & Link Article'}</span>

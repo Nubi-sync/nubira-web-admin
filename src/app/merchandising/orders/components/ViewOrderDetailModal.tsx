@@ -69,17 +69,17 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="px-4 sm:px-6 py-3.5 sm:py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#3A3564] border border-black/10 flex items-center justify-center shadow-2xs shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-white text-[#0B1220] border border-slate-200 flex items-center justify-center shadow-2xs shrink-0">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-slate-200 shadow-2xs">
                   Buyer PO Specification
                 </span>
                 <span className="text-xs font-bold text-slate-500 font-mono">
@@ -107,7 +107,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             
             {/* Ordered Volume */}
-            <div className="bg-[#FAF7F0] p-4 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Total Ordered Volume
               </span>
@@ -120,7 +120,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
             </div>
 
             {/* Unit Price & Total Value */}
-            <div className="bg-[#FAF7F0] p-4 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Unit FOB &amp; Contract Value
               </span>
@@ -133,11 +133,11 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
             </div>
 
             {/* Target Delivery Date */}
-            <div className="bg-[#FAF7F0] p-4 rounded-2xl border border-black/10 shadow-2xs">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
                 Target Ex-Factory Date
               </span>
-              <div className="text-lg font-bold font-mono text-[#3A3564] mt-1.5 flex items-center gap-1.5">
+              <div className="text-lg font-bold font-mono text-[#0B1220] mt-1.5 flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
                 <span>{order.ex_factory_date}</span>
               </div>
@@ -150,29 +150,29 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
 
           {/* Attached Design Reference & CAD Visuals */}
           {(effectiveCadFront || effectiveCadBack) && (
-            <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
               <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-[#3A3564]" />
+                <ImageIcon className="w-4 h-4 text-[#0B1220]" />
                 <span>Attached Design Reference &amp; CAD Artwork</span>
               </h3>
 
               <div className="grid grid-cols-2 gap-3">
                 {effectiveCadFront && (
-                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 flex flex-col items-center">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center">
                     <img 
                       src={effectiveCadFront} 
                       alt="Front CAD" 
-                      className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5" 
+                      className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-slate-100" 
                     />
                     <span className="text-[10.5px] font-mono font-bold text-slate-700 mt-2 uppercase">Front View Design</span>
                   </div>
                 )}
                 {effectiveCadBack && (
-                  <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 flex flex-col items-center">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center">
                     <img 
                       src={effectiveCadBack} 
                       alt="Back CAD" 
-                      className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5" 
+                      className="h-28 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-slate-100" 
                     />
                     <span className="text-[10.5px] font-mono font-bold text-slate-700 mt-2 uppercase">Back View Design</span>
                   </div>
@@ -182,9 +182,9 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
           )}
 
           {/* Garment Blueprint & Embellishment Routing */}
-          <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
+          <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-              <Shirt className="w-4 h-4 text-[#3A3564]" />
+              <Shirt className="w-4 h-4 text-[#0B1220]" />
               <span>Garment Blueprint &amp; Production Routing</span>
             </h3>
 
@@ -197,7 +197,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
 
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
                 <span className="text-slate-400 font-mono text-[10.5px] uppercase block">Embellishment Flow</span>
-                <span className="inline-block px-2.5 py-1 rounded-md bg-[#FAF7F0] text-[#3A3564] font-mono font-bold border border-black/10">
+                <span className="inline-block px-2.5 py-1 rounded-md bg-slate-50 text-[#0B1220] font-mono font-bold border border-slate-200">
                   {formatEmbellishmentSequence(embSeq)}
                 </span>
               </div>
@@ -206,13 +206,13 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
 
           {/* Bill of Materials (BOM) Trims & Specs (if present) */}
           {effectiveMaterials && effectiveMaterials.length > 0 && (
-            <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-[#3A3564]" />
+                  <Package className="w-4 h-4 text-[#0B1220]" />
                   <span>Bill of Materials (BOM) &amp; Trims</span>
                 </h3>
-                <span className="text-[11px] font-mono font-bold bg-[#FAF7F0] text-[#3A3564] px-2 py-0.5 rounded border border-black/10">
+                <span className="text-[11px] font-mono font-bold bg-slate-50 text-[#0B1220] px-2 py-0.5 rounded border border-slate-200">
                   {effectiveMaterials.length} Items
                 </span>
               </div>
@@ -220,7 +220,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs min-w-[480px]">
                   <thead>
-                    <tr className="border-b border-black/10 bg-[#FAF7F0] text-[10.5px] font-mono font-bold uppercase text-slate-600">
+                    <tr className="border-b border-slate-200 bg-slate-50 text-[10.5px] font-mono font-bold uppercase text-slate-600">
                       <th className="py-2 px-3">Component Type</th>
                       <th className="py-2 px-3">Item Description</th>
                       <th className="py-2 px-3">Consumption</th>
@@ -232,7 +232,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
                       <tr key={idx} className="hover:bg-slate-50">
                         <td className="py-2 px-3 font-semibold text-slate-900">{mat.component_type || 'Material'}</td>
                         <td className="py-2 px-3">{mat.item_name || '-'}</td>
-                        <td className="py-2 px-3 font-mono font-bold text-[#3A3564]">{mat.consumption || '-'}</td>
+                        <td className="py-2 px-3 font-mono font-bold text-[#0B1220]">{mat.consumption || '-'}</td>
                         <td className="py-2 px-3 font-mono text-slate-500">{mat.placement || '-'}</td>
                       </tr>
                     ))}
@@ -243,9 +243,9 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
           )}
 
           {/* Color & Size Distribution Breakdown Table */}
-          <div className="bg-white p-4.5 rounded-2xl border border-black/10 space-y-3 shadow-2xs">
+          <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-              <Palette className="w-4 h-4 text-[#3A3564]" />
+              <Palette className="w-4 h-4 text-[#0B1220]" />
               <span>Colorway &amp; Size Breakdown Matrix</span>
             </h3>
 
@@ -253,7 +253,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                   <thead>
-                    <tr className="border-b border-black/10 bg-[#FAF7F0] text-[10.5px] font-mono font-bold uppercase text-slate-600">
+                    <tr className="border-b border-slate-200 bg-slate-50 text-[10.5px] font-mono font-bold uppercase text-slate-600">
                       <th className="py-2 px-3">Colorway</th>
                       {DEFAULT_SIZES.map(s => (
                         <th key={s} className="py-2 px-3 text-center">{s}</th>
@@ -270,14 +270,14 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
                             {row.sizes?.[s] ? row.sizes[s].toLocaleString('en-IN') : '0'}
                           </td>
                         ))}
-                        <td className="py-2.5 px-3 text-right font-bold text-[#3A3564]">
+                        <td className="py-2.5 px-3 text-right font-bold text-[#0B1220]">
                           {(row.total || 0).toLocaleString('en-IN')}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="border-t-2 border-slate-200 bg-[#FAF7F0] font-bold text-slate-900 font-mono">
+                    <tr className="border-t-2 border-slate-200 bg-slate-50 font-bold text-slate-900 font-mono">
                       <td className="py-2.5 px-3 uppercase text-[11px]">Total Breakdown</td>
                       {DEFAULT_SIZES.map(s => {
                         const colTotal = order.color_matrix.reduce((sum, r) => sum + (r.sizes?.[s] || 0), 0)
@@ -287,7 +287,7 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
                           </td>
                         )
                       })}
-                      <td className="py-2.5 px-3 text-right text-[#3A3564]">
+                      <td className="py-2.5 px-3 text-right text-[#0B1220]">
                         {order.total_quantity.toLocaleString('en-IN')} Pcs
                       </td>
                     </tr>
@@ -302,11 +302,11 @@ export function ViewOrderDetailModal({ isOpen, onClose, order }: ViewOrderDetail
         </div>
 
         {/* Footer */}
-        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
           >
             Close Specification
           </button>

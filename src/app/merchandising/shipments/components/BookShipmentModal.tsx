@@ -78,11 +78,11 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
+            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220]/10 text-[#0B1220]">
               Form 5 • Export Logistics &amp; Customs
             </span>
             <h2 className="text-base sm:text-lg font-bold text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
@@ -116,7 +116,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={shipmentRef}
                 onChange={e => setShipmentRef(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 font-mono uppercase font-bold"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono uppercase font-bold"
               />
             </div>
             <div>
@@ -126,7 +126,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
               <select
                 value={selectedPo}
                 onChange={e => setSelectedPo(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
               >
                 {orders.map(o => (
                   <option key={o.id} value={o.po_number}>
@@ -147,7 +147,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={forwarderName}
                 onChange={e => setForwarderName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
               />
             </div>
             <div>
@@ -159,7 +159,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={carrierVessel}
                 onChange={e => setCarrierVessel(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
               />
             </div>
           </div>
@@ -175,7 +175,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 value={containerNumber}
                 onChange={e => setContainerNumber(e.target.value)}
                 placeholder="e.g. MSCU-482019-4"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 font-mono uppercase"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono uppercase"
               />
             </div>
             <div>
@@ -190,7 +190,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={bookingCbm}
                 onChange={e => setBookingCbm(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 font-bold text-[#3A3564]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold text-[#0B1220]"
               />
             </div>
           </div>
@@ -205,7 +205,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={portOfLoading}
                 onChange={e => setPortOfLoading(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
               />
             </div>
             <div>
@@ -217,7 +217,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={portOfDischarge}
                 onChange={e => setPortOfDischarge(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={etdDate}
                 onChange={e => setEtdDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
               />
             </div>
             <div>
@@ -244,7 +244,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 required
                 value={etaDate}
                 onChange={e => setEtaDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
               />
             </div>
           </div>
@@ -259,7 +259,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
                 value={blNumber}
                 onChange={e => setBlNumber(e.target.value)}
                 placeholder="e.g. MSCUIN8829018"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 font-mono uppercase"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono uppercase"
               />
             </div>
             <div>
@@ -269,7 +269,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value as ShipmentStatus)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white font-semibold"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white font-semibold"
               >
                 <option value="BOOKED">BOOKED</option>
                 <option value="CONTAINER_STUFFED">CONTAINER_STUFFED</option>
@@ -281,7 +281,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
           </div>
 
           {/* Actions */}
-          <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
@@ -291,7 +291,7 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl font-bold shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl font-bold shadow-sm transition-all"
             >
               <CheckCircle2 className="w-4 h-4" />
               Book Export Shipment

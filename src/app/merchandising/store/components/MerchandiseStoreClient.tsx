@@ -207,9 +207,9 @@ export function MerchandiseStoreClient({
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
       {/* Layer 2: Encapsulated Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <CentralStoreBespokeIcon className="w-5 h-5" />
           </div>
           <div>
@@ -217,7 +217,7 @@ export function MerchandiseStoreClient({
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Merchandise Fabric Store
               </h1>
-              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10 shadow-2xs tracking-wider">
+              <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 DIV 02
               </span>
             </div>
@@ -230,7 +230,7 @@ export function MerchandiseStoreClient({
         <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
           <Link
             href="/store"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-[#FAF7F0] hover:bg-slate-100 border border-black/10 shadow-2xs transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-2xs transition-all cursor-pointer"
           >
             <MaterialFlowBespokeIcon className="w-4 h-4" />
             <span>Central Store Hub</span>
@@ -239,7 +239,7 @@ export function MerchandiseStoreClient({
           <button
             type="button"
             onClick={() => handleOpenIssueModal()}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Scissors className="w-4 h-4" />
             <span>Issue to Cutting</span>
@@ -250,9 +250,9 @@ export function MerchandiseStoreClient({
       {/* Layer 3: Executive KPI Metric Cards (Grid of 4) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Metric 1: Available Fabric */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Box className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -276,9 +276,9 @@ export function MerchandiseStoreClient({
         </div>
 
         {/* Metric 2: Booked Fabric */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Bookmark className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -302,9 +302,9 @@ export function MerchandiseStoreClient({
         </div>
 
         {/* Metric 3: Total On-Hand */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -328,9 +328,9 @@ export function MerchandiseStoreClient({
         </div>
 
         {/* Metric 4: Dispatched to Cutting */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Scissors className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -355,7 +355,7 @@ export function MerchandiseStoreClient({
       </div>
 
       {/* Layer 4 & 5: Tabbed Container & Primary Tables */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {/* Toolbar Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
           <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
@@ -364,8 +364,8 @@ export function MerchandiseStoreClient({
               onClick={() => setActiveTab('MATRIX')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'MATRIX'
-                  ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
               }`}
             >
               Fabric Stock Matrix ({fabrics.length})
@@ -376,8 +376,8 @@ export function MerchandiseStoreClient({
               onClick={() => setActiveTab('DISPATCHES')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'DISPATCHES'
-                  ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
               }`}
             >
               Cutting Dispatches ({issues.length})
@@ -391,7 +391,7 @@ export function MerchandiseStoreClient({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search color, fabric, article..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220]"
             />
           </div>
         </div>
@@ -403,7 +403,7 @@ export function MerchandiseStoreClient({
               {filteredFabrics.map(f => (
                 <div
                   key={f.id}
-                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-[#3A3564]/40 transition-all flex flex-col justify-between space-y-3"
+                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-[#0B1220]/40 transition-all flex flex-col justify-between space-y-3"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -435,7 +435,7 @@ export function MerchandiseStoreClient({
                   <div className="text-xs font-mono text-slate-600">
                     {f.booked_for_article ? (
                       <div>
-                        Booked: <span className="font-bold text-[#3A3564]">Art #{f.booked_for_article}</span>
+                        Booked: <span className="font-bold text-[#0B1220]">Art #{f.booked_for_article}</span>
                       </div>
                     ) : (
                       <span className="text-slate-400">Unreserved Stock</span>
@@ -453,7 +453,7 @@ export function MerchandiseStoreClient({
                     <button
                       type="button"
                       onClick={() => handleOpenIssueModal(f)}
-                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] cursor-pointer shadow-2xs"
+                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] cursor-pointer shadow-2xs"
                     >
                       Issue to Cut
                     </button>
@@ -474,7 +474,7 @@ export function MerchandiseStoreClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm min-w-[750px]">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">Challan Ref</th>
                   <th className="py-3 px-4">To Division</th>
                   <th className="py-3 px-4">Article / Material</th>
@@ -494,7 +494,7 @@ export function MerchandiseStoreClient({
                 ) : (
                   filteredIssues.map(i => (
                     <tr key={i.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-[#3A3564]">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B1220]">
                         {i.issue_challan_no}
                       </td>
                       <td className="py-3 px-4">
@@ -542,10 +542,10 @@ export function MerchandiseStoreClient({
       {/* MODAL 1: Book Fabric for Article */}
       {isBookModalOpen && selectedFabric && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-slate-200 shadow-2xs">
                   BOOKING ALLOCATION
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -580,7 +580,7 @@ export function MerchandiseStoreClient({
                   </div>
                   <div className="flex justify-between font-mono">
                     <span className="text-slate-500">Available:</span>
-                    <span className="font-bold text-[#3A3564]">{Number(selectedFabric.available_meters).toLocaleString()}m</span>
+                    <span className="font-bold text-[#0B1220]">{Number(selectedFabric.available_meters).toLocaleString()}m</span>
                   </div>
                 </div>
 
@@ -594,7 +594,7 @@ export function MerchandiseStoreClient({
                     onChange={e => setBookArticleNo(e.target.value)}
                     placeholder="e.g. 9437"
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#0B1220] outline-none shadow-2xs transition-all"
                   />
                 </div>
 
@@ -611,23 +611,23 @@ export function MerchandiseStoreClient({
                     max={selectedFabric.available_meters}
                     step="any"
                     required
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsBookModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Booking'}
                 </button>
@@ -640,10 +640,10 @@ export function MerchandiseStoreClient({
       {/* MODAL 2: Issue to Cutting Floor */}
       {isIssueModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden">
-            <div className="px-6 py-5 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+                <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-slate-200 shadow-2xs">
                   DISPATCH TO CUTTING
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1 font-[family-name:var(--font-heading)]">
@@ -677,7 +677,7 @@ export function MerchandiseStoreClient({
                       value={issueArticleNo}
                       onChange={e => setIssueArticleNo(e.target.value)}
                       placeholder="e.g. 9437"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#3A3564] outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold uppercase text-[#0B1220] outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -690,7 +690,7 @@ export function MerchandiseStoreClient({
                       value={issueBuyerName}
                       onChange={e => setIssueBuyerName(e.target.value)}
                       placeholder="e.g. Zara / HM"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -705,7 +705,7 @@ export function MerchandiseStoreClient({
                       value={issueFabricType}
                       onChange={e => setIssueFabricType(e.target.value)}
                       placeholder="e.g. Cotton Twill 280 GSM"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -718,7 +718,7 @@ export function MerchandiseStoreClient({
                       value={issueColor}
                       onChange={e => setIssueColor(e.target.value)}
                       placeholder="e.g. Navy Blue"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -736,7 +736,7 @@ export function MerchandiseStoreClient({
                       min="0.1"
                       step="any"
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
 
@@ -747,7 +747,7 @@ export function MerchandiseStoreClient({
                     <select
                       value={issueUnit}
                       onChange={e => setIssueUnit(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                     >
                       <option value="meters">Meters</option>
                       <option value="pcs">Pieces</option>
@@ -766,7 +766,7 @@ export function MerchandiseStoreClient({
                       onChange={e => setIssueRollsCount(e.target.value === '' ? '' : Number(e.target.value))}
                       placeholder="0"
                       min="0"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                     />
                   </div>
                 </div>
@@ -780,23 +780,23 @@ export function MerchandiseStoreClient({
                     value={issueNotes}
                     onChange={e => setIssueNotes(e.target.value)}
                     placeholder="Cutting floor instructions..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsIssueModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-black/10 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Dispatch'}
                 </button>

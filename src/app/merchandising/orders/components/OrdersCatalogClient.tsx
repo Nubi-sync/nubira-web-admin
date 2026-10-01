@@ -100,9 +100,9 @@ export function OrdersCatalogClient({
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-slate-50 text-[#0B1220] border border-slate-200">
             <ClipboardList className="w-5 h-5" />
           </div>
           <div>
@@ -110,7 +110,7 @@ export function OrdersCatalogClient({
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Buyer Purchase Orders (PO)
               </h1>
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200 shadow-2xs tracking-wider">
                 {orders.length} Active Contracts
               </span>
             </div>
@@ -124,7 +124,7 @@ export function OrdersCatalogClient({
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Book New Buyer PO</span>
@@ -135,8 +135,8 @@ export function OrdersCatalogClient({
       {/* Executive KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
             <ClipboardList className="w-5 h-5" />
           </div>
           <div className="mt-3">
@@ -149,15 +149,15 @@ export function OrdersCatalogClient({
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {orders.length}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
               Global Buyers
             </span>
           </div>
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
             <Layers className="w-5 h-5" />
           </div>
           <div className="mt-3">
@@ -170,15 +170,15 @@ export function OrdersCatalogClient({
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {totalPieces.toLocaleString()}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
               Total Pcs
             </span>
           </div>
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div className="mt-3">
@@ -191,15 +191,15 @@ export function OrdersCatalogClient({
             <div className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900">
               {activeWip}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
               Active WIP Lines
             </span>
           </div>
         </div>
 
         {/* Card 4 */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
             <IndianRupee className="w-5 h-5" />
           </div>
           <div className="mt-3">
@@ -216,7 +216,7 @@ export function OrdersCatalogClient({
                 ? `₹${(totalValue / 100000).toFixed(2)} Lakh` 
                 : `₹${(totalValue / 1000).toFixed(1)}k`}
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-[#FAF7F0] text-[#3A3564] border border-black/10">
+            <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full bg-slate-50 text-[#0B1220] border border-slate-200">
               Order Value
             </span>
           </div>
@@ -224,7 +224,7 @@ export function OrdersCatalogClient({
       </div>
 
       {/* 4. Main Ledger Card (Toolbar + Table with 6th Box Design) */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {/* Toolbar */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
           {/* Status Filter Tabs */}
@@ -236,8 +236,8 @@ export function OrdersCatalogClient({
                 onClick={() => setActiveFilter(tab)}
                 className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === tab
-                    ? 'bg-[#3A3564] text-white shadow-2xs font-bold'
-                    : 'text-slate-600 bg-[#FAF7F0] border border-black/5 hover:bg-black/5'
+                    ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                    : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
                 }`}
               >
                 {getStatusLabel(tab)}
@@ -253,7 +253,7 @@ export function OrdersCatalogClient({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search PO, Buyer, Style..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 focus:border-[#3A3564]"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 focus:border-[#0B1220]"
             />
           </div>
         </div>
@@ -276,7 +276,7 @@ export function OrdersCatalogClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm min-w-[800px]">
               <thead>
-                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#FAF7F0]">
+                <tr className="border-b border-slate-100 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-50">
                   <th className="py-3 px-4">PO Number</th>
                   <th className="py-3 px-4">Buyer</th>
                   <th className="py-3 px-4">Article &amp; Style</th>
@@ -291,7 +291,7 @@ export function OrdersCatalogClient({
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredOrders.map(order => (
                   <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-4 font-bold text-[#3A3564] font-mono">
+                    <td className="py-3 px-4 font-bold text-[#0B1220] font-mono">
                       {order.po_number}
                     </td>
                     <td className="py-3 px-4 font-bold text-slate-900">
@@ -317,7 +317,7 @@ export function OrdersCatalogClient({
                       </div>
                     </td>
                     <td className="py-3 px-4 font-mono text-[10px]">
-                      <span className="px-2 py-0.5 rounded bg-[#FAF7F0] text-[#3A3564] border border-black/10 font-bold block max-w-[120px] truncate" title={order.embellishment_sequence || 'Standard Flow'}>
+                      <span className="px-2 py-0.5 rounded bg-slate-50 text-[#0B1220] border border-slate-200 font-bold block max-w-[120px] truncate" title={order.embellishment_sequence || 'Standard Flow'}>
                         {order.embellishment_sequence === 'NONE' ? 'Cut & Sew' :
                          order.embellishment_sequence === 'ONLY_PRINTING' ? 'Printing' :
                          order.embellishment_sequence === 'ONLY_EMBROIDERY' ? 'Embroidery' :
@@ -331,7 +331,7 @@ export function OrdersCatalogClient({
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span
-                        className="inline-block px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-[#FAF7F0] text-[#3A3564] border border-black/10"
+                        className="inline-block px-2.5 py-0.5 rounded text-[10.5px] font-bold uppercase tracking-wider bg-slate-50 text-[#0B1220] border border-slate-200"
                       >
                         {getStatusLabel(order.status)}
                       </span>
@@ -340,7 +340,7 @@ export function OrdersCatalogClient({
                       <button
                         type="button"
                         onClick={() => setSelectedOrderForView(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#3A3564] bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 rounded-xl transition-colors shadow-2xs cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0B1220] bg-slate-50 hover:bg-[slate-100] border border-slate-200 rounded-xl transition-colors shadow-2xs cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         View More

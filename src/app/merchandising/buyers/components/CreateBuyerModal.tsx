@@ -79,13 +79,13 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
-        className="bg-white w-full max-w-xl rounded-2xl border border-black/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white w-full max-w-xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-5 sm:p-6 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="p-5 sm:p-6 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
@@ -122,7 +122,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={buyerName}
                 onChange={e => handleNameChange(e.target.value)}
                 placeholder="e.g. Zara International"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all"
               />
             </div>
             <div>
@@ -136,7 +136,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={buyerCode}
                 onChange={e => setBuyerCode(e.target.value.toUpperCase())}
                 placeholder="BYR-ZARA"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all"
               />
             </div>
           </div>
@@ -154,7 +154,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={brandName}
                 onChange={e => setBrandName(e.target.value)}
                 placeholder="e.g. Zara Man / Inditex"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all"
               />
             </div>
             <div>
@@ -168,14 +168,14 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={targetSeason}
                 onChange={e => setTargetSeason(e.target.value)}
                 placeholder="e.g. AW26 or Summer 2026"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564] focus:ring-1 focus:ring-[#3A3564] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all"
               />
             </div>
           </div>
 
           {/* Volume, Price & Currency */}
-          <div className="bg-[#FAF7F0] p-4 rounded-xl border border-black/10 space-y-3.5">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#3A3564] block">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0B1220] block">
               Contract Volume &amp; Pricing Agreement
             </span>
 
@@ -193,7 +193,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                   value={contractedVolume}
                   onChange={e => setContractedVolume(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="5000"
-                  className="w-full px-3 py-2 rounded-lg border border-black/15 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
                 />
               </div>
 
@@ -211,7 +211,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                   value={pricePerPiece}
                   onChange={e => setPricePerPiece(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="450.00"
-                  className="w-full px-3 py-2 rounded-lg border border-black/15 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
                 />
               </div>
 
@@ -223,7 +223,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                   name="buyer_contract_fob_currency"
                   value={currency}
                   onChange={e => setCurrency(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg border border-black/15 bg-white text-xs sm:text-sm font-bold text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
                 >
                   <option value="INR">INR (₹)</option>
                   <option value="USD">USD ($)</option>
@@ -234,7 +234,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
             </div>
 
             {/* Total Contracted Value Calculation Banner */}
-            <div className="mt-2 pt-3 border-t border-black/10 flex items-center justify-between text-xs">
+            <div className="mt-2 pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
               <span className="font-medium text-slate-600">Total Contract Value:</span>
               <span className="font-mono font-extrabold text-sm sm:text-base text-slate-900">
                 {currencySymbol}{totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -255,7 +255,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={contactPerson}
                 onChange={e => setContactPerson(e.target.value)}
                 placeholder="e.g. Marcus Vance"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
             <div>
@@ -269,7 +269,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={contactEmail}
                 onChange={e => setContactEmail(e.target.value)}
                 placeholder="buyer@brand.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
               />
             </div>
           </div>
@@ -285,7 +285,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="e.g. FOB Mumbai terms, 45-day ex-factory window upon tech pack article linkage..."
-              className="w-full px-3.5 py-2 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
             />
           </div>
 
@@ -294,14 +294,14 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !buyerName.trim() || volumeNum <= 0 || priceNum <= 0}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? 'Contracting...' : 'Create Active Buyer'}
             </button>

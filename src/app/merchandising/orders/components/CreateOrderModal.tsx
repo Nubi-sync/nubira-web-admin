@@ -534,13 +534,13 @@ export function CreateOrderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[92vh]">
         
         {/* Header with Stepper Indicator */}
-        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#3A3564] border border-black/10 shadow-2xs">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-slate-200 shadow-2xs">
                 Master Buyer PO Booking
               </span>
               <span className="text-xs font-mono font-semibold text-slate-500">
@@ -574,18 +574,18 @@ export function CreateOrderModal({
             <div className="space-y-4">
               
               {/* Primary: Select Contracted Buyer & Product Dropdown */}
-              <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-2 shadow-2xs">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <Building2 className="w-3.5 h-3.5 text-[#0B1220]" />
                     <span>Select Contracted Buyer &amp; Linked Article <span className="text-rose-500">*</span></span>
                   </label>
                   {isLoadingSpecs ? (
                     <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin text-[#3A3564]" /> Loading...
+                      <Loader2 className="w-3 h-3 animate-spin text-[#0B1220]" /> Loading...
                     </span>
                   ) : (
-                    <span className="text-[11px] font-mono font-bold text-[#3A3564]">
+                    <span className="text-[11px] font-mono font-bold text-[#0B1220]">
                       {linkedBuyers.length} Linked Buyer Contract{linkedBuyers.length === 1 ? '' : 's'}
                     </span>
                   )}
@@ -595,7 +595,7 @@ export function CreateOrderModal({
                   <select
                     value={selectedProductKey}
                     onChange={e => handleSelectOption(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 outline-none shadow-2xs transition-all appearance-none cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs sm:text-sm font-bold text-slate-900 outline-none shadow-2xs transition-all appearance-none cursor-pointer"
                   >
                     <option value="">-- Choose Contracted Buyer / Article --</option>
                     
@@ -645,13 +645,13 @@ export function CreateOrderModal({
                       readOnly
                       value={poNumber}
                       placeholder="e.g. PO-2026-9901"
-                      className="w-full pl-3.5 pr-10 py-2.5 bg-[#FAF7F0] border border-black/10 rounded-xl text-sm font-mono uppercase font-bold text-[#3A3564] outline-none shadow-2xs cursor-not-allowed"
+                      className="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono uppercase font-bold text-[#0B1220] outline-none shadow-2xs cursor-not-allowed"
                     />
                     <button
                       type="button"
                       onClick={() => setPoNumber(generateAutoPoNumber(selectedBuyerRef?.buyer_code))}
                       title="Generate new PO Number"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-[#3A3564] hover:bg-black/5 rounded-lg transition-colors cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-[#0B1220] hover:bg-black/5 rounded-lg transition-colors cursor-pointer"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                     </button>
@@ -671,8 +671,8 @@ export function CreateOrderModal({
                     placeholder="e.g. CANDY POP"
                     className={`w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all ${
                       selectedBuyerRef || (selectedTechPackId && selectedProductKey !== '__CUSTOM__')
-                        ? 'bg-[#FAF7F0] border-black/10 cursor-not-allowed'
-                        : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564]'
+                        ? 'bg-slate-50 border-slate-200 cursor-not-allowed'
+                        : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220]'
                     }`}
                   />
                 </div>
@@ -682,13 +682,13 @@ export function CreateOrderModal({
               {(cadFrontUrl || cadBackUrl || selectedTechPackId) && (
                 <div className="grid grid-cols-2 gap-3">
                   {/* Front View CAD */}
-                  <div className="p-3 bg-[#FAF7F0] rounded-2xl border border-black/10 flex flex-col items-center justify-center min-h-[110px] text-center shadow-2xs">
+                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col items-center justify-center min-h-[110px] text-center shadow-2xs">
                     {cadFrontUrl ? (
                       <div className="w-full flex flex-col items-center">
                         <img 
                           src={cadFrontUrl} 
                           alt="CAD Front" 
-                          className="h-20 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5"
+                          className="h-20 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-slate-100"
                         />
                         <span className="text-[10px] font-mono font-bold text-slate-700 mt-1.5 uppercase">Front View CAD</span>
                       </div>
@@ -702,13 +702,13 @@ export function CreateOrderModal({
                   </div>
 
                   {/* Back View CAD */}
-                  <div className="p-3 bg-[#FAF7F0] rounded-2xl border border-black/10 flex flex-col items-center justify-center min-h-[110px] text-center shadow-2xs">
+                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col items-center justify-center min-h-[110px] text-center shadow-2xs">
                     {cadBackUrl ? (
                       <div className="w-full flex flex-col items-center">
                         <img 
                           src={cadBackUrl} 
                           alt="CAD Back" 
-                          className="h-20 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-black/5"
+                          className="h-20 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-slate-100"
                         />
                         <span className="text-[10px] font-mono font-bold text-slate-700 mt-1.5 uppercase">Back View CAD</span>
                       </div>
@@ -738,8 +738,8 @@ export function CreateOrderModal({
                     placeholder="e.g. DEMO-101-03"
                     className={`w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono uppercase font-bold text-slate-900 outline-none shadow-2xs transition-all ${
                       selectedBuyerRef || (selectedTechPackId && selectedProductKey !== '__CUSTOM__')
-                        ? 'bg-[#FAF7F0] border-black/10 cursor-not-allowed'
-                        : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564]'
+                        ? 'bg-slate-50 border-slate-200 cursor-not-allowed'
+                        : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220]'
                     }`}
                   />
                 </div>
@@ -753,16 +753,16 @@ export function CreateOrderModal({
                     required
                     value={exFactoryDate}
                     onChange={e => setExFactoryDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-mono text-slate-900 outline-none shadow-2xs transition-all"
                   />
                 </div>
               </div>
 
               {/* Embellishment Routing & Fabric Weight (Clean 2 boxes without extra header banner) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs">
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-[10px] font-mono text-slate-500 uppercase block font-semibold">Embellishment Routing</span>
-                  <span className="font-bold text-[#3A3564] block mt-1 text-xs">
+                  <span className="font-bold text-[#0B1220] block mt-1 text-xs">
                     {embellishmentSeq === 'NONE' ? 'No Embroidery, No Printing (Cut & Sew)' :
                      embellishmentSeq === 'ONLY_PRINTING' ? 'Only Printing' :
                      embellishmentSeq === 'ONLY_EMBROIDERY' ? 'Only Embroidery' :
@@ -772,7 +772,7 @@ export function CreateOrderModal({
                   </span>
                 </div>
 
-                <div className="p-3 bg-[#FAF7F0] rounded-xl border border-black/10 shadow-2xs">
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-[10px] font-mono text-slate-500 uppercase block font-semibold">Fabric &amp; Weight</span>
                   <span className="font-bold text-slate-900 block mt-1 text-xs truncate">
                     {fabricComposition || '100% Combed Cotton'} {targetGsm ? `• ${targetGsm} GSM` : ''}
@@ -790,7 +790,7 @@ export function CreateOrderModal({
                     value={currency}
                     disabled={Boolean(selectedBuyerRef)}
                     onChange={e => setCurrency(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer disabled:bg-[#FAF7F0] disabled:cursor-not-allowed"
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-semibold text-slate-900 outline-none shadow-2xs transition-all cursor-pointer disabled:bg-slate-50 disabled:cursor-not-allowed"
                   >
                     <option value="INR">INR (₹)</option>
                     <option value="USD">USD ($)</option>
@@ -811,7 +811,7 @@ export function CreateOrderModal({
                     value={unitFobPrice}
                     onChange={e => setUnitFobPrice(e.target.value)}
                     className={`w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-900 outline-none shadow-2xs transition-all ${
-                      selectedBuyerRef ? 'bg-[#FAF7F0] border-black/10 cursor-not-allowed' : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#3A3564]'
+                      selectedBuyerRef ? 'bg-slate-50 border-slate-200 cursor-not-allowed' : 'bg-slate-50/70 hover:bg-white focus:bg-white focus:border-[#0B1220]'
                     }`}
                   />
                 </div>
@@ -828,17 +828,17 @@ export function CreateOrderModal({
                     readOnly={Boolean(selectedBuyerRef)}
                     value={totalQuantity}
                     onChange={e => setTotalQuantity(e.target.value)}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-mono font-bold text-[#3A3564] outline-none shadow-2xs transition-all ${
-                      selectedBuyerRef ? 'bg-[#FAF7F0] border border-black/10 cursor-not-allowed' : 'bg-slate-50/70 border border-slate-200 focus:bg-white focus:border-[#3A3564]'
+                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-mono font-bold text-[#0B1220] outline-none shadow-2xs transition-all ${
+                      selectedBuyerRef ? 'bg-slate-50 border border-slate-200 cursor-not-allowed' : 'bg-slate-50/70 border border-slate-200 focus:bg-white focus:border-[#0B1220]'
                     }`}
                   />
                 </div>
               </div>
 
               {/* Summary Telemetry Pill */}
-              <div className="p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-between text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
                 <span className="text-slate-600 font-medium">Estimated Commercial Revenue:</span>
-                <span className="font-mono font-bold text-[#3A3564] text-sm">
+                <span className="font-mono font-bold text-[#0B1220] text-sm">
                   {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '₹'}
                   {((parseFloat(unitFobPrice) || 0) * (parseInt(totalQuantity, 10) || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
@@ -850,13 +850,13 @@ export function CreateOrderModal({
             <div className="space-y-4">
               
               {/* Uneditable Master Bill of Materials (BOM) Sheet */}
-              <div className="border border-black/10 rounded-2xl overflow-hidden shadow-2xs bg-white">
-                <div className="px-4 py-3 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between">
+              <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs bg-white">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                    <Package className="w-4 h-4 text-[#3A3564]" />
+                    <Package className="w-4 h-4 text-[#0B1220]" />
                     <span>Bill of Materials (BOM) &amp; Trims Sheet</span>
                   </span>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white text-[#3A3564] border border-black/10">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white text-[#0B1220] border border-slate-200">
                     {bomMaterials.length} Component{bomMaterials.length === 1 ? '' : 's'} (Read-Only)
                   </span>
                 </div>
@@ -864,7 +864,7 @@ export function CreateOrderModal({
                 {bomMaterials.length > 0 ? (
                   <div className="overflow-x-auto max-h-44">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-[#FAF7F0]/80 border-b border-black/5 text-[10px] font-mono font-bold uppercase text-slate-600 sticky top-0 bg-[#FAF7F0]">
+                      <thead className="bg-slate-50/80 border-b border-slate-100 text-[10px] font-mono font-bold uppercase text-slate-600 sticky top-0 bg-slate-50">
                         <tr>
                           <th className="py-2 px-3.5">Component</th>
                           <th className="py-2 px-3.5">Item Description</th>
@@ -877,7 +877,7 @@ export function CreateOrderModal({
                           <tr key={idx} className="hover:bg-slate-50/50">
                             <td className="py-2 px-3.5 font-semibold text-slate-900">{mat.component_type}</td>
                             <td className="py-2 px-3.5">{mat.item_name}</td>
-                            <td className="py-2 px-3.5 font-mono font-bold text-[#3A3564]">{mat.consumption || '1.0 unit'}</td>
+                            <td className="py-2 px-3.5 font-mono font-bold text-[#0B1220]">{mat.consumption || '1.0 unit'}</td>
                             <td className="py-2 px-3.5 font-mono text-slate-500">{mat.placement || 'Full Garment'}</td>
                           </tr>
                         ))}
@@ -892,7 +892,7 @@ export function CreateOrderModal({
               </div>
 
               {/* Metric Balance Bar */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF7F0] border border-black/10 text-xs">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
                 <div>
                   <span className="text-slate-600 font-medium">Target Contract Pcs:</span>{' '}
                   <strong className="font-mono text-slate-900 font-bold">{targetQty.toLocaleString()}</strong>
@@ -918,7 +918,7 @@ export function CreateOrderModal({
                   value={newColorInput}
                   onChange={e => setNewColorInput(e.target.value)}
                   placeholder="Add Colorway (e.g. Navy Blue, Sage Olive)..."
-                  className="flex-1 px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 rounded-xl text-xs font-medium text-slate-900 outline-none shadow-2xs transition-all"
+                  className="flex-1 px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-xs font-medium text-slate-900 outline-none shadow-2xs transition-all"
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
@@ -929,7 +929,7 @@ export function CreateOrderModal({
                 <button
                   type="button"
                   onClick={handleAddColor}
-                  className="px-4 py-2.5 bg-[#FAF7F0] hover:bg-[#F2ECE1] border border-black/10 text-[#3A3564] font-bold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs text-xs"
+                  className="px-4 py-2.5 bg-slate-50 hover:bg-[slate-100] border border-slate-200 text-[#0B1220] font-bold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs text-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Color</span>
@@ -938,19 +938,19 @@ export function CreateOrderModal({
                   <button
                     type="button"
                     onClick={handleRebalanceAll}
-                    className="px-3.5 py-2.5 bg-white hover:bg-slate-100 border border-black/10 text-slate-700 font-semibold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs text-xs"
+                    className="px-3.5 py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs text-xs"
                     title="Re-distribute total contract quantity equally across all colors"
                   >
-                    <Scale className="w-3.5 h-3.5 text-[#3A3564]" />
+                    <Scale className="w-3.5 h-3.5 text-[#0B1220]" />
                     <span>Auto-Balance</span>
                   </button>
                 )}
               </div>
 
               {/* Matrix Table */}
-              <div className="border border-black/10 rounded-2xl overflow-x-auto shadow-2xs">
+              <div className="border border-slate-200 rounded-2xl overflow-x-auto shadow-2xs">
                 <table className="w-full text-left min-w-[520px]">
-                  <thead className="bg-[#FAF7F0] border-b border-black/10 text-slate-700 font-semibold uppercase text-[11px] font-mono">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase text-[11px] font-mono">
                     <tr>
                       <th className="px-3.5 py-2.5">Colorway</th>
                       {DEFAULT_SIZES.map(s => (
@@ -976,11 +976,11 @@ export function CreateOrderModal({
                                 min="0"
                                 value={row[size] ?? 0}
                                 onChange={e => handleCellChange(color, size, e.target.value)}
-                                className="w-16 px-2 py-1.5 text-center font-mono rounded-lg border border-slate-200 focus:border-[#3A3564] focus:ring-2 focus:ring-[#3A3564]/10 bg-white text-slate-900 font-semibold outline-none"
+                                className="w-16 px-2 py-1.5 text-center font-mono rounded-lg border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 bg-white text-slate-900 font-semibold outline-none"
                               />
                             </td>
                           ))}
-                          <td className="px-3.5 py-2 text-right font-bold text-[#3A3564] font-mono">
+                          <td className="px-3.5 py-2 text-right font-bold text-[#0B1220] font-mono">
                             {rowSum.toLocaleString()}
                           </td>
                           <td className="px-2 py-2 text-center">
@@ -1006,12 +1006,12 @@ export function CreateOrderModal({
         </div>
 
         {/* Footer Navigation Buttons */}
-        <div className="px-6 py-4 bg-[#FAF7F0] border-t border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
           {step === 2 ? (
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="px-4 py-2.5 rounded-xl border border-black/10 text-xs font-semibold text-slate-700 hover:bg-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Commercial Specs</span>
@@ -1020,7 +1020,7 @@ export function CreateOrderModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-black/10 text-xs font-semibold text-slate-600 hover:bg-white transition-colors cursor-pointer shadow-2xs"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-white transition-colors cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
@@ -1030,7 +1030,7 @@ export function CreateOrderModal({
             <button
               type="button"
               onClick={handleNextToStep2}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
             >
               <span>Continue to Color Matrix</span>
               <ArrowRight className="w-4 h-4" />
@@ -1040,7 +1040,7 @@ export function CreateOrderModal({
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting || currentMatrixSum !== targetQty}
-              className="px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

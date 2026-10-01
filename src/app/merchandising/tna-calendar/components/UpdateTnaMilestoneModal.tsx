@@ -52,11 +52,11 @@ export function UpdateTnaMilestoneModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
+            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220]/10 text-[#0B1220]">
               Form 3 • Milestone Gate Calibration
             </span>
             <h2 className="text-base sm:text-lg font-bold text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
@@ -91,7 +91,7 @@ export function UpdateTnaMilestoneModal({
             <select
               value={status}
               onChange={e => setStatus(e.target.value as TnaStatus)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 bg-white font-semibold"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 bg-white font-semibold"
             >
               <option value="ON_SCHEDULE">ON_SCHEDULE — Within Critical Path SLA</option>
               <option value="DELAYED">DELAYED — Milestone Breached Target Date</option>
@@ -110,7 +110,7 @@ export function UpdateTnaMilestoneModal({
                 required
                 value={plannedDate}
                 onChange={e => setPlannedDate(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200"
               />
             </div>
             <div>
@@ -121,7 +121,7 @@ export function UpdateTnaMilestoneModal({
                 type="date"
                 value={actualDate}
                 onChange={e => setActualDate(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200"
               />
             </div>
           </div>
@@ -135,7 +135,7 @@ export function UpdateTnaMilestoneModal({
               value={delayReason}
               onChange={e => setDelayReason(e.target.value)}
               placeholder="e.g. Dyeing house lab dip shade mismatch re-dip in progress"
-              className="w-full px-3.5 py-2 rounded-xl border border-black/10"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200"
             />
           </div>
 
@@ -148,12 +148,12 @@ export function UpdateTnaMilestoneModal({
               value={mitigationNotes}
               onChange={e => setMitigationNotes(e.target.value)}
               placeholder="e.g. Expedited air express dispatch arranged to recover 3 days"
-              className="w-full px-3.5 py-2 rounded-xl border border-black/10"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200"
             />
           </div>
 
           {/* Actions */}
-          <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
@@ -163,7 +163,7 @@ export function UpdateTnaMilestoneModal({
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl font-bold shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl font-bold shadow-sm transition-all"
             >
               <CheckCircle2 className="w-4 h-4" />
               Save Milestone Gate

@@ -178,9 +178,9 @@ export function ActiveBuyersClient({
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-[#09090b]">
       
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#FAF7F0] border border-black/10 flex items-center justify-center text-[#3A3564] shadow-2xs shrink-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
             <Users className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
@@ -198,7 +198,7 @@ export function ActiveBuyersClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] transition-all cursor-pointer shadow-2xs shrink-0"
+            className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-[#0B1220] transition-all cursor-pointer shadow-2xs shrink-0"
             title="Refresh database"
           >
             <RotateCcw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -207,7 +207,7 @@ export function ActiveBuyersClient({
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs cursor-pointer transition-all"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs cursor-pointer transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Contract New Buyer</span>
@@ -219,9 +219,9 @@ export function ActiveBuyersClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         
         {/* CARD 1: TOTAL BUYERS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
               <Building2 className="w-5 h-5" />
             </div>
           </div>
@@ -236,9 +236,9 @@ export function ActiveBuyersClient({
         </div>
 
         {/* CARD 2: TOTAL CONTRACTED VOLUME */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
               <Layers className="w-5 h-5" />
             </div>
           </div>
@@ -253,9 +253,9 @@ export function ActiveBuyersClient({
         </div>
 
         {/* CARD 3: LINKED IN-ORDER PCS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
               <PackageCheck className="w-5 h-5" />
             </div>
           </div>
@@ -270,9 +270,9 @@ export function ActiveBuyersClient({
         </div>
 
         {/* CARD 4: TOTAL CONTRACT VALUE */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/10 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
@@ -289,7 +289,7 @@ export function ActiveBuyersClient({
       </div>
 
       {/* 4. Toolbar & Filter Controls */}
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -298,7 +298,7 @@ export function ActiveBuyersClient({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search buyers by name, code, brand, or linked article #..."
-            className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-black/15 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#3A3564]"
+            className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
           />
         </div>
 
@@ -311,8 +311,8 @@ export function ActiveBuyersClient({
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
                 statusFilter === st
-                  ? 'bg-[#3A3564] text-white'
-                  : 'bg-[#FAF7F0] text-slate-700 hover:bg-[#F2ECE1] border border-black/10'
+                  ? 'bg-[#0B1220] text-white'
+                  : 'bg-slate-50 text-slate-700 hover:bg-[slate-100] border border-slate-200'
               }`}
             >
               {st === 'ALL' ? 'All Buyers' : st === 'LINKED' ? 'Article Linked' : 'Pending Link'}
@@ -322,7 +322,7 @@ export function ActiveBuyersClient({
       </div>
 
       {/* 5. Streamlined Primary Data Table */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         {filteredBuyers.length === 0 ? (
           <div className="py-12 px-4 text-center">
             <EmptyState
@@ -341,7 +341,7 @@ export function ActiveBuyersClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[680px]">
               <thead>
-                <tr className="bg-[#FAF7F0] text-slate-500 font-mono text-[11px] uppercase tracking-wider border-b border-black/10">
+                <tr className="bg-slate-50 text-slate-500 font-mono text-[11px] uppercase tracking-wider border-b border-slate-200">
                   <th className="py-3.5 px-5 font-bold">Buyer</th>
                   <th className="py-3.5 px-5 font-bold">Article Number</th>
                   <th className="py-3.5 px-5 font-bold">Ordered Volume</th>
@@ -358,7 +358,7 @@ export function ActiveBuyersClient({
                       {/* Buyer */}
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#FAF7F0] text-[#3A3564] border border-black/10 flex items-center justify-center font-extrabold text-xs shrink-0 shadow-2xs">
+                          <div className="w-9 h-9 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center font-extrabold text-xs shrink-0 shadow-2xs">
                             {buyer.buyer_name.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
@@ -374,8 +374,8 @@ export function ActiveBuyersClient({
                       <td className="py-4 px-5">
                         {isLinked ? (
                           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200">
-                            <Layers className="w-3.5 h-3.5 text-[#3A3564]" />
-                            <span className="font-mono font-bold text-xs text-[#3A3564]">
+                            <Layers className="w-3.5 h-3.5 text-[#0B1220]" />
+                            <span className="font-mono font-bold text-xs text-[#0B1220]">
                               {buyer.linked_article_number}
                             </span>
                           </div>
@@ -388,7 +388,7 @@ export function ActiveBuyersClient({
 
                       {/* Ordered Volume */}
                       <td className="py-4 px-5">
-                        <span className="font-mono font-extrabold text-sm text-[#3A3564]">
+                        <span className="font-mono font-extrabold text-sm text-[#0B1220]">
                           {buyer.contracted_volume.toLocaleString('en-IN')}
                         </span>
                         <span className="text-xs text-slate-500 font-medium ml-1">Pcs</span>
@@ -404,7 +404,7 @@ export function ActiveBuyersClient({
                             <button
                               type="button"
                               onClick={() => setLinkingBuyer(buyer)}
-                              className="text-xs text-[#3A3564] hover:text-[#2A2649] font-semibold underline cursor-pointer"
+                              className="text-xs text-[#0B1220] hover:text-[#162032] font-semibold underline cursor-pointer"
                             >
                               Change
                             </button>
@@ -421,7 +421,7 @@ export function ActiveBuyersClient({
                           <button
                             type="button"
                             onClick={() => setLinkingBuyer(buyer)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer"
                           >
                             <LinkIcon className="w-3.5 h-3.5" />
                             <span>Link Article</span>
@@ -435,7 +435,7 @@ export function ActiveBuyersClient({
                           <button
                             type="button"
                             onClick={() => setViewingBuyer(buyer)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/10 bg-[#FAF7F0] hover:bg-[#F2ECE1] text-[#3A3564] text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-[#0B1220] text-xs font-bold transition-all cursor-pointer shadow-2xs"
                           >
                             <FileText className="w-3.5 h-3.5" />
                             <span>View Contract</span>

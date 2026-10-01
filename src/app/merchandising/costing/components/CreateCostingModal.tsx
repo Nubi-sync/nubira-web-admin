@@ -114,11 +114,11 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
+            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220]/10 text-[#0B1220]">
               Form 2 • Pre-Costing &amp; Post-Costing
             </span>
             <h2 className="text-base sm:text-lg font-bold text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
@@ -150,7 +150,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
             <select
               value={selectedPo}
               onChange={e => setSelectedPo(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 bg-white"
             >
               {orders.map(o => (
                 <option key={o.id} value={o.po_number}>
@@ -161,7 +161,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           </div>
 
           {/* Cost Line Items Grid */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-black/5 space-y-3">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Direct Production Cost Breakdown (Per Garment in ₹ INR)
             </h3>
@@ -175,7 +175,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   required
                   value={fabricCost}
                   onChange={e => setFabricCost(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-black/10 font-mono"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 font-mono"
                 />
               </div>
               <div>
@@ -186,7 +186,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   required
                   value={trimsCost}
                   onChange={e => setTrimsCost(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-black/10 font-mono"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 font-mono"
                 />
               </div>
               <div>
@@ -197,7 +197,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   required
                   value={embellishmentCost}
                   onChange={e => setEmbellishmentCost(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-black/10 font-mono"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 font-mono"
                 />
               </div>
               <div>
@@ -208,7 +208,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   required
                   value={cmtSewingRate}
                   onChange={e => setCmtSewingRate(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-black/10 font-mono"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 font-mono"
                 />
               </div>
               <div>
@@ -219,7 +219,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   required
                   value={washingCost}
                   onChange={e => setWashingCost(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-black/10 font-mono"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 font-mono"
                 />
               </div>
               <div>
@@ -230,14 +230,14 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   required
                   value={packagingCost}
                   onChange={e => setPackagingCost(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-black/10 font-mono"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-200 font-mono"
                 />
               </div>
             </div>
           </div>
 
           {/* Computed Ledger Totals */}
-          <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 space-y-2 font-mono">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 font-mono">
             <div className="flex items-center justify-between text-slate-600">
               <span>Direct Manufacturing Subtotal:</span>
               <span>₹{directSubtotal.toFixed(2)}</span>
@@ -246,9 +246,9 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
               <span>Factory Overhead (Fixed 12%):</span>
               <span>+₹{overhead.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between font-bold text-slate-900 pt-1 border-t border-black/10 text-sm">
+            <div className="flex items-center justify-between font-bold text-slate-900 pt-1 border-t border-slate-200 text-sm">
               <span>Planned Net FOB Cost:</span>
-              <span className="text-[#3A3564]">₹{netFobCost.toFixed(2)}</span>
+              <span className="text-[#0B1220]">₹{netFobCost.toFixed(2)}</span>
             </div>
           </div>
 
@@ -263,7 +263,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                 step="0.01"
                 value={actualRealized}
                 onChange={e => setActualRealized(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-black/10 font-mono font-bold"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-mono font-bold"
               />
             </div>
             <div>
@@ -283,7 +283,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
 
           {/* Commercial Profit Realization vs Buyer Contract FOB */}
           {selectedOrder && (
-            <div className="p-4 rounded-2xl bg-[#FAF7F0] border border-black/10 shadow-2xs space-y-2">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-600 font-medium">Buyer Contract FOB Price:</span>
                 <span className="font-mono font-bold text-slate-900">
@@ -296,7 +296,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
                   -₹{netFobCost.toFixed(2)} / pc
                 </span>
               </div>
-              <div className="pt-2 border-t border-black/10 flex items-center justify-between">
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-slate-900 block">Gross Commercial Profit:</span>
                   <span className="text-[11px] text-slate-500">Realized gross profit margin per piece</span>
@@ -316,7 +316,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
           )}
 
           {/* Actions */}
-          <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
@@ -326,7 +326,7 @@ export function CreateCostingModal({ isOpen, onClose, onSuccess }: CreateCosting
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl font-bold shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl font-bold shadow-sm transition-all"
             >
               <CheckCircle2 className="w-4 h-4" />
               Save BOM Costing Sheet

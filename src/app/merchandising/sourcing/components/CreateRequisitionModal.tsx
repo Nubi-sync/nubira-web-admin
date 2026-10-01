@@ -74,11 +74,11 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-black/10 overflow-hidden max-h-[92vh] flex flex-col">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 bg-[#FAF7F0] border-b border-black/10 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#3A3564]/10 text-[#3A3564]">
+            <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220]/10 text-[#0B1220]">
               Form 4 • Central Store Requisition
             </span>
             <h2 className="text-base sm:text-lg font-bold text-[#09090b] mt-1 font-[family-name:var(--font-heading)]">
@@ -110,7 +110,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
             <select
               value={selectedPo}
               onChange={e => setSelectedPo(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 bg-white"
             >
               {orders.map(o => (
                 <option key={o.id} value={o.po_number}>
@@ -136,7 +136,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
                   else if (t === 'CARTON') setUnit('Boxes')
                   else setUnit('Pcs')
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#3A3564]/20 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 bg-white"
               >
                 <option value="FABRIC">Fabric (Shell / Rib)</option>
                 <option value="SEWING_THREAD">Sewing Thread (Core Spun)</option>
@@ -155,7 +155,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
                 required
                 value={requiredDate}
                 onChange={e => setRequiredDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white"
               />
             </div>
           </div>
@@ -170,7 +170,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
               value={materialName}
               onChange={e => setMaterialName(e.target.value)}
               placeholder="e.g. 100% Combed Single Jersey 190 GSM (Lemon Yellow)"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
             />
           </div>
 
@@ -186,7 +186,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
                 required
                 value={requiredQuantity}
                 onChange={e => setRequiredQuantity(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 font-bold text-[#3A3564]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold text-[#0B1220]"
               />
             </div>
             <div>
@@ -199,7 +199,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
                 value={unit}
                 onChange={e => setUnit(e.target.value)}
                 placeholder="e.g. Kg, Mtr, Cones, Gross, Boxes"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
               />
             </div>
           </div>
@@ -214,12 +214,12 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
               value={vendorName}
               onChange={e => setVendorName(e.target.value)}
               placeholder="e.g. Vardhman Textiles Ltd / Coats India Global"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-black/10"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"
             />
           </div>
 
           {/* Actions */}
-          <div className="pt-3 border-t border-black/10 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
@@ -229,7 +229,7 @@ export function CreateRequisitionModal({ isOpen, onClose, onSuccess }: CreateReq
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#3A3564] hover:bg-[#2A2649] text-white rounded-xl font-bold shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl font-bold shadow-sm transition-all"
             >
               <CheckCircle2 className="w-4 h-4" />
               Issue Sourcing PR
