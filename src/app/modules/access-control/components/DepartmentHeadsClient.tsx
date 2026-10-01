@@ -494,7 +494,7 @@ export function DepartmentHeadsClient({
               <button
                 type="button"
                 onClick={() => setIsPmModalOpen(true)}
-                className="w-full sm:w-auto min-h-[46px] px-6 py-2.5 sm:py-3 bg-[#0B1220] hover:bg-[#162032] text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                className="w-full sm:w-auto min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 <Plus className="w-4 h-4 text-[#14C8B4]" />
                 <span>Appoint Production Manager</span>
@@ -714,9 +714,9 @@ export function DepartmentHeadsClient({
                               e.stopPropagation()
                               handleOpenAppointHead(div.route, head || undefined)
                             }}
-                            className="w-full sm:w-auto min-h-[46px] px-5 py-2.5 sm:px-6 sm:py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                            className="w-full sm:w-auto min-h-[40px] sm:min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                           >
-                            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
+                            <Plus className="w-4 h-4 text-[#14C8B4]" />
                             <span>{head ? 'Edit In-charge Details' : 'Assign Department Head'}</span>
                           </button>
                         )}
@@ -925,9 +925,9 @@ export function DepartmentHeadsClient({
                         <button
                           type="button"
                           onClick={() => handleOpenAddWorker(div.route)}
-                          className="w-full sm:w-auto min-h-[46px] px-5 py-2.5 sm:px-6 sm:py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                          className="w-full sm:w-auto min-h-[40px] sm:min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                         >
-                          <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-[#14C8B4]" />
+                          <Plus className="w-4 h-4 text-[#14C8B4]" />
                           <span>Add Worker</span>
                         </button>
                       </div>

@@ -211,6 +211,37 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ---
 
+## 📐 In-Portal Post-Login Typography & Button Hierarchy Specification
+
+While the public marketing landing page uses oversized display typography and expansive hero buttons to grab attention (as detailed in [`LANDING_PAGE_DESKTOP_UI_GUIDELINES.md`](./LANDING_PAGE_DESKTOP_UI_GUIDELINES.md)), **all authenticated pages inside the operational portal (opened via top navigation tabs after sign-up or login) strictly follow a tuned, calm typography and button scale brought down by one notch.**
+
+Inside the manufacturing portal, users process dense production tables, line allotments, and daily metrics for hours. Giant headlines (`text-4xl`) and heavy padding (`min-h-[46px] px-6 py-3`) cause visual fatigue and push actionable operational data below the fold.
+
+### In-Portal Hierarchy Calibration Matrix
+
+| Interface Element | Public Landing Page Scale | In-Portal Authenticated Portal Scale ("One Notch Down") | Role & Rationale |
+| :--- | :--- | :--- | :--- |
+| **Main Page / Top Card Title** | `text-3xl sm:text-4xl lg:text-5xl`<br>`font-bold` | `text-xl sm:text-2xl`<br>`font-extrabold tracking-tight text-[#0B1220]` | Refined, authoritative heading without dominating the screen space |
+| **Header Icon Badge** | `w-14 h-14 rounded-2xl`<br>`w-7 h-7 / w-8 h-8 icon` | `w-11 h-11 sm:w-12 sm:h-12 rounded-xl`<br>`w-5.5 h-5.5 sm:w-6 sm:h-6 icon` | Proportional visual anchor that aligns neatly with 2-line title/subtext |
+| **Header Status Pill / Badge** | `text-xs sm:text-sm`<br>`px-3.5 py-1 uppercase` | `text-[10px] sm:text-[11px] font-mono font-bold`<br>`px-2.5 py-0.5 rounded-full uppercase` | Crisp, high-contrast status metadata without pill bloat |
+| **Header Subtitle** | `text-sm sm:text-base`<br>`text-slate-600 leading-relaxed` | `text-xs sm:text-sm text-slate-600`<br>`mt-1 font-medium leading-relaxed` | Legible secondary context that keeps vertical card footprint compact |
+| **Primary Action Button** | `min-h-[46px] sm:min-h-[50px]`<br>`px-6 py-3 text-sm sm:text-base` | `min-h-[42px] px-4.5 py-2 sm:py-2.5`<br>`rounded-xl text-xs sm:text-sm font-bold` | Compact, responsive click target; avoids dominating operational rows |
+| **Secondary / Card Action Button** | `min-h-[44px] px-5 py-2.5`<br>`text-sm` | `min-h-[40px] sm:min-h-[42px] px-4 py-2`<br>`rounded-xl text-xs sm:text-sm font-bold` | Lightweight action button aligned with table action rows |
+| **KPI Mega-Numbers** | `text-4xl sm:text-5xl font-black` | `text-2xl sm:text-3xl font-extrabold`<br>`font-mono text-[#0B1220]` | High-impact telemetry without distorting 4-column metric grids |
+| **Table Cells, Inputs & Filters** | *(N/A)* | `text-xs sm:text-sm font-medium`<br>*(No change needed)* | Already calibrated to optimal 12px–14px operational reading standards |
+
+### Portal Scope
+This specification applies to all tab-opened portal views:
+- **Workspace Hub / Modules**: `/modules`
+- **Supervisor & Workers / Access Control**: `/access-control`
+- **Buyers & Vendors**: `/vendors`
+- **All Designs & Executive Approvals**: `/all-designs`, `/design/sa-approvals`
+- **Factory Reports & Analytics**: `/reports`
+- **Company Profile & License Management**: `/profile`
+- **Central Store & Inventory Hub**: `/store`
+
+---
+
 ## Getting Started & Local Development
 
 ### Prerequisites
