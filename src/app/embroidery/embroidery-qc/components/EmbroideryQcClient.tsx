@@ -99,7 +99,7 @@ export function EmbroideryQcClient({ initialAudits }: EmbroideryQcClientProps = 
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Log Thread Break Incident</span>

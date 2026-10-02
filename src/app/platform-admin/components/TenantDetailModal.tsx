@@ -570,7 +570,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                         setSelectedDivisions(Array.isArray(tenant?.allowedDivisions) ? tenant.allowedDivisions : [])
                         setIsEditingDivisions(false)
                       }}
-                      className="px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-slate-800 rounded-lg cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -578,7 +578,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                       type="button"
                       disabled={isSaving}
                       onClick={handleSaveDivisions}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-50"
                     >
                       {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                       <span>Save Changes</span>
@@ -762,7 +762,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98]"
             >
               Close Details
             </button>
