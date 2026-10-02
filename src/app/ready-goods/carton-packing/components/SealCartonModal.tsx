@@ -379,13 +379,13 @@ export function SealCartonModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer inline-flex items-center gap-1.5"
             >
               <PackageCheck className="w-3.5 h-3.5 text-white" />
               <span>Seal & Register Carton (Form 2)</span>
