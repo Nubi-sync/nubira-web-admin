@@ -284,7 +284,7 @@ export function AddTaskAllocationModal({
                     onClose()
                     if (onOpenAddWorkerModal) onOpenAddWorkerModal()
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-[#0B1220] text-white font-mono font-bold text-[11px] cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-mono font-bold text-[11px] cursor-pointer shadow-xs transition-colors"
                 >
                   Create Worker Now
                 </button>
@@ -434,7 +434,7 @@ export function AddTaskAllocationModal({
                 <button
                   type="button"
                   onClick={() => handleAddNewTable()}
-                  className="px-3 py-1.5 bg-[#0B1220] text-white text-xs font-mono font-bold rounded-lg cursor-pointer"
+                  className="px-3 py-1.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold rounded-lg cursor-pointer shadow-xs transition-colors"
                 >
                   Save
                 </button>
@@ -456,7 +456,7 @@ export function AddTaskAllocationModal({
                   onClick={() => setTableNumber(tbl)}
                   className={`py-2 px-1 text-center rounded-xl border font-mono text-xs font-bold transition-all cursor-pointer truncate ${
                     tableNumber === tbl
-                      ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                      ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white'
                   }`}
                   title={tbl}
@@ -487,7 +487,7 @@ export function AddTaskAllocationModal({
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="e.g. Ensure notch alignment on hood panels"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-[#0B1220] transition-all"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900 focus:outline-hidden focus:border-[#1D4ED8] transition-all"
             />
           </div>
 
@@ -503,7 +503,7 @@ export function AddTaskAllocationModal({
             <button
               type="submit"
               disabled={isSubmitting || workers.length === 0 || isZeroInHand || isExceedingInHand}
-              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>

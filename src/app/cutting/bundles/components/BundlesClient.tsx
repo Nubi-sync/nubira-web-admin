@@ -198,7 +198,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
           <button
             type="button"
             onClick={() => setIsGenerateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 text-white" />
             <span>Generate QR</span>
@@ -270,7 +270,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                     onClick={() => setDestFilter(dst)}
                     className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                       destFilter === dst
-                        ? 'bg-[#0B1220] text-white'
+                        ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                         : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                     }`}
                   >
@@ -430,7 +430,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                   setGenTotalPieces(1000)
                   setGenDestination('04_PRINTING')
                 }}
-                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-slate-200 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-slate-200 rounded-lg hover:bg-[#1D4ED8] hover:text-white transition-all shadow-2xs cursor-pointer"
               >
                 40 Bundles (1,000 pcs • 04 Printing)
               </button>
@@ -526,7 +526,7 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                       onClick={() => setGenDestination(item.key)}
                       className={`p-2 rounded-xl border text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all ${
                         genDestination === item.key
-                          ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                          ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs'
                           : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white'
                       }`}
                     >
@@ -545,13 +545,13 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 <button
                   type="button"
                   onClick={() => setIsGenerateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700"
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 cursor-pointer transition-all"
                 >
                   Generate {Math.ceil(genTotalPieces / genPiecesPerBundle)} Bundles
                 </button>
@@ -627,14 +627,14 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
             <div className="pt-2 flex justify-end gap-2">
               <button
                 onClick={() => window.print()}
-                className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#2e2a50] flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer transition-all"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print Tag</span>
               </button>
               <button
                 onClick={() => setSelectedBundle(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
+                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs cursor-pointer transition-all"
               >
                 Close
               </button>
