@@ -294,14 +294,14 @@ export function InspectRollModal({ isOpen, onClose, roll }: InspectRollModalProp
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl text-xs font-mono font-bold text-white shadow-2xs flex items-center gap-1.5 cursor-pointer bg-[#0B1220] hover:bg-[#162032] transition-all"
+              className="px-4.5 py-2 rounded-xl text-xs font-bold text-white shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center gap-1.5 cursor-pointer bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all active:scale-[0.98]"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Recording...' : 'Commit Inspection Sign-Off'}</span>
