@@ -185,7 +185,7 @@ export function ActiveBuyersClient({
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-              Active Buyers &amp; Accounts
+              Active Buyers &amp; <span className="text-[#1D4ED8]">Accounts</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Contracted buyer order volumes, piece-rate pricing, and Tech Pack article allocations
