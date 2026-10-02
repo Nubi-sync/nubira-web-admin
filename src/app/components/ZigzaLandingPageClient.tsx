@@ -561,6 +561,193 @@ export function ZigzaLandingPageClient({
     return () => clearInterval(timer)
   }, [heroSlides.length])
 
+  interface MetricItem {
+    label: string
+    value: string | number
+    color: string
+    isNumeric: boolean
+    prefix?: string
+    suffix?: string
+    decimals?: number
+  }
+
+  const departmentMetrics: Record<'cutting' | 'sewing' | 'qc', MetricItem[]> = {
+    cutting: [
+      { label: 'Active Lot', value: 'LOT-2024-C8', color: 'text-slate-900', isNumeric: false },
+      { label: 'Total Cut', value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0), suffix: ' Pcs', color: 'text-[#0B1220]', isNumeric: true },
+      { label: 'Rolls Used', value: 24 + (mockupTick >= 2 ? 1 : 0), suffix: ' Rolls', color: 'text-slate-900', isNumeric: true },
+      { label: 'QC Pass', value: 99.4 + (mockupTick >= 2 ? 0.2 : 0), decimals: 1, suffix: '%', color: 'text-emerald-600', isNumeric: true }
+    ],
+    sewing: [
+      { label: 'Active Line', value: 'Line 3', color: 'text-slate-900', isNumeric: false },
+      { label: 'Today Output', value: 1240 + (mockupTick > 0 ? mockupTick * 35 : 0), suffix: ' Pcs', color: 'text-[#0B1220]', isNumeric: true },
+      { label: 'Workers', value: '38 Present', color: 'text-slate-900', isNumeric: false },
+      { label: 'Efficiency', value: 72 + (mockupTick >= 2 ? 2 : 0), suffix: '%', color: 'text-emerald-600', isNumeric: true }
+    ],
+    qc: [
+      { label: 'Inspected', value: 4200 + (mockupTick > 0 ? mockupTick * 30 : 0), suffix: ' Pcs', color: 'text-[#0B1220]', isNumeric: true },
+      { label: 'Passed', value: 4074 + (mockupTick > 0 ? mockupTick * 28 : 0), suffix: ' Pcs', color: 'text-emerald-600', isNumeric: true },
+      { label: 'Defects', value: 126, suffix: ' Pcs', color: 'text-slate-900', isNumeric: true },
+      { label: 'Pass Rate', value: 97 + (mockupTick >= 2 ? 0.4 : 0), suffix: '%', decimals: 1, color: 'text-emerald-600', isNumeric: true }
+    ]
+  }
+
+  const departmentBanners = {
+    cutting: {
+      icon: <FileSpreadsheet className="w-4 h-4 text-[#0B1220] shrink-0" />,
+      title: 'Lay Sheets',
+      badge: 'Real-Time Floor Sync',
+      col1: 'Lay Sheet',
+      col2: 'Fabric Color',
+      col3: 'Plies',
+      col4: 'Cut Pcs',
+      col5: 'Status'
+    },
+    sewing: {
+      icon: <Scissors className="w-4 h-4 text-[#0B1220] shrink-0" />,
+      title: 'Workers on Line',
+      badge: 'Line 3 Live Output',
+      col1: 'Worker Name',
+      col2: 'Operation',
+      col3: 'Pcs Done',
+      col4: 'Target',
+      col5: 'Status'
+    },
+    qc: {
+      icon: <PackageCheck className="w-4 h-4 text-[#0B1220] shrink-0" />,
+      title: 'Inspection Log',
+      badge: 'End-Line Audit',
+      col1: 'Inspector',
+      col2: 'Pcs Checked',
+      col3: 'Passed',
+      col4: 'Defects',
+      col5: 'Status'
+    }
+  }
+
+  interface DashboardRowItem {
+    id: string
+    c1: string
+    c2: string
+    c3: string
+    c4: string
+    status: string
+    statusDot: string
+    mobileSubtitle: string
+    isActive?: boolean
+  }
+
+  const departmentRows: Record<'cutting' | 'sewing' | 'qc', DashboardRowItem[]> = {
+    cutting: [
+      {
+        id: 'cut-row-1',
+        c1: mockupTick === 1 ? 'LAY-104-05' : 'LAY-104-04',
+        c2: mockupTick === 1 ? 'Heather Grey' : 'Navy Blue',
+        c3: mockupTick === 1 ? '50' : '60',
+        c4: mockupTick === 1 ? '+300 Pcs' : '300 Pcs',
+        status: 'Done',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: 'Heather Grey · 50 Plies · 300 Pcs',
+        isActive: mockupTick === 1
+      },
+      {
+        id: 'cut-row-2',
+        c1: 'LAY-104-03',
+        c2: 'Olive Green',
+        c3: '60',
+        c4: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
+        status: 'Done',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: 'Olive Green · 60 Plies · 360 Pcs',
+        isActive: mockupTick === 2
+      },
+      {
+        id: 'cut-row-3',
+        c1: 'LAY-104-02',
+        c2: 'Charcoal',
+        c3: '45',
+        c4: '270 Pcs',
+        status: 'Done',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: 'Charcoal · 45 Plies · 270 Pcs',
+        isActive: false
+      }
+    ],
+    sewing: [
+      {
+        id: 'sew-row-1',
+        c1: 'Ramesh Kumar',
+        c2: 'Collar Stitch',
+        c3: mockupTick === 1 ? '165' : '155',
+        c4: '180',
+        status: 'On Track',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: 'Collar Stitch · 165/180 Pcs',
+        isActive: mockupTick === 1
+      },
+      {
+        id: 'sew-row-2',
+        c1: 'Pooja Sharma',
+        c2: 'Sleeve Join',
+        c3: mockupTick === 2 ? '170' : '160',
+        c4: '180',
+        status: 'On Track',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: 'Sleeve Join · 170/180 Pcs',
+        isActive: mockupTick === 2
+      },
+      {
+        id: 'sew-row-3',
+        c1: 'Vikas Patel',
+        c2: 'Bottom Hemming',
+        c3: mockupTick === 3 ? '145' : '140',
+        c4: '180',
+        status: 'Behind',
+        statusDot: 'bg-amber-500',
+        mobileSubtitle: 'Bottom Hemming · 145/180 Pcs',
+        isActive: mockupTick === 3
+      }
+    ],
+    qc: [
+      {
+        id: 'qc-row-1',
+        c1: 'Anita Kumari',
+        c2: mockupTick === 1 ? '850' : '840',
+        c3: mockupTick === 1 ? '830' : '820',
+        c4: '20',
+        status: 'Good',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: '840 Checked · 820 Pass · 20 Defects',
+        isActive: mockupTick === 1
+      },
+      {
+        id: 'qc-row-2',
+        c1: 'Deepak Verma',
+        c2: '780',
+        c3: '750',
+        c4: '30',
+        status: 'Good',
+        statusDot: 'bg-emerald-500',
+        mobileSubtitle: '780 Checked · 750 Pass · 30 Defects',
+        isActive: mockupTick === 2
+      },
+      {
+        id: 'qc-row-3',
+        c1: 'Sunita Rawat',
+        c2: '700',
+        c3: '670',
+        c4: '30',
+        status: 'Watch',
+        statusDot: 'bg-amber-500',
+        mobileSubtitle: '700 Checked · 670 Pass · 30 Defects',
+        isActive: mockupTick === 3
+      }
+    ]
+  }
+
+  const currentBanner = departmentBanners[mockupTab]
+  const currentRows = departmentRows[mockupTab]
+
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
     const element = document.getElementById(id)
@@ -583,19 +770,19 @@ export function ZigzaLandingPageClient({
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
-        <div className="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
+        <div className="max-w-[1560px] mx-auto px-3.5 sm:px-6 lg:px-10 xl:px-14 h-[64px] sm:h-[88px] flex items-center justify-between gap-2 sm:gap-3">
           
           {/* Brand Logo */}
-          <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 py-1">
+          <Link href="/" className="group flex items-center gap-1.5 sm:gap-3 cursor-pointer select-none shrink-0 py-1">
             <img 
               src="/new icon.png" 
               alt="" 
-              className="h-9 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
+              className="h-7.5 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
             />
             <img 
               src="/zigza new logo.png" 
               alt="Zigza" 
-              className="h-6 sm:h-7.5 lg:h-8.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
+              className="h-5 sm:h-7.5 lg:h-8.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
             />
           </Link>
 
@@ -672,13 +859,24 @@ export function ZigzaLandingPageClient({
             )}
           </div>
 
-          {/* Mobile Hamburger Toggle */}
-          <div className="flex md:hidden items-center gap-2 shrink-0">
+          {/* Mobile Header Actions: "Get The App" button (styled like Sign In button) + Hamburger Toggle (reverted) */}
+          <div className="flex md:hidden items-center gap-2 sm:gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setIsDemoModalOpen(true)
+                toast.info('Zigza Android App: Request a demo to download the factory APK.')
+              }}
+              className="group px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[12.5px] sm:text-[13.5px] font-semibold text-slate-900 border border-black bg-white hover:bg-black hover:text-white transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-slate-700 group-hover:text-white transition-colors shrink-0" />
+              <span>Get The App</span>
+            </button>
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle navigation menu"
-              className="p-2 rounded-xl border border-slate-300 text-[#0B1220] hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-xl border border-slate-300 text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -783,29 +981,42 @@ export function ZigzaLandingPageClient({
           <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#F8FAFC]/80 to-transparent pointer-events-none z-20" />
           <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#F8FAFC]/80 to-transparent pointer-events-none z-20" />
 
-          {/* Slide Indicator Dots (Interactive on desktop) */}
-          <div className="absolute bottom-6 right-8 z-30 flex items-center gap-2 pointer-events-auto bg-black/40 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-md">
+          {/* Slide Indicator Dots (Floating minimal cyan extending dots) */}
+          <div className="absolute bottom-6 right-8 z-30 flex items-center gap-2 pointer-events-auto">
             {heroSlides.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => setCurrentHeroSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                className={`transition-all duration-300 rounded-full cursor-pointer drop-shadow-md ${
                   currentHeroSlide === idx
-                    ? 'w-6 h-2 bg-[#14C8B4] shadow-xs'
-                    : 'w-2 h-2 bg-white/60 hover:bg-white'
+                    ? 'w-7 h-2 bg-[#14C8B4] shadow-sm'
+                    : 'w-2 h-2 bg-white/80 hover:bg-white hover:scale-125'
                 }`}
               />
             ))}
           </div>
         </div>
 
+        {/* Subtle Indian Textile Heritage Line Art Motif Watermark (Starts flush from Desktop Left) */}
+        <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[480px] xl:w-[560px] pointer-events-none select-none z-0 overflow-hidden mix-blend-multiply opacity-[0.20]">
+          <img
+            src="/indian_textile_motif.jpg"
+            alt=""
+            className="w-full h-full object-cover object-left"
+          />
+          {/* Gentle edge gradient fades allowing pattern to be clearly visible while blending seamlessly */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#F8FAFC]/90" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#F8FAFC]/90 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-[#F8FAFC]/90 to-transparent" />
+        </div>
+
         <div className="relative z-10 w-full max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pt-10 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
 
             {/* ── LEFT COLUMN (40% Width on Desktop): Clean Text, Buttons, Checklist ── */}
-            <div className="w-full lg:w-[42%] xl:w-[40%] space-y-5 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
+            <div className="w-full lg:w-[42%] xl:w-[40%] space-y-5 sm:space-y-6 text-center lg:text-left order-1 lg:order-1">
               {/* Eyebrow: Clean solid grey uppercase text — direct, clear, trustworthy */}
               <p className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.14em] text-slate-500 select-none">
                 BUILT FOR MODERN APPAREL & GARMENT FACTORIES
@@ -875,377 +1086,16 @@ export function ZigzaLandingPageClient({
               </div>
             </div>
 
-            {/* ── MOBILE-ONLY ILLUSTRATION: Clean animated card view on mobile (< lg), hidden on desktop ── */}
-            <div className="w-full lg:hidden order-1 flex items-center justify-center">
-              <div className="relative w-full max-w-[540px]">
-                {/* Subtle decorative accent behind the mobile card */}
-                <div className="absolute -inset-3 sm:-inset-4 rounded-[32px] bg-gradient-to-br from-[#1D4ED8]/10 via-[#14C8B4]/10 to-transparent blur-xl pointer-events-none" />
-                <div className="relative h-[240px] sm:h-[350px] rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl shadow-slate-900/5 group">
-                  {heroSlides.map((slide, idx) => (
-                    <div
-                      key={idx}
-                      className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-                        currentHeroSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                      }`}
-                    >
-                      <img
-                        src={slide.src}
-                        alt={slide.alt}
-                        onError={(e) => {
-                          if (slide.fallback && e.currentTarget.src !== slide.fallback) {
-                            e.currentTarget.src = slide.fallback
-                          }
-                        }}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-20" />
-                  {/* Mobile Slide Indicator Dots */}
-                  <div className="absolute bottom-3 right-4 z-30 flex items-center gap-1.5">
-                    {heroSlides.map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`transition-all duration-300 rounded-full ${
-                          currentHeroSlide === idx
-                            ? 'w-4 h-1.5 bg-[#14C8B4]'
-                            : 'w-1.5 h-1.5 bg-white/60'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Live MES Interactive Visual Dashboard Mockup — HIDDEN (preserved for future use) */}
-        <div className="hidden mt-8 sm:mt-12 max-w-5xl mx-auto">
-          {(() => {
-            interface MetricItem {
-              label: string
-              value: string | number
-              color: string
-              isNumeric: boolean
-              prefix?: string
-              suffix?: string
-              decimals?: number
-            }
-
-            const departmentMetrics: Record<'cutting' | 'sewing' | 'qc', MetricItem[]> = {
-              cutting: [
-                {
-                  label: 'Active Lot',
-                  value: 'LOT-2024-C8',
-                  color: 'text-slate-900',
-                  isNumeric: false
-                },
-                {
-                  label: 'Total Cut',
-                  value: 4850 + (mockupTick > 0 ? mockupTick * 30 : 0),
-                  suffix: ' Pcs',
-                  color: 'text-[#0B1220]',
-                  isNumeric: true
-                },
-                {
-                  label: 'Rolls Used',
-                  value: 24 + (mockupTick >= 2 ? 1 : 0),
-                  suffix: ' Rolls',
-                  color: 'text-slate-900',
-                  isNumeric: true
-                },
-                {
-                  label: 'QC Pass',
-                  value: 99.4 + (mockupTick >= 2 ? 0.2 : 0),
-                  decimals: 1,
-                  suffix: '%',
-                  color: 'text-emerald-600',
-                  isNumeric: true
-                }
-              ],
-              sewing: [
-                {
-                  label: 'Active Line',
-                  value: 'Line 3',
-                  color: 'text-slate-900',
-                  isNumeric: false
-                },
-                {
-                  label: 'Today Output',
-                  value: 1240 + (mockupTick > 0 ? mockupTick * 35 : 0),
-                  suffix: ' Pcs',
-                  color: 'text-[#0B1220]',
-                  isNumeric: true
-                },
-                {
-                  label: 'Workers',
-                  value: '38 Present',
-                  color: 'text-slate-900',
-                  isNumeric: false
-                },
-                {
-                  label: 'Efficiency',
-                  value: 72 + (mockupTick >= 2 ? 2 : 0),
-                  suffix: '%',
-                  color: 'text-emerald-600',
-                  isNumeric: true
-                }
-              ],
-              qc: [
-                {
-                  label: 'Inspected',
-                  value: 4200 + (mockupTick > 0 ? mockupTick * 30 : 0),
-                  suffix: ' Pcs',
-                  color: 'text-[#0B1220]',
-                  isNumeric: true
-                },
-                {
-                  label: 'Passed',
-                  value: 4074 + (mockupTick > 0 ? mockupTick * 28 : 0),
-                  suffix: ' Pcs',
-                  color: 'text-emerald-600',
-                  isNumeric: true
-                },
-                {
-                  label: 'Defects',
-                  value: 126,
-                  suffix: ' Pcs',
-                  color: 'text-slate-900',
-                  isNumeric: true
-                },
-                {
-                  label: 'Pass Rate',
-                  value: 97 + (mockupTick >= 2 ? 0.4 : 0),
-                  suffix: '%',
-                  decimals: 1,
-                  color: 'text-emerald-600',
-                  isNumeric: true
-                }
-              ]
-            }
-
-            const departmentBanners = {
-              cutting: {
-                icon: <FileSpreadsheet className="w-4 h-4 text-[#0B1220] shrink-0" />,
-                title: 'Lay Sheets',
-                badge: 'Real-Time Floor Sync',
-                col1: 'Lay Sheet',
-                col2: 'Fabric Color',
-                col3: 'Plies',
-                col4: 'Cut Pcs',
-                col5: 'Status'
-              },
-              sewing: {
-                icon: <Scissors className="w-4 h-4 text-[#0B1220] shrink-0" />,
-                title: 'Workers on Line',
-                badge: 'Line 3 Live Output',
-                col1: 'Worker Name',
-                col2: 'Operation',
-                col3: 'Pcs Done',
-                col4: 'Target',
-                col5: 'Status'
-              },
-              qc: {
-                icon: <PackageCheck className="w-4 h-4 text-[#0B1220] shrink-0" />,
-                title: 'Inspection Log',
-                badge: 'End-Line Audit',
-                col1: 'Inspector',
-                col2: 'Pcs Checked',
-                col3: 'Passed',
-                col4: 'Defects',
-                col5: 'Status'
-              }
-            }
-
-            interface DashboardRowItem {
-              id: string
-              c1: string
-              c2: string
-              c3: string
-              c4: string
-              status: string
-              statusDot: string
-              mobileSubtitle: string
-              isActive?: boolean
-            }
-
-            const departmentRows: Record<'cutting' | 'sewing' | 'qc', DashboardRowItem[]> = {
-              cutting: [
-                {
-                  id: 'cut-row-1',
-                  c1: mockupTick === 1 ? 'LAY-104-05' : 'LAY-104-04',
-                  c2: mockupTick === 1 ? 'Heather Grey' : 'Navy Blue',
-                  c3: mockupTick === 1 ? '50' : '60',
-                  c4: mockupTick === 1 ? '+300 Pcs' : '300 Pcs',
-                  status: 'Done',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: 'Heather Grey · 50 Plies · 300 Pcs',
-                  isActive: mockupTick === 1
-                },
-                {
-                  id: 'cut-row-2',
-                  c1: 'LAY-104-03',
-                  c2: 'Olive Green',
-                  c3: '60',
-                  c4: mockupTick === 2 ? '+360 Pcs' : '360 Pcs',
-                  status: 'Done',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: 'Olive Green · 60 Plies · 360 Pcs',
-                  isActive: mockupTick === 2
-                },
-                {
-                  id: 'cut-row-3',
-                  c1: 'LAY-104-02',
-                  c2: 'Mustard',
-                  c3: '55',
-                  c4: mockupTick === 3 ? '+330 Pcs' : '330 Pcs',
-                  status: 'Done',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: 'Mustard · 55 Plies · 330 Pcs',
-                  isActive: mockupTick === 3
-                },
-                {
-                  id: 'cut-row-4',
-                  c1: 'LAY-104-01',
-                  c2: 'Charcoal',
-                  c3: '60',
-                  c4: '360 Pcs',
-                  status: 'In Progress',
-                  statusDot: 'bg-amber-500',
-                  mobileSubtitle: 'Charcoal · 60 Plies · 360 Pcs',
-                  isActive: false
-                }
-              ],
-              sewing: [
-                {
-                  id: 'sew-row-1',
-                  c1: 'Raju Kumar',
-                  c2: 'Collar Attach',
-                  c3: mockupTick === 1 ? '125' : '120',
-                  c4: '150',
-                  status: 'On Track',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: 'Collar Attach · 120/150 Pcs',
-                  isActive: mockupTick === 1
-                },
-                {
-                  id: 'sew-row-2',
-                  c1: 'Meena Devi',
-                  c2: 'Side Seam',
-                  c3: '98',
-                  c4: '150',
-                  status: 'Behind',
-                  statusDot: 'bg-amber-500',
-                  mobileSubtitle: 'Side Seam · 98/150 Pcs',
-                  isActive: mockupTick === 2
-                },
-                {
-                  id: 'sew-row-3',
-                  c1: 'Amit Singh',
-                  c2: 'Hemming',
-                  c3: mockupTick === 3 ? '160' : '155',
-                  c4: '150',
-                  status: 'Ahead',
-                  statusDot: 'bg-teal-600',
-                  mobileSubtitle: 'Hemming · 155/150 Pcs',
-                  isActive: mockupTick === 3
-                },
-                {
-                  id: 'sew-row-4',
-                  c1: 'Priya Sharma',
-                  c2: 'Button Hole',
-                  c3: '140',
-                  c4: '150',
-                  status: 'On Track',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: 'Button Hole · 140/150 Pcs',
-                  isActive: false
-                },
-                {
-                  id: 'sew-row-5',
-                  c1: 'Suresh Yadav',
-                  c2: 'Sleeve Set',
-                  c3: '88',
-                  c4: '150',
-                  status: 'Behind',
-                  statusDot: 'bg-amber-500',
-                  mobileSubtitle: 'Sleeve Set · 88/150 Pcs',
-                  isActive: false
-                }
-              ],
-              qc: [
-                {
-                  id: 'qc-row-1',
-                  c1: 'Anita Kumari',
-                  c2: mockupTick === 1 ? '850' : '840',
-                  c3: mockupTick === 1 ? '830' : '820',
-                  c4: '20',
-                  status: 'Good',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: '840 Checked · 820 Pass · 20 Defects',
-                  isActive: mockupTick === 1
-                },
-                {
-                  id: 'qc-row-2',
-                  c1: 'Deepak Verma',
-                  c2: '780',
-                  c3: '750',
-                  c4: '30',
-                  status: 'Good',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: '780 Checked · 750 Pass · 30 Defects',
-                  isActive: mockupTick === 2
-                },
-                {
-                  id: 'qc-row-3',
-                  c1: 'Sunita Rawat',
-                  c2: '700',
-                  c3: '670',
-                  c4: '30',
-                  status: 'Watch',
-                  statusDot: 'bg-amber-500',
-                  mobileSubtitle: '700 Checked · 670 Pass · 30 Defects',
-                  isActive: mockupTick === 3
-                },
-                {
-                  id: 'qc-row-4',
-                  c1: 'Manoj Thakur',
-                  c2: '650',
-                  c3: '620',
-                  c4: '30',
-                  status: 'Watch',
-                  statusDot: 'bg-amber-500',
-                  mobileSubtitle: '650 Checked · 620 Pass · 30 Defects',
-                  isActive: false
-                },
-                {
-                  id: 'qc-row-5',
-                  c1: 'Kavita Jha',
-                  c2: '520',
-                  c3: '510',
-                  c4: '10',
-                  status: 'Good',
-                  statusDot: 'bg-emerald-500',
-                  mobileSubtitle: '520 Checked · 510 Pass · 10 Defects',
-                  isActive: false
-                }
-              ]
-            }
-
-            const currentBanner = departmentBanners[mockupTab]
-            const currentRows = departmentRows[mockupTab]
-
-            return (
-              <>
-                {/* ========================================================= */}
-                {/* 1. MOBILE PHONE MES COMPANION CARD (sm:hidden)            */}
-                {/* Pure Black Outline Phone Illustration Mockup             */}
-                {/* ========================================================= */}
-                <div className="sm:hidden max-w-[340px] mx-auto rounded-[36px] border-[3px] border-[#0B1220] bg-white p-2.5 shadow-xl shadow-[#0B1220]/10">
+            {/* ── MOBILE-ONLY ILLUSTRATION: Interactive Android Smartphone App Mockup (< lg only, positioned BELOW points) ── */}
+            <div className="w-full lg:hidden order-2 flex items-center justify-center pt-6 pb-2">
+              <div className="relative w-full max-w-[340px] sm:max-w-[380px]">
+                {/* Subtle decorative accent behind the mobile phone */}
+                <div className="absolute -inset-3 rounded-[40px] bg-gradient-to-br from-[#1D4ED8]/15 via-[#14C8B4]/15 to-transparent blur-xl pointer-events-none" />
+                
+                {/* Pure Black Outline Android Phone Frame */}
+                <div className="relative rounded-[36px] border-[3px] border-[#0B1220] bg-white p-2.5 shadow-2xl shadow-[#0B1220]/15">
                   {/* Phone Top Dynamic Island / Camera Notch */}
-                  <div className="w-20 h-3.5 bg-[#0B1220] rounded-full mx-auto mb-2 flex items-center justify-end px-2">
+                  <div className="w-20 h-3 bg-[#0B1220] rounded-full mx-auto mb-2 flex items-center justify-end px-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
                   </div>
 
@@ -1254,17 +1104,14 @@ export function ZigzaLandingPageClient({
                     {/* Native Phone Status Bar */}
                     <div className="flex items-center justify-between px-1.5 text-slate-800">
                       <span className="text-xs font-mono font-bold">09:41</span>
-                      <div className="flex items-center gap-2">
-                        {/* Cellular Signal Bars */}
+                      <div className="flex items-center gap-1.5">
                         <div className="flex items-end gap-0.5 h-2.5">
                           <span className="w-0.5 h-1 bg-slate-800 rounded-full" />
                           <span className="w-0.5 h-1.5 bg-slate-800 rounded-full" />
                           <span className="w-0.5 h-2 bg-slate-800 rounded-full" />
                           <span className="w-0.5 h-2.5 bg-slate-800 rounded-full" />
                         </div>
-                        {/* Wifi Icon */}
                         <Wifi className="w-3.5 h-3.5 text-slate-800" />
-                        {/* Phone Battery Icon */}
                         <div className="w-5 h-2.5 rounded-xs border border-slate-800 p-0.5 flex items-center">
                           <div className="h-full w-3 bg-slate-800 rounded-2xs" />
                         </div>
@@ -1292,7 +1139,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'cutting'
-                            ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs'
+                            ? 'bg-[#14C8B4] text-black shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1303,7 +1150,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'sewing'
-                            ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs'
+                            ? 'bg-[#14C8B4] text-black shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1314,7 +1161,7 @@ export function ZigzaLandingPageClient({
                         onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
                         className={`py-1.5 text-xs font-bold rounded-lg transition-all text-center cursor-pointer ${
                           mockupTab === 'qc'
-                            ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs'
+                            ? 'bg-[#14C8B4] text-black shadow-xs'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
@@ -1387,181 +1234,34 @@ export function ZigzaLandingPageClient({
                     </div>
 
                     {/* Modern Android 3-Button Navigation Bar */}
-                    <div className="pt-3.5 pb-1.5 px-6 flex items-center justify-between max-w-[260px] mx-auto text-slate-700">
+                    <div className="pt-3 pb-1 px-6 flex items-center justify-between max-w-[240px] mx-auto text-slate-700">
                       {/* Back button */}
-                      <div className="w-9 h-6 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3] stroke-linecap-round stroke-linejoin-round">
+                      <div className="w-8 h-5 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-slate-700 stroke-[2.3] stroke-linecap-round stroke-linejoin-round">
                           <path d="M14.5 17.5L9 12L14.5 6.5" />
                         </svg>
                       </div>
                       {/* Home button */}
-                      <div className="w-9 h-6 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3]">
+                      <div className="w-8 h-5 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-slate-700 stroke-[2.3]">
                           <circle cx="12" cy="12" r="7" />
                         </svg>
                       </div>
                       {/* Recent Apps button */}
-                      <div className="w-9 h-6 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-slate-700 stroke-[2.3] stroke-linejoin-round">
+                      <div className="w-8 h-5 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-slate-700 stroke-[2.3] stroke-linejoin-round">
                           <rect x="5" y="5" width="14" height="14" rx="3.5" />
                         </svg>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                {/* ========================================================= */}
-                {/* 2. DESKTOP macOS MES DASHBOARD (hidden sm:block)          */}
-                {/* ========================================================= */}
-                <div className="hidden sm:block bg-white border border-[#0B1220]/15 rounded-3xl shadow-xl shadow-[#0B1220]/5 overflow-hidden transition-all duration-300">
-                  {/* macOS Dark Obsidian Window Header Bar */}
-                  <div className="bg-[#0B1220] px-6 py-3 border-b border-slate-800 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      {/* macOS Colored Window Control Dots */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/60 inline-block shadow-2xs" />
-                        <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/60 inline-block shadow-2xs" />
-                        <span className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/60 inline-block shadow-2xs" />
-                      </div>
-                      {/* Interactive Station Tabs */}
-                      <div className="flex items-center gap-1.5 ml-3">
-                        <button
-                          type="button"
-                          onClick={() => { setMockupTab('cutting'); setMockupTick(0) }}
-                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                            mockupTab === 'cutting'
-                              ? 'bg-white/15 text-[#14C8B4] font-bold shadow-2xs backdrop-blur-xs'
-                              : 'text-slate-300 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          Cutting &amp; Inward
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setMockupTab('sewing'); setMockupTick(0) }}
-                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                            mockupTab === 'sewing'
-                              ? 'bg-white/15 text-[#14C8B4] font-bold shadow-2xs backdrop-blur-xs'
-                              : 'text-slate-300 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          Sewing Lines
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setMockupTab('qc'); setMockupTick(0) }}
-                          className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                            mockupTab === 'qc'
-                              ? 'bg-white/15 text-[#14C8B4] font-bold shadow-2xs backdrop-blur-xs'
-                              : 'text-slate-300 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          QC &amp; Packing
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Real-Time Sync Indicator */}
-                    <div className="flex items-center gap-2 text-sm font-medium text-slate-300 shrink-0">
-                      <span className="w-2 h-2 rounded-full bg-[#14C8B4] animate-pulse" />
-                      <span className="font-semibold text-white">Live Floor Sync</span>
-                      <span className="text-xs font-mono text-[#14C8B4]/80">
-                        {mockupTick === 0 ? '· Synced' : `· +${mockupTick} Events`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Mockup Body Content */}
-                  <div className="p-6 bg-[#F8FAFC] space-y-5">
-                    {/* 4 Executive Metric Cards (2 lines each - label + value) */}
-                    <div className="grid grid-cols-4 gap-4">
-                      {departmentMetrics[mockupTab].map((metric, idx) => (
-                        <div
-                          key={`metric-${idx}`}
-                          className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs hover:border-[#0B1220]/30 transition-all duration-300"
-                        >
-                          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block truncate">
-                            {metric.label}
-                          </span>
-                          <div className={`text-xl sm:text-2xl font-bold mt-1.5 font-mono truncate ${metric.color}`}>
-                            {metric.isNumeric ? (
-                              <AnimatedCounter
-                                value={metric.value as number}
-                                prefix={metric.prefix}
-                                suffix={metric.suffix}
-                                decimals={metric.decimals}
-                                duration={800}
-                              />
-                            ) : (
-                              <span>{metric.value}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Dynamic Live Table (5 Simple Columns) */}
-                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs">
-                      <div className="flex items-center justify-between mb-3 gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          {currentBanner.icon}
-                          <span className="text-base font-bold text-slate-900 truncate">
-                            {currentBanner.title}
-                          </span>
-                        </div>
-                        <span className="text-xs font-semibold text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/30 px-2.5 py-0.5 rounded-full shrink-0">
-                          {currentBanner.badge}
-                        </span>
-                      </div>
-
-                      <div className="relative overflow-x-auto">
-                        <table className="w-full table-fixed text-sm text-left">
-                          <thead>
-                            <tr className="border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                              <th className="py-2.5 px-3 w-[26%]">{currentBanner.col1}</th>
-                              <th className="py-2.5 px-3 w-[24%]">{currentBanner.col2}</th>
-                              <th className="py-2.5 px-3 w-[16%]">{currentBanner.col3}</th>
-                              <th className="py-2.5 px-3 w-[16%]">{currentBanner.col4}</th>
-                              <th className="py-2.5 px-3 w-[18%] text-right">{currentBanner.col5}</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                            {currentRows.map((r) => (
-                              <tr 
-                                key={r.id} 
-                                className={`transition-all duration-300 ${
-                                  r.isActive 
-                                    ? 'bg-[#F0FDFA]' 
-                                    : 'hover:bg-slate-50/60'
-                                }`}
-                              >
-                                <td className="py-2.5 px-3 font-bold text-slate-900 truncate">
-                                  <span className="flex items-center gap-1.5">
-                                    {r.isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#14C8B4] animate-pulse inline-block shrink-0" />}
-                                    {r.c1}
-                                  </span>
-                                </td>
-                                <td className="py-2.5 px-3 text-slate-700 truncate">{r.c2}</td>
-                                <td className="py-2.5 px-3 font-mono text-slate-600 truncate">{r.c3}</td>
-                                <td className="py-2.5 px-3 font-mono font-medium text-slate-900 truncate">{r.c4}</td>
-                                <td className="py-2.5 px-3 text-right">
-                                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-                                    <span className={`w-2 h-2 rounded-full ${r.statusDot} shrink-0`} />
-                                    {r.status}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )
-          })()}
+          </div>
         </div>
+
 
       </section>
 
