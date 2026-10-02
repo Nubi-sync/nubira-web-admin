@@ -494,7 +494,7 @@ export function SADesignApprovalsClient({
               onClick={() => setActiveTab('ALL')}
               className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'ALL'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -505,7 +505,7 @@ export function SADesignApprovalsClient({
               onClick={() => setActiveTab('APPROVED')}
               className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'APPROVED'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -516,7 +516,7 @@ export function SADesignApprovalsClient({
               onClick={() => setActiveTab('REJECTED')}
               className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                 activeTab === 'REJECTED'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -528,7 +528,7 @@ export function SADesignApprovalsClient({
                 onClick={() => setActiveTab('PENDING')}
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   activeTab === 'PENDING'
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                     : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -541,7 +541,7 @@ export function SADesignApprovalsClient({
                 onClick={() => setActiveTab('SAVED_FOR_LATER')}
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   activeTab === 'SAVED_FOR_LATER'
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                     : 'text-slate-600 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -778,7 +778,7 @@ export function SADesignApprovalsClient({
                       <button
                         type="button"
                         onClick={() => setSelectedRowItem(item)}
-                        className="min-h-[40px] sm:min-h-[42px] w-full inline-flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 rounded-xl bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                        className="min-h-[40px] sm:min-h-[42px] w-full inline-flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer text-center"
                       >
                         <Eye className="w-4 h-4" />
                         <span>View &amp; Decide {item.artNumber}</span>
@@ -969,7 +969,7 @@ export function SADesignApprovalsClient({
                   type="button"
                   disabled={isReviewing}
                   onClick={() => handleVerdict(selectedRowItem, 'APPROVED')}
-                  className="min-h-[42px] inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
+                  className="min-h-[42px] inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 active:scale-[0.98] text-center"
                 >
                   {isReviewing ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <CheckCircle2 className="w-4 h-4 text-white" />}
                   <span>Greenlight for Tech-Pack</span>

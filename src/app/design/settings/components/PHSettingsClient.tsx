@@ -274,7 +274,7 @@ export function PHSettingsClient({
           onClick={() => setActiveTab('BODY_PARTS')}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === 'BODY_PARTS'
-              ? 'bg-[#0B1220] text-white shadow-2xs'
+              ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
               : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
           }`}
         >
@@ -291,7 +291,7 @@ export function PHSettingsClient({
           onClick={() => setActiveTab('BOM_CODES')}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === 'BOM_CODES'
-              ? 'bg-[#0B1220] text-white shadow-2xs'
+              ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
               : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
           }`}
         >
@@ -308,7 +308,7 @@ export function PHSettingsClient({
           onClick={() => setActiveTab('TEMPLATES')}
           className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === 'TEMPLATES'
-              ? 'bg-[#0B1220] text-white shadow-2xs'
+              ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
               : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
           }`}
         >
@@ -366,7 +366,7 @@ export function PHSettingsClient({
               <button
                 type="submit"
                 disabled={isAddingBodyCode}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer disabled:opacity-50 mt-2"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 mt-2 active:scale-[0.98]"
               >
                 {isAddingBodyCode && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 <span>Save Code-Word</span>
@@ -520,7 +520,7 @@ export function PHSettingsClient({
               <button
                 type="submit"
                 disabled={isAddingBOMCode}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer disabled:opacity-50 mt-2"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 mt-2 active:scale-[0.98]"
               >
                 {isAddingBOMCode && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 <span>Save BOM Component</span>
@@ -639,7 +639,7 @@ export function PHSettingsClient({
 
             <button
               onClick={() => setIsCreateTemplateOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-xs sm:text-sm font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer shrink-0 active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>New Custom Template</span>
@@ -849,14 +849,14 @@ export function PHSettingsClient({
                 <button
                   type="button"
                   onClick={() => setIsCreateTemplateOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingTemplate}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isSavingTemplate && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Save Template</span>

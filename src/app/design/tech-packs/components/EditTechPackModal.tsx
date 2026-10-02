@@ -553,7 +553,7 @@ function EditTechPackModalContent({
                   <button
                     type="button"
                     onClick={handleAddNewMaterial}
-                    className="w-full h-[38px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                    className="w-full h-[38px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-95"
                     title="Add Material to Table"
                   >
                     <Plus className="w-4 h-4" />
@@ -653,14 +653,14 @@ function EditTechPackModalContent({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>
