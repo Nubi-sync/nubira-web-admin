@@ -93,14 +93,14 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
         <div className="flex items-center gap-2.5">
           <Link
             href="/ready-goods/workers"
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-black bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
           >
             <Users className="w-3.5 h-3.5" />
             <span>Manage Checkers ({activeCheckers})</span>
           </Link>
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
           >
             <span>Launch Checker Terminal</span>
             <ExternalLink className="w-3.5 h-3.5" />
