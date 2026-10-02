@@ -1063,7 +1063,7 @@ export function PrintingDashboardClient({
               <button
                 type="button"
                 onClick={() => setIsAddTaskOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Assign Task Row</span>

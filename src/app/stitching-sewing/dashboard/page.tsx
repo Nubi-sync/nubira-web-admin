@@ -503,7 +503,7 @@ export default async function StitchingSewingDashboardPage() {
             </div>
             <Link
               href="/stitching-sewing/production-orders"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-xs transition-all shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all shrink-0 cursor-pointer"
             >
               <span>Create First Challan</span>
               <ArrowRight className="w-4 h-4" />

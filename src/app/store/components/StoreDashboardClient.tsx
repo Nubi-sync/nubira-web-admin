@@ -828,7 +828,7 @@ export function StoreDashboardClient({
             <button
               type="button"
               onClick={() => setIsCreateOpen(prev => !prev)}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] hover:bg-[#162032] text-white shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-95"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-95"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Create</span>

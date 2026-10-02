@@ -1495,7 +1495,7 @@ export function ProductionOrdersClient({
           <button
             type="button"
             onClick={handleOpenNewChallan}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-2 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-white" />
             <span>New Delivery Challan</span>
@@ -1637,14 +1637,14 @@ export function ProductionOrdersClient({
           onClick={() => setSelectedStatus('PENDING')}
           className={`px-4.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all cursor-pointer border shrink-0 ${
             selectedStatus === 'PENDING'
-              ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-50 border-black/10'
+              ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] shadow-2xs font-bold'
+              : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
           }`}
         >
-          <Clock className={`w-4 h-4 ${selectedStatus === 'PENDING' ? 'text-amber-300' : 'text-amber-600'}`} />
+          <Clock className={`w-4 h-4 ${selectedStatus === 'PENDING' ? 'text-[#0B1220]' : 'text-amber-600'}`} />
           <span>Pending Allotment</span>
           <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold ${
-            selectedStatus === 'PENDING' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900'
+            selectedStatus === 'PENDING' ? 'bg-[#0B1220] text-white font-bold' : 'bg-amber-100 text-amber-900'
           }`}>
             {statusCounts.pending}
           </span>
@@ -1655,14 +1655,14 @@ export function ProductionOrdersClient({
           onClick={() => setSelectedStatus('IN_PROGRESS')}
           className={`px-4.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition-all cursor-pointer border shrink-0 ${
             selectedStatus === 'IN_PROGRESS'
-              ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
-              : 'bg-white text-slate-700 hover:bg-slate-50 border-black/10'
+              ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] shadow-2xs font-bold'
+              : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
           }`}
         >
-          <Zap className={`w-4 h-4 ${selectedStatus === 'IN_PROGRESS' ? 'text-indigo-300' : 'text-[#0B1220]'}`} />
+          <Zap className={`w-4 h-4 ${selectedStatus === 'IN_PROGRESS' ? 'text-[#0B1220]' : 'text-[#0B1220]'}`} />
           <span>Allotted Challans (In Production)</span>
           <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-extrabold ${
-            selectedStatus === 'IN_PROGRESS' ? 'bg-white/20 text-white' : 'bg-[#F0FDFA] text-[#0B1220] border border-black/10'
+            selectedStatus === 'IN_PROGRESS' ? 'bg-[#0B1220] text-white font-bold' : 'bg-[#F0FDFA] text-[#0B1220] border border-black/10'
           }`}>
             {statusCounts.inProgress}
           </span>
@@ -1799,7 +1799,7 @@ export function ProductionOrdersClient({
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Clear Search & View All</span>
@@ -1810,7 +1810,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={() => setSelectedStatus('IN_PROGRESS')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                   >
                     <Zap className="w-4 h-4" />
                     <span>View Allotted Challans ({statusCounts.inProgress})</span>
@@ -1820,7 +1820,7 @@ export function ProductionOrdersClient({
                   <button
                     type="button"
                     onClick={() => setSelectedStatus('PENDING')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                   >
                     <Clock className="w-4 h-4" />
                     <span>View Pending Allotments ({statusCounts.pending})</span>
@@ -1829,7 +1829,7 @@ export function ProductionOrdersClient({
                 <button
                   type="button"
                   onClick={handleOpenNewChallan}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer border border-black/10"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create New Delivery Challan</span>
@@ -2135,7 +2135,7 @@ export function ProductionOrdersClient({
                             type="button"
                             disabled={isPending}
                             onClick={() => handleAllotEntireChallan(challan.id)}
-                            className="px-4 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shrink-0"
+                            className="px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2 shrink-0"
                           >
                             <Zap className="w-4 h-4" />
                             <span>Allot Full Challan</span>
