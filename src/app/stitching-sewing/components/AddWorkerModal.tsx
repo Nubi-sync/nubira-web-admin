@@ -197,14 +197,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2C274E] rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-2"
+              className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-50 cursor-pointer flex items-center gap-2 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>

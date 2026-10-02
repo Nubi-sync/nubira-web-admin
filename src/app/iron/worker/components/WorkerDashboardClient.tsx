@@ -294,7 +294,7 @@ export function WorkerDashboardClient({
                       <button
                         type="button"
                         onClick={() => handleStartCycle(task)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
                       >
                         <Play className="w-3.5 h-3.5" />
                         <span>Start Pressing</span>
