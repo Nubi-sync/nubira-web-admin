@@ -273,7 +273,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer"
+            className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
           >
             <span>Clear Search</span>
           </button>
@@ -358,12 +358,12 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 {/* Bottom Section: Solid Filled Launch Button */}
                 <div className="mt-5 flex items-center justify-end">
                   {isLaunching ? (
-                    <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs">
+                    <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20">
                       <Loader2 className="w-4 h-4 animate-spin text-white" />
                       <span>Opening...</span>
                     </div>
                   ) : (
-                    <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0B1220] text-white shadow-xs group-hover:bg-[#162032] active:scale-[0.98] transition-all cursor-pointer text-center">
+                    <div className="min-h-[40px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 group-hover:bg-[#1E40AF] hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer text-center">
                       <span>Launch</span>
                       <ArrowRight className="w-4 h-4 text-white transition-transform group-hover:translate-x-1" />
                     </div>

@@ -536,7 +536,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isForgotPending}
-                  className="w-full py-3 bg-[#0B1220] text-white rounded-xl text-sm font-bold hover:bg-[#162032] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
+                  className="w-full py-3 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30"
                 >
                   {isForgotPending ? 'Sending OTP...' : 'Send Verification OTP'}
                 </button>
@@ -563,7 +563,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isForgotPending}
-                  className="w-full py-3 bg-[#0B1220] text-white rounded-xl text-sm font-bold hover:bg-[#162032] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
+                  className="w-full py-3 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30"
                 >
                   {isForgotPending ? 'Verifying OTP...' : 'Verify OTP'}
                 </button>
@@ -610,7 +610,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isForgotPending}
-                      className="w-full py-3 bg-[#0B1220] text-white rounded-xl text-sm font-bold hover:bg-[#162032] active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-xs"
+                      className="w-full py-3 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30"
                     >
                       {isForgotPending ? 'Saving Password...' : 'Set New Password'}
                     </button>
