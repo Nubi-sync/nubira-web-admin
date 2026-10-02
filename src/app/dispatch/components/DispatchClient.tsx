@@ -433,8 +433,8 @@ export function DispatchClient({
             <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Dispatch & Logistics Hub
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+              Dispatch &amp; <span className="text-[#1D4ED8]">Logistics Hub</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Pre-loading physical counting, delivery challans, and transport tracking
