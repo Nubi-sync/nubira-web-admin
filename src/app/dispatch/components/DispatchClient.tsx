@@ -1419,14 +1419,14 @@ export function DispatchClient({
                   type="button"
                   onClick={() => setShowCountingModal(false)}
                   disabled={isPending}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/60 border border-slate-200 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-60"
                 >
                   {isPending ? 'Saving...' : 'Save Counting Record'}
                 </button>

@@ -275,11 +275,11 @@ export function CreateEmployeeForm({ forcedModule, moduleTitle, allowedDivisions
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 mt-2"
         >
           {isPending ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
               <span>Creating Account...</span>
             </>
           ) : (

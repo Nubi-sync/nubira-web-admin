@@ -317,12 +317,14 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
             onClick={() => setSelectedDivision('ALL')}
             className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
               selectedDivision === 'ALL'
-                ? 'bg-white text-[#0B1220] shadow-xs border border-slate-200 ring-1 ring-black/5'
+                ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
             <span>All Factory Staff</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-mono bg-slate-200 text-slate-700">
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+              selectedDivision === 'ALL' ? 'bg-[#0B1220] text-white' : 'bg-slate-200 text-slate-700'
+            }`}>
               {divisionCounts['ALL'] || 0}
             </span>
           </button>
@@ -335,13 +337,13 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                 onClick={() => setSelectedDivision(div.route)}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
                   selectedDivision === div.route
-                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
                 <span>Unit {div.code}: {div.name.split('&')[0].trim()}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  selectedDivision === div.route ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                  selectedDivision === div.route ? 'bg-[#0B1220] text-white' : 'bg-slate-200 text-slate-700'
                 }`}>
                   {count}
                 </span>
@@ -616,7 +618,7 @@ export function EmployeeList({ employees, forcedModule, moduleTitle, allowedDivi
                   <button
                     type="submit"
                     disabled={isResetting}
-                    className="flex-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60 shadow-xs bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98]"
+                    className="flex-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60 shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98]"
                   >
                     {isResetting ? 'Saving...' : 'Set Password'}
                   </button>

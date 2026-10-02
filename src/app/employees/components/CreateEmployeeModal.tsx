@@ -137,16 +137,16 @@ export function CreateEmployeeModal({ isOpen, onClose, onSuccess }: CreateEmploy
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-slate-700 font-semibold hover:bg-slate-100 rounded-xl transition-colors border border-slate-200 shadow-2xs cursor-pointer text-sm"
+              className="px-5 py-2.5 text-slate-700 font-semibold bg-white hover:bg-slate-50 rounded-xl transition-all border border-slate-200 shadow-2xs cursor-pointer text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 bg-[#0B1220] text-white font-bold rounded-xl hover:bg-[#162032] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-xs cursor-pointer active:scale-[0.98] text-sm"
+              className="px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer active:scale-[0.98] text-sm"
             >
-              {loading && <Loader2 size={16} className="animate-spin" />}
+              {loading && <Loader2 size={16} className="animate-spin text-white" />}
               <span>{loading ? 'Creating...' : 'Create Employee'}</span>
             </button>
           </div>
