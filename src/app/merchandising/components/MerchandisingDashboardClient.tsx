@@ -540,16 +540,16 @@ export function MerchandisingDashboardClient({
               placeholder="Search PO #, buyer, article..."
               value={orderSearchQuery}
               onChange={e => setOrderSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/15 focus:border-[#0B1220] font-medium text-slate-900 shadow-2xs"
+              className="w-full h-[42px] pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] font-medium text-slate-900 shadow-2xs"
             />
           </div>
 
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
+            className="inline-flex items-center justify-center gap-2 min-h-[42px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98] shrink-0"
           >
-            <Plus className="w-4 h-4 text-white" />
+            <Plus className="w-4 h-4 text-white stroke-[2.5]" />
             <span>Book New PO</span>
           </button>
         </div>
