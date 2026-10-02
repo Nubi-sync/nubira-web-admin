@@ -519,7 +519,7 @@ export function ReportsClient({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="min-h-[42px] flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-xs cursor-pointer bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#0B1220]/20 text-center"
+            className="min-h-[42px] flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-center"
           >
             <Download className="w-4 h-4" />
             <span>Export CSV</span>
@@ -770,7 +770,7 @@ export function ReportsClient({
                 <button
                   type="button"
                   onClick={() => setDateFilter('this_week')}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-xs cursor-pointer bg-[#0B1220] hover:bg-[#162032]"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer bg-[#1D4ED8] hover:bg-[#1E40AF]"
                 >
                   Try This Week
                 </button>
@@ -1090,7 +1090,7 @@ export function ReportsClient({
                   }
                 }}
                 disabled={!customStartDate || !customEndDate}
-                className="py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50 cursor-pointer shadow-xs bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98]"
+                className="py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all disabled:opacity-50 cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98]"
               >
                 Apply Range
               </button>

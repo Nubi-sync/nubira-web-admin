@@ -158,7 +158,7 @@ export function CompanySubscriptionCard({
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="min-h-[42px] px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs transition-all cursor-pointer w-full sm:w-auto text-center shrink-0"
+              className="min-h-[42px] px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0"
             >
               {isTrial ? 'Activate Subscription' : 'Renew Subscription'}
             </button>
@@ -423,7 +423,7 @@ export function CompanySubscriptionCard({
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   disabled={isPending}
-                  className="min-h-[42px] w-full sm:w-auto px-4.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer text-center"
+                  className="min-h-[42px] w-full sm:w-auto px-4.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer text-center"
                 >
                   Cancel
                 </button>
@@ -431,7 +431,7 @@ export function CompanySubscriptionCard({
                   type="button"
                   onClick={handleUpgrade}
                   disabled={isPending}
-                  className="min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs cursor-pointer transition-all disabled:opacity-50 text-center"
+                  className="min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all disabled:opacity-50 text-center"
                 >
                   {isPending ? (
                     <>

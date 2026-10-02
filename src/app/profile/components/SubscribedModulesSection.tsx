@@ -148,7 +148,7 @@ export function SubscribedModulesSection({ modules, companyName }: SubscribedMod
               <div className="pt-3 border-t border-slate-200/80 flex items-center gap-2">
                 <Link
                   href={mod.route}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
                 >
                   <span>Open Floor</span>
                   <ArrowRight className="w-3.5 h-3.5" />

@@ -828,10 +828,10 @@ export default function RegisterFreeTrialPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 sm:py-3.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
+                  className="w-full py-3 sm:py-3.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
                 >
                   <span>Next: Choose Modules</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
 
@@ -941,7 +941,7 @@ export default function RegisterFreeTrialPage() {
                   type="button"
                   onClick={handleBackToStep1}
                   disabled={isPending}
-                  className="px-5 py-3.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-all cursor-pointer"
+                  className="px-5 py-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition-all cursor-pointer"
                 >
                   Back
                 </button>
@@ -950,17 +950,17 @@ export default function RegisterFreeTrialPage() {
                   type="button"
                   onClick={handleFinalSubmit}
                   disabled={isPending}
-                  className="flex-1 py-3.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99] group"
+                  className="flex-1 py-3.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99] group"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
                       <span>Activating 7-Day Trial...</span>
                     </>
                   ) : (
                     <>
                       <span>Continue & Start 7-Day Trial</span>
-                      <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
@@ -1009,15 +1009,15 @@ export default function RegisterFreeTrialPage() {
               <div className="pt-2 space-y-2">
                 <Link
                   href="/cutting"
-                  className="w-full py-3.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold transition-all shadow-xs hover:shadow-sm flex items-center justify-center gap-2 cursor-pointer group"
+                  className="w-full py-3.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer group"
                 >
                   <span>Launch Floor Workspace</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
                 </Link>
 
                 <Link
                   href="/login"
-                  className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all flex items-center justify-center cursor-pointer"
+                  className="w-full py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all flex items-center justify-center cursor-pointer"
                 >
                   Sign in with Credentials
                 </Link>
