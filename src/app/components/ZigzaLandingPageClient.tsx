@@ -806,8 +806,13 @@ export function ZigzaLandingPageClient({
 
             {/* ── LEFT COLUMN (40% Width on Desktop): Clean Text, Buttons, Checklist ── */}
             <div className="w-full lg:w-[42%] xl:w-[40%] space-y-5 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
+              {/* Eyebrow: Clean solid grey uppercase text — direct, clear, trustworthy */}
+              <p className="text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.14em] text-slate-500 select-none">
+                BUILT FOR MODERN APPAREL & GARMENT FACTORIES
+              </p>
+
               {/* Main Hero Headline */}
-              <h1 className="text-[30px] sm:text-5xl lg:text-[44px] xl:text-[50px] font-bold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.12]">
+              <h1 className="text-[32px] sm:text-5xl lg:text-[44px] xl:text-[48px] font-bold tracking-tight text-[#0B1220] leading-[1.18] sm:leading-[1.1]">
                 The Smarter Way to Run Your{' '}
                 <span className="inline-block whitespace-nowrap text-[#1D4ED8] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
                   Garment Business
@@ -839,19 +844,33 @@ export function ZigzaLandingPageClient({
                 </Link>
               </div>
 
-              {/* Key Benefit Pointers */}
-              <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center lg:items-start gap-3 sm:gap-5 xl:gap-6 text-sm sm:text-[14.5px] font-semibold text-slate-700">
-                <div className="flex items-center gap-2 shrink-0">
-                  <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
-                  <span>Zero missing pieces across lines</span>
+              {/* Key Benefit Pointers: Vertically Stacked with Badges to Prevent Any Right-Side Overlap */}
+              <div className="pt-2 sm:pt-3 space-y-2 max-w-md mx-auto lg:mx-0 text-left">
+                <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/80 border border-slate-200/80 shadow-2xs backdrop-blur-xs transition-all hover:bg-white hover:border-slate-300">
+                  <div className="w-5 h-5 rounded-full bg-[#14C8B4]/20 border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 text-[#0F766E] stroke-[2.5]" />
+                  </div>
+                  <span className="text-[13.5px] sm:text-[14px] font-semibold text-slate-800">
+                    Zero missing pieces across lines
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
-                  <span>Works on any Android phone</span>
+
+                <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/80 border border-slate-200/80 shadow-2xs backdrop-blur-xs transition-all hover:bg-white hover:border-slate-300">
+                  <div className="w-5 h-5 rounded-full bg-[#14C8B4]/20 border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 text-[#0F766E] stroke-[2.5]" />
+                  </div>
+                  <span className="text-[13.5px] sm:text-[14px] font-semibold text-slate-800">
+                    Works on any basic Android phone
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
-                  <span>Instant wages with zero disputes</span>
+
+                <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/80 border border-slate-200/80 shadow-2xs backdrop-blur-xs transition-all hover:bg-white hover:border-slate-300">
+                  <div className="w-5 h-5 rounded-full bg-[#14C8B4]/20 border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 text-[#0F766E] stroke-[2.5]" />
+                  </div>
+                  <span className="text-[13.5px] sm:text-[14px] font-semibold text-slate-800">
+                    Instant wages with zero disputes
+                  </span>
                 </div>
               </div>
             </div>
