@@ -517,7 +517,7 @@ export function PackingGoodsClient({
           <button
             type="button"
             onClick={() => setIsAssignModalOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ Assign Packing</span>
@@ -612,13 +612,13 @@ export function PackingGoodsClient({
               onClick={() => setStatusFilter(tab.id as any)}
               className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                 statusFilter === tab.id
-                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                   : 'text-slate-600 hover:bg-white'
               }`}
             >
               <span>{tab.label}</span>
               <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                statusFilter === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                statusFilter === tab.id ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
               }`}>
                 {tab.count}
               </span>
@@ -679,7 +679,7 @@ export function PackingGoodsClient({
                         <button
                           type="button"
                           onClick={() => setIsAssignModalOpen(true)}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
                           <span>+ Assign Packing</span>
