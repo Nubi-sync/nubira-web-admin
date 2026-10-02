@@ -243,7 +243,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('DRAWCORD')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-DRW-2026-01'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
@@ -254,7 +254,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('LABEL')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-LBL-2026-02'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
@@ -265,7 +265,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('THREAD')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-THD-2026-03'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >
@@ -276,7 +276,7 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               onClick={() => applyPreset('POLYBAG')}
               className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all shadow-2xs cursor-pointer ${
                 itemCode === 'TRM-PKG-2026-04'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-white text-slate-800 border-black/10 hover:bg-[#F0FDFA]'
               }`}
             >

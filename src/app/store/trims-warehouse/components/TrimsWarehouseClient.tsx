@@ -103,7 +103,7 @@ export function TrimsWarehouseClient() {
           <button
             type="button"
             onClick={() => setIsReceiveModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all inline-flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>+ Receive Trims Package</span>
@@ -214,7 +214,7 @@ export function TrimsWarehouseClient() {
                 onClick={() => setCategoryFilter(tab)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
                   active 
-                    ? 'bg-[#0B1220] text-white shadow-2xs' 
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold' 
                     : 'bg-[#F0FDFA] text-slate-600 hover:text-slate-900 hover:bg-[#E6FFFA] border border-black/15'
                 }`}
               >
@@ -329,7 +329,7 @@ export function TrimsWarehouseClient() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => openAdjustModal(item)}
-                            className="px-3 py-1.5 rounded-xl bg-[#F0FDFA] border border-black/15 hover:bg-[#0B1220] hover:text-white text-xs font-mono font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl bg-[#F0FDFA] border border-black/15 hover:bg-[#1D4ED8] hover:border-[#1D4ED8] hover:text-white text-xs font-mono font-bold text-[#0B1220] transition-colors shadow-2xs cursor-pointer"
                           >
                             Adjust / Inward
                           </button>
