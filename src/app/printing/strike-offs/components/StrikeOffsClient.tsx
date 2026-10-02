@@ -165,8 +165,8 @@ export function StrikeOffsClient({ initialStrikeOffs }: StrikeOffsClientProps = 
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                   statusFilter === status
-                    ? 'bg-[#0B1220] text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:text-[#0B1220] border border-black/15 hover:bg-[#F0FDFA]'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 {status.replace(/_/g, ' ')}
