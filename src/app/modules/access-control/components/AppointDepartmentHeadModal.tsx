@@ -420,7 +420,7 @@ export function AppointDepartmentHeadModal({
                 <button
                   type="submit"
                   disabled={isCheckingPhone}
-                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                  className="w-full py-3 px-5 bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-60 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
                   {isCheckingPhone ? (
                     <>
@@ -430,7 +430,7 @@ export function AppointDepartmentHeadModal({
                   ) : (
                     <>
                       <span>Continue to Department Access</span>
-                      <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                      <ArrowRight className="w-4 h-4 text-white" />
                     </>
                   )}
                 </button>
