@@ -850,7 +850,7 @@ export function StoreDashboardClient({
                   }}
                   className="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left group cursor-pointer"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] group-hover:bg-[#0B1220] text-[#0B1220] group-hover:text-white border border-black/15 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
                     <Receipt className="w-4.5 h-4.5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -872,7 +872,7 @@ export function StoreDashboardClient({
                   }}
                   className="w-full flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left group cursor-pointer border-t border-slate-100"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] group-hover:bg-[#0B1220] text-[#0B1220] group-hover:text-white border border-black/15 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
                     <Boxes className="w-4.5 h-4.5" />
                   </div>
                   <div className="flex-1 min-w-0">

@@ -1436,8 +1436,8 @@ export function ZigzaAiClient({
                       className="text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200/80 hover:border-black/30 hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer select-none bg-gradient-to-b from-white to-[#F8FAFC] active:scale-[0.98] shadow-2xs min-h-[90px] sm:min-h-[110px]"
                     >
                       <div className="flex items-center justify-between w-full mb-1.5 sm:mb-2">
-                        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white transition-colors shrink-0">
-                          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220] group-hover:text-white" />
+                        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs transition-colors shrink-0">
+                          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
                         </div>
                         <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 transition-all" />
                       </div>

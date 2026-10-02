@@ -1365,7 +1365,9 @@ export default function DashboardClient({
       {/* ========================================================= */}
       {/* 2. 6-STAGE FACTORY FLOOR LIFECYCLE KPI CARDS               */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-        {/* STAGE 1: TOTAL STOCKS (PENDING / UNALLOTTED PIPELINE) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
+        
+        {/* STAGE 1: TOTAL STOCKS (PENDING / UNALLOTTED PIPELINE) */}
         <div 
           onClick={() => setActiveDrilldownStage('TOTAL_STOCKS')}
           className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 hover:border-black/25 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group relative shadow-2xs select-none hover:-translate-y-0.5"
@@ -1604,7 +1606,7 @@ export default function DashboardClient({
                 Gate Pass & Dispatched
               </p>
             </div>
-          </div>         </div>
+          </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
