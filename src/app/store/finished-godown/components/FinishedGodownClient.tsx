@@ -82,7 +82,7 @@ export function FinishedGodownClient() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          className="px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all inline-flex items-center gap-2 shrink-0 cursor-pointer active:scale-[0.98]"
         >
           <Ship className="w-4 h-4" />
           <span>Assign Container Stuffing</span>
@@ -184,7 +184,7 @@ export function FinishedGodownClient() {
                 onClick={() => setBayFilter(tab)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
                   active 
-                    ? 'bg-[#0B1220] text-white shadow-2xs' 
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold' 
                     : 'bg-[#F0FDFA] text-slate-600 hover:text-slate-900 hover:bg-[#E6FFFA] border border-black/15'
                 }`}
               >

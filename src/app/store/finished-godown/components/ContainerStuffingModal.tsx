@@ -224,14 +224,14 @@ export function ContainerStuffingModal({ isOpen, onClose, availablePallets }: Co
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || selectedPalletIds.length === 0}
-              className="px-5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-mono font-bold hover:bg-[#162032] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-4.5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Stuffing Container...' : 'Generate Customs Gate Pass'}</span>
