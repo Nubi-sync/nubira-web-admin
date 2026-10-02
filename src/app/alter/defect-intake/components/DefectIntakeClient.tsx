@@ -83,9 +83,9 @@ export function DefectIntakeClient({ userEmail, companyName }: DefectIntakeClien
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 text-white" />
           <span>Log Inward Defect (Form 1)</span>
         </button>
       </div>
