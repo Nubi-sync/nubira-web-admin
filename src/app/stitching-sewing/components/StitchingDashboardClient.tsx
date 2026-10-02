@@ -718,10 +718,10 @@ export function StitchingDashboardClient({
           <button
             type="button"
             onClick={() => setIsAddTaskOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer shrink-0"
           >
-            <Plus className="w-4 h-4 text-[#14C8B4]" />
-            <span>+ Assign Sewing Task</span>
+            <Plus className="w-4 h-4 text-white stroke-[2.5]" />
+            <span>Assign Sewing Task</span>
           </button>
 
           <button
@@ -869,13 +869,13 @@ export function StitchingDashboardClient({
                   onClick={() => setStatusFilter(tab)}
                   className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer text-xs flex items-center gap-1.5 ${
                     active
-                      ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                      ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                       : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                   }`}
                 >
                   <span>{label}</span>
                   <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                    active ? 'bg-[#0B1220]/15 text-[#0B1220] font-bold' : 'bg-slate-100 text-slate-600'
                   }`}>
                     {count}
                   </span>
@@ -913,9 +913,9 @@ export function StitchingDashboardClient({
               <button
                 type="button"
                 onClick={() => setIsAddTaskOpen(true)}
-                className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl shadow-xs"
+                className="mt-3 inline-flex items-center gap-2 px-4.5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-white stroke-[2.5]" />
                 <span>Assign Sewing Task</span>
               </button>
             </div>
@@ -1032,9 +1032,9 @@ export function StitchingDashboardClient({
                     <button
                       type="button"
                       onClick={() => setIsAddTaskOpen(true)}
-                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#162032] transition-all cursor-pointer"
+                      className="mt-4 inline-flex items-center gap-2 px-4.5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer transition-all"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 text-white stroke-[2.5]" />
                       <span>Assign First Sewing Task</span>
                     </button>
                   </td>
