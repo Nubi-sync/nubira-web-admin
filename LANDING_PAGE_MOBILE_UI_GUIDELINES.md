@@ -22,11 +22,12 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 1. Deep Obsidian (#0B1220)       ── Mobile Headings & Full-Width CTA Buttons│
-│ 2. Deep Royal Blue (#1D4ED8)      ── Highlighted Header Terms (No Wrapping)  │
-│ 3. Electric Mint (#14C8B4)        ── Headline Underlines & Verified Checkmarks│
-│ 4. Slate Charcoal (#64748B)       ── Subtitles & Concise 2-3 Line Flow       │
-│ 5. Crisp Tech Canvas (#F8FAFC)    ── Clean Mobile Surface Background        │
+│ 1. Deep Obsidian (#0B1220)       ── Mobile Headings & Structural Surfaces   │
+│ 2. Deep Royal Blue (#1D4ED8)      ── Full-Width Primary Action Buttons & Terms│
+│ 3. Electric Mint / Cyan (#14C8B4) ── Active Tab Pills & Verified Checkmarks  │
+│ 4. Crisp White (Bordered)         ── Secondary Action Buttons (Sign In/Reset)│
+│ 5. Slate Charcoal (#64748B)       ── Subtitles & Concise 2-3 Line Flow       │
+│ 6. Crisp Tech Canvas (#F8FAFC)    ── Clean Mobile Surface Background        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -47,8 +48,8 @@
   * **H1 Headline**: `text-[30px] sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#0B1220] leading-[1.2]` with **"Garment Business"** (`text-[#1D4ED8]`) locked to a single unbroken line with `#14C8B4` mint underline accent.
   * **Hero Subtitle**: `text-[15px] sm:text-xl text-slate-600 leading-relaxed font-normal` (concise 3-line flow preventing dense wrapping on 390px screens).
   * **Action Buttons**: Full-width stacked buttons (`w-full py-3.5 rounded-xl text-[15.5px]`):
-    * Primary: Deep Obsidian `#0B1220` ("Request a Live Demo") with `#14C8B4` arrow icon
-    * Secondary: White with `#0B1220` text, 2px border ("Staff Login to Portal")
+    * Primary: Deep Royal Blue `#1D4ED8 hover:bg-[#1E40AF]` ("Request a Live Demo") with white text and `#14C8B4` arrow icon
+    * Secondary: Crisp White with `border border-slate-200/80` and `text-slate-700 hover:text-[#0B1220]` ("Staff Login to Portal")
   * **3 Key Benefit Pointers**: Vertically stacked with `#14C8B4` checkmarks (`text-sm font-semibold text-slate-700`).
   * **Pure Black Outline Smartphone Mockup**: 
     * Sleek black outline phone chassis (`border-[3px] border-slate-900 rounded-[36px] bg-white p-2.5 shadow-xl`) and top camera notch pill.

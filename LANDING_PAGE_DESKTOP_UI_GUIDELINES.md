@@ -11,9 +11,10 @@ The Zigza marketing platform uses a high-contrast modern industrial design syste
 
 | Token / Asset | Hex Code / Value | Hierarchy Level | Role & Usage |
 | :--- | :--- | :--- | :--- |
-| **Deep Obsidian Navy** | `#0B1220` / `#162032` | **Level 1 (Core Authority)** | Primary headlines (`h1`, `h2`), primary CTA buttons, top navbar headers, dark card surfaces, and high-priority modal headers. |
-| **Deep Royal Blue** | `#1D4ED8` | **Level 2 (Keyword Highlighter)** | **Strategic keyword highlighting in headers only.** Used on high-intent terms (*"Garment Business"*, *"Zigza"*, *"Garment Factory"*, *"Synchronized Factory Pipeline"*, *"Modern Plants"*, *"Live Demo"*). |
-| **Electric Mint / Teal** | `#14C8B4` | **Level 3 (Brand Accent & Telemetry)** | Signature headline underlines (`decoration-[#14C8B4]`), live sync pulsing indicators, active tab indicators, metric badges, button arrow icons, and verification checkmarks. |
+| **Deep Obsidian Navy** | `#0B1220` / `#162032` | **Level 1 (Core Structural Authority)** | Primary headlines (`h1`, `h2`), top navbar text, dark card surfaces, and modal title headers. **STRICTLY PROHIBITED for interactive buttons or active status pills.** |
+| **Deep Royal Blue** | `#1D4ED8` | **Level 2 (Primary CTAs & Keyword Highlighter)** | **Primary Interactive Action Buttons across entire platform** (`bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold shadow-sm shadow-blue-500/20`), plus strategic keyword highlighting in headers. |
+| **Electric Mint / Cyan** | `#14C8B4` | **Level 3 (Brand Accent & Active Tab Pills)** | **Active Tab / Status Filter Pills** (`bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs`), signature headline underlines (`decoration-[#14C8B4]`), live sync pulsing indicators, metric badges, button arrow icons, and verification checkmarks. |
+| **Crisp White Secondary** | `#FFFFFF` / `border-slate-200` | **Level 3B (Secondary Action Buttons)** | **Secondary Interactive Action Buttons across entire platform** (`bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200 shadow-2xs font-semibold rounded-xl`). |
 | **Crisp Tech Canvas** | `#F8FAFC` / `#FFFFFF` | **Surface (Canvas)** | Ultra-clean tech canvas replacing warm parchment, maximizing dynamic range and preventing eye fatigue. |
 | **Soft Mint Surface Wash** | `#F0FDFA` | **Surface (Accent Wash)** | Subtle 5% mint tint container background for active feature cards, status pills, and icon badges (`border-[#14C8B4]/30`). |
 | **Slate Charcoal** | `#1E293B` / `#334155` / `#64748B` | **Level 4 (Body Copy & Subtitles)** | High-contrast body text (15px–16px), section subtitles, table values, and modal explanatory text. |
@@ -28,41 +29,40 @@ To maintain an authoritative interface without visual clutter, colors MUST follo
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 1. Deep Obsidian (#0B1220)       ── Primary Authority (Headings & CTAs)     │
-│ 2. Deep Royal Blue (#1D4ED8)      ── Keyword Highlighter (Header Terms Only) │
-│ 3. Electric Mint (#14C8B4)        ── Brand Accent (Underlines, Pulses, Tabs)│
-│ 4. Slate Charcoal (#1E293B/#64748B) ── High-Legibility Subtitles & Body Copy │
-│ 5. Crisp Tech Canvas (#F8FAFC)    ── Open, High-Contrast Surface Canvas    │
+│ 1. Deep Obsidian (#0B1220)       ── Primary Authority (Headings & Labels)   │
+│ 2. Deep Royal Blue (#1D4ED8)      ── Primary CTAs & Header Terms             │
+│ 3. Electric Mint / Cyan (#14C8B4) ── Active Tab Pills, Underlines & Pulses   │
+│ 4. Crisp Tech White (Bordered)    ── Secondary Action Buttons (Sign In/Reset)│
+│ 5. Slate Charcoal (#1E293B/#64748B) ── High-Legibility Subtitles & Body Copy │
+│ 6. Crisp Tech Canvas (#F8FAFC)    ── Open, High-Contrast Surface Canvas     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Hierarchy Rules & Strategic Influence:
 
 1. **Level 1 — Primary Structural Authority (`#0B1220`)**:
-   * **Where to Apply**: `<h1>` and `<h2>` headline base text, primary interactive CTA buttons (*"Request a Live Demo"*), top navigation brand text, and active interactive tab pills.
-   * **Visual Influence**: Sets an executive, trustworthy, and commanding tone that immediately separates Zigza from toy software or generic SaaS templates.
+   * **Where to Apply**: `<h1>` and `<h2>` headline base text, top navigation brand text, and structural surfaces.
+   * **STRICT PROHIBITION**: Never use solid `#0B1220` or `#162032` for interactive buttons or active filter pills.
+   * **Visual Influence**: Sets an executive, trustworthy, and commanding tone that anchors data density.
 
-2. **Level 2 — Strategic Keyword Highlighter (`#1D4ED8`)**:
-   * **Where to Apply**: **STRICTLY on key highlight words inside `<h1>`, `<h2>`, and `<h3>` headers.**
-     * *Hero*: The Smarter Way to Run Your `<span class="text-[#1D4ED8]">Garment Business</span>`
-     * *Comparison*: Why Garment Factories Are Switching from Paper to `<span class="text-[#1D4ED8]">Zigza</span>`
-     * *Modular Engines*: Everything You Need to Run Your `<span class="text-[#1D4ED8]">Garment Factory</span>`
-     * *Pipeline*: The 8-Step `<span class="text-[#1D4ED8]">Synchronized Factory Pipeline</span>`
-     * *Hubs*: Trusted Across India's `<span class="text-[#1D4ED8]">Garment Hubs</span>`
-     * *Pricing*: Predictable Plans for `<span class="text-[#1D4ED8]">Modern Plants</span>`
-     * *FAQ*: Frequently Asked `<span class="text-[#1D4ED8]">Questions</span>`
-     * *Contact*: Talk With `<span class="text-[#1D4ED8]">Our Team</span>`
-     * *Modal*: Request a `<span class="text-[#1D4ED8]">Live Demo</span>`
+2. **Level 2 — Primary Action CTAs & Keyword Highlighter (`#1D4ED8`)**:
+   * **Where to Apply**: 
+     * **ALL Primary Action Buttons**: Header actions (`+ Book New PO`, `+ Add Worker`), modal submission buttons, and hero CTAs (`bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold shadow-sm shadow-blue-500/20`).
+     * **Header Keyword Highlights**: Key highlight words inside `<h1>`, `<h2>`, and `<h3>` headers (*"Garment Business"*, *"Zigza"*, *"Garment Factory"*, *"Synchronized Factory Pipeline"*).
    * **Visual Influence & Contrast**:
-     * Carries **equal optical weight (6.8:1 contrast)** to the surrounding Obsidian `#0B1220` text, ensuring key terms do not look lighter or weaker.
-     * Directs scanning eyes instantly to core value propositions.
-     * **Constraint**: Never apply `#1D4ED8` to paragraph body copy or subtitles to avoid visual noise.
+     * Strong chromatic visual capture (5.83:1 contrast ratio against white text). Instantly communicates primary interactivity.
 
-3. **Level 3 — Dynamic Accent & Telemetry Underlines (`#14C8B4`)**:
-   * **Where to Apply**: Underline decoration strokes (`decoration-[#14C8B4] decoration-4 underline-offset-8`), animated live floor sync pulses (`bg-[#14C8B4] animate-pulse`), CTA button arrow glyphs, and verification checkmark icons.
-   * **Visual Influence**: Communicates high-speed automated data flow, precision cutting, and zero-waste synchronization.
+3. **Level 3 — Dynamic Accent & Active Tab / Filter Pills (`#14C8B4`)**:
+   * **Where to Apply**: 
+     * **Active Filter / Status Tabs**: Selected tab pill state (`bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs`).
+     * Underline decoration strokes (`decoration-[#14C8B4] decoration-4 underline-offset-8`), animated live floor sync pulses (`bg-[#14C8B4] animate-pulse`), CTA button arrow glyphs, and verification checkmark icons.
+   * **Visual Influence**: High-speed automated data flow, precision cutting, and instantly identifiable active states.
 
-4. **Level 4 — Body Typography & Descriptions (`#64748B` / `#1E293B`)**:
+4. **Level 3B — Secondary Action Buttons (Crisp White + Slate Border)**:
+   * **Where to Apply**: Secondary actions like *"Sign In"*, *"Cancel"*, *"Reset Filters"*, *"Issue Challan"*, *"Record Counting"*.
+   * **Styling**: `bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200/80 shadow-2xs font-semibold rounded-xl`.
+
+5. **Level 4 — Body Typography & Descriptions (`#64748B` / `#1E293B`)**:
    * **Where to Apply**: Subtitles (`text-slate-600`), module feature bullets, process descriptions, and FAQ answers.
    * **Visual Influence**: Clean, neutral reading experience that lets headings and badges guide the page flow.
 
@@ -90,8 +90,8 @@ To maintain an authoritative interface without visual clutter, colors MUST follo
   * Highlight: `<span class="text-[#1D4ED8] underline decoration-[#14C8B4] decoration-4 underline-offset-8">Garment Business</span>`
 * **Subtitle (Strict 2-Line Flow)**: `text-[15px] sm:text-xl text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto`
 * **CTAs**:
-  * Primary: Deep Obsidian `#0B1220` with `#14C8B4` arrow icon (*"Request a Live Demo"*)
-  * Secondary: White with `#0B1220` text, 2px border (*"Staff Login to Portal"*)
+  * Primary: Deep Royal Blue `#1D4ED8 hover:bg-[#1E40AF]` with white text and `#14C8B4` arrow icon (*"Request a Live Demo"*)
+  * Secondary: Crisp White with `border border-slate-200/80` and `text-slate-700 hover:text-[#0B1220]` (*"Staff Login to Portal"*)
 * **3 Benefit Pointers**: `text-sm sm:text-[14.5px] font-semibold text-slate-700` with `#14C8B4` checkmarks.
 
 ---
