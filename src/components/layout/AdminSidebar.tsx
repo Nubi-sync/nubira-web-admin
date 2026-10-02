@@ -90,7 +90,6 @@ const navSections: NavSection[] = [
     section: 'Production',
     items: [
       { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
-      { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
     ],
   },
   {
@@ -358,7 +357,6 @@ export function AdminSidebar({
         section: 'Godown Shift',
         items: [
           { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
-          { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
         ],
       },
       {
@@ -560,7 +558,6 @@ export function AdminSidebar({
           section: 'Production',
           items: [
             { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
-            { label: 'Godown & Inventory', href: '/stitching-sewing/inventory', icon: Warehouse },
           ],
         },
         {

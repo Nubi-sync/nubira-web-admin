@@ -20,7 +20,8 @@ export async function fetchInventoryPageDataAction(companyName?: string) {
         { data: rawStoreTransactions },
         { data: rawAccessories },
         { data: rawTruckInwardsData },
-        { data: rawPendingQcAllotmentsData }
+        { data: rawPendingQcAllotmentsData },
+        { data: rawActiveAllotments }
       ] = await Promise.all([
         supabaseAdmin
           .from('articles')
@@ -124,7 +125,23 @@ export async function fetchInventoryPageDataAction(companyName?: string) {
           .or('qc_status.eq.PENDING_ADMIN_APPROVAL,qc_status.eq.APPROVED_FOR_STORE')
           .neq('store_inward_status', 'INWARDED')
           .order('created_at', { ascending: false })
-          .limit(60)
+          .limit(60),
+
+        supabaseAdmin
+          .from('allotments')
+          .select(`
+            id,
+            target_qty,
+            status,
+            qc_status,
+            qc_total_passed,
+            qc_total_alter,
+            created_at,
+            article:articles(id, art_no, description)
+          `)
+          .in('status', ['IN_PROGRESS', 'PENDING'])
+          .order('created_at', { ascending: false })
+          .limit(1000)
       ])
 
       return {
@@ -132,7 +149,8 @@ export async function fetchInventoryPageDataAction(companyName?: string) {
         rawStoreTransactions: rawStoreTransactions || [],
         rawAccessories: rawAccessories || [],
         rawTruckInwardsData: rawTruckInwardsData || [],
-        rawPendingQcAllotmentsData: rawPendingQcAllotmentsData || []
+        rawPendingQcAllotmentsData: rawPendingQcAllotmentsData || [],
+        rawActiveAllotments: rawActiveAllotments || []
       }
     },
     120,
