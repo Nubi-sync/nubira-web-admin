@@ -319,12 +319,6 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
               )}
             </button>
           </div>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Register Presser</span>
-                </>
-              )}
-            </button>
-          </div>
 
         </form>
       </div>
