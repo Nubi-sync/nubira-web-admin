@@ -98,7 +98,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
         <div className="flex items-center gap-2.5">
           <Link
             href="/ready-goods/worker"
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-black bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer"
           >
             <span>Worker Terminal</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -106,7 +106,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
           >
             <UserPlus className="w-4 h-4" />
             <span>Add New Worker</span>

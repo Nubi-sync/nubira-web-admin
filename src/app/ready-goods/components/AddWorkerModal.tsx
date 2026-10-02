@@ -214,19 +214,19 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
                     }}
                     className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                       isSelected
-                        ? 'border-[#0B1220] bg-[#F0FDFA] ring-1 ring-[#0B1220]'
+                        ? 'border-[#1D4ED8] bg-[#F0FDFA] ring-1 ring-[#1D4ED8]'
                         : 'border-slate-200 bg-white hover:border-slate-300'
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      isSelected ? 'bg-[#0B1220] text-white' : 'bg-slate-100 text-slate-500'
+                      isSelected ? 'bg-[#1D4ED8] text-white' : 'bg-slate-100 text-slate-500'
                     }`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-900">{role.label}</span>
-                        {isSelected && <Check className="w-4 h-4 text-[#0B1220] stroke-[3]" />}
+                        {isSelected && <Check className="w-4 h-4 text-[#1D4ED8] stroke-[3]" />}
                       </div>
                       <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{role.desc}</p>
                     </div>
@@ -277,14 +277,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, onWorkerAdded, comp
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-60 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-60 cursor-pointer active:scale-[0.98]"
             >
               {isSubmitting ? 'Registering...' : 'Register Worker'}
             </button>

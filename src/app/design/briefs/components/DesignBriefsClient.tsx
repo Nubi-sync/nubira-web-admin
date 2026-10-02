@@ -405,7 +405,7 @@ export function DesignBriefsClient({
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4 text-white" />
             <span>New Brief</span>
@@ -580,7 +580,7 @@ export function DesignBriefsClient({
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
                   statusFilter === st
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -612,7 +612,7 @@ export function DesignBriefsClient({
               onClick={() => setCategoryFilter('ALL')}
               className={`px-2.5 py-1 rounded-lg font-medium transition-all shrink-0 cursor-pointer border ${
                 categoryFilter === 'ALL'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -626,13 +626,13 @@ export function DesignBriefsClient({
                   onClick={() => setCategoryFilter(cat)}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-all shrink-0 cursor-pointer border inline-flex items-center gap-1.5 ${
                     categoryFilter === cat
-                      ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold'
+                      ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <span>{cat}</span>
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    categoryFilter === cat ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
+                    categoryFilter === cat ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-100 text-slate-700'
                   }`}>
                     {count}
                   </span>
