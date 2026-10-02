@@ -239,7 +239,7 @@ export function MerchandiseStoreClient({
           <button
             type="button"
             onClick={() => handleOpenIssueModal()}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
             <Scissors className="w-4 h-4 text-white" />
             <span>Issue to Cutting</span>
@@ -453,7 +453,7 @@ export function MerchandiseStoreClient({
                     <button
                       type="button"
                       onClick={() => handleOpenIssueModal(f)}
-                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] cursor-pointer shadow-2xs"
+                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] cursor-pointer shadow-sm shadow-blue-500/20"
                     >
                       Issue to Cut
                     </button>
@@ -620,14 +620,14 @@ export function MerchandiseStoreClient({
                 <button
                   type="button"
                   onClick={() => setIsBookModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Booking'}
                 </button>
@@ -789,14 +789,14 @@ export function MerchandiseStoreClient({
                 <button
                   type="button"
                   onClick={() => setIsIssueModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Dispatch'}
                 </button>

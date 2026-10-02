@@ -110,9 +110,9 @@ export default function TenantFactoriesPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
             >
-              <Plus className="w-4 h-4 text-[#14C8B4]" />
+              <Plus className="w-4 h-4 text-white" />
               <span>Provision New Tenant</span>
             </button>
           </div>
@@ -224,7 +224,7 @@ export default function TenantFactoriesPage() {
                     onClick={() => setStatusFilter(tab)}
                     className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm ${
                       active 
-                        ? 'bg-[#0B1220] text-white shadow-xs font-semibold' 
+                        ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs' 
                         : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                     }`}
                   >
@@ -307,9 +307,9 @@ export default function TenantFactoriesPage() {
                           <button
                             type="button"
                             onClick={() => setIsModalOpen(true)}
-                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all active:scale-[0.98]"
                           >
-                            <Plus className="w-4 h-4 text-[#14C8B4]" />
+                            <Plus className="w-4 h-4 text-white" />
                             <span>Provision First Client Factory</span>
                           </button>
                         )}
