@@ -617,7 +617,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleStartPrinting(task.id, task.task_ref, task.table_number, task.alloted_hours)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2"
                     >
                       <Play className="w-4 h-4 fill-current" />
                       <span>Start Printing on {task.table_number || 'Print Table 01'}</span>
@@ -628,7 +628,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleFinishWork(task.id, task.task_ref, task.pieces_to_print)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4 text-white" />
                       <span>✓ Finish Work ({task.pieces_to_print.toLocaleString('en-IN')} Pcs Printed)</span>
