@@ -500,7 +500,7 @@ export function WashingDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs sm:text-sm font-mono font-bold text-slate-700 hover:text-[#0B1220] transition-colors shadow-2xs cursor-pointer shrink-0"
             title="Sync latest live floor updates"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
@@ -511,10 +511,10 @@ export function WashingDashboardClient({
           <button
             type="button"
             onClick={() => setIsAddTaskOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 min-h-[38px] px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98] shrink-0"
+            className="inline-flex items-center justify-center gap-2 min-h-[42px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98] shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            <span>+ Add Task Row</span>
+            <Plus className="w-4 h-4 text-white stroke-[2.5]" />
+            <span>Add Task Row</span>
           </button>
         </div>
       </div>
