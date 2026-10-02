@@ -106,7 +106,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
         <div className="grid grid-cols-2 gap-2">
           <div className={`p-2.5 rounded-xl border text-center transition-all ${
             step === 1 
-              ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs' 
+              ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs' 
               : 'bg-[#F0FDFA] text-slate-600 border-black/10'
           }`}>
             <span className="text-[10px] font-mono uppercase font-bold tracking-wider block opacity-80">
@@ -119,7 +119,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
 
           <div className={`p-2.5 rounded-xl border text-center transition-all ${
             step === 2 
-              ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs' 
+              ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs' 
               : 'bg-[#F0FDFA] text-slate-600 border-black/10'
           }`}>
             <span className="text-[10px] font-mono uppercase font-bold tracking-wider block opacity-80">
@@ -340,7 +340,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Step 1</span>
@@ -349,7 +349,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -358,7 +358,7 @@ export function RecordTruckInwardModal({ isOpen, onClose }: RecordTruckInwardMod
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-mono font-bold hover:bg-[#162032] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               {step === 1 ? (
                 <>

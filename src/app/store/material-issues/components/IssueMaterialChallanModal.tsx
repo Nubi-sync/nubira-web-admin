@@ -323,14 +323,14 @@ export function IssueMaterialChallanModal({ isOpen, onClose }: IssueMaterialChal
             <button
               type="button"
               onClick={onClose}
-              className="px-4.5 py-2.5 rounded-xl border border-black/15 text-sm font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#0B1220] text-white text-sm font-bold hover:bg-[#162032] transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+              className="px-5 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-sm font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Dispatching...' : 'Authorize Challan Dispatch'}</span>
