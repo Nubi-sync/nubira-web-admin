@@ -846,13 +846,13 @@ export function ZigzaLandingPageClient({
               <>
                 <Link
                   href="/login"
-                  className="px-4.5 py-2.5 rounded-xl text-[14.5px] font-semibold text-slate-900 bg-white border border-black hover:bg-black hover:text-white shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-[15px] font-semibold text-slate-900 bg-white border border-black hover:bg-black hover:text-white shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-5 py-2.5 rounded-xl text-[14.5px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                  className="px-6 py-2.5 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 transition-all cursor-pointer flex items-center gap-2 active:scale-95 animate-try-free-blink"
                 >
                   <span>Try For Free</span>
                   <ArrowRight className="w-4 h-4 text-white" />
@@ -932,7 +932,7 @@ export function ZigzaLandingPageClient({
                   <Link
                     href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20"
+                    className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20 animate-try-free-blink"
                   >
                     <span>Try For Free</span>
                     <ArrowRight className="w-4 h-4 text-white" />
@@ -1002,7 +1002,7 @@ export function ZigzaLandingPageClient({
         </div>
 
         {/* Subtle Indian Textile Heritage Line Art Motif Watermark (Starts flush from Desktop Left) */}
-        <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[480px] xl:w-[560px] pointer-events-none select-none z-0 overflow-hidden mix-blend-multiply opacity-[0.20]">
+        <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[480px] xl:w-[560px] pointer-events-none select-none z-0 overflow-hidden mix-blend-multiply opacity-[0.16]">
           <img
             src="/indian_textile_motif.jpg"
             alt=""
