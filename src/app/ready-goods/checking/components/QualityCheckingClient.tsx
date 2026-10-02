@@ -83,7 +83,7 @@ export function QualityCheckingClient({ companyName }: QualityCheckingClientProp
             <span>Finishing Floor Quality Inspection Table</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-            Post-Wash & Iron Quality Checking
+            Post-Wash &amp; Iron <span className="text-[#1D4ED8]">Quality Checking</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Incoming garments from Industrial Washing & Steam Pressing audited for Cutting, Printing, Embroidery, Wash, and Ironing precision.
