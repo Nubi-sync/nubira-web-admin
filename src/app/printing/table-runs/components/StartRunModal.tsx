@@ -306,13 +306,13 @@ export function StartRunModal({ isOpen, onClose, onSuccess }: StartRunModalProps
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Authorize & Start Run</span>

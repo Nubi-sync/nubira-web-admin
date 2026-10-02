@@ -108,7 +108,7 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
           <Link
             href="/printing"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/15 text-xs font-mono font-bold text-slate-700 hover:text-[#0B1220] hover:bg-[#F0FDFA] transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Floor</span>
@@ -117,7 +117,7 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
           <button
             type="button"
             onClick={() => setIsStartModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Dispatch Run</span>
@@ -253,7 +253,7 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
                     <td className="py-3 px-4 text-right space-x-1.5">
                       <button
                         onClick={() => setSelectedRunForLog(run)}
-                        className="px-2.5 py-1 rounded-lg bg-white border border-black/15 hover:bg-[#F0FDFA] text-slate-700 text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                        className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[11px] font-mono font-semibold transition-all cursor-pointer shadow-2xs"
                       >
                         Log Output
                       </button>
@@ -261,7 +261,7 @@ export function TableRunsClient({ initialRuns }: TableRunsClientProps = {}) {
                       {run.status !== 'COMPLETED' && (
                         <button
                           onClick={() => handleAdvanceStatus(run)}
-                          className="px-2.5 py-1 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-sm shadow-blue-500/20"
                         >
                           {run.status === 'QUEUED' ? 'Start Print' : run.status === 'PRINTING' ? 'Send to Oven' : 'Complete'}
                         </button>
