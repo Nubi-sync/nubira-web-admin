@@ -335,6 +335,26 @@ export function ZigzaLandingPageClient({
   const [phoneDuplicate, setPhoneDuplicate] = useState<{ inUse: boolean; message?: string } | null>(null)
   const [emailDuplicate, setEmailDuplicate] = useState<{ inUse: boolean; message?: string } | null>(null)
 
+  // ── Hero 3-Second Crossfade Carousel Slides ──
+  const [currentHeroSlide, setCurrentHeroSlide] = useState(0)
+  const heroSlides = [
+    {
+      src: '/hero_slide_1.jpg',
+      fallback: '/hero_warehouse_test.png',
+      alt: 'Garment factory manager monitoring production output on industrial dashboard',
+    },
+    {
+      src: '/hero_slide_2.jpg',
+      fallback: '/hero_textile_workplace.jpg',
+      alt: 'Skilled apparel craftswomen working diligently at computerized sewing stations',
+    },
+    {
+      src: '/hero_slide_3.jpg',
+      fallback: '/hero_desktop_blend.jpg',
+      alt: 'Apparel quality supervisor using digital tablet on the garment assembly floor',
+    },
+  ]
+
   const handlePhoneChange = (val: string) => {
     // Strip non-digits
     let digits = val.replace(/\D/g, '')
@@ -533,6 +553,14 @@ export function ZigzaLandingPageClient({
     } catch (_) {}
   }
 
+  // ── Auto-advance hero slides every 3 seconds with smooth cross-fade ──
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentHeroSlide(prev => (prev + 1) % heroSlides.length)
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [heroSlides.length])
+
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
     const element = document.getElementById(id)
@@ -629,7 +657,7 @@ export function ZigzaLandingPageClient({
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2.5 rounded-xl text-[14.5px] font-semibold text-slate-700 hover:text-[#0B1220] bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  className="px-4.5 py-2.5 rounded-xl text-[14.5px] font-semibold text-slate-900 bg-white border border-black hover:bg-black hover:text-white shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                 >
                   Sign In
                 </Link>
@@ -712,7 +740,7 @@ export function ZigzaLandingPageClient({
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-2.5 rounded-xl text-[15px] font-semibold text-slate-700 hover:text-[#0B1220] border border-slate-200 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
+                    className="w-full py-2.5 rounded-xl text-[15px] font-semibold text-slate-900 border border-black bg-white hover:bg-black hover:text-white transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
                   >
                     <span>Sign In</span>
                   </Link>
@@ -724,32 +752,62 @@ export function ZigzaLandingPageClient({
       </header>
 
       {/* =================================================================== */}
+      {/* 2. HERO SECTION — 60/40 DESKTOP RATIO WITH 3S CROSSFADE SLIDESHOW   */}
       {/* =================================================================== */}
-      {/* =================================================================== */}
-      {/* 2. HERO SECTION — 50/50 DESKTOP SPLIT WITH FULL-BLEED RIGHT IMAGE    */}
-      {/* =================================================================== */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-r from-[#F8FAFC] via-[#F1F6FD] to-[#EAF3FD]">
-        {/* Desktop-Only 50% Full-Bleed Image: Extends to the far right edge of screen with razor-sharp clarity & smooth left-edge fade */}
-        <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-1/2 xl:w-[50%] h-full z-0 select-none pointer-events-none overflow-hidden">
-          <img
-            src="/hero_warehouse_test.png"
-            alt="Textile & Garment raw material warehouse storage"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Smooth left-edge gradient blend dissolving into the hero background blue */}
-          <div className="absolute inset-y-0 left-0 w-36 xl:w-52 bg-gradient-to-r from-[#F1F6FD] via-[#F1F6FD]/60 to-transparent pointer-events-none" />
+      <section className="relative w-full overflow-hidden bg-gradient-to-r from-[#F8FAFC] via-[#F1F6FD] to-[#EAF3FD] min-h-[660px] lg:min-h-[720px] xl:min-h-[760px] flex items-center">
+        {/* Desktop-Only 60% Full-Bleed Slideshow: Smooth 3-second Cross-fade */}
+        <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-[58%] xl:w-[60%] h-full z-0 select-none pointer-events-none overflow-hidden">
+          {heroSlides.map((slide, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                currentHeroSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            >
+              <img
+                src={slide.src}
+                alt={slide.alt}
+                onError={(e) => {
+                  if (slide.fallback && e.currentTarget.src !== slide.fallback) {
+                    e.currentTarget.src = slide.fallback
+                  }
+                }}
+                className="w-full h-full object-cover object-center transform transition-transform duration-7000 ease-out scale-100"
+              />
+            </div>
+          ))}
+
+          {/* Smooth left-edge multi-stop gradient blend dissolving into the hero background */}
+          <div className="absolute inset-y-0 left-0 w-36 sm:w-48 lg:w-64 xl:w-80 bg-gradient-to-r from-[#F1F6FD] via-[#F1F6FD]/80 to-transparent pointer-events-none z-20" />
           {/* Subtle top and bottom seam softeners */}
-          <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[#F8FAFC]/60 to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#F8FAFC]/60 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#F8FAFC]/80 to-transparent pointer-events-none z-20" />
+          <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#F8FAFC]/80 to-transparent pointer-events-none z-20" />
+
+          {/* Slide Indicator Dots (Interactive on desktop) */}
+          <div className="absolute bottom-6 right-8 z-30 flex items-center gap-2 pointer-events-auto bg-black/40 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-md">
+            {heroSlides.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCurrentHeroSlide(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  currentHeroSlide === idx
+                    ? 'w-6 h-2 bg-[#14C8B4] shadow-xs'
+                    : 'w-2 h-2 bg-white/60 hover:bg-white'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="relative z-10 max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pt-8 sm:pt-14 lg:pt-20 pb-14 sm:pb-20 lg:pb-28">
+        <div className="relative z-10 w-full max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pt-10 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
 
-            {/* ── LEFT COLUMN (50% Width on Desktop): Clean Text, Buttons, Checklist ── */}
-            <div className="w-full lg:w-[48%] xl:w-[46%] space-y-5 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
+            {/* ── LEFT COLUMN (40% Width on Desktop): Clean Text, Buttons, Checklist ── */}
+            <div className="w-full lg:w-[42%] xl:w-[40%] space-y-5 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
               {/* Main Hero Headline */}
-              <h1 className="text-[30px] sm:text-5xl lg:text-[46px] xl:text-[52px] font-bold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.1]">
+              <h1 className="text-[30px] sm:text-5xl lg:text-[44px] xl:text-[50px] font-bold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.12]">
                 The Smarter Way to Run Your{' '}
                 <span className="inline-block whitespace-nowrap text-[#1D4ED8] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
                   Garment Business
@@ -774,9 +832,9 @@ export function ZigzaLandingPageClient({
 
                 <Link
                   href="/login"
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-slate-700 hover:text-[#0B1220] bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-slate-900 bg-white border border-black hover:bg-black hover:text-white shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
                 >
-                  <Lock className="w-4 h-4 text-slate-500" />
+                  <Lock className="w-4 h-4 text-slate-700 group-hover:text-white transition-colors" />
                   <span>Staff Login to Portal</span>
                 </Link>
               </div>
@@ -798,18 +856,45 @@ export function ZigzaLandingPageClient({
               </div>
             </div>
 
-            {/* ── MOBILE-ONLY ILLUSTRATION: Clean card view on mobile (< lg), hidden on desktop ── */}
+            {/* ── MOBILE-ONLY ILLUSTRATION: Clean animated card view on mobile (< lg), hidden on desktop ── */}
             <div className="w-full lg:hidden order-1 flex items-center justify-center">
               <div className="relative w-full max-w-[540px]">
                 {/* Subtle decorative accent behind the mobile card */}
                 <div className="absolute -inset-3 sm:-inset-4 rounded-[32px] bg-gradient-to-br from-[#1D4ED8]/10 via-[#14C8B4]/10 to-transparent blur-xl pointer-events-none" />
-                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl shadow-slate-900/5 group">
-                  <img
-                    src="/hero_warehouse_test.png"
-                    alt="Textile & Garment raw material warehouse storage"
-                    className="w-full h-[220px] sm:h-[340px] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+                <div className="relative h-[240px] sm:h-[350px] rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl shadow-slate-900/5 group">
+                  {heroSlides.map((slide, idx) => (
+                    <div
+                      key={idx}
+                      className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                        currentHeroSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                      }`}
+                    >
+                      <img
+                        src={slide.src}
+                        alt={slide.alt}
+                        onError={(e) => {
+                          if (slide.fallback && e.currentTarget.src !== slide.fallback) {
+                            e.currentTarget.src = slide.fallback
+                          }
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-20" />
+                  {/* Mobile Slide Indicator Dots */}
+                  <div className="absolute bottom-3 right-4 z-30 flex items-center gap-1.5">
+                    {heroSlides.map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={`transition-all duration-300 rounded-full ${
+                          currentHeroSlide === idx
+                            ? 'w-4 h-1.5 bg-[#14C8B4]'
+                            : 'w-1.5 h-1.5 bg-white/60'
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
