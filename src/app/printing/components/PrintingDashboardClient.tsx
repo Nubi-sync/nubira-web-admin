@@ -994,7 +994,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'ALL'
-                    ? 'bg-[#0B1220] text-white shadow-2xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1005,7 +1005,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('ACTIVE')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'ACTIVE'
-                    ? 'bg-[#0B1220] text-white shadow-2xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1016,7 +1016,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('NEEDS_VERIFY')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'NEEDS_VERIFY'
-                    ? 'bg-[#0B1220] text-white shadow-2xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1027,7 +1027,7 @@ export function PrintingDashboardClient({
                 onClick={() => setStatusFilter('COMPLETED')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === 'COMPLETED'
-                    ? 'bg-[#0B1220] text-white shadow-2xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1039,10 +1039,10 @@ export function PrintingDashboardClient({
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-mono font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              <span>+ Add Task Row</span>
+              <Plus className="w-4 h-4 text-white stroke-[2.5]" />
+              <span>Add Task Row</span>
             </button>
           </div>
         </div>
