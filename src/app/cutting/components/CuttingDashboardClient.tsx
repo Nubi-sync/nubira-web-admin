@@ -1036,7 +1036,7 @@ export function CuttingDashboardClient({
                             <button
                               type="button"
                               onClick={() => handleVerifyAndDone(task.id, task.task_ref, task.pieces_to_cut)}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer whitespace-nowrap"
+                              className="px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer whitespace-nowrap"
                               title="Verify work and move pieces from Pending to Completed Cutting"
                             >
                               <CheckCircle2 className="w-4 h-4 text-white" />

@@ -78,9 +78,9 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
 
         <Link
           href="/alter/repair-stations"
-          className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
+          className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-2 shrink-0 cursor-pointer"
         >
-          <Scissors className="w-4 h-4" />
+          <Scissors className="w-4 h-4 text-white" />
           <span>View Active Mending</span>
         </Link>
       </div>

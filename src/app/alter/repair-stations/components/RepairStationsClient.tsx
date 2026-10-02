@@ -85,7 +85,7 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
             setSelectedTicketId(undefined)
             setIsModalOpen(true)
           }}
-          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <FileCheck2 className="w-4 h-4 text-white" />
           <span>Sign Off Repair (Form 2)</span>
@@ -236,9 +236,9 @@ export function RepairStationsClient({ userEmail, companyName }: RepairStationsC
                           setSelectedTicketId(ticket.id)
                           setIsModalOpen(true)
                         }}
-                        className="px-3 py-1 rounded-lg bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1 rounded-lg bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 inline-flex items-center gap-1 cursor-pointer"
                       >
-                        <FileCheck2 className="w-3 h-3" />
+                        <FileCheck2 className="w-3 h-3 text-white" />
                         <span>Sign Off</span>
                       </button>
                     </td>
