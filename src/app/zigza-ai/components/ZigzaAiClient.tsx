@@ -1236,9 +1236,9 @@ export function ZigzaAiClient({
           <button
             type="button"
             onClick={createNewSession}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F0FDFA] hover:bg-[#0B1220] text-[#0B1220] hover:text-white rounded-xl border border-black/15 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 group cursor-pointer"
           >
-            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 text-[#0B1220] group-hover:text-white" />
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 text-white" />
             <span>New Conversation</span>
           </button>
         </div>
@@ -1262,7 +1262,7 @@ export function ZigzaAiClient({
                 }}
                 className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer select-none ${
                   isActive
-                    ? 'bg-[#0B1220] text-white font-bold shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
@@ -1388,8 +1388,8 @@ export function ZigzaAiClient({
               onClick={() => setIsHistoryOpen(prev => !prev)}
               className={`inline-flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 border rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95 ${
                 isHistoryOpen
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
-                  : 'bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-[#F0FDFA] hover:border-slate-300'
+                  ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs'
+                  : 'bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'
               }`}
               title="Toggle chat history"
             >
@@ -1559,7 +1559,7 @@ export function ZigzaAiClient({
               <button
                 type="submit"
                 disabled={!inputPrompt.trim() || isLoading}
-                className="w-9 h-9 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white disabled:opacity-35 transition-all cursor-pointer shadow-xs flex items-center justify-center shrink-0 ml-2"
+                className="w-9 h-9 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white disabled:opacity-35 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex items-center justify-center shrink-0 ml-2"
                 aria-label="Send query"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
