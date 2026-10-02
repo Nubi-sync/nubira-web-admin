@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useEffect } from 'react'
 import { 
   Package, 
   Download, 
@@ -125,15 +125,19 @@ export type PendingQcAllotment = {
   allotment_variants?: Array<{ id: string; color: string; size: string; quantity: number }> | null
 }
 
-interface InventoryClientProps {
+export type InventoryTabKey = 'finished' | 'challans' | 'accessories' | 'dispatch' | 'inward'
+
+export interface InventoryClientProps {
   articles: Article[]
   storeTransactions: StoreTransaction[]
   accessories: Accessory[]
   truckInwards?: TruckInward[]
   pendingQcAllotments?: PendingQcAllotment[]
+  activeAllotments?: any[]
+  isEmbedded?: boolean
+  initialTab?: InventoryTabKey
 }
 
-type TabKey = 'finished' | 'challans' | 'accessories' | 'dispatch' | 'inward'
 type StockStatusFilter = 'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'
 type SortOrder = 'asc' | 'desc'
 
@@ -159,13 +163,22 @@ export function InventoryClient({
   accessories,
   truckInwards = [],
   pendingQcAllotments = [],
+  activeAllotments = [],
+  isEmbedded = false,
+  initialTab = 'finished',
 }: InventoryClientProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>('finished')
+  const [activeTab, setActiveTab] = useState<InventoryTabKey>(initialTab || 'finished')
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<StockStatusFilter>('ALL')
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
   const [isPending, startTransition] = useTransition()
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab)
+    }
+  }, [initialTab])
 
   // Sorting state per column
   const [sortCol, setSortCol] = useState<string>('default')
@@ -206,7 +219,7 @@ export function InventoryClient({
   }
 
   // Switch tabs & reset pagination/filters cleanly
-  const handleTabChange = (tab: TabKey) => {
+  const handleTabChange = (tab: InventoryTabKey) => {
     setActiveTab(tab)
     setCurrentPage(1)
     setStatusFilter('ALL')
@@ -223,29 +236,81 @@ export function InventoryClient({
     }
   }
 
-  // 1. Calculate Finished Goods Stock Matrix
+  // 1. Calculate Finished Goods Stock Matrix (Auto-linked with QC Passed Quantities)
   const finishedStockMatrix = useMemo(() => {
+    // 1. Calculate In-Line Target Qty and QC-Passed Qty from floor allotments
+    const inLineMap: Record<string, number> = {}
+    const qcPassedMap: Record<string, number> = {}
+
+    const allFloorLots = [...(activeAllotments || []), ...(pendingQcAllotments || [])]
+    const seenLotIds = new Set<string>()
+
+    allFloorLots.forEach(al => {
+      if (!al || seenLotIds.has(al.id)) return
+      seenLotIds.add(al.id)
+
+      const rawArt = al.article?.art_no || ''
+      const artNo = rawArt.trim()
+      if (!artNo) return
+
+      const target = Number(al.target_qty) || 0
+      const passed = Number(al.qc_total_passed) || 0
+      const remainingInLine = Math.max(0, target - passed)
+
+      // Map exact article number
+      inLineMap[artNo] = (inLineMap[artNo] || 0) + remainingInLine
+      qcPassedMap[artNo] = (qcPassedMap[artNo] || 0) + passed
+
+      // Also map base article number without suffix letters (e.g. 3293A -> 3293)
+      const baseArt = artNo.replace(/[A-Za-z]+$/, '').trim()
+      if (baseArt && baseArt !== artNo) {
+        inLineMap[baseArt] = (inLineMap[baseArt] || 0) + remainingInLine
+        qcPassedMap[baseArt] = (qcPassedMap[baseArt] || 0) + passed
+      }
+    })
+
     const map: Record<string, {
       art_no: string
       description: string
+      inLineQty: number
       totalInward: number
       totalOutward: number
       balance: number
       variants: Record<string, { in: number, out: number, balance: number }>
     }> = {}
 
+    // Pre-populate with all active factory articles
+    articles.forEach(art => {
+      const artNo = art.art_no || 'Unknown'
+      if (!map[artNo]) {
+        const autoQcPassed = qcPassedMap[artNo] || 0
+        map[artNo] = {
+          art_no: artNo,
+          description: art.description || '-',
+          inLineQty: inLineMap[artNo] || 0,
+          totalInward: autoQcPassed,
+          totalOutward: 0,
+          balance: autoQcPassed,
+          variants: {}
+        }
+      }
+    })
+
+    // Add / overlay manual store_transactions (inward/outward records)
     storeTransactions.forEach(tx => {
       const artNo = tx.article?.art_no || 'Unknown'
       const desc = tx.article?.description || '-'
       const variantKey = (tx.color || 'Standard') + ' / ' + (tx.size || 'Free')
 
       if (!map[artNo]) {
+        const autoQcPassed = qcPassedMap[artNo] || 0
         map[artNo] = {
           art_no: artNo,
           description: desc,
-          totalInward: 0,
+          inLineQty: inLineMap[artNo] || 0,
+          totalInward: autoQcPassed,
           totalOutward: 0,
-          balance: 0,
+          balance: autoQcPassed,
           variants: {}
         }
       }
@@ -290,6 +355,8 @@ export function InventoryClient({
     // Sort
     if (sortCol === 'art_no') {
       list.sort((a, b) => sortOrder === 'asc' ? a.art_no.localeCompare(b.art_no) : b.art_no.localeCompare(a.art_no))
+    } else if (sortCol === 'inline') {
+      list.sort((a, b) => sortOrder === 'asc' ? a.inLineQty - b.inLineQty : b.inLineQty - a.inLineQty)
     } else if (sortCol === 'inward') {
       list.sort((a, b) => sortOrder === 'asc' ? a.totalInward - b.totalInward : b.totalInward - a.totalInward)
     } else if (sortCol === 'balance') {
@@ -297,7 +364,7 @@ export function InventoryClient({
     }
 
     return list
-  }, [storeTransactions, searchTerm, statusFilter, sortCol, sortOrder])
+  }, [articles, storeTransactions, activeAllotments, pendingQcAllotments, searchTerm, statusFilter, sortCol, sortOrder])
 
   // 2. Calculate Raw Materials & Trims Ledger (Accessories)
   const accessoryStockMatrix = useMemo(() => {
@@ -835,81 +902,83 @@ export function InventoryClient({
       <div 
         className="space-y-4 bg-white p-4 sm:p-5 rounded-2xl border border-black/15 shadow-2xs"
       >
-        {/* Top Row: Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          <button
-            type="button"
-            onClick={() => handleTabChange('finished')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
-              activeTab === 'finished'
-                ? 'bg-[#0B1220] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
-            }`}
-          >
-            <Package className="w-4 h-4" />
-            <span>Finished Goods Matrix ({finishedStockMatrix.length})</span>
-          </button>
+        {/* Top Row: Navigation Tabs (Only rendered on standalone /inventory route) */}
+        {!isEmbedded && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => handleTabChange('finished')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+                activeTab === 'finished'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              <span>Finished Goods Matrix ({finishedStockMatrix.length})</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTabChange('challans')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
-              activeTab === 'challans'
-                ? 'bg-[#0B1220] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Supplier Challans & GRN ({filteredChallans.length})</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => handleTabChange('challans')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+                activeTab === 'challans'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Supplier Challans &amp; GRN ({filteredChallans.length})</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTabChange('accessories')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
-              activeTab === 'accessories'
-                ? 'bg-[#0B1220] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
-            }`}
-          >
-            <Boxes className="w-4 h-4" />
-            <span>Raw Materials & Trims ({accessoryStockMatrix.length})</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => handleTabChange('accessories')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+                activeTab === 'accessories'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+              }`}
+            >
+              <Boxes className="w-4 h-4" />
+              <span>Raw Materials &amp; Trims ({accessoryStockMatrix.length})</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTabChange('dispatch')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
-              activeTab === 'dispatch'
-                ? 'bg-[#0B1220] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
-            }`}
-          >
-            <Truck className="w-4 h-4" />
-            <span>Dispatch & Challans ({filteredDispatch.length})</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => handleTabChange('dispatch')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+                activeTab === 'dispatch'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+              }`}
+            >
+              <Truck className="w-4 h-4" />
+              <span>Dispatch &amp; Challans ({filteredDispatch.length})</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTabChange('inward')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
-              activeTab === 'inward'
-                ? 'bg-[#0B1220] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
-            }`}
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Inward Receipts ({filteredInward.length})</span>
-            {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white animate-pulse">
-                {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length} QC Pending
-              </span>
-            )}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => handleTabChange('inward')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+                activeTab === 'inward'
+                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Inward Receipts ({filteredInward.length})</span>
+              {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white animate-pulse">
+                  {pendingQcAllotments.filter(a => a.qc_status === 'PENDING_ADMIN_APPROVAL').length} QC Pending
+                </span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Bottom Row: Status Filter Chips + Search Input */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3 border-t border-slate-100">
+        <div className={`flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 ${!isEmbedded ? 'pt-3 border-t border-slate-100' : ''}`}>
           
           {/* Status Filter Chips */}
           <div className="flex flex-wrap items-center gap-1.5">
@@ -1003,6 +1072,21 @@ export function InventoryClient({
 
                       <th className="px-4 py-3.5 font-bold">Description</th>
                       
+                      {/* Sortable Goods In Line */}
+                      <th 
+                        onClick={() => handleSort('inline')}
+                        className="px-4 py-3.5 text-right cursor-pointer hover:bg-slate-100 transition-colors select-none font-bold text-[#0B1220]"
+                      >
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>Goods In Line</span>
+                          {sortCol === 'inline' ? (
+                            sortOrder === 'asc' ? <ArrowUp className="w-3.5 h-3.5 text-[#0B1220]" /> : <ArrowDown className="w-3.5 h-3.5 text-[#0B1220]" />
+                          ) : (
+                            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </div>
+                      </th>
+
                       {/* Sortable Total Inward */}
                       <th 
                         onClick={() => handleSort('inward')}
@@ -1047,6 +1131,15 @@ export function InventoryClient({
                         <td className="px-4 py-3.5 text-xs sm:text-[13px] text-slate-600 font-medium">
                           {row.description}
                         </td>
+                        <td className="px-4 py-3.5 text-right font-mono font-bold text-[#0B1220] text-xs sm:text-[13px]">
+                          {row.inLineQty > 0 ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 font-mono text-xs font-bold shadow-2xs">
+                              {row.inLineQty.toLocaleString()} pcs
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3.5 text-right font-mono font-bold text-emerald-600 text-xs sm:text-[13px]">
                           +{row.totalInward.toLocaleString()}
                         </td>
@@ -1071,10 +1164,12 @@ export function InventoryClient({
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
                                 : row.balance > 0 
                                   ? 'bg-amber-50 text-amber-800 border-amber-200' 
-                                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : row.inLineQty > 0
+                                    ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                    : 'bg-rose-50 text-rose-700 border-rose-200'
                             }`}
                           >
-                            {row.balance > 50 ? 'In Stock' : row.balance > 0 ? 'Low Stock' : 'Zero Stock'}
+                            {row.balance > 50 ? 'In Stock' : row.balance > 0 ? 'Low Stock' : row.inLineQty > 0 ? 'In Stitching' : 'Zero Stock'}
                           </span>
                         </td>
                       </tr>

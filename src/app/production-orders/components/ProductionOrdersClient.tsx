@@ -1460,38 +1460,6 @@ export function ProductionOrdersClient({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx, .xls, .csv"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-
-          <button
-            type="button"
-            disabled={isImporting}
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-black/15 bg-[#F0FDFA] hover:bg-[#E6FFFA] text-[#0B1220] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-            title="Import multi-article cutting challans from Excel (.xlsx, .xls, .csv)"
-          >
-            {isImporting ? (
-              <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin" />
-            ) : (
-              <FileSpreadsheet className="w-4 h-4 text-[#0B1220]" />
-            )}
-            <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] transition-all shadow-2xs cursor-pointer"
-          >
-            <Printer className="w-4 h-4 text-slate-500" />
-            <span>Print Chart</span>
-          </button>
-
           <button
             type="button"
             onClick={handleOpenNewChallan}

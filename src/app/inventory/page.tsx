@@ -30,7 +30,8 @@ export default async function InventoryPage() {
     rawStoreTransactions,
     rawAccessories,
     rawTruckInwardsData,
-    rawPendingQcAllotmentsData
+    rawPendingQcAllotmentsData,
+    rawActiveAllotments
   } = await fetchInventoryPageDataAction(tenant.companyName)
 
   const targetCompany = tenant.companyName.toUpperCase()
@@ -61,6 +62,12 @@ export default async function InventoryPage() {
       )
     : (rawPendingQcAllotmentsData || [])
 
+  const activeAllotments = isProvisionedTenant
+    ? (rawActiveAllotments || []).filter((al: any) =>
+        ((al.challans as any)?.brand || '').toUpperCase().includes(targetCompany)
+      )
+    : (rawActiveAllotments || [])
+
   const articles = rawArticles || []
 
   return (
@@ -74,7 +81,7 @@ export default async function InventoryPage() {
           </Link>
           <span>/</span>
           <span className="font-semibold" style={{ color: 'var(--steel-dark, #1F3A63)' }}>
-            Godown & Inventory
+            Godown &amp; Inventory
           </span>
           <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
             {tenant.companyName}
@@ -87,6 +94,7 @@ export default async function InventoryPage() {
           accessories={(accessories as any) || []}
           truckInwards={truckInwards}
           pendingQcAllotments={pendingQcAllotments as any[]}
+          activeAllotments={activeAllotments as any[]}
         />
 
       </div>

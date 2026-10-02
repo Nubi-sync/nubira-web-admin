@@ -67,6 +67,7 @@ import {
 } from '../actions'
 import { getDetailedItemBreakdown } from '@/utils/multiSizeParser'
 import { ArticleConsumptionLedger } from './ArticleConsumptionLedger'
+import { InventoryClient, InventoryTabKey } from '@/app/inventory/components/InventoryClient'
 
 // Types
 export type Article = {
@@ -251,6 +252,9 @@ export function StoreDashboardClient({
 }: StoreDashboardClientProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+
+  // Store & Godown View Tab State
+  const [storeViewTab, setStoreViewTab] = useState<'consumption' | InventoryTabKey>('consumption')
 
   // Feed Filter States
   const [feedTimeFilter, setFeedTimeFilter] = useState<'24h' | '7d' | 'all'>('24h')
@@ -906,6 +910,50 @@ export function StoreDashboardClient({
                     </div>
                   </div>
                 </button>
+
+                {/* 4. Finished Goods Store Inward */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreateOpen(false)
+                    setIsInwardModalOpen(true)
+                  }}
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-emerald-50/50 transition-colors text-left group cursor-pointer border-t border-slate-100"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-700 group-hover:text-white border border-emerald-200/80 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                    <CheckCircle2 className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-emerald-800 transition-colors">
+                      Finished Goods Inward
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                      Inward QC-approved ready garments into Godown stock
+                    </div>
+                  </div>
+                </button>
+
+                {/* 5. Godown Outward / Dispatch */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreateOpen(false)
+                    setIsOutwardModalOpen(true)
+                  }}
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-blue-50/50 transition-colors text-left group cursor-pointer border-t border-slate-100"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 group-hover:bg-blue-600 text-blue-700 group-hover:text-white border border-blue-200/80 flex items-center justify-center shrink-0 transition-colors shadow-2xs mt-0.5">
+                    <Truck className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-bold text-slate-900 group-hover:text-blue-800 transition-colors">
+                      Godown Outward / Dispatch
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                      Record finished garment delivery &amp; transport dispatch
+                    </div>
+                  </div>
+                </button>
               </div>
             )}
           </div>
@@ -1164,14 +1212,114 @@ export function StoreDashboardClient({
 
 
       {/* ============================================================ */}
-      {/* 4.5 LIVE ARTICLE MATERIAL CONSUMPTION LEDGER                  */}
+      {/* 4. UNIFIED STORE & GODOWN NAVIGATION TABS                   */}
       {/* ============================================================ */}
-      <div id="material-consumption-ledger">
-        <ArticleConsumptionLedger 
-          activeAllotments={activeAllotments} 
-          truckInwards={truckInwards} 
-        />
+      <div className="bg-white p-3 sm:p-4 rounded-2xl border border-black/10 shadow-2xs">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => setStoreViewTab('consumption')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+              storeViewTab === 'consumption'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            <span>Article Allocation &amp; BOM Handover</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStoreViewTab('finished')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+              storeViewTab === 'finished'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>Finished Goods Matrix ({articles.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStoreViewTab('challans')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+              storeViewTab === 'challans'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Supplier Challans &amp; GRN ({truckInwards.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStoreViewTab('accessories')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+              storeViewTab === 'accessories'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+            }`}
+          >
+            <Boxes className="w-4 h-4" />
+            <span>Raw Materials &amp; Trims ({accessories.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStoreViewTab('dispatch')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+              storeViewTab === 'dispatch'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            <span>Dispatch &amp; Challans ({storeTransactions.filter(t => t.type === 'OUTWARD').length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStoreViewTab('inward')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer outline-none ${
+              storeViewTab === 'inward'
+                ? 'bg-[#3A3564] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 bg-transparent'
+            }`}
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Inward Receipts ({truckInwards.length})</span>
+          </button>
+        </div>
       </div>
+
+      {/* ============================================================ */}
+      {/* 5. TAB VIEW CONTAINER                                         */}
+      {/* ============================================================ */}
+      {storeViewTab === 'consumption' ? (
+        <div id="material-consumption-ledger">
+          <ArticleConsumptionLedger 
+            activeAllotments={activeAllotments} 
+            truckInwards={truckInwards} 
+          />
+        </div>
+      ) : (
+        <div id="godown-inventory-matrices">
+          <InventoryClient
+            articles={articles}
+            storeTransactions={storeTransactions}
+            accessories={accessories}
+            truckInwards={truckInwards}
+            pendingQcAllotments={readyQcAllotments}
+            activeAllotments={activeAllotments}
+            isEmbedded={true}
+            initialTab={storeViewTab as InventoryTabKey}
+          />
+        </div>
+      )}
 
       {/* ============================================================ */}
       {/* 5. RECENT SUPPLIER CHALLANS (GRN) FEED                       */}
