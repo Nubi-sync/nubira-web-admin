@@ -439,13 +439,13 @@ export function PackingGoodsClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#0B1220] text-white font-bold'
+                        ? 'bg-[#1D4ED8] text-white font-bold'
                         : 'text-slate-700 hover:bg-[#F0FDFA]'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-blue-100' : 'text-slate-500'}`}>
                         Show all {assignments.length} assignments
                       </div>
                     </div>
@@ -473,13 +473,13 @@ export function PackingGoodsClient({
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                             isSelected
-                              ? 'bg-[#0B1220] text-white font-bold'
+                              ? 'bg-[#1D4ED8] text-white font-bold'
                               : 'text-slate-700 hover:bg-[#F0FDFA]'
                           }`}
                         >
                           <div className="truncate pr-2">
                             <div className="font-bold">{bName}</div>
-                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-indigo-200' : 'text-slate-500'}`}>
+                            <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-blue-100' : 'text-slate-500'}`}>
                               {vol > 0 ? `${vol.toLocaleString('en-IN')} Pcs` : `${bAsns.length} Assignments`} {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
                             </div>
                           </div>

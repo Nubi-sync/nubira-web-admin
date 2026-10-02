@@ -257,10 +257,10 @@ export function PrivacyClient() {
             </Link>
             <Link
               href="/register"
-              className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-all cursor-pointer flex items-center gap-2 shadow-xs active:scale-95"
+              className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] transition-all cursor-pointer flex items-center gap-2 shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-95"
             >
               <span>Try For Free</span>
-              <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+              <ArrowRight className="w-4 h-4 text-white" />
             </Link>
           </div>
 
@@ -382,12 +382,12 @@ export function PrivacyClient() {
                       href={`#${s.id}`}
                       className={`group flex items-start gap-2.5 px-3 py-2 rounded-xl text-xs transition-all font-mono ${
                         isActive
-                          ? 'bg-[#0B1220] text-white font-bold shadow-2xs'
+                          ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                           : 'text-slate-600 hover:bg-[#F0FDFA] hover:text-[#0B1220]'
                       }`}
                     >
                       <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                        isActive ? 'bg-[#14C8B4] text-[#0B1220]' : 'bg-slate-100 text-slate-500'
+                        isActive ? 'bg-[#0B1220] text-white' : 'bg-slate-100 text-slate-500'
                       }`}>
                         {s.number}
                       </span>
@@ -936,7 +936,7 @@ export function PrivacyClient() {
             <div className="pt-4 flex items-center justify-between">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs font-mono active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 font-mono active:scale-95"
               >
                 <span>&larr; Return to Workspace Hub</span>
               </Link>
