@@ -58,6 +58,8 @@ import {
 } from '@/components/icons/ApparelIcons'
 import { toast } from 'sonner'
 import { saveDemoRequest } from '../platform-admin/utils/platformStorage'
+import IndiaSegmentedMap from './IndiaSegmentedMap'
+import FloorSupportShowcase from './FloorSupportShowcase'
 import { submitDemoRequestAction, checkContactInUseAction, submitCustomerQueryAction } from '../platform-admin/actions'
 
 // Smooth Easing Animated Counter for Live Metrics
@@ -1874,76 +1876,10 @@ export function ZigzaLandingPageClient({
             ))}
           </div>
 
-          {/* Right Column: Clean India Map with Stitching & Packing Handcrafted Accents */}
+          {/* Right Column: Pan-India Manufacturing Network Map (Vyapar Style) */}
           <div className="lg:col-span-7 flex items-center justify-center">
-            <div className="relative w-full max-w-[340px] sm:max-w-[500px] lg:max-w-[530px] mx-auto pt-6 pb-4 px-2 sm:p-2">
-              
-              {/* Single Dotted SVG Connector Lines linking Map Nodes directly to Tailor and Parcel */}
-              <svg
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
-              >
-                {/* Dotted line 1: Northern Sewing Node (30, 17) -> Tailor Operator (66, 2) */}
-                <line
-                  x1="30"
-                  y1="17"
-                  x2="66"
-                  y2="2"
-                  stroke="#0B1220"
-                  strokeWidth="0.35"
-                  strokeDasharray="1.2 1.2"
-                  strokeOpacity="0.7"
-                />
-                
-                {/* Dotted line 2: Eastern Fabric Node (57, 48) -> Parcel Logistics (84, 70) */}
-                <line
-                  x1="57"
-                  y1="48"
-                  x2="84"
-                  y2="70"
-                  stroke="#0B1220"
-                  strokeWidth="0.35"
-                  strokeDasharray="1.2 1.2"
-                  strokeOpacity="0.7"
-                />
-              </svg>
-
-              {/* Stitching Floor Operator: Shifted more to the right and above with dotted line connection */}
-              <div className="absolute -top-7 sm:-top-10 lg:-top-12 right-0 sm:right-[2%] lg:right-[4%] z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
-                <img
-                  src="/illustrations/tailor.png"
-                  alt="Garment Stitching Line"
-                  className="w-28 sm:w-40 lg:w-48 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
-                />
-              </div>
-
-              {/* Central Hero: Pan-India Network Map (Prominent, High-Clarity Anchor) */}
-              <img
-                src="/india_outline_map.png"
-                alt="India Garment Manufacturing Network"
-                className="w-full h-auto object-contain mix-blend-multiply select-none pointer-events-none drop-shadow-xs"
-                loading="lazy"
-              />
-
-              {/* Central Zigza Brand Icon In Between Madhya Pradesh on the India Map with subtle minimal shadow */}
-              <div className="absolute top-[51.5%] left-[37.5%] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none select-none">
-                <img
-                  src="/zigza_icon.png"
-                  alt="Zigza"
-                  className="w-12 sm:w-16 lg:w-18 h-auto object-contain select-none pointer-events-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
-                />
-              </div>
-
-              {/* Dispatch Logistics: Shifted further to the right with dotted line connection */}
-              <div className="absolute -bottom-1 sm:bottom-0 lg:bottom-1 right-0 sm:-right-8 lg:-right-10 z-10 pointer-events-auto select-none transition-transform duration-300 hover:scale-105">
-                <img
-                  src="/illustrations/parcel.png"
-                  alt="Warehouse Dispatch Logistics"
-                  className="w-20 sm:w-30 lg:w-36 h-auto object-contain select-none pointer-events-none drop-shadow-xs"
-                />
-              </div>
-
+            <div className="relative w-full max-w-[380px] sm:max-w-[540px] lg:max-w-[640px] mx-auto py-2 px-1 sm:p-2 overflow-visible">
+              <IndiaSegmentedMap />
             </div>
           </div>
 
