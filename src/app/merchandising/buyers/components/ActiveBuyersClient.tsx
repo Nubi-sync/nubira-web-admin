@@ -207,7 +207,7 @@ export function ActiveBuyersClient({
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold shadow-2xs cursor-pointer transition-all"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Contract New Buyer</span>
@@ -421,7 +421,7 @@ export function ActiveBuyersClient({
                           <button
                             type="button"
                             onClick={() => setLinkingBuyer(buyer)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-lg text-xs font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                           >
                             <LinkIcon className="w-3.5 h-3.5" />
                             <span>Link Article</span>

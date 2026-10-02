@@ -162,7 +162,7 @@ export function ViewContractModal({
                       onClose()
                       onOpenLinkModal(buyer)
                     }}
-                    className="shrink-0 ml-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0B1220] hover:bg-[#162032] text-white shadow-2xs transition-all cursor-pointer"
+                    className="shrink-0 ml-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                   >
                     <LinkIcon className="w-3.5 h-3.5" />
                     <span>Link Now</span>

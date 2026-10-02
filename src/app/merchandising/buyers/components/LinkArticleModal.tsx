@@ -243,14 +243,14 @@ export function LinkArticleModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !selectedArticle || articles.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-50"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isSubmitting ? 'Linking...' : 'Confirm & Link Article'}</span>
