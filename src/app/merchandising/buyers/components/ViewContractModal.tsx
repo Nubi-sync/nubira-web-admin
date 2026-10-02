@@ -230,7 +230,7 @@ export function ViewContractModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-2xs transition-all cursor-pointer"
+            className="px-5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition-all cursor-pointer"
           >
             Close
           </button>

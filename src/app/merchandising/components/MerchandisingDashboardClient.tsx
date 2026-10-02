@@ -1123,7 +1123,7 @@ export function MerchandisingDashboardClient({
                             </button>
                             <Link
                               href="/merchandising/tna-calendar"
-                              className="px-2 py-1 rounded text-[10.5px] font-bold bg-[#0B1220] hover:bg-[#162032] text-white shadow-2xs"
+                              className="px-2 py-1 rounded text-[10.5px] font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20"
                             >
                               T&amp;A
                             </Link>
