@@ -781,7 +781,7 @@ export function PackingGoodsClient({
                         <button
                           type="button"
                           onClick={() => handleDispatchGodown(asn.id, asn.assignment_code, asn.target_godown_bay)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
                         >
                           <Warehouse className="w-3.5 h-3.5" />
                           <span>Send to Godown</span>

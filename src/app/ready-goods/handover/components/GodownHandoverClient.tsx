@@ -82,7 +82,7 @@ export function GodownHandoverClient({ userEmail, companyName }: GodownHandoverC
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+          className="px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 inline-flex items-center gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           <span>Create Pallet Gate Pass</span>
@@ -354,7 +354,7 @@ export function GodownHandoverClient({ userEmail, companyName }: GodownHandoverC
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedPallet(null)}
-                className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Close Gate Pass
               </button>
