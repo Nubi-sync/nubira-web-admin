@@ -522,7 +522,7 @@ export function MerchandisingDashboardClient({
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-              Merchandising &amp; Sourcing Desk
+              Merchandising &amp; <span className="text-[#1D4ED8]">Sourcing Desk</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Real-time buyer PO contracts and critical path T&amp;A tracking
