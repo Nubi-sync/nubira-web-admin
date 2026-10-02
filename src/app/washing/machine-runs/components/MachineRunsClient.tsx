@@ -296,7 +296,7 @@ export function MachineRunsClient() {
                     {isWashing && (
                       <button
                         onClick={() => advanceBatch(b)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
                       >
                         <RotateCw className="w-3.5 h-3.5" />
                         <span>Start Hydro Spin</span>
@@ -306,7 +306,7 @@ export function MachineRunsClient() {
                     {isHydro && (
                       <button
                         onClick={() => advanceBatch(b)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
                       >
                         <Thermometer className="w-3.5 h-3.5" />
                         <span>Transfer to Dryer</span>
@@ -316,7 +316,7 @@ export function MachineRunsClient() {
                     {isDrying && (
                       <button
                         onClick={() => advanceBatch(b)}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Unload & Finish</span>
