@@ -562,8 +562,8 @@ export function MerchandisingDashboardClient({
         
         {/* Left: Active Buyer Info Pill */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <Building2 className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
@@ -572,7 +572,7 @@ export function MerchandisingDashboardClient({
             <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
               <span>{selectedBuyer ? selectedBuyer.buyer_name : 'No Active Buyers'}</span>
               {selectedBuyer?.linked_article_number && (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-slate-50 text-[#0B1220] border border-slate-200">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                   {selectedBuyer.linked_article_number}
                 </span>
               )}
@@ -584,61 +584,76 @@ export function MerchandisingDashboardClient({
         <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
           
           {/* Buyer Selector Searchable Dropdown */}
-          <div className="relative flex-1 sm:flex-initial sm:min-w-[280px]">
+          <div className="relative flex-1 sm:flex-initial sm:min-w-[340px]">
             <button
               type="button"
               onClick={() => setIsBuyerMenuOpen(!isBuyerMenuOpen)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-xs sm:text-sm font-bold text-slate-800 transition-all cursor-pointer shadow-2xs"
+              className="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-sm font-bold text-[#0B1220] transition-all cursor-pointer shadow-2xs hover:border-black/30"
             >
-              <div className="flex items-center gap-2 truncate">
-                <Users className="w-4 h-4 text-[#0B1220] shrink-0" />
-                <span className="truncate">{selectedBuyerDisplayText}</span>
+              <div className="flex items-center gap-2.5 truncate">
+                <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
+                  <Users className="w-4 h-4 text-[#0B1220]" />
+                </div>
+                <span className="truncate text-sm font-bold text-slate-900">{selectedBuyerDisplayText}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isBuyerMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isBuyerMenuOpen && (
-              <div className="absolute right-0 left-0 sm:left-auto top-full mt-1.5 sm:w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-30 p-2 space-y-1.5 animate-in fade-in zoom-in-95">
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <div className="absolute right-0 top-full mt-2 w-full sm:w-[400px] bg-white rounded-2xl border border-black/15 shadow-2xl z-50 p-3 space-y-2.5 animate-in fade-in zoom-in-95">
+                <div className="relative bg-slate-50/90 rounded-xl border border-black/10 focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10 transition-all">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={buyerSearchQuery}
                     onChange={e => setBuyerSearchQuery(e.target.value)}
-                    placeholder="Search buyers..."
-                    className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:border-[#0B1220]"
+                    placeholder="Search buyers by name, PO, or article..."
+                    className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-transparent font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     autoFocus
                   />
                 </div>
-                <div className="max-h-56 overflow-y-auto space-y-0.5 pt-1">
+                <div className="max-h-64 overflow-y-auto space-y-1.5 pt-0.5">
                   {filteredBuyersList.length === 0 ? (
-                    <div className="py-3 px-2 text-center text-xs text-slate-400">
-                      No buyers found
+                    <div className="py-5 px-3 text-center text-xs sm:text-sm text-slate-400 font-medium">
+                      No buyers found matching &ldquo;{buyerSearchQuery}&rdquo;
                     </div>
                   ) : (
-                    filteredBuyersList.map(b => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedBuyerId(b.id)
-                          setIsBuyerMenuOpen(false)
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
-                          activeSelectedBuyerId === b.id
-                            ? 'bg-[#0B1220] text-white font-bold'
-                            : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="truncate pr-2">
-                          <div className="font-bold">{b.buyer_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-indigo-200' : 'text-slate-500'}`}>
-                            {b.contracted_volume.toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                    filteredBuyersList.map(b => {
+                      const isSelected = activeSelectedBuyerId === b.id
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBuyerId(b.id)
+                            setIsBuyerMenuOpen(false)
+                          }}
+                          className={`w-full text-left p-3 rounded-xl text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-between gap-3 border ${
+                            isSelected
+                              ? 'bg-[#0B1220] text-white font-bold shadow-xs border-[#0B1220]'
+                              : 'bg-slate-50/60 hover:bg-[#F0FDFA] text-slate-800 border-black/5 hover:border-[#14C8B4]/40'
+                          }`}
+                        >
+                          <div className="truncate pr-1">
+                            <div className={`font-bold text-sm ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                              {b.buyer_name}
+                            </div>
+                            <div className={`text-xs font-mono mt-0.5 font-medium ${isSelected ? 'text-[#14C8B4]' : 'text-slate-500'}`}>
+                              {b.contracted_volume.toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : '• Pending Link'}
+                            </div>
                           </div>
-                        </div>
-                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
-                      </button>
-                    ))
+                          {isSelected ? (
+                            <div className="w-5.5 h-5.5 rounded-full bg-[#14C8B4] text-[#0B1220] flex items-center justify-center shrink-0 shadow-2xs">
+                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                            </div>
+                          ) : (
+                            <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-white text-slate-600 border border-slate-200 shrink-0">
+                              Select
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })
                   )}
                 </div>
               </div>
@@ -650,7 +665,7 @@ export function MerchandisingDashboardClient({
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-[slate-100] text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0"
+            className="p-2.5 rounded-xl border border-black/15 bg-white hover:bg-[#F0FDFA] text-[#0B1220] transition-all cursor-pointer shadow-2xs flex items-center justify-center shrink-0 hover:border-black/30"
             title="Sync latest live updates from floor modules"
           >
             <RotateCcw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -670,7 +685,7 @@ export function MerchandisingDashboardClient({
           className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 hover:border-[#0B1220]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
               <Layers className="w-5 h-5" />
             </div>
             <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -692,7 +707,7 @@ export function MerchandisingDashboardClient({
           className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 hover:border-[#0B1220]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
               <Briefcase className="w-5 h-5" />
             </div>
             <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -714,7 +729,7 @@ export function MerchandisingDashboardClient({
           className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 hover:border-[#0B1220]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
               <PackageCheck className="w-5 h-5" />
             </div>
             <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -736,7 +751,7 @@ export function MerchandisingDashboardClient({
           className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 hover:border-[#0B1220]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group shadow-2xs select-none hover:-translate-y-0.5"
         >
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:bg-[#0B1220] group-hover:text-white group-hover:border-[#0B1220] transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
               <Calendar className="w-5 h-5" />
             </div>
             <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
@@ -760,8 +775,8 @@ export function MerchandisingDashboardClient({
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-slate-100 gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-slate-50 text-[#0B1220] border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
-              <TrendingUp className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <TrendingUp className="w-4 h-4 text-[#0B1220]" />
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900 font-[family-name:var(--font-heading)]">
@@ -789,12 +804,12 @@ export function MerchandisingDashboardClient({
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           
           {/* 1. IN PENDING */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 1. In Pending
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPending / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -803,21 +818,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.inPending.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPending / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 2. IN CUTTING */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 2. In Cutting
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inCutting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -826,21 +841,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.inCutting.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inCutting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 3. IN PRINTING */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 3. In Printing
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPrinting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -849,21 +864,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.inPrinting.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inPrinting / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 4. IN EMBROIDERY */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 4. In Embroidery
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inEmbroidery / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -872,21 +887,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.inEmbroidery.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inEmbroidery / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 5. IN SEWING */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 5. In Sewing
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inSewing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -895,21 +910,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.inSewing.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.inSewing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 6. IRON */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 6. Iron
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.iron / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -918,21 +933,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.iron.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.iron / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 7. WASHING */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 7. Washing
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.washing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -941,21 +956,21 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.washing.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.washing / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
           </div>
 
           {/* 8. ALTER */}
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#0B1220] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#14C8B4] rounded-xl p-3.5 shadow-2xs hover:border-black/25 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                 8. Alter
               </span>
-              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-slate-50 border border-slate-200">
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                 {selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.alter / Number(selectedBuyer.contracted_volume)) * 100) : 0}%
               </span>
             </div>
@@ -964,9 +979,9 @@ export function MerchandisingDashboardClient({
                 {stageMetrics.alter.toLocaleString('en-IN')}
               </p>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div 
-                className="bg-[#0B1220] h-full rounded-full transition-all duration-500" 
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500" 
                 style={{ width: `${selectedBuyer && Number(selectedBuyer.contracted_volume) > 0 ? Math.round((stageMetrics.alter / Number(selectedBuyer.contracted_volume)) * 100) : 0}%` }}
               />
             </div>
