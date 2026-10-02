@@ -325,7 +325,7 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer active:scale-[0.98]"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
               >
                 Close & Return
               </button>
@@ -621,16 +621,16 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-xs cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs rounded-xl cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer active:scale-[0.98] disabled:opacity-50 inline-flex items-center gap-2"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98] disabled:opacity-50 inline-flex items-center gap-2"
               >
-                <Key className="w-3.5 h-3.5 text-[#14C8B4]" />
+                <Key className="w-3.5 h-3.5 text-white" />
                 <span>{isSubmitting ? 'Provisioning Infra...' : 'Confirm & Allot Access'}</span>
               </button>
             </div>

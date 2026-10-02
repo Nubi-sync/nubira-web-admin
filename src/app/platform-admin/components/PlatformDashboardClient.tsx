@@ -183,9 +183,9 @@ export function PlatformDashboardClient() {
           <button
             type="button"
             onClick={openNewProvisionModal}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
-            <Key className="w-4 h-4 text-[#14C8B4]" />
+            <Key className="w-4 h-4 text-white" />
             <span>Provision New Factory</span>
           </button>
         </div>
@@ -297,7 +297,7 @@ export function PlatformDashboardClient() {
                   onClick={() => setStatusFilter(tab)}
                   className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm ${
                     active
-                      ? 'bg-[#0B1220] text-white shadow-xs font-semibold'
+                      ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
                       : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                   }`}
                 >
@@ -384,9 +384,9 @@ export function PlatformDashboardClient() {
                         <button
                           type="button"
                           onClick={openNewProvisionModal}
-                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer transition-all active:scale-[0.98]"
+                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all active:scale-[0.98]"
                         >
-                          <Key className="w-4 h-4 text-[#14C8B4]" />
+                          <Key className="w-4 h-4 text-white" />
                           <span>Provision Factory Directly</span>
                         </button>
                       )}
@@ -484,9 +484,9 @@ export function PlatformDashboardClient() {
                             <button
                               type="button"
                               onClick={() => openProvisionModal(item)}
-                              className="px-3 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-semibold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                              className="px-3 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                             >
-                              <Key className="w-3.5 h-3.5 text-[#14C8B4]" />
+                              <Key className="w-3.5 h-3.5 text-white" />
                               <span>Provision</span>
                             </button>
                           )}

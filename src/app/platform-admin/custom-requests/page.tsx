@@ -355,9 +355,9 @@ export default function CustomEnterpriseRequestsPage() {
                         <button
                           type="button"
                           onClick={() => openProvisionModal(req)}
-                          className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold font-mono transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                          className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold font-mono transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                         >
-                          <Key className="w-3.5 h-3.5 text-[#14C8B4]" />
+                          <Key className="w-3.5 h-3.5 text-white" />
                           <span>Provision Custom Factory</span>
                         </button>
                       </div>
