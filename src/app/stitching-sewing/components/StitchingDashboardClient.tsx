@@ -586,17 +586,17 @@ export function StitchingDashboardClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#0B1220] text-white font-bold'
+                        ? 'bg-[#14C8B4] text-[#0B1220] font-bold'
                         : 'text-slate-700 hover:bg-[#F0FDFA]'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-teal-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-[#0B1220]/70' : 'text-slate-500'}`}>
                         Show all {tasks.length} sewing task allocations
                       </div>
                     </div>
-                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
+                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-[#0B1220] shrink-0" />}
                   </button>
 
                   {filteredBuyersList.length === 0 ? (
@@ -614,17 +614,17 @@ export function StitchingDashboardClient({
                         }}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                           activeSelectedBuyerId === b.id
-                            ? 'bg-[#0B1220] text-white font-bold'
+                            ? 'bg-[#14C8B4] text-[#0B1220] font-bold'
                             : 'text-slate-700 hover:bg-[#F0FDFA]'
                         }`}
                       >
                         <div className="truncate pr-2">
                           <div className="font-bold">{b.buyer_name || b.brand_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-teal-200' : 'text-slate-500'}`}>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-[#0B1220]/70' : 'text-slate-500'}`}>
                             {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
                           </div>
                         </div>
-                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-[#0B1220] shrink-0" />}
                       </button>
                     ))
                   )}
@@ -666,17 +666,17 @@ export function StitchingDashboardClient({
                     onClick={() => handleSelectRoute(opt.value)}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-start justify-between gap-2 ${
                       activeRoute === opt.value
-                        ? 'bg-[#0B1220] text-white font-bold'
+                        ? 'bg-[#14C8B4] text-[#0B1220] font-bold'
                         : 'text-slate-700 hover:bg-[#F0FDFA]'
                     }`}
                   >
                     <div>
                       <div className="font-bold">{opt.shortLabel}</div>
-                      <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-teal-200' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] mt-0.5 font-mono ${activeRoute === opt.value ? 'text-[#0B1220]/70' : 'text-slate-500'}`}>
                         {opt.flowDescription}
                       </div>
                     </div>
-                    {activeRoute === opt.value && <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />}
+                    {activeRoute === opt.value && <Check className="w-4 h-4 text-[#0B1220] shrink-0 mt-0.5" />}
                   </button>
                 ))}
               </div>

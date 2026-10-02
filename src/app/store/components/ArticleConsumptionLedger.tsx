@@ -290,8 +290,8 @@ export function ArticleConsumptionLedger({
               onClick={() => setFilterStatus('ALL')}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
                 filterStatus === 'ALL'
-                  ? 'bg-[#0B1220] text-white'
-                  : 'bg-[#F0FDFA] text-slate-700 hover:bg-[#eae3d2] border border-black/15'
+                  ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
               All ({articleGroups.length})
