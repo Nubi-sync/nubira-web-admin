@@ -2138,153 +2138,14 @@ export function ZigzaLandingPageClient({
       </section>
 
       {/* =================================================================== */}
-      {/* 8. FREQUENTLY ASKED QUESTIONS (ACCORDION FAQ)                       */}
+      {/* 8. FLOOR-READY ONBOARDING & EVERYDAY SUPPORT SHOWCASE               */}
       {/* =================================================================== */}
-      <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto scroll-mt-24">
-        {/* Google FAQPage Structured Data Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "FAQPage",
-              "mainEntity": [
-                {
-                  "@type": "Question",
-                  "name": "Can we try Zigza before paying for a subscription?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, every factory gets an instant 7-day full-access trial with zero credit card required. You can test all 11 production units with your team before deciding to subscribe."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Is our factory design, buyer pricing, and BOM data safe?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, 100%. Your designs, buyer tech-packs, and supplier rates are protected with encrypted, isolated tenant security. We never share, sell, or expose your factory records to anyone."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Do we need expensive machines or new computers to run Zigza?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "No special hardware is required. Supervisors and workers can scan QR bundles from standard Android smartphones, and managers can access the dashboard on any laptop or browser."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Can we upload our existing Excel buyer orders and fabric inventory?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. You can upload existing spreadsheets in one click. Zigza automatically imports your articles, size ratios, fabric rolls, and buyer POs without tedious manual data entry."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Will our factory floor workers and supervisors find it easy to use?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, Zigza was designed specifically for garment shop floors with simple one-tap actions, clear visual badges, and zero confusing forms. Our team also provides direct setup guidance."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Can we export our data or cancel our plan anytime?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, you are never locked in. You can download all your production manifests, wage ledgers, and inventory reports to Excel at any time, and cancel with a single click."
-                  }
-                }
-              ]
-            })
-          }}
-        />
-
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
-            Frequently Asked <span className="text-[#1D4ED8]">Questions</span>
-          </h2>
-          <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
-            Clear answers to common questions about setting up, trusting, and running Zigza in your factory.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {[
-            {
-              q: 'Can we try Zigza before paying for a subscription?',
-              a: 'Yes, every factory gets an instant 7-day full-access trial with zero credit card required. You can test all 11 production units with your team before deciding to subscribe.'
-            },
-            {
-              q: 'Is our factory design, buyer pricing, and BOM data safe?',
-              a: 'Yes, 100%. Your designs, buyer tech-packs, and supplier rates are protected with encrypted, isolated tenant security. We never share, sell, or expose your factory records to anyone.'
-            },
-            {
-              q: 'Do we need expensive machines or new computers to run Zigza?',
-              a: 'No special hardware is required. Supervisors and workers can scan QR bundles from standard Android smartphones, and managers can access the dashboard on any laptop or browser.'
-            },
-            {
-              q: 'Can we upload our existing Excel buyer orders and fabric inventory?',
-              a: 'Yes. You can upload existing spreadsheets in one click. Zigza automatically imports your articles, size ratios, fabric rolls, and buyer POs without tedious manual data entry.'
-            },
-            {
-              q: 'Will our factory floor workers and supervisors find it easy to use?',
-              a: 'Yes, Zigza was designed specifically for garment shop floors with simple one-tap actions, clear visual badges, and zero confusing forms. Our team also provides direct setup guidance.'
-            },
-            {
-              q: 'Can we export our data or cancel our plan anytime?',
-              a: 'Yes, you are never locked in. You can download all your production manifests, wage ledgers, and inventory reports to Excel at any time, and cancel with a single click.'
-            }
-          ].map((faq, idx) => {
-            const isOpen = expandedFaq === idx
-            return (
-              <div
-                key={idx}
-                className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
-                  isOpen ? 'border-[#14C8B4]/60 shadow-sm ring-1 ring-[#14C8B4]/20' : 'border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setExpandedFaq(isOpen ? null : idx)}
-                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer group"
-                >
-                  <span className={`font-bold text-base sm:text-lg transition-colors ${
-                    isOpen ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#1D4ED8]'
-                  }`}>
-                    {faq.q}
-                  </span>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                    isOpen ? 'bg-[#14C8B4] text-[#0B1220] rotate-180 shadow-xs border border-[#14C8B4]' : 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] rotate-0'
-                  }`}>
-                    <ChevronDown className="w-4 h-4 transition-transform duration-300" />
-                  </div>
-                </button>
-
-                {/* Sliding Height Transition via CSS Grid rows */}
-                <div
-                  className={`grid transition-all duration-300 ease-in-out ${
-                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <div className="px-4 sm:px-5 pb-5 pt-1 text-[15px] sm:text-base text-slate-700 leading-relaxed border-t border-slate-100">
-                      {faq.a}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </section>
+      <FloorSupportShowcase />
 
       {/* =================================================================== */}
       {/* 9. BOTTOM DIRECT QUERY & CONTACT US WINDOW                          */}
       {/* =================================================================== */}
-      <section id="contact" className="py-14 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80 scroll-mt-24">
+      <section id="contact" className="py-14 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200/80 scroll-mt-24">
         <div className="relative max-w-5xl mx-auto bg-slate-50 sm:bg-[#F8FAFC] border border-slate-200/90 hover:border-[#0B1220]/40 rounded-none sm:rounded-3xl p-0 sm:p-10 lg:p-12 shadow-none sm:shadow-xs md:hover:shadow-md transition-all duration-300">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
@@ -2490,6 +2351,152 @@ export function ZigzaLandingPageClient({
               )}
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 10. FREQUENTLY ASKED QUESTIONS (ACCORDION FAQ)                      */}
+      {/* =================================================================== */}
+      <section id="faq" className="py-16 sm:py-24 bg-slate-50 border-b border-slate-200/80 scroll-mt-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Google FAQPage Structured Data Schema */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "Can we try Zigza before paying for a subscription?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, every factory gets an instant 7-day full-access trial with zero credit card required. You can test all 11 production units with your team before deciding to subscribe."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Is our factory design, buyer pricing, and BOM data safe?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, 100%. Your designs, buyer tech-packs, and supplier rates are protected with encrypted, isolated tenant security. We never share, sell, or expose your factory records to anyone."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Do we need expensive machines or new computers to run Zigza?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "No special hardware is required. Supervisors and workers can scan QR bundles from standard Android smartphones, and managers can access the dashboard on any laptop or browser."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Can we upload our existing Excel buyer orders and fabric inventory?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes. You can upload existing spreadsheets in one click. Zigza automatically imports your articles, size ratios, fabric rolls, and buyer POs without tedious manual data entry."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Will our factory floor workers and supervisors find it easy to use?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, Zigza was designed specifically for garment shop floors with simple one-tap actions, clear visual badges, and zero confusing forms. Our team also provides direct setup guidance."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Can we export our data or cancel our plan anytime?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, you are never locked in. You can download all your production manifests, wage ledgers, and inventory reports to Excel at any time, and cancel with a single click."
+                    }
+                  }
+                ]
+              })
+            }}
+          />
+
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0B1220] tracking-tight">
+              Frequently Asked <span className="text-[#1D4ED8]">Questions</span>
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 mt-3 leading-relaxed">
+              Clear answers to common questions about setting up, trusting, and running Zigza in your factory.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                q: 'Can we try Zigza before paying for a subscription?',
+                a: 'Yes, every factory gets an instant 7-day full-access trial with zero credit card required. You can test all 11 production units with your team before deciding to subscribe.'
+              },
+              {
+                q: 'Is our factory design, buyer pricing, and BOM data safe?',
+                a: 'Yes, 100%. Your designs, buyer tech-packs, and supplier rates are protected with encrypted, isolated tenant security. We never share, sell, or expose your factory records to anyone.'
+              },
+              {
+                q: 'Do we need expensive machines or new computers to run Zigza?',
+                a: 'No special hardware is required. Supervisors and workers can scan QR bundles from standard Android smartphones, and managers can access the dashboard on any laptop or browser.'
+              },
+              {
+                q: 'Can we upload our existing Excel buyer orders and fabric inventory?',
+                a: 'Yes. You can upload existing spreadsheets in one click. Zigza automatically imports your articles, size ratios, fabric rolls, and buyer POs without tedious manual data entry.'
+              },
+              {
+                q: 'Will our factory floor workers and supervisors find it easy to use?',
+                a: 'Yes, Zigza was designed specifically for garment shop floors with simple one-tap actions, clear visual badges, and zero confusing forms. Our team also provides direct setup guidance.'
+              },
+              {
+                q: 'Can we export our data or cancel our plan anytime?',
+                a: 'Yes, you are never locked in. You can download all your production manifests, wage ledgers, and inventory reports to Excel at any time, and cancel with a single click.'
+              }
+            ].map((faq, idx) => {
+              const isOpen = expandedFaq === idx
+              return (
+                <div
+                  key={idx}
+                  className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
+                    isOpen ? 'border-[#14C8B4]/60 shadow-sm ring-1 ring-[#14C8B4]/20' : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setExpandedFaq(isOpen ? null : idx)}
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer group"
+                  >
+                    <span className={`font-bold text-base sm:text-lg transition-colors ${
+                      isOpen ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#1D4ED8]'
+                    }`}>
+                      {faq.q}
+                    </span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
+                      isOpen ? 'bg-[#14C8B4] text-[#0B1220] rotate-180 shadow-xs border border-[#14C8B4]' : 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] rotate-0'
+                    }`}>
+                      <ChevronDown className="w-4 h-4 transition-transform duration-300" />
+                    </div>
+                  </button>
+
+                  {/* Sliding Height Transition via CSS Grid rows */}
+                  <div
+                    className={`grid transition-all duration-300 ease-in-out ${
+                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-4 sm:px-5 pb-5 pt-1 text-[15px] sm:text-base text-slate-700 leading-relaxed border-t border-slate-100">
+                        {faq.a}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
