@@ -268,10 +268,10 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                   <button
                     key={dst}
                     onClick={() => setDestFilter(dst)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                       destFilter === dst
-                        ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
-                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                        ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
+                        : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700'
                     }`}
                   >
                     {label}
@@ -288,10 +288,10 @@ export function BundlesClient({ initialBundles }: BundlesClientProps = {}) {
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
+                  className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     statusFilter === st
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs'
+                      : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700'
                   }`}
                 >
                   {st === 'HANDOVER_CONFIRMED' ? 'CONFIRMED' : st.replace(/_/g, ' ')}

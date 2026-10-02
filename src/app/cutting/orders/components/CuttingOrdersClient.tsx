@@ -681,7 +681,7 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
             <div className="pt-3 border-t border-slate-200 flex justify-end">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Close
               </button>
