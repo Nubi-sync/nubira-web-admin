@@ -1528,7 +1528,7 @@ export function SupervisorDeskClient({
                 <button
                   type="button"
                   onClick={() => setSelectedAllotmentForQc(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1536,7 +1536,7 @@ export function SupervisorDeskClient({
                   type="button"
                   onClick={handleSubmitQcPass}
                   disabled={isPending}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Approve for Store Godown</span>
@@ -1577,7 +1577,7 @@ export function SupervisorDeskClient({
                   <select
                     value={targetLinemanId}
                     onChange={e => setTargetLinemanId(e.target.value)}
-                    className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-sm focus:ring-2 focus:ring-[#3A3564]/20 focus:outline-none"
+                    className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-sm focus:ring-2 focus:ring-[#1D4ED8]/20 focus:outline-none"
                   >
                     <option value="">Select Lineman Line...</option>
                     {linemenProfiles.map(l => (
@@ -1595,7 +1595,7 @@ export function SupervisorDeskClient({
               <button
                 type="button"
                 onClick={() => setReassignModalAllotment(null)}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -1603,7 +1603,7 @@ export function SupervisorDeskClient({
                 type="button"
                 onClick={handleExecuteReassign}
                 disabled={isPending || !targetLinemanId}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-50 active:scale-[0.98]"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Confirm Line Transfer</span>
@@ -1639,7 +1639,7 @@ export function SupervisorDeskClient({
                   type="text"
                   value={dispatchChallanNo}
                   onChange={e => setDispatchChallanNo(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-sm focus:ring-2 focus:ring-[#3A3564]/20 focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-sm focus:ring-2 focus:ring-[#1D4ED8]/20 focus:outline-none"
                 />
               </div>
 
@@ -1649,7 +1649,7 @@ export function SupervisorDeskClient({
                   type="number"
                   value={dispatchBags}
                   onChange={e => setDispatchBags(Number(e.target.value) || 1)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-sm focus:ring-2 focus:ring-[#3A3564]/20 focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-xl border border-black/15 bg-white text-slate-900 font-mono text-sm focus:ring-2 focus:ring-[#1D4ED8]/20 focus:outline-none"
                 />
               </div>
             </div>
@@ -1658,7 +1658,7 @@ export function SupervisorDeskClient({
               <button
                 type="button"
                 onClick={() => setDispatchModalAllotment(null)}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -1666,7 +1666,7 @@ export function SupervisorDeskClient({
                 type="button"
                 onClick={handleExecuteDispatch}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <Truck className="w-3.5 h-3.5" />
                 <span>Mark Dispatched</span>

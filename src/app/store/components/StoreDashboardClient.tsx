@@ -2921,7 +2921,7 @@ function GrnInwardModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
@@ -2929,7 +2929,7 @@ function GrnInwardModal({
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               {isSubmitting ? 'Saving GRN...' : 'Confirm Inward'}
             </button>
@@ -3083,7 +3083,7 @@ function AttachChallanPhotoModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
+            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
           >
             Cancel
           </button>
@@ -3091,7 +3091,7 @@ function AttachChallanPhotoModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || !photoUrl}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
           >
             {isSubmitting ? 'Saving Photo...' : 'Save & Attach Photo'}
           </button>
@@ -3131,7 +3131,7 @@ function BomHandoverModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#3A3564] text-white font-bold text-xs hover:bg-[#2A2649] transition-colors cursor-pointer shadow-sm"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#1D4ED8] text-white font-bold text-xs sm:text-sm hover:bg-[#1E40AF] transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98]"
           >
             Back to Store Dashboard
           </button>
@@ -3743,7 +3743,7 @@ function BomHandoverForm({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
           >
             Cancel
           </button>
@@ -3751,7 +3751,7 @@ function BomHandoverForm({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+            className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-2 cursor-pointer active:scale-[0.98]"
           >
             {isSubmitting ? 'Issuing...' : `Handover to ${linemanName} (${selectedGroup?.totalTargetQty.toLocaleString() || 0} pcs)`}
           </button>
@@ -4055,7 +4055,7 @@ function ProductionInwardModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs"
+            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
           >
             Cancel
           </button>
@@ -4063,7 +4063,7 @@ function ProductionInwardModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || totalInwardPieces <= 0}
-            className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
           >
             {isSubmitting ? 'Saving...' : `Save Inward (${totalInwardPieces} pcs)`}
           </button>
@@ -4961,7 +4961,7 @@ function AccessoryReissueModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
@@ -4969,7 +4969,7 @@ function AccessoryReissueModal({
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting || quantity <= 0 || !workerName.trim() || !itemName.trim()}
-              className="px-5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2A2649] rounded-xl shadow-xs transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              className="px-5 py-2 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Recording...' : `Confirm & Deduct Stock (${quantity} ${unit})`}</span>
