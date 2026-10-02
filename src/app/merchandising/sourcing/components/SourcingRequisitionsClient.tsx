@@ -98,9 +98,9 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 min-h-[42px] px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-white stroke-[2.5]" />
             <span>Generate Sourcing PR</span>
           </button>
         </div>
@@ -206,7 +206,7 @@ export function SourcingRequisitionsClient({ initialRequisitions }: SourcingRequ
                 onClick={() => setActiveFilter(tab)}
                 className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === tab
-                    ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
                 }`}
               >

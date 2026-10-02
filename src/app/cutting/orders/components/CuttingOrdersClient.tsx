@@ -480,7 +480,7 @@ export function CuttingOrdersClient({ initialOrders }: CuttingOrdersClientProps 
               <button
                 type="button"
                 onClick={applyPreset42}
-                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-slate-200 rounded-lg hover:bg-[#0B1220] hover:text-white transition-all shadow-2xs cursor-pointer"
+                className="px-2.5 py-1 text-xs font-mono font-bold bg-white text-[#0B1220] border border-slate-200 rounded-lg hover:bg-[#1D4ED8] hover:text-white transition-all shadow-2xs cursor-pointer"
               >
                 CO-2026-088 ({formData.buyer_po || 'PO-2026-9901'})
               </button>

@@ -183,9 +183,9 @@ export function TeamManagementClient({
 
         <button
           onClick={() => setIsAddOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-2 min-h-[42px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer shrink-0"
         >
-          <UserPlus className="w-4 h-4" />
+          <UserPlus className="w-4 h-4 text-white stroke-[2.5]" />
           <span>Onboard Designer</span>
         </button>
       </div>
@@ -363,7 +363,7 @@ export function TeamManagementClient({
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setAllocateMember(member)}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-500/20"
                             title="Allocate Design Brief"
                           >
                             <ClipboardList className="w-3.5 h-3.5" />
@@ -434,7 +434,7 @@ export function TeamManagementClient({
                   <div className="flex items-center gap-2 pt-1">
                     <button
                       onClick={() => setAllocateMember(member)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#0B1220] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
                     >
                       <ClipboardList className="w-3.5 h-3.5" />
                       <span>Allocate Brief</span>
@@ -570,14 +570,14 @@ export function TeamManagementClient({
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !newName.trim() || newPhone.replace(/\D/g, '').length !== 10 || !newPassword.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Create Designer Account</span>
