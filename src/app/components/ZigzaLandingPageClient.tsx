@@ -1864,9 +1864,9 @@ export function ZigzaLandingPageClient({
                           </div>
 
                           {/* Content Card Box with animated outline on hover */}
-                          <div className={`py-2.5 px-3.5 rounded-xl border-2 transition-all duration-300 ease-out ${
+                          <div className={`py-2.5 px-3.5 rounded-xl border transition-all duration-300 ease-out ${
                             isActive 
-                              ? 'border-[#14C8B4] bg-[#F0FDFA] shadow-2xs' 
+                              ? 'border-[#0B1220] bg-[#F0FDFA] shadow-2xs' 
                               : 'border-transparent bg-transparent hover:border-slate-300 hover:bg-[#F0FDFA]/40 hover:shadow-2xs'
                           }`}>
                             <h3 className={`text-[15px] font-bold tracking-tight leading-snug transition-colors ${
@@ -1898,8 +1898,8 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(idx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#14C8B4] shadow-md ring-2 ring-[#14C8B4]/20 -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border-2 border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                                ? 'border border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
                             }`}
                           >
                             <div>
@@ -1939,8 +1939,8 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(globalIdx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#14C8B4] shadow-md ring-2 ring-[#14C8B4]/20 -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border-2 border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                                ? 'border border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
                             }`}
                           >
                             <div>
@@ -2705,7 +2705,7 @@ export function ZigzaLandingPageClient({
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 text-[#14C8B4] shrink-0" />
+                        <Send className="w-4 h-4 text-white shrink-0" />
                         <span>Send Query</span>
                       </>
                     )}
@@ -3269,7 +3269,7 @@ export function ZigzaLandingPageClient({
                     </>
                   ) : (
                     <>
-                      <Mail className="w-4 h-4 text-[#14C8B4] shrink-0" />
+                      <Mail className="w-4 h-4 text-white shrink-0" />
                       <span>Send Demo Request</span>
                     </>
                   )}

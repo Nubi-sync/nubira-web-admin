@@ -370,10 +370,10 @@ export function TermsClient() {
                     <a
                       key={s.id}
                       href={`#${s.id}`}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
                         isActive
-                          ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
-                          : 'text-slate-600 hover:bg-[#F0FDFA] hover:text-[#0B1220]'
+                          ? 'bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] font-bold shadow-2xs'
+                          : 'text-slate-600 hover:bg-[#F0FDFA] hover:text-[#0B1220] border border-transparent'
                       }`}
                     >
                       <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
