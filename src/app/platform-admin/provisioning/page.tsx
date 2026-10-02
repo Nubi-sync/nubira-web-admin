@@ -242,10 +242,10 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
 
               <Link
                 href="/platform-admin"
-                className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+                className="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 <span>Back to Leads Dashboard</span>
-                <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </Link>
             </div>
           </div>
@@ -566,9 +566,9 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                className="px-6 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-50"
               >
-                <Key className="w-4 h-4 text-[#14C8B4]" />
+                <Key className="w-4 h-4 text-white" />
                 <span>{isSubmitting ? 'Provisioning Infrastructure...' : 'Provision Client Super Admin'}</span>
               </button>
             </div>

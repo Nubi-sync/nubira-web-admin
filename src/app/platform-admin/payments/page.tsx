@@ -241,7 +241,7 @@ export default function SubscriptionsAndExpiryPage() {
           <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end">
             <Link
               href="/platform-admin/provisioning"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>+ Provision New Tenant</span>
@@ -377,7 +377,7 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('ALL')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'ALL'
-                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
@@ -388,7 +388,7 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('DEMO_TRIAL')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'DEMO_TRIAL'
-                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
@@ -399,7 +399,7 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('EXPIRING_SOON')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'EXPIRING_SOON'
-                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
@@ -410,7 +410,7 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('EXPIRED')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'EXPIRED'
-                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
@@ -421,7 +421,7 @@ export default function SubscriptionsAndExpiryPage() {
               onClick={() => setActiveTab('FULL_ACCESS')}
               className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'FULL_ACCESS'
-                  ? 'bg-[#0B1220] text-white shadow-xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
@@ -753,7 +753,7 @@ export default function SubscriptionsAndExpiryPage() {
                 type="button"
                 onClick={handleConfirmUpgrade}
                 disabled={isPending}
-                className="w-full py-2.5 sm:py-3 rounded-xl bg-[#0B1220] text-white text-xs sm:text-sm font-bold hover:bg-[#162032] transition-all cursor-pointer shadow-xs active:scale-[0.99]"
+                className="w-full py-2.5 sm:py-3 rounded-xl bg-[#1D4ED8] text-white text-xs sm:text-sm font-bold hover:bg-[#1E40AF] transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.99]"
               >
                 Mark Paid & Activate Full Access
               </button>

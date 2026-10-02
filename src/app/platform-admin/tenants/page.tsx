@@ -403,7 +403,7 @@ export default function TenantFactoriesPage() {
                             e.stopPropagation()
                             setSelectedTenantForView(t)
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#0B1220] hover:text-white border border-[#14C8B4]/30 transition-all cursor-pointer shadow-2xs active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E0F7F5] border border-[#14C8B4]/30 transition-all cursor-pointer shadow-2xs active:scale-95"
                           title={`View complete dossier for ${t.companyName}`}
                         >
                           <Eye className="w-3.5 h-3.5" />
