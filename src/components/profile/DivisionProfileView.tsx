@@ -229,7 +229,7 @@ export function DivisionProfileView({
 
           <Link
             href={divisionSlug}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 cursor-pointer active:scale-[0.98]"
           >
             <span>Enter Live Floor</span>
             <ArrowRight className="w-3.5 h-3.5" />

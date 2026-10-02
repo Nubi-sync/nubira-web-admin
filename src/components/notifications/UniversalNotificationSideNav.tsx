@@ -123,7 +123,7 @@ export function UniversalNotificationSideNav({
           className={`group relative flex flex-col items-center gap-2 py-3 px-2 rounded-l-2xl border-l border-y shadow-2xl transition-all duration-200 cursor-pointer ${
             hasNewPulse
               ? 'border-rose-400 bg-rose-950 text-white shadow-rose-500/40 translate-x-0 ring-2 ring-rose-500/50'
-              : 'bg-[#0B1220] text-white border-black/15 hover:border-black/30 hover:bg-[#162032] hover:-translate-x-1'
+              : 'bg-[#1D4ED8] text-white border-blue-600/30 hover:border-blue-400 hover:bg-[#1E40AF] shadow-blue-500/20 hover:-translate-x-1'
           }`}
           title="Open Live Department Feed & Audit Notifications"
         >

@@ -237,7 +237,7 @@ export function ModuleStoreDashboard({
               setFormError(null)
               setIsIssueModalOpen(true)
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Issue Challan</span>
@@ -362,7 +362,7 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('RECEIPTS')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'RECEIPTS'
-                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                   : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
               }`}
             >
@@ -374,7 +374,7 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('ISSUES')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'ISSUES'
-                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                   : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
               }`}
             >
@@ -386,7 +386,7 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('PENDING')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'PENDING'
-                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                   : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
               }`}
             >
@@ -607,7 +607,7 @@ export function ModuleStoreDashboard({
                         <button
                           type="button"
                           onClick={() => handleOpenAcknowledge(p)}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
                         >
                           Acknowledge
                         </button>
@@ -799,7 +799,7 @@ export function ModuleStoreDashboard({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 transition-all"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Issue'}
                 </button>
@@ -946,7 +946,7 @@ export function ModuleStoreDashboard({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 transition-all"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Receipt'}
                 </button>

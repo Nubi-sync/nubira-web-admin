@@ -764,7 +764,7 @@ export function CentralStoreHubClient({
                     <button
                       type="button"
                       onClick={() => handleQuickIssueToCutting(f)}
-                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] cursor-pointer"
+                      className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 cursor-pointer transition-all"
                     >
                       Issue to Cut
                     </button>
@@ -1150,7 +1150,7 @@ export function CentralStoreHubClient({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 transition-all"
                 >
                   {isSubmitting ? 'Saving...' : 'Add Stock'}
                 </button>
@@ -1248,7 +1248,7 @@ export function CentralStoreHubClient({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 transition-all"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Booking'}
                 </button>
@@ -1457,7 +1457,7 @@ export function CentralStoreHubClient({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 transition-all"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm Issue'}
                 </button>

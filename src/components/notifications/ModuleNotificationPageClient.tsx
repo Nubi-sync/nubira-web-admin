@@ -252,13 +252,13 @@ export function ModuleNotificationPageClient({
             onClick={() => setActiveTab('MODULE')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'MODULE'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>{moduleName} Events</span>
             <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-              activeTab === 'MODULE' ? 'bg-[#F0FDFA] text-[#0B1220] font-bold' : 'bg-slate-200 text-slate-700'
+              activeTab === 'MODULE' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
             }`}>
               {moduleEvents.length}
             </span>
@@ -269,13 +269,13 @@ export function ModuleNotificationPageClient({
             onClick={() => setActiveTab('ALL')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'ALL'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>All Floor Activity</span>
             <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-              activeTab === 'ALL' ? 'bg-[#F0FDFA] text-[#0B1220] font-bold' : 'bg-slate-200 text-slate-700'
+              activeTab === 'ALL' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
             }`}>
               {notifications.length}
             </span>
@@ -286,13 +286,15 @@ export function ModuleNotificationPageClient({
             onClick={() => setActiveTab('UNREAD')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'UNREAD'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <span>Unread</span>
             {unreadEvents.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-md bg-[#F0FDFA] text-[#0B1220] text-[10px] font-mono font-bold border border-black/15">
+              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono font-bold ${
+                activeTab === 'UNREAD' ? 'bg-[#0B1220] text-white' : 'bg-[#14C8B4] text-[#0B1220]'
+              }`}>
                 {unreadEvents.length}
               </span>
             )}
