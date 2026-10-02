@@ -238,7 +238,7 @@ export function WorkerListModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
+            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
           >
             Close
           </button>
