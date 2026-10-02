@@ -903,7 +903,7 @@ export function CuttingDashboardClient({
                 <button
                   type="button"
                   onClick={() => setIsAddTaskOpen(true)}
-                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold shadow-xs cursor-pointer transition-all"
+                  className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all active:scale-[0.98]"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Assign Task Row</span>

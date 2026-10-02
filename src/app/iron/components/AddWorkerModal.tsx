@@ -276,7 +276,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                     onClick={() => toggleRole(role.id)}
                     className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#F0FDFA] border-[#0B1220] text-[#0B1220] shadow-2xs font-bold'
+                        ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] shadow-2xs font-bold'
                         : 'bg-white border-black/10 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -297,14 +297,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-bold text-slate-600 transition-all cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>
@@ -313,6 +313,12 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                 </>
               ) : (
                 <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Register Presser</span>
+                </>
+              )}
+            </button>
+          </div>
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Register Presser</span>
                 </>
