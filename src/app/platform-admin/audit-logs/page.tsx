@@ -128,7 +128,7 @@ export default function SecurityAuditLogsPage() {
             <button
               type="button"
               onClick={exportCSV}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
             >
               <Download className="w-4 h-4 text-white" />
               <span>Export CSV</span>
@@ -153,7 +153,7 @@ export default function SecurityAuditLogsPage() {
                     onClick={() => setCategoryFilter(cat)}
                     className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer text-sm font-semibold ${
                       active
-                        ? 'bg-[#0B1220] text-white shadow-xs'
+                        ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] font-bold shadow-2xs'
                         : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 font-medium'
                     }`}
                   >

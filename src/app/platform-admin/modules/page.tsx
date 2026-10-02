@@ -376,7 +376,7 @@ export default function EnterpriseModulesPage() {
           <div className="flex items-center gap-3 shrink-0">
             <Link
               href="/platform-admin/provisioning"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-colors shadow-xs cursor-pointer font-[family-name:var(--font-heading)]"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer font-[family-name:var(--font-heading)]"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Provision Factory</span>
@@ -738,13 +738,13 @@ export default function EnterpriseModulesPage() {
                   <button
                     type="button"
                     onClick={() => setActiveBlueprint(null)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
                   >
                     Close
                   </button>
                   <Link
                     href={`/platform-admin/provisioning?module=${activeBlueprint.id}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-colors shadow-xs cursor-pointer font-[family-name:var(--font-heading)]"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer font-[family-name:var(--font-heading)]"
                   >
                     <span>Allot in Tenant Provisioning</span>
                     <ArrowRight className="w-3.5 h-3.5" />

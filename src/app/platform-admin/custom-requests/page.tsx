@@ -255,7 +255,7 @@ export default function CustomEnterpriseRequestsPage() {
                 onClick={() => setStatusFilter(st)}
                 className={`px-3.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer shrink-0 ${
                   statusFilter === st
-                    ? 'bg-[#0B1220] text-white shadow-xs font-semibold'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
                     : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium'
                 }`}
               >
