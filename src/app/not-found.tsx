@@ -83,14 +83,14 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-sm cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
             </Link>
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#F0FDFA] hover:bg-slate-100 border border-black/15 text-slate-900 rounded-xl text-sm font-bold transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold shadow-2xs transition-all cursor-pointer"
             >
               <span>Staff Portal Sign In</span>
             </Link>

@@ -87,7 +87,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
         {/* Quick launcher to store */}
         <Link
           href="/store"
-          className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
+          className="min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
         >
           <span>Open Store Dashboard</span>
           <ArrowUpRight className="w-4 h-4" />

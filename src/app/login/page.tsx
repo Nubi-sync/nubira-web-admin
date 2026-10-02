@@ -430,23 +430,23 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isPending || isSuccess}
-                className="w-full py-3 sm:py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.99] flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-sm disabled:opacity-85 disabled:cursor-not-allowed mt-1 cursor-pointer group"
+                className="w-full py-3 sm:py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] flex items-center justify-center gap-2 transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-85 disabled:cursor-not-allowed mt-1 cursor-pointer group"
               >
                 {isSuccess ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
+                    <CheckCircle2 className="w-4 h-4 text-white" />
                     <span>Continue to Dashboard</span>
-                    <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                    <ArrowRight className="w-4 h-4 text-white" />
                   </>
                 ) : isPending ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-[#14C8B4]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
                     <span>Signing in...</span>
                   </>
                 ) : (
                   <>
                     <span>Sign In to Dashboard</span>
-                    <ArrowRight className="w-4 h-4 text-[#14C8B4] group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
               </button>
