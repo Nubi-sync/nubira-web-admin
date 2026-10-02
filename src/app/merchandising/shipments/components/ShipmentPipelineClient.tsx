@@ -204,10 +204,10 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
                 key={tab}
                 type="button"
                 onClick={() => setActiveFilter(tab)}
-                className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === tab
-                    ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
-                    : 'text-slate-600 bg-white hover:bg-slate-50 border border-slate-200/80 shadow-2xs'
+                    ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                    : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
                 }`}
               >
                 {tab.replace('_', ' ')}
@@ -316,7 +316,7 @@ export function ShipmentPipelineClient({ initialShipments }: ShipmentPipelineCli
                             }
                             handleUpdateStatus(shp, orderMap[shp.status])
                           }}
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-[#0B1220] bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer whitespace-nowrap active:scale-[0.98]"
+                          className="inline-flex items-center px-2.5 py-1 text-[11px] font-bold text-[#0B1220] bg-slate-50 hover:bg-[slate-100] border border-slate-200 rounded-lg transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
                         >
                           Advance Status
                         </button>
