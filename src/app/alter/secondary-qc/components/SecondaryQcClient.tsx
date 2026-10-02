@@ -319,7 +319,7 @@ export function SecondaryQcClient({ userEmail, companyName }: SecondaryQcClientP
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedTicket(null)}
-                className="px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032]"
+                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs cursor-pointer transition-all"
               >
                 Close Certificate
               </button>

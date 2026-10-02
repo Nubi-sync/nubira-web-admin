@@ -925,9 +925,9 @@ export function DepartmentHeadsClient({
                         <button
                           type="button"
                           onClick={() => handleOpenAddWorker(div.route)}
-                          className="w-full sm:w-auto min-h-[40px] sm:min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                          className="w-full sm:w-auto min-h-[40px] sm:min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                         >
-                          <Plus className="w-4 h-4 text-[#14C8B4]" />
+                          <Plus className="w-4 h-4 text-white" />
                           <span>Add Worker</span>
                         </button>
                       </div>
