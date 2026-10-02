@@ -534,7 +534,7 @@ export default function RegisterFreeTrialPage() {
                 {/* Stepper Connecting Line */}
                 <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200 -z-0" />
                 <div 
-                  className="absolute top-4 left-6 h-0.5 bg-[#0B1220] transition-all duration-500 -z-0"
+                  className="absolute top-4 left-6 h-0.5 bg-[#1D4ED8] transition-all duration-500 -z-0"
                   style={{
                     width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%'
                   }}
@@ -543,11 +543,11 @@ export default function RegisterFreeTrialPage() {
                 {/* Step 1 Pill */}
                 <div className="flex flex-col items-center gap-1.5 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    currentStep >= 1 ? 'bg-[#0B1220] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                    currentStep >= 1 ? 'bg-[#1D4ED8] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
                   }`}>
                     1
                   </div>
-                  <span className={`text-[11px] font-bold ${currentStep === 1 ? 'text-[#0B1220]' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-bold ${currentStep === 1 ? 'text-[#1D4ED8]' : 'text-slate-500'}`}>
                     Account Setup
                   </span>
                 </div>
@@ -555,11 +555,11 @@ export default function RegisterFreeTrialPage() {
                 {/* Step 2 Pill */}
                 <div className="flex flex-col items-center gap-1.5 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    currentStep >= 2 ? 'bg-[#0B1220] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
+                    currentStep >= 2 ? 'bg-[#1D4ED8] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
                   }`}>
                     2
                   </div>
-                  <span className={`text-[11px] font-bold ${currentStep === 2 ? 'text-[#0B1220]' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-bold ${currentStep === 2 ? 'text-[#1D4ED8]' : 'text-slate-500'}`}>
                     Choose Modules
                   </span>
                 </div>
@@ -567,11 +567,11 @@ export default function RegisterFreeTrialPage() {
                 {/* Step 3 Pill */}
                 <div className="flex flex-col items-center gap-1.5 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    currentStep === 3 ? 'bg-[#0B1220] text-[#14C8B4] shadow-xs' : 'bg-slate-100 text-slate-500'
+                    currentStep === 3 ? 'bg-[#1D4ED8] text-white shadow-xs' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {currentStep === 3 ? <Check className="w-4 h-4 stroke-[3]" /> : '3'}
                   </div>
-                  <span className={`text-[11px] font-bold ${currentStep === 3 ? 'text-[#0B1220]' : 'text-slate-500'}`}>
+                  <span className={`text-[11px] font-bold ${currentStep === 3 ? 'text-[#1D4ED8]' : 'text-slate-500'}`}>
                     Trial Ready
                   </span>
                 </div>
@@ -594,7 +594,7 @@ export default function RegisterFreeTrialPage() {
               {/* Sleek Stepper Progress Bar */}
               <div className="relative h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-[#0B1220] rounded-full transition-all duration-500"
+                  className="h-full bg-[#1D4ED8] rounded-full transition-all duration-500"
                   style={{ width: currentStep === 1 ? '33.33%' : currentStep === 2 ? '66.66%' : '100%' }}
                 />
               </div>
@@ -920,7 +920,7 @@ export default function RegisterFreeTrialPage() {
                       }`}
                     >
                       <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 border transition-all ${
-                        isSelected ? 'bg-[#0B1220] border-[#0B1220] text-[#14C8B4]' : 'border-slate-300 bg-white'
+                        isSelected ? 'bg-[#1D4ED8] border-[#1D4ED8] text-white' : 'border-slate-300 bg-white'
                       }`}>
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                       </div>
