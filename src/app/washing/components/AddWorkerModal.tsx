@@ -280,13 +280,13 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                     onClick={() => toggleRole(role.id)}
                     className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#F0FDFA] border-[#0B1220] text-[#0B1220] shadow-2xs font-bold'
+                        ? 'bg-[#F0FDFA] border-[#1D4ED8] text-[#1D4ED8] shadow-2xs font-bold'
                         : 'bg-white border-black/10 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     <span className="text-xs">{role.label}</span>
                     <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-[#0B1220] border-[#0B1220] text-white' : 'border-slate-300 bg-white'
+                      isSelected ? 'bg-[#1D4ED8] border-[#1D4ED8] text-white' : 'border-slate-300 bg-white'
                     }`}>
                       {isSelected && <Check className="w-3 h-3" />}
                     </div>
@@ -301,14 +301,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/15 bg-white hover:bg-slate-50 text-xs font-bold text-slate-600 transition-all cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>
