@@ -481,7 +481,7 @@ export function DesignDashboardClient({
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer border ${
                   statusFilter === st
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] font-bold shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                     : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -1065,7 +1065,7 @@ export function DesignDashboardClient({
                         type="button"
                         disabled={isReviewing}
                         onClick={() => handlePHReviewSubmit('APPROVED')}
-                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] text-white hover:bg-[#1E40AF] text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         <span>Approve &amp; Forward to Super Admin</span>
@@ -1094,7 +1094,7 @@ export function DesignDashboardClient({
                           const hasAnyCwApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
                           handlePHReviewSubmit(hasAnyCwApproved ? 'APPROVED' : 'REJECTED')
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] text-white hover:bg-[#1E40AF] text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                         title="Update review decisions and sync accepted colorways to Super Admin"
                       >
                         {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}

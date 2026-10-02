@@ -621,7 +621,7 @@ export function AllocateBriefModal({
                         <button
                           type="button"
                           onClick={() => handleAddManualColor(idx)}
-                          className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
+                          className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold cursor-pointer transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 shrink-0 active:scale-95"
                         >
                           + Add Color
                         </button>
@@ -692,16 +692,16 @@ export function AllocateBriefModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!isFormValid || isSubmitting}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 isFormValid && !isSubmitting
-                  ? 'bg-[#0B1220] hover:bg-[#162032] text-white cursor-pointer active:scale-[0.98]'
+                  ? 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white cursor-pointer active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >

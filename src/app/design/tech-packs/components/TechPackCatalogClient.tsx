@@ -189,7 +189,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 min-h-[40px] px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4 text-white" />
             <span>Create Tech-Pack</span>
@@ -277,7 +277,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer border ${
                   isSel
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -557,7 +557,7 @@ export function TechPackCatalogClient({ initialTechPacks, availableBrands, avail
             <div className="px-6 py-4 border-t border-slate-200/80 bg-slate-50/60 flex justify-end">
               <button
                 onClick={() => setDiffPack(null)}
-                className="px-5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all cursor-pointer font-[family-name:var(--font-heading)]"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Close Diff Inspector
               </button>
