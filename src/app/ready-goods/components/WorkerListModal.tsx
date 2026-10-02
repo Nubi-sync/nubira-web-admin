@@ -126,7 +126,7 @@ export function WorkerListModal({
                 onClick={() => setRoleFilter(role)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                   roleFilter === role
-                    ? 'bg-[#0B1220] text-white'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'text-slate-600 hover:bg-[#F0FDFA]'
                 }`}
               >

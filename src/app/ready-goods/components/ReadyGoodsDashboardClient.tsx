@@ -282,10 +282,10 @@ export function ReadyGoodsDashboardClient({
             </div>
             <Link
               href="/ready-goods/carton-packing"
-              className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all shrink-0 inline-flex items-center gap-1 cursor-pointer"
+              className="px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               <span>Manage Manifest</span>
-              <ArrowRight className="w-3 h-3" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -614,7 +614,7 @@ export function ReadyGoodsDashboardClient({
             <div className="pt-2 flex justify-end gap-2">
               <Link
                 href="/ready-goods/aql-inspection"
-                className="px-3 py-1.5 rounded-xl bg-[#0B1220] text-white text-xs font-bold hover:bg-[#162032] transition-all cursor-pointer"
+                className="px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer inline-flex items-center gap-1.5 active:scale-[0.98]"
               >
                 Perform AQL Audit on Carton
               </Link>
