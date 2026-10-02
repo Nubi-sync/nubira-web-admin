@@ -101,7 +101,7 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               onClick={() => setMode('ADD')}
               className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'ADD'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-[#E6FFFA]'
               }`}
             >
@@ -114,7 +114,7 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               onClick={() => setMode('SUBTRACT')}
               className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'SUBTRACT'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-[#E6FFFA]'
               }`}
             >
@@ -127,7 +127,7 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
               onClick={() => setMode('SET')}
               className={`p-2 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 mode === 'SET'
-                  ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-2xs'
+                  ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
                   : 'bg-[#F0FDFA] text-slate-700 border-black/10 hover:bg-[#E6FFFA]'
               }`}
             >
@@ -177,14 +177,14 @@ export function AdjustTrimStockModal({ isOpen, onClose, item }: AdjustTrimStockM
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-black/15 text-xs font-mono font-bold text-slate-700 hover:bg-[#F0FDFA] transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#0B1220] text-white text-xs font-mono font-bold hover:bg-[#162032] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              className="px-4.5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Updating...' : 'Commit Stock Update'}</span>

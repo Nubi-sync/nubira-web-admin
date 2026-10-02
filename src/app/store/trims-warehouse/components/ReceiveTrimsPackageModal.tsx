@@ -443,14 +443,14 @@ export function ReceiveTrimsPackageModal({ isOpen, onClose, onSuccess }: Receive
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-mono font-bold text-slate-600 hover:text-slate-900 bg-[#F0FDFA] hover:bg-[#E6FFFA] rounded-xl border border-black/15 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 text-xs font-mono font-bold text-white bg-[#0B1220] hover:bg-[#162032] rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4.5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Accept Trims Batch into {binLocation || 'Warehouse'}</span>
