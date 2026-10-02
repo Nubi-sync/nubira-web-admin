@@ -102,7 +102,7 @@ export function MachineRunsClient() {
                 onClick={() => setStatusFilter(st)}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                   statusFilter === st
-                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -113,7 +113,7 @@ export function MachineRunsClient() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Load New Batch</span>
