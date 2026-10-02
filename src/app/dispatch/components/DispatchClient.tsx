@@ -571,7 +571,7 @@ export function DispatchClient({
             onClick={() => handleTabChange('challans')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'challans'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -584,7 +584,7 @@ export function DispatchClient({
             onClick={() => handleTabChange('counting')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'counting'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -616,7 +616,7 @@ export function DispatchClient({
                     }}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                       isSelected
-                        ? 'bg-[#0B1220] text-white shadow-xs'
+                        ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
                     }`}
                   >
@@ -670,9 +670,9 @@ export function DispatchClient({
                 <button
                   type="button"
                   onClick={handleOpenCreateChallan}
-                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-colors cursor-pointer"
+                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 text-white" />
                   <span>Create First Challan</span>
                 </button>
               </div>
@@ -812,9 +812,9 @@ export function DispatchClient({
                                 type="button"
                                 disabled={approvingId === row.id}
                                 onClick={() => handleApproveChallan(row.id)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-50"
                               >
-                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                 <span>{approvingId === row.id ? 'Approving...' : 'Approve Dispatch'}</span>
                               </button>
                             ) : (
@@ -861,9 +861,9 @@ export function DispatchClient({
                 <button
                   type="button"
                   onClick={() => setShowCountingModal(true)}
-                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-colors cursor-pointer"
+                  className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 text-white" />
                   <span>Record First Counting</span>
                 </button>
               </div>
@@ -1274,14 +1274,14 @@ export function DispatchClient({
                     type="button"
                     onClick={() => setShowCreateChallanModal(false)}
                     disabled={isPending}
-                    className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/60 border border-slate-200 transition-colors cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                    className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
                   >
                     {isPending ? 'Generating Challan...' : 'Generate & Issue Delivery Challan'}
                   </button>
@@ -1581,16 +1581,16 @@ export function DispatchClient({
               <button 
                 type="button" 
                 onClick={() => setSelectedChallanForPrint(null)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer text-center"
+                className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer text-center"
               >
                 Close
               </button>
               <button 
                 type="button" 
                 onClick={() => window.print()}
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-xs font-bold bg-[#0B1220] hover:bg-[#162032] shadow-xs cursor-pointer transition-colors"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-xs font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all"
               >
-                <Printer className="w-4 h-4" />
+                <Printer className="w-4 h-4 text-white" />
                 <span>Print Official Challan</span>
               </button>
             </div>

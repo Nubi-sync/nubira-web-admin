@@ -878,10 +878,10 @@ export function DesignBriefsClient({
                             {brief.status === 'SUBMITTED' && brief.latest_submission && (
                               <button
                                 onClick={() => setReviewingSubmission({ submission: brief.latest_submission!, brief, conceptNumber: item.conceptNumber, artNumber: item.artNumber })}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] px-2.5 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30"
                                 title="Supervisor Review"
                               >
-                                <Eye className="w-3.5 h-3.5" />
+                                <Eye className="w-3.5 h-3.5 text-white" />
                                 <span>Supervisor Review</span>
                               </button>
                             )}
@@ -1247,9 +1247,9 @@ export function DesignBriefsClient({
                         type="button"
                         disabled={isReviewing}
                         onClick={() => handlePHReviewSubmit('APPROVED')}
-                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl bg-[#1D4ED8] text-white hover:bg-[#1E40AF] text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50"
                       >
-                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4 text-white" />}
                         <span>Approve &amp; Forward to SA</span>
                       </button>
                     </>
@@ -1273,10 +1273,10 @@ export function DesignBriefsClient({
                           const hasAnyCwApproved = Object.values(colorwayDecisions).some(v => v === 'APPROVED')
                           handlePHReviewSubmit(hasAnyCwApproved ? 'APPROVED' : 'REJECTED')
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B1220] text-white hover:bg-[#162032] text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1D4ED8] text-white hover:bg-[#1E40AF] text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer disabled:opacity-50"
                         title="Update review decisions and sync accepted colorways to Super Admin"
                       >
-                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        {isReviewing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-white" />}
                         <span>Update Review &amp; Sync</span>
                       </button>
                     </>
