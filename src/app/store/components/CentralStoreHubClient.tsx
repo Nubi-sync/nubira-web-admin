@@ -521,7 +521,7 @@ export function CentralStoreHubClient({
                 onClick={() => setActiveTab(tab.key as TabType)}
                 className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeTab === tab.key
-                    ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200'
                 }`}
               >

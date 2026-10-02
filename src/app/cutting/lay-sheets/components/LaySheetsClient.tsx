@@ -657,7 +657,7 @@ export function LaySheetsClient({ initialLays }: LaySheetsClientProps = {}) {
             <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
               <button
                 onClick={() => setSelectedLay(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
+                className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 cursor-pointer transition-all"
               >
                 Done
               </button>
