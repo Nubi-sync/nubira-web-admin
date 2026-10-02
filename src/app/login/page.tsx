@@ -460,7 +460,7 @@ export default function LoginPage() {
                     className="text-[#1D4ED8] font-bold hover:underline transition-colors inline-flex items-center gap-1 group/trial"
                   >
                     <span>Start 7-Day Free Trial</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#14C8B4] group-hover/trial:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[#1D4ED8] group-hover/trial:translate-x-0.5 transition-transform" />
                   </Link>
                 </p>
               </div>
