@@ -137,9 +137,9 @@ export function FabricRelaxationClient() {
           <button
             type="button"
             onClick={() => setIsNewModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-white" />
             <span>+ Stage Roll</span>
           </button>
         </div>
@@ -193,7 +193,7 @@ export function FabricRelaxationClient() {
                 onClick={() => setStatusFilter(st)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
                   statusFilter === st
-                    ? 'bg-[#0B1220] text-white'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -295,7 +295,7 @@ export function FabricRelaxationClient() {
                           {roll.status === 'CONDITIONING_COMPLETED' && (
                             <button
                               onClick={() => handleAdvanceStatus(roll)}
-                              className="px-2.5 py-1 rounded-lg bg-[#0B1220] hover:bg-[#2e2a50] text-white font-mono text-[10px] font-bold"
+                              className="px-2.5 py-1 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-mono text-[10px] font-bold shadow-sm shadow-blue-500/20 cursor-pointer transition-all"
                             >
                               Allocate Lay
                             </button>
@@ -445,13 +445,13 @@ export function FabricRelaxationClient() {
                 <button
                   type="button"
                   onClick={() => setIsNewModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700"
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2e2a50] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-sm shadow-blue-500/20 cursor-pointer transition-all"
                 >
                   Begin 24H Relaxation Cycle
                 </button>
@@ -501,7 +501,7 @@ export function FabricRelaxationClient() {
             <div className="pt-3 border-t border-slate-200 flex justify-end">
               <button
                 onClick={() => setSelectedRoll(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
+                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs cursor-pointer"
               >
                 Close
               </button>
