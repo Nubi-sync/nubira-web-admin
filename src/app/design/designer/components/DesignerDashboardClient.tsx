@@ -208,7 +208,7 @@ function ColorwayMockupDropzone({
                 <span>Zoom</span>
               </button>
               {!disabled && (
-                <label className="px-3 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all">
+                <label className="px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold flex items-center gap-1 shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all active:scale-95">
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Replace</span>
                   <input
@@ -773,7 +773,7 @@ export function DesignerDashboardClient({
                   }}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-2xs border ${
                     isTabActive
-                      ? 'bg-[#0B1220] text-white border-[#0B1220]'
+                      ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold'
                       : isFullyDone
                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
                       : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100'
@@ -788,7 +788,7 @@ export function DesignerDashboardClient({
                   )}
                   {artNo ? (
                     <span className={`px-2 py-0.5 rounded-md font-mono font-extrabold tracking-wider ${
-                      isTabActive ? 'bg-white/20 text-white' : 'bg-[#0B1220] text-white'
+                      isTabActive ? 'bg-[#0B1220] text-white font-bold' : 'bg-[#0B1220] text-white'
                     }`}>
                       ART NO: {artNo}
                     </span>
@@ -987,7 +987,7 @@ export function DesignerDashboardClient({
                   className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 ${
                     readySlotsCount >= totalSlots
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      : 'bg-[#0B1220] hover:bg-[#162032] text-white'
+                      : 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98]'
                   }`}
                 >
                   {isSubmitting ? (

@@ -135,7 +135,7 @@ export function DesignerHistoryClient({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/design/designer"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
           >
             <Palette className="w-3.5 h-3.5" />
             <span>Active Assignments</span>
@@ -252,7 +252,7 @@ export function DesignerHistoryClient({
                 onClick={() => setFilterStatus(tab.key)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                   filterStatus === tab.key
-                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -453,7 +453,7 @@ export function DesignerHistoryClient({
                         onClick={() => setActiveModalConceptTab(concept.concept_number)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                           activeModalConceptTab === concept.concept_number
-                            ? 'bg-[#0B1220] text-white shadow-xs'
+                            ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                             : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
                         }`}
                       >
