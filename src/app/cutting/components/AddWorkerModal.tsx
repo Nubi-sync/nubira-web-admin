@@ -239,14 +239,14 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
                     onClick={() => toggleRole(r.id)}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                       isChecked
-                        ? 'bg-[#0B1220] text-white border-[#0B1220] shadow-xs'
+                        ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs'
                         : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white'
                     }`}
                   >
                     <span className="text-xs font-bold font-mono">{r.label}</span>
                     <div className={`w-4 h-4 rounded-md flex items-center justify-center border transition-all ${
                       isChecked
-                        ? 'bg-white text-[#0B1220] border-white'
+                        ? 'bg-white text-[#1D4ED8] border-white'
                         : 'border-slate-300 bg-white'
                     }`}>
                       {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
@@ -269,7 +269,7 @@ export function AddWorkerModal({ isOpen, onClose, onSuccess, companyName }: AddW
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer disabled:opacity-50 flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isSubmitting ? 'Registering...' : 'Register Worker'}</span>
