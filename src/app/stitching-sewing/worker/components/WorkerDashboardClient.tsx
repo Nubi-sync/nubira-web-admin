@@ -338,12 +338,14 @@ export function WorkerDashboardClient({
             onClick={() => setActiveTab('ACTIVE')}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === 'ACTIVE'
-                ? 'bg-[#3A3564] text-white shadow-2xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <span>Active Allotments</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-white/20">
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+              activeTab === 'ACTIVE' ? 'bg-[#0B1220] text-white font-bold' : 'bg-white/20'
+            }`}>
               {activeTasks.length}
             </span>
           </button>
@@ -353,12 +355,14 @@ export function WorkerDashboardClient({
             onClick={() => setActiveTab('COMPLETED')}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === 'COMPLETED'
-                ? 'bg-[#3A3564] text-white shadow-2xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <span>Completed Lots</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-slate-200 text-slate-700">
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+              activeTab === 'COMPLETED' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
+            }`}>
               {completedTasks.length}
             </span>
           </button>
@@ -466,7 +470,7 @@ export function WorkerDashboardClient({
                         <button
                           type="button"
                           onClick={() => handleStartTask(t)}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2C274E] transition-all shadow-xs cursor-pointer active:scale-98"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-98"
                         >
                           <Play className="w-3.5 h-3.5 fill-white" />
                           <span>Start Sewing Task</span>
@@ -562,14 +566,14 @@ export function WorkerDashboardClient({
                 <button
                   type="button"
                   onClick={() => setSubmittingTask(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2C274E] rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                  className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 disabled:opacity-50 cursor-pointer flex items-center gap-2 active:scale-[0.98]"
                 >
                   {isProcessing ? 'Submitting...' : 'Confirm Submission'}
                 </button>

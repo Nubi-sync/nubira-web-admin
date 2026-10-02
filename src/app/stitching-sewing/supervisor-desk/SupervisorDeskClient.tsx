@@ -545,13 +545,13 @@ export function SupervisorDeskClient({
             onClick={() => setActiveStation('LINEMAN')}
             className={`flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer ${
               activeStation === 'LINEMAN'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'bg-slate-50 hover:bg-[#FAF7F0] text-slate-700 border border-black/5'
             }`}
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                activeStation === 'LINEMAN' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'
+                activeStation === 'LINEMAN' ? 'bg-[#0B1220]/15 text-[#0B1220]' : 'bg-purple-100 text-purple-700'
               }`}>
                 <Scissors className="w-3.5 h-3.5" />
               </div>
@@ -561,7 +561,7 @@ export function SupervisorDeskClient({
               </div>
             </div>
             <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded-full shrink-0 ml-1 ${
-              activeStation === 'LINEMAN' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-800'
+              activeStation === 'LINEMAN' ? 'bg-[#0B1220] text-white font-bold' : 'bg-purple-100 text-purple-800'
             }`}>
               {kpis.activeLines}
             </span>
@@ -573,13 +573,13 @@ export function SupervisorDeskClient({
             onClick={() => setActiveStation('MENDING')}
             className={`flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer ${
               activeStation === 'MENDING'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'bg-slate-50 hover:bg-[#FAF7F0] text-slate-700 border border-black/5'
             }`}
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                activeStation === 'MENDING' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'
+                activeStation === 'MENDING' ? 'bg-[#0B1220]/15 text-[#0B1220]' : 'bg-amber-100 text-amber-700'
               }`}>
                 <Wrench className="w-3.5 h-3.5" />
               </div>
@@ -589,7 +589,7 @@ export function SupervisorDeskClient({
               </div>
             </div>
             <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded-full shrink-0 ml-1 ${
-              activeStation === 'MENDING' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
+              activeStation === 'MENDING' ? 'bg-[#0B1220] text-white font-bold' : 'bg-amber-100 text-amber-800'
             }`}>
               {kpis.mendingQueue}
             </span>
@@ -601,13 +601,13 @@ export function SupervisorDeskClient({
             onClick={() => setActiveStation('QC')}
             className={`flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer ${
               activeStation === 'QC'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'bg-slate-50 hover:bg-[#FAF7F0] text-slate-700 border border-black/5'
             }`}
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                activeStation === 'QC' ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-700'
+                activeStation === 'QC' ? 'bg-[#0B1220]/15 text-[#0B1220]' : 'bg-sky-100 text-sky-700'
               }`}>
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
@@ -617,7 +617,7 @@ export function SupervisorDeskClient({
               </div>
             </div>
             <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded-full shrink-0 ml-1 ${
-              activeStation === 'QC' ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-800'
+              activeStation === 'QC' ? 'bg-[#0B1220] text-white font-bold' : 'bg-sky-100 text-sky-800'
             }`}>
               {kpis.qcQueue}
             </span>
@@ -629,13 +629,13 @@ export function SupervisorDeskClient({
             onClick={() => setActiveStation('STORE')}
             className={`flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer ${
               activeStation === 'STORE'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'bg-slate-50 hover:bg-[#FAF7F0] text-slate-700 border border-black/5'
             }`}
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                activeStation === 'STORE' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'
+                activeStation === 'STORE' ? 'bg-[#0B1220]/15 text-[#0B1220]' : 'bg-indigo-100 text-indigo-700'
               }`}>
                 <Warehouse className="w-3.5 h-3.5" />
               </div>
@@ -645,7 +645,7 @@ export function SupervisorDeskClient({
               </div>
             </div>
             <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded-full shrink-0 ml-1 ${
-              activeStation === 'STORE' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800'
+              activeStation === 'STORE' ? 'bg-[#0B1220] text-white font-bold' : 'bg-indigo-100 text-indigo-800'
             }`}>
               {kpis.storeQueue}
             </span>
@@ -657,13 +657,13 @@ export function SupervisorDeskClient({
             onClick={() => setActiveStation('DISPATCH')}
             className={`col-span-2 sm:col-span-1 flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer ${
               activeStation === 'DISPATCH'
-                ? 'bg-[#3A3564] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'bg-slate-50 hover:bg-[#FAF7F0] text-slate-700 border border-black/5'
             }`}
           >
             <div className="flex items-center gap-2.5 truncate">
               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                activeStation === 'DISPATCH' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                activeStation === 'DISPATCH' ? 'bg-[#0B1220]/15 text-[#0B1220]' : 'bg-emerald-100 text-emerald-700'
               }`}>
                 <Truck className="w-3.5 h-3.5" />
               </div>
@@ -673,12 +673,11 @@ export function SupervisorDeskClient({
               </div>
             </div>
             <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded-full shrink-0 ml-1 ${
-              activeStation === 'DISPATCH' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+              activeStation === 'DISPATCH' ? 'bg-[#0B1220] text-white font-bold' : 'bg-emerald-100 text-emerald-800'
             }`}>
               {kpis.readyDispatch}
             </span>
           </button>
-
         </div>
       </div>
 
@@ -1042,7 +1041,7 @@ export function SupervisorDeskClient({
                           type="button"
                           onClick={() => handleOpenMendingAdvanceModal(item)}
                           disabled={isPending}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
                         >
                           <span>Handover to Mending</span>
                           <ArrowRight className="w-4 h-4" />
@@ -1056,7 +1055,7 @@ export function SupervisorDeskClient({
                         type="button"
                         onClick={() => handleOpenMendingModal(item)}
                         disabled={isPending}
-                        className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
+                        className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
                       >
                         <Wrench className="w-4 h-4 text-amber-300" />
                         <span>Verify & Handover to QC</span>
@@ -1253,7 +1252,7 @@ export function SupervisorDeskClient({
               <button
                 type="button"
                 onClick={() => setSelectedAllotmentForMendingAdvance(null)}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -1261,7 +1260,7 @@ export function SupervisorDeskClient({
                 type="button"
                 onClick={handleSubmitMendingAdvance}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Confirm Handover to Mending</span>
@@ -1395,7 +1394,7 @@ export function SupervisorDeskClient({
               <button
                 type="button"
                 onClick={() => setSelectedAllotmentForMending(null)}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -1403,7 +1402,7 @@ export function SupervisorDeskClient({
                 type="button"
                 onClick={handleSubmitMending}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#3A3564] hover:bg-[#2A2649] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Verify & Handover to QC Floor</span>

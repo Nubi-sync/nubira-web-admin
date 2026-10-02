@@ -98,7 +98,7 @@ export function WorkerListModal({
               onClose()
               onOpenAddWorker()
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#3A3564] hover:bg-[#2C274E] rounded-xl transition-all shadow-xs shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 shrink-0 cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Tailor</span>
@@ -169,7 +169,7 @@ export function WorkerListModal({
           <span>Total: {filtered.length} tailors</span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer"
+            className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
           >
             Close
           </button>
