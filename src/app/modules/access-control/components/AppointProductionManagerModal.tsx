@@ -196,7 +196,7 @@ export function AppointProductionManagerModal({
                 <button
                   type="submit"
                   disabled={isCheckingPhone}
-                  className="w-full py-3 px-5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                  className="w-full py-3 px-5 bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-60 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
                   {isCheckingPhone ? (
                     <>
@@ -206,7 +206,7 @@ export function AppointProductionManagerModal({
                   ) : (
                     <>
                       <span>Continue to Password</span>
-                      <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                      <ArrowRight className="w-4 h-4 text-white" />
                     </>
                   )}
                 </button>
@@ -309,7 +309,7 @@ export function AppointProductionManagerModal({
                   type="button"
                   onClick={() => setStep(1)}
                   disabled={isSubmitting}
-                  className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                  className="py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back</span>
@@ -317,7 +317,7 @@ export function AppointProductionManagerModal({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 py-3 px-5 bg-[#0B1220] hover:bg-[#162032] text-white text-sm font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
+                  className="flex-1 py-3 px-5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isSubmitting ? (
                     <>

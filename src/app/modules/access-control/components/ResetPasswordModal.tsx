@@ -164,14 +164,14 @@ export function ResetPasswordModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="min-h-[44px] px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                className="min-h-[44px] px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-2xs transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || !newPassword}
-                className="min-h-[44px] px-6 py-2.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 text-white rounded-xl text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                className="min-h-[44px] px-6 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-60 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 {isSubmitting ? (
                   <>
