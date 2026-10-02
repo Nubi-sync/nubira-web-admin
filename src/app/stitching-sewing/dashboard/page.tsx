@@ -454,7 +454,7 @@ export default async function StitchingSewingDashboardPage() {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-                  Stitching &amp; Sewing <span className="text-[#1D4ED8]">Floor</span>
+                  Stitching &amp; <span className="text-[#1D4ED8]">Sewing Floor</span>
                 </h1>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 tracking-wider shadow-2xs">
                   Floor Ops Live

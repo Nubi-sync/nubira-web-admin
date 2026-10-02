@@ -35,7 +35,7 @@ export default async function ShrinkageQcPage() {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                  Shrinkage & Fastness QC Station
+                  Shrinkage &amp; <span className="text-[#1D4ED8]">Fastness QC Station</span>
                 </h1>
                 <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
                   Quality Audit

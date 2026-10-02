@@ -503,8 +503,8 @@ export function SupervisorDeskClient({
               Operations Override
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-            Supervisor Operations & Absentee Override Hub
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+            Supervisor Operations &amp; <span className="text-[#1D4ED8]">Absentee Override Hub</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
             Centralized factory floor control for Linemen, Mending, Quality Check, Store, and Dispatch gates.
