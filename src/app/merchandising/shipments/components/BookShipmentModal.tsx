@@ -285,13 +285,13 @@ export function BookShipmentModal({ isOpen, onClose, onSuccess }: BookShipmentMo
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-slate-600 hover:bg-black/5 rounded-xl font-semibold transition-colors"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs rounded-xl transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl font-bold shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
               Book Export Shipment
