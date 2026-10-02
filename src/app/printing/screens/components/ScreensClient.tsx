@@ -221,7 +221,7 @@ export function ScreensClient() {
                       {scr.status === 'READY_FOR_PRINT' && (
                         <button
                           onClick={() => handleUpdateStatus(scr, 'IN_USE')}
-                          className="px-2.5 py-1 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-[11px] font-mono font-bold transition-all cursor-pointer shadow-sm shadow-blue-500/20"
                         >
                           Mount on Table
                         </button>
@@ -229,7 +229,7 @@ export function ScreensClient() {
                       {scr.status === 'IN_USE' && (
                         <button
                           onClick={() => handleUpdateStatus(scr, 'NEEDS_RECLAMATION')}
-                          className="px-2.5 py-1 rounded-lg bg-white border border-black/15 hover:bg-slate-50 text-slate-700 text-[11px] font-mono font-bold transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[11px] font-mono font-semibold transition-all cursor-pointer shadow-2xs"
                         >
                           Strip & Wash
                         </button>
