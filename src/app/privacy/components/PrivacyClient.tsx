@@ -227,7 +227,7 @@ export function PrivacyClient() {
   }, [searchQuery])
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#0B1220] selection:text-[#14C8B4] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1D4ED8] selection:text-white flex flex-col justify-between font-sans">
       
       {/* 1. TOP ENTERPRISE NAVIGATION BAR (Matches Zigza System) */}
       <header className="sticky top-0 z-40 bg-[#F8FAFC]/90 backdrop-blur-md border-b border-slate-200/80">
@@ -445,9 +445,9 @@ export function PrivacyClient() {
                   This policy complies with Indian law, including the <strong>Digital Personal Data Protection Act (DPDPA), 2023</strong> and the <strong>Information Technology Act, 2000</strong>.
                 </p>
 
-                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-2 mt-3">
+                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-2 mt-3">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900" />
                     <span>Who Owns the Data vs. Who Processes It</span>
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -619,9 +619,9 @@ export function PrivacyClient() {
                   Zigza includes an AI floor assistant to help production managers quickly check line delays, fabric bottlenecks, and shipment deadlines using normal everyday questions.
                 </p>
 
-                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 space-y-2">
+                <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-2">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#14C8B4]" />
+                    <Sparkles className="w-4 h-4 text-slate-900" />
                     <span>Our Guarantee: Zero AI Model Training</span>
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -837,7 +837,7 @@ export function PrivacyClient() {
 
                 <div className="space-y-2 pt-1">
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Right to See Your Data (Section 11)</div>
                       <p className="text-[11px] text-slate-600">You can ask for a summary of all personal details stored about you or your team.</p>
@@ -845,7 +845,7 @@ export function PrivacyClient() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Right to Correct Mistakes (Section 12)</div>
                       <p className="text-[11px] text-slate-600">You can update wrong names, change phone numbers, or correct any outdated information.</p>
@@ -853,7 +853,7 @@ export function PrivacyClient() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Right to Delete Data (Section 12)</div>
                       <p className="text-[11px] text-slate-600">You can ask to erase personal details when they are no longer needed for work or legal reasons.</p>
@@ -861,7 +861,7 @@ export function PrivacyClient() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Right to Help &amp; Complaints (Section 13)</div>
                       <p className="text-[11px] text-slate-600">You have the right to fast, direct help from our team if you have any privacy concerns.</p>
@@ -869,7 +869,7 @@ export function PrivacyClient() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Right to Nominate (Section 14)</div>
                       <p className="text-[11px] text-slate-600">You can name a trusted representative to manage your data rights if you are unable to do so.</p>

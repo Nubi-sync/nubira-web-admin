@@ -1857,8 +1857,8 @@ export function ZigzaLandingPageClient({
                           {/* Timeline node (circle) */}
                           <div className={`absolute -left-8 top-2.5 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
                             isActive
-                              ? 'bg-[#0B1220] text-[#14C8B4] shadow-sm ring-2 ring-[#0B1220]/20 scale-110'
-                              : 'bg-white text-slate-700 border-2 border-slate-300 group-hover:border-[#0B1220] group-hover:scale-105'
+                              ? 'bg-[#14C8B4] text-[#0B1220] shadow-sm ring-2 ring-[#14C8B4]/40 scale-110 border border-[#14C8B4]'
+                              : 'bg-[#F0FDFA] text-[#0B1220] border-2 border-[#14C8B4]/30 group-hover:border-[#14C8B4] group-hover:scale-105'
                           }`}>
                             {stage.step}
                           </div>
@@ -1866,11 +1866,11 @@ export function ZigzaLandingPageClient({
                           {/* Content Card Box with animated outline on hover */}
                           <div className={`py-2.5 px-3.5 rounded-xl border-2 transition-all duration-300 ease-out ${
                             isActive 
-                              ? 'border-[#0B1220] bg-[#F0FDFA] shadow-2xs' 
-                              : 'border-transparent bg-transparent hover:border-[#0B1220]/50 hover:bg-[#F0FDFA]/40 hover:shadow-2xs'
+                              ? 'border-[#14C8B4] bg-[#F0FDFA] shadow-2xs' 
+                              : 'border-transparent bg-transparent hover:border-slate-300 hover:bg-[#F0FDFA]/40 hover:shadow-2xs'
                           }`}>
                             <h3 className={`text-[15px] font-bold tracking-tight leading-snug transition-colors ${
-                              isActive ? 'text-slate-900' : 'text-slate-900 group-hover:text-[#0B1220]'
+                              isActive ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#1D4ED8]'
                             }`}>
                               {stage.title}
                             </h3>
@@ -1888,7 +1888,7 @@ export function ZigzaLandingPageClient({
                 <div className="hidden sm:flex flex-col">
                   {/* ROW 1: Stages 01 to 04 */}
                   <div className="relative mb-6 lg:mb-0">
-                    <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
+                    <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-300/80 z-0 pointer-events-none" />
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
                       {allStages.slice(0, 4).map((stage, idx) => {
                         const isActive = activePipelineStep === idx
@@ -1898,14 +1898,14 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(idx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border-2 border-dashed border-slate-300 hover:border-[#0B1220] hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#14C8B4] shadow-md ring-2 ring-[#14C8B4]/20 -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
                             }`}
                           >
                             <div>
                               <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
                                 <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                                  isActive ? 'bg-[#0B1220] text-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
+                                  isActive ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
                                 }`}>
                                   {stage.step}
                                 </span>
@@ -1922,13 +1922,13 @@ export function ZigzaLandingPageClient({
                   {/* Connecting Line Row 1 → Row 2 */}
                   <div className="hidden lg:block relative w-full h-9 pointer-events-none z-0">
                     <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 36" preserveAspectRatio="none">
-                      <path d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36" fill="none" stroke="rgba(11, 18, 32, 0.5)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      <path d="M 882 0 C 882 14, 860 18, 830 18 L 170 18 C 140 18, 118 22, 118 36" fill="none" stroke="rgba(148, 163, 184, 0.6)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                     </svg>
                   </div>
 
                   {/* ROW 2: Stages 05 to 08 */}
                   <div className="relative">
-                    <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-900/60 z-0 pointer-events-none" />
+                    <div className="hidden lg:block absolute top-[44px] left-[6%] right-[6%] h-[2px] bg-slate-300/80 z-0 pointer-events-none" />
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 items-stretch relative z-10">
                       {allStages.slice(4).map((stage, idx) => {
                         const globalIdx = idx + 4
@@ -1939,14 +1939,14 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(globalIdx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border-2 border-dashed border-slate-300 hover:border-[#0B1220] hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#14C8B4] shadow-md ring-2 ring-[#14C8B4]/20 -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
                             }`}
                           >
                             <div>
                               <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
                                 <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                                  isActive ? 'bg-[#0B1220] text-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
+                                  isActive ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
                                 }`}>
                                   {stage.step}
                                 </span>
@@ -2135,10 +2135,10 @@ export function ZigzaLandingPageClient({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
             
             {/* TIER 1: MODULAR FLOOR */}
-            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-slate-200 hover:border-[#0B1220] shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center mb-6 shadow-2xs">
-                  <Layers className="w-6 h-6 stroke-[2]" />
+                  <Layers className="w-6 h-6 stroke-[2] text-[#0B1220]" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-slate-900">
@@ -2199,7 +2199,7 @@ export function ZigzaLandingPageClient({
                     setDemoForm(prev => ({ ...prev, plan: 'MODULAR' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-white text-[#0B1220] hover:bg-[#0B1220] hover:text-white border border-slate-300 hover:border-[#0B1220] transition-all shadow-2xs cursor-pointer active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-semibold bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer active:scale-95"
                 >
                   <span>Select Modular Units</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2208,16 +2208,16 @@ export function ZigzaLandingPageClient({
             </div>
 
             {/* TIER 2: ALL-ACCESS + ZIGZA AI */}
-            <div className="relative flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border-2 border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 transition-all duration-200">
+            <div className="relative flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border-2 border-[#0B1220] shadow-md ring-1 ring-[#0B1220]/20 hover:shadow-xl transition-all duration-200">
               {/* Most Popular Badge */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-                <span className="px-4 py-1 bg-[#0B1220] text-[#14C8B4] text-xs font-bold uppercase tracking-wider rounded-full shadow-sm border border-[#14C8B4]/40 whitespace-nowrap">
+                <span className="px-4 py-1 bg-[#14C8B4] text-[#0B1220] text-xs font-extrabold uppercase tracking-wider rounded-full shadow-sm border border-[#14C8B4] whitespace-nowrap">
                   Most Popular
                 </span>
               </div>
               <div>
-                <div className="w-12 h-12 rounded-xl bg-[#0B1220] text-[#14C8B4] flex items-center justify-center mb-6 shadow-2xs">
-                  <Zap className="w-6 h-6 stroke-[2]" />
+                <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] flex items-center justify-center mb-6 shadow-2xs">
+                  <Zap className="w-6 h-6 stroke-[2] text-[#0B1220]" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-slate-900">
@@ -2287,10 +2287,10 @@ export function ZigzaLandingPageClient({
             </div>
 
             {/* TIER 3: CUSTOM ENGINEERING */}
-            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-slate-200 hover:border-[#0B1220] shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="flex flex-col justify-between p-7 sm:p-9 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] flex items-center justify-center mb-6 shadow-2xs">
-                  <Building2 className="w-6 h-6 stroke-[2]" />
+                  <Building2 className="w-6 h-6 stroke-[2] text-[#0B1220]" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-slate-900">
@@ -2348,7 +2348,7 @@ export function ZigzaLandingPageClient({
                     setDemoForm(prev => ({ ...prev, plan: 'CUSTOM' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-white text-[#0B1220] hover:bg-[#0B1220] hover:text-white border border-slate-300 hover:border-[#0B1220] transition-all shadow-2xs cursor-pointer active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-semibold bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer active:scale-95"
                 >
                   <span>Request Custom Build</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2467,7 +2467,7 @@ export function ZigzaLandingPageClient({
               <div
                 key={idx}
                 className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
-                  isOpen ? 'border-[#0B1220] shadow-sm ring-1 ring-[#0B1220]/10' : 'border-slate-200 hover:border-[#0B1220]/40'
+                  isOpen ? 'border-[#14C8B4]/60 shadow-sm ring-1 ring-[#14C8B4]/20' : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
                 <button
@@ -2476,12 +2476,12 @@ export function ZigzaLandingPageClient({
                   className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer group"
                 >
                   <span className={`font-bold text-base sm:text-lg transition-colors ${
-                    isOpen ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#0B1220]'
+                    isOpen ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#1D4ED8]'
                   }`}>
                     {faq.q}
                   </span>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${
-                    isOpen ? 'bg-[#0B1220] text-[#14C8B4] rotate-180 shadow-xs' : 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] rotate-0'
+                    isOpen ? 'bg-[#14C8B4] text-[#0B1220] rotate-180 shadow-xs border border-[#14C8B4]' : 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220] rotate-0'
                   }`}>
                     <ChevronDown className="w-4 h-4 transition-transform duration-300" />
                   </div>

@@ -216,7 +216,7 @@ export function SecurityClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#0B1220] selection:text-[#14C8B4] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1D4ED8] selection:text-white flex flex-col justify-between font-sans">
       
       {/* 1. TOP ENTERPRISE NAVIGATION BAR (Matches Zigza System) */}
       <header className="sticky top-0 z-40 bg-[#F8FAFC]/90 backdrop-blur-md border-b border-slate-200/80">

@@ -216,7 +216,7 @@ export function TermsClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#0B1220] selection:text-[#14C8B4] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-[#1D4ED8] selection:text-white flex flex-col justify-between font-sans">
       
       {/* 1. TOP ENTERPRISE NAVIGATION BAR (Matches Zigza System) */}
       <header className="sticky top-0 z-40 bg-[#F8FAFC]/90 backdrop-blur-md border-b border-slate-200/80">
@@ -436,7 +436,7 @@ export function TermsClient() {
                 </p>
                 <div className="p-4 rounded-2xl bg-[#F0FDFA] border border-black/15 space-y-2 mt-3">
                   <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4]" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900" />
                     <span>Purpose of the Service</span>
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -582,7 +582,7 @@ export function TermsClient() {
                 </p>
                 <div className="space-y-2 pt-1">
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">99.9% Uptime Commitment</div>
                       <p className="text-[11px] text-slate-600">We target continuous 99.9% availability for all cloud production endpoints, excluding scheduled maintenance.</p>
@@ -590,7 +590,7 @@ export function TermsClient() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Scheduled Maintenance Notice</div>
                       <p className="text-[11px] text-slate-600">Routine server updates are scheduled during off-shift hours (typically Sunday nights) with advance notice in your dashboard.</p>
@@ -598,7 +598,7 @@ export function TermsClient() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#14C8B4] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">Fast Technical Support</div>
                       <p className="text-[11px] text-slate-600">Our customer engineering team provides priority assistance for floor-critical questions within standard business hours.</p>
