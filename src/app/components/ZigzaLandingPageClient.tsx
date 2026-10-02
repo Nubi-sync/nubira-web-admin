@@ -555,7 +555,7 @@ export function ZigzaLandingPageClient({
       {/* 1. STICKY ENTERPRISE HEADER                                         */}
       {/* =================================================================== */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
+        <div className="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 h-[68px] sm:h-[88px] flex items-center justify-between gap-3">
           
           {/* Brand Logo */}
           <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 py-1">
@@ -724,65 +724,101 @@ export function ZigzaLandingPageClient({
       </header>
 
       {/* =================================================================== */}
-      {/* 2. HERO SECTION WITH PRODUCT EXECUTION SCREENSHOT PREVIEW           */}
       {/* =================================================================== */}
-      <section className="relative pt-8 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
-        <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-5">
-          {/* Main Hero Headline: High-converting, relatable positioning */}
-          <h1 className="text-[30px] sm:text-5xl lg:text-[58px] font-bold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.08]">
-            The Smarter Way to Run Your{' '}
-            <span className="inline-block whitespace-nowrap text-[#1D4ED8] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
-              Garment Business
-            </span>
-          </h1>
+      {/* =================================================================== */}
+      {/* 2. HERO SECTION — 50/50 DESKTOP SPLIT WITH FULL-BLEED RIGHT IMAGE    */}
+      {/* =================================================================== */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-r from-[#F8FAFC] via-[#F1F6FD] to-[#EAF3FD]">
+        {/* Desktop-Only 50% Full-Bleed Image: Extends to the far right edge of screen with razor-sharp clarity & smooth left-edge fade */}
+        <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-1/2 xl:w-[50%] h-full z-0 select-none pointer-events-none overflow-hidden">
+          <img
+            src="/hero_warehouse_test.png"
+            alt="Textile & Garment raw material warehouse storage"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Smooth left-edge gradient blend dissolving into the hero background blue */}
+          <div className="absolute inset-y-0 left-0 w-36 xl:w-52 bg-gradient-to-r from-[#F1F6FD] via-[#F1F6FD]/60 to-transparent pointer-events-none" />
+          {/* Subtle top and bottom seam softeners */}
+          <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[#F8FAFC]/60 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#F8FAFC]/60 to-transparent pointer-events-none" />
+        </div>
 
-          {/* Subtitle */}
-          <div className="relative max-w-2xl mx-auto px-1 sm:px-0">
-            {/* Subtitle: Clean, direct value proposition */}
-            <p className="text-[15px] sm:text-xl text-slate-600 leading-relaxed font-normal">
-              Replace paper slips and endless calls with one simple system. Track live orders, cut fabric waste, and ship to buyers with zero panic.
-            </p>
-          </div>
+        <div className="relative z-10 max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pt-8 sm:pt-14 lg:pt-20 pb-14 sm:pb-20 lg:pb-28">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
 
-          {/* Hero Action Buttons: Deep Royal Blue primary + High-contrast crisp border secondary */}
-          <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
-            <button
-              type="button"
-              onClick={() => setIsDemoModalOpen(true)}
-              className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <span>Request a Live Demo</span>
-              <ArrowRight className="w-4 h-4 text-white transition-transform group-hover:translate-x-0.5" />
-            </button>
+            {/* ── LEFT COLUMN (50% Width on Desktop): Clean Text, Buttons, Checklist ── */}
+            <div className="w-full lg:w-[48%] xl:w-[46%] space-y-5 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
+              {/* Main Hero Headline */}
+              <h1 className="text-[30px] sm:text-5xl lg:text-[46px] xl:text-[52px] font-bold tracking-tight text-[#0B1220] leading-[1.2] sm:leading-[1.1]">
+                The Smarter Way to Run Your{' '}
+                <span className="inline-block whitespace-nowrap text-[#1D4ED8] underline decoration-[#14C8B4] decoration-4 underline-offset-8">
+                  Garment Business
+                </span>
+              </h1>
 
-            <Link
-              href="/login"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-slate-700 hover:text-[#0B1220] bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
-            >
-              <Lock className="w-4 h-4 text-slate-500" />
-              <span>Staff Login to Portal</span>
-            </Link>
-          </div>
+              {/* Subtitle */}
+              <p className="text-[15px] sm:text-lg lg:text-xl text-slate-600 leading-relaxed font-normal max-w-xl mx-auto lg:mx-0">
+                Replace paper slips and endless calls with one simple system. Track live orders, cut fabric waste, and ship to buyers with zero panic.
+              </p>
 
-          {/* Key Metric Feature Flags: Clear customer benefits */}
-          <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 lg:gap-8 text-sm sm:text-[14.5px] font-semibold text-slate-700">
-            <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
-              <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
-              <span>Zero missing pieces across lines</span>
+              {/* Hero Action Buttons */}
+              <div className="pt-1 sm:pt-2 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsDemoModalOpen(true)}
+                  className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <span>Request a Live Demo</span>
+                  <ArrowRight className="w-4 h-4 text-white transition-transform group-hover:translate-x-0.5" />
+                </button>
+
+                <Link
+                  href="/login"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-slate-700 hover:text-[#0B1220] bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
+                >
+                  <Lock className="w-4 h-4 text-slate-500" />
+                  <span>Staff Login to Portal</span>
+                </Link>
+              </div>
+
+              {/* Key Benefit Pointers */}
+              <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center lg:items-start gap-3 sm:gap-5 xl:gap-6 text-sm sm:text-[14.5px] font-semibold text-slate-700">
+                <div className="flex items-center gap-2 shrink-0">
+                  <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
+                  <span>Zero missing pieces across lines</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
+                  <span>Works on any Android phone</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
+                  <span>Instant wages with zero disputes</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
-              <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
-              <span>Works on any Android phone</span>
+
+            {/* ── MOBILE-ONLY ILLUSTRATION: Clean card view on mobile (< lg), hidden on desktop ── */}
+            <div className="w-full lg:hidden order-1 flex items-center justify-center">
+              <div className="relative w-full max-w-[540px]">
+                {/* Subtle decorative accent behind the mobile card */}
+                <div className="absolute -inset-3 sm:-inset-4 rounded-[32px] bg-gradient-to-br from-[#1D4ED8]/10 via-[#14C8B4]/10 to-transparent blur-xl pointer-events-none" />
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl shadow-slate-900/5 group">
+                  <img
+                    src="/hero_warehouse_test.png"
+                    alt="Textile & Garment raw material warehouse storage"
+                    className="w-full h-[220px] sm:h-[340px] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 sm:whitespace-nowrap shrink-0">
-              <Check className="w-4 h-4 text-[#14C8B4] stroke-[2.5] shrink-0" />
-              <span>Instant wages with zero disputes</span>
-            </div>
+
           </div>
         </div>
 
-        {/* Live MES Interactive Visual Dashboard Mockup */}
-        <div className="mt-8 sm:mt-12 max-w-5xl mx-auto">
+        {/* Live MES Interactive Visual Dashboard Mockup — HIDDEN (preserved for future use) */}
+        <div className="hidden mt-8 sm:mt-12 max-w-5xl mx-auto">
           {(() => {
             interface MetricItem {
               label: string
@@ -1898,8 +1934,8 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(idx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dotted border-slate-300 hover:border-slate-400 hover:shadow-2xs'
                             }`}
                           >
                             <div>
@@ -1939,8 +1975,8 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(globalIdx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border border-dashed border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dotted border-slate-300 hover:border-slate-400 hover:shadow-2xs'
                             }`}
                           >
                             <div>
