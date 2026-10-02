@@ -317,7 +317,7 @@ export function AssignPackingModal({
             <button
               type="submit"
               disabled={passedTasks.length === 0}
-              className="w-full py-3 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]"
             >
               <PackageCheck className="w-4 h-4" />
               <span>Create Packing Assignment ({cartonsCount} Cartons)</span>

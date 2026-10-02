@@ -447,7 +447,7 @@ export function AlterationQualityClinicClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#0B1220] text-white font-bold'
+                        ? 'bg-[#1D4ED8] text-white font-bold'
                         : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -482,7 +482,7 @@ export function AlterationQualityClinicClient({
                           }}
                           className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                             isSelected
-                              ? 'bg-[#0B1220] text-white font-bold'
+                              ? 'bg-[#1D4ED8] text-white font-bold'
                               : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
@@ -814,7 +814,7 @@ export function AlterationQualityClinicClient({
                             <button
                               type="button"
                               onClick={() => setSelectedTaskToInspect(task)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                             >
                               <ShieldCheck className="w-3.5 h-3.5" />
                               <span>Inspect &amp; Verify</span>
