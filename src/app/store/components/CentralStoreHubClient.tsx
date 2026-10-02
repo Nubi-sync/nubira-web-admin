@@ -310,7 +310,7 @@ export function CentralStoreHubClient({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Central Store Hub
+                Central <span className="text-[#1D4ED8]">Store Hub</span>
               </h1>
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 DIV 11
