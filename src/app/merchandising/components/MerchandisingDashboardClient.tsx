@@ -1024,7 +1024,7 @@ export function MerchandisingDashboardClient({
                   onClick={() => setStatusFilter(tab)}
                   className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                     statusFilter === tab
-                      ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
+                      ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                       : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
                   }`}
                 >
