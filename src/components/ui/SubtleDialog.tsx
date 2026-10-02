@@ -45,25 +45,25 @@ export function SubtleDialog({
     error: {
       iconBg: 'bg-rose-50 text-rose-600 border border-rose-200/80',
       Icon: AlertCircle,
-      primaryBtn: 'bg-[#0B1220] hover:bg-[#162032] text-white',
+      primaryBtn: 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20',
       accentBorder: 'border-black/10'
     },
     warning: {
       iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/80',
       Icon: AlertTriangle,
-      primaryBtn: 'bg-[#0B1220] hover:bg-[#162032] text-white',
+      primaryBtn: 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20',
       accentBorder: 'border-black/10'
     },
     success: {
       iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-200/80',
       Icon: CheckCircle2,
-      primaryBtn: 'bg-[#0B1220] hover:bg-[#162032] text-white',
+      primaryBtn: 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20',
       accentBorder: 'border-black/10'
     },
     info: {
       iconBg: 'bg-[#F0FDFA] text-[#0B1220] border border-black/15',
       Icon: Info,
-      primaryBtn: 'bg-[#0B1220] hover:bg-[#162032] text-white',
+      primaryBtn: 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20',
       accentBorder: 'border-black/10'
     },
     confirm: {

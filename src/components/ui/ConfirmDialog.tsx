@@ -47,8 +47,8 @@ export function ConfirmDialog({
       Icon: CheckCircle2
     },
     primary: {
-      iconBg: 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#0B1220]',
-      btnBg: 'bg-[#0B1220] hover:bg-[#162032] text-white shadow-xs',
+      iconBg: 'bg-[#F0FDFA] border border-[#14C8B4]/30 text-[#1D4ED8]',
+      btnBg: 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20',
       Icon: ShieldAlert
     }
   }

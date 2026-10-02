@@ -218,9 +218,9 @@ export function CompanyOwnerHeader({
             <button
               type="button"
               onClick={() => setIsCreateOpen(!isCreateOpen)}
-              className="bg-[#0B1220] text-white hover:bg-[#162032] px-4 sm:px-5 py-2.5 rounded-xl text-sm sm:text-[15px] font-bold shadow-xs hover:shadow-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95"
+              className="bg-[#1D4ED8] text-white hover:bg-[#1E40AF] px-4 sm:px-5 py-2.5 rounded-xl text-sm sm:text-[15px] font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center gap-2 transition-all cursor-pointer active:scale-95"
             >
-              <Plus className="w-5 h-5 stroke-[2.5] text-[#14C8B4]" />
+              <Plus className="w-5 h-5 stroke-[2.5] text-white" />
               <span className="hidden sm:inline">Create</span>
               <ChevronDown className="w-4 h-4 text-white/80" />
             </button>

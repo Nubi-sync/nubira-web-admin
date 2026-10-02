@@ -620,25 +620,25 @@ export function ZigzaLandingPageClient({
             {isAuthenticated ? (
               <Link
                 href="/modules"
-                className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-all flex items-center gap-2 cursor-pointer shadow-xs hover:shadow-md active:scale-95"
+                className="px-5 py-2.5 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] transition-all flex items-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20 active:scale-95"
               >
                 <span>Enter Workspace Hub</span>
-                <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </Link>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2.5 rounded-xl text-[14.5px] font-semibold text-[#0B1220] bg-white border border-slate-300 hover:border-[#0B1220] hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-[14.5px] font-semibold text-slate-700 hover:text-[#0B1220] bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-5 py-2.5 rounded-xl text-[14.5px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                  className="px-5 py-2.5 rounded-xl text-[14.5px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
                 >
                   <span>Try For Free</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </Link>
               </>
             )}
@@ -694,25 +694,25 @@ export function ZigzaLandingPageClient({
                 <Link
                   href="/modules"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20"
                 >
                   <span>Enter Workspace Hub</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </Link>
               ) : (
                 <>
                   <Link
                     href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                    className="w-full py-3 rounded-xl text-[15px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/20"
                   >
                     <span>Try For Free</span>
-                    <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                    <ArrowRight className="w-4 h-4 text-white" />
                   </Link>
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-2.5 rounded-xl text-[15px] font-semibold text-[#0B1220] border border-slate-300 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer"
+                    className="w-full py-2.5 rounded-xl text-[15px] font-semibold text-slate-700 hover:text-[#0B1220] border border-slate-200 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
                   >
                     <span>Sign In</span>
                   </Link>
@@ -744,22 +744,22 @@ export function ZigzaLandingPageClient({
             </p>
           </div>
 
-          {/* Hero Action Buttons: Deep Obsidian primary + High-contrast crisp border secondary */}
+          {/* Hero Action Buttons: Deep Royal Blue primary + High-contrast crisp border secondary */}
           <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
             <button
               type="button"
               onClick={() => setIsDemoModalOpen(true)}
-              className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-bold bg-[#0B1220] text-white hover:bg-[#162032] shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="w-full sm:w-auto group px-7 py-3.5 rounded-xl text-[15.5px] font-bold bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               <span>Request a Live Demo</span>
-              <ArrowRight className="w-4 h-4 text-[#14C8B4] transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="w-4 h-4 text-white transition-transform group-hover:translate-x-0.5" />
             </button>
 
             <Link
               href="/login"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-bold text-[#0B1220] bg-white border-2 border-slate-300 hover:border-[#0B1220] hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-[15.5px] font-semibold text-slate-700 hover:text-[#0B1220] bg-white border border-slate-200 hover:bg-slate-50 shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-95"
             >
-              <Lock className="w-4 h-4 text-[#14C8B4]" />
+              <Lock className="w-4 h-4 text-slate-500" />
               <span>Staff Login to Portal</span>
             </Link>
           </div>
@@ -2278,10 +2278,10 @@ export function ZigzaLandingPageClient({
                     setDemoForm(prev => ({ ...prev, plan: 'FULL_PLANT_AI' }))
                     setIsDemoModalOpen(true)
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-[#0B1220] hover:bg-[#162032] text-white shadow-md transition-all cursor-pointer active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[15px] font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-95"
                 >
                   <span>Deploy Full Plant + AI</span>
-                  <ArrowRight className="w-4 h-4 text-[#14C8B4]" />
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </button>
               </div>
             </div>
@@ -2613,7 +2613,7 @@ export function ZigzaLandingPageClient({
                           query: ''
                         })
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer text-center"
                     >
                       Send Another Query
                     </button>
@@ -2696,7 +2696,7 @@ export function ZigzaLandingPageClient({
                   <button
                     type="submit"
                     disabled={isSubmittingQuery}
-                    className="w-full py-3.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-95"
+                    className="w-full py-3.5 bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-60 disabled:cursor-not-allowed md:hover:-translate-y-0.5 text-white rounded-xl text-[15px] font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer flex items-center justify-center gap-2 mt-4 active:scale-95"
                   >
                     {isSubmittingQuery ? (
                       <>
@@ -3009,7 +3009,7 @@ export function ZigzaLandingPageClient({
                         setSubmitError(null)
                         setIsDemoModalOpen(false)
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer text-center"
                     >
                       Done / Close
                     </button>
@@ -3072,7 +3072,7 @@ export function ZigzaLandingPageClient({
                         setSubmitError(null)
                         setIsDemoModalOpen(false)
                       }}
-                      className="w-full sm:w-auto px-5 py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer text-center"
+                      className="w-full sm:w-auto px-5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer text-center"
                     >
                       Done / Close
                     </button>
@@ -3255,7 +3255,7 @@ export function ZigzaLandingPageClient({
                 <button
                   type="submit"
                   disabled={isSubmittingDemo || isCheckingDuplicate}
-                  className="w-full py-3.5 bg-[#0B1220] hover:bg-[#162032] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-[15px] font-bold transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center justify-center gap-2 mt-5 active:scale-95"
+                  className="w-full py-3.5 bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-[15px] font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer flex items-center justify-center gap-2 mt-5 active:scale-95"
                 >
                   {isSubmittingDemo ? (
                     <>
