@@ -169,7 +169,7 @@ export function TeamManagementClient({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
-                Design Team Management
+                Design Team <span className="text-[#1D4ED8]">Management</span>
               </h1>
               <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {activeMembers.length} Active
