@@ -270,7 +270,7 @@ export function WorkerDashboardClient({
           <div className="pt-2">
             <Link
               href="/ready-goods"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
             >
               <span>Go to Alteration &amp; Quality Clinic &rarr;</span>
             </Link>
@@ -338,7 +338,7 @@ export function WorkerDashboardClient({
 
           <Link
             href="/ready-goods"
-            className="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
           >
             Management Hub
           </Link>
@@ -353,13 +353,15 @@ export function WorkerDashboardClient({
             onClick={() => setActiveTab('CHECKING')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'CHECKING'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
             <Scissors className="w-4 h-4" />
             <span>Quality Checking Station</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-white/20 text-white">
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+              activeTab === 'CHECKING' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-100 text-slate-700'
+            }`}>
               {checkingQueue.length}
             </span>
           </button>
@@ -371,13 +373,15 @@ export function WorkerDashboardClient({
             onClick={() => setActiveTab('PACKING')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'PACKING'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
             <Box className="w-4 h-4" />
             <span>Packing Goods Station</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-white/20 text-white">
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+              activeTab === 'PACKING' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-100 text-slate-700'
+            }`}>
               {passedToPackingQueue.length}
             </span>
           </button>
@@ -388,13 +392,15 @@ export function WorkerDashboardClient({
           onClick={() => setActiveTab('LOGS')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'LOGS'
-              ? 'bg-[#0B1220] text-white shadow-xs'
+              ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs font-bold'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
           <Clock className="w-4 h-4" />
           <span>Shift Activity & Alterations</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-slate-200 text-slate-700">
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+            activeTab === 'LOGS' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
+          }`}>
             {alterationQueue.length} in rework
           </span>
         </button>
@@ -748,7 +754,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handlePackGarment(task)}
-                      className="w-full py-2.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PackageCheck className="w-3.5 h-3.5" />
                       <span>Pack into Carton</span>
