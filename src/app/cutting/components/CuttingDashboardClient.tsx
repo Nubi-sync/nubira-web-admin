@@ -864,7 +864,7 @@ export function CuttingDashboardClient({
                   onClick={() => setStatusFilter(st.id as any)}
                   className={`flex-1 sm:flex-initial px-2.5 py-1 text-[11px] font-mono font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
                     statusFilter === st.id
-                      ? 'bg-[#0B1220] text-white'
+                      ? 'bg-[#14C8B4] text-[#0B1220] font-bold shadow-2xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
@@ -877,10 +877,10 @@ export function CuttingDashboardClient({
             <button
               type="button"
               onClick={() => setIsAddTaskOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-mono font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer shrink-0"
             >
-              <Plus className="w-4 h-4" />
-              <span>+ Add Task Row</span>
+              <Plus className="w-4 h-4 text-white stroke-[2.5]" />
+              <span>Add Task Row</span>
             </button>
 
           </div>

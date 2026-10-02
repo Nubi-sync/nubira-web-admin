@@ -61,11 +61,11 @@ export function TvTopBar() {
           <span>Auto-sync in {refreshCountdown}s</span>
         </button>
 
-        {/* Exit TV View Button in Obsidian */}
+        {/* Exit TV View Button in Brand Blue */}
         <button
           type="button"
           onClick={exitTvMode}
-          className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-extrabold transition-all cursor-pointer shadow-2xs border border-transparent group"
+          className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-extrabold transition-all cursor-pointer shadow-sm shadow-blue-500/20 border border-transparent group"
         >
           <Minimize2 className="w-3.5 h-3.5 text-white group-hover:scale-110 transition-transform" />
           <span>Exit TV View</span>
