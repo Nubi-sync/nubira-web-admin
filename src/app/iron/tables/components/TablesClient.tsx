@@ -93,7 +93,7 @@ export function TablesClient() {
 
           <button
             onClick={() => handleOpenAllot()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#F0FDFA] hover:bg-white text-[#0B1220] border border-black/15 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-all shadow-2xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Allot Table (Form 1)</span>
@@ -101,7 +101,7 @@ export function TablesClient() {
 
           <button
             onClick={() => handleOpenLog()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
           >
             <Calculator className="w-4 h-4" />
             <span>Log Production (Form 2)</span>
@@ -193,13 +193,13 @@ export function TablesClient() {
                 <div className="pt-4 mt-3 border-t border-black/5 flex items-center gap-2">
                   <button
                     onClick={() => handleOpenAllot(t.tableNumber)}
-                    className="flex-1 py-1.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center cursor-pointer"
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition-all text-center cursor-pointer"
                   >
                     Re-Allot
                   </button>
                   <button
                     onClick={() => handleOpenLog(t.tableNumber)}
-                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs text-center cursor-pointer"
+                    className="flex-1 py-1.5 px-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 text-center cursor-pointer"
                   >
                     Log Output
                   </button>
