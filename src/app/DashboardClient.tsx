@@ -2365,9 +2365,10 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/production-orders"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
                         >
-                          <Plus className="w-3.5 h-3.5 text-[#0B1220]" /> + New Production Order
+                          <Plus className="w-3.5 h-3.5 text-white" />
+                          <span>New Production Order</span>
                         </Link>
                       </div>
                     </div>
@@ -2527,9 +2528,9 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/allotments"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
                         >
-                          Assign Floor Allotments <ArrowRight className="w-3.5 h-3.5" />
+                          <span>Assign Floor Allotments</span> <ArrowRight className="w-3.5 h-3.5 text-white" />
                         </Link>
                       </div>
                     </div>
@@ -3050,9 +3051,9 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/inventory"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
                         >
-                          Open Godown & Inventory <ArrowRight className="w-3.5 h-3.5" />
+                          <span>Open Godown & Inventory</span> <ArrowRight className="w-3.5 h-3.5 text-white" />
                         </Link>
                       </div>
                     </div>
@@ -3167,9 +3168,9 @@ export default function DashboardClient({
                       <div className="pt-2">
                         <Link
                           href="/dispatch"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
                         >
-                          Go to Dispatch Bay <ArrowRight className="w-3.5 h-3.5" />
+                          <span>Go to Dispatch Bay</span> <ArrowRight className="w-3.5 h-3.5 text-white" />
                         </Link>
                       </div>
                     </div>
@@ -3190,7 +3191,7 @@ export default function DashboardClient({
                   setActiveDrilldownStage(null)
                   setDrawerSearchQuery('')
                 }}
-                className="px-4 py-2 text-xs font-bold bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl transition-all shadow-xs cursor-pointer shrink-0"
+                className="px-4 py-2 text-xs font-semibold bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl transition-all shadow-2xs cursor-pointer shrink-0"
               >
                 Close Drawer
               </button>
@@ -3424,7 +3425,7 @@ export default function DashboardClient({
                   setActivitySearchQuery('')
                   setActivityFilter('ALL')
                 }}
-                className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl shadow-2xs transition-all cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Close Feed
               </button>

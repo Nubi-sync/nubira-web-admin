@@ -1647,7 +1647,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                     <button
                                       type="button"
                                       onClick={() => applySmartTarget(colOpt)}
-                                      className="w-full py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                      className="w-full py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-[13px] font-bold rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                     >
                                       <span>Select {colOpt.colorName}</span>
                                     </button>
@@ -1679,9 +1679,9 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                                   <button
                                     type="button"
                                     onClick={() => applySmartTarget(fullChallan)}
-                                    className="w-full py-2.5 bg-[#0B1220] hover:bg-[#162032] text-white text-xs sm:text-[13px] font-bold rounded-lg shadow-2xs active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                    className="w-full py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-[13px] font-bold rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                   >
-                                    <Zap className="w-3.5 h-3.5" />
+                                    <Zap className="w-3.5 h-3.5 text-white" />
                                     <span>Select Entire Batch</span>
                                   </button>
                                 </div>
@@ -1905,7 +1905,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
                       <button
                         type="button"
                         onClick={handleAddPhotoUrl}
-                        className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                        className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
                       >
                         Add
                       </button>
@@ -2332,7 +2332,7 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
               <button
                 type="button"
                 onClick={addCustomMaterial}
-                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-[13px] font-bold rounded-xl bg-[#0B1220] hover:bg-[#162032] text-white transition-all shrink-0 cursor-pointer shadow-xs"
+                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-[13px] font-bold rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white transition-all shrink-0 cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30"
               >
                 + Add Custom Item
               </button>
@@ -2386,16 +2386,16 @@ function compressImage(file: File, maxWidth = 800, maxHeight = 800, quality = 0.
           <button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto px-7 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-xs bg-[#0B1220] hover:bg-[#162032] cursor-pointer"
+            className="w-full sm:w-auto px-7 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 bg-[#1D4ED8] hover:bg-[#1E40AF] cursor-pointer"
           >
             {isPending ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
                 <span>Assigning Target...</span>
               </>
             ) : (
               <>
-                <Check className="w-4 h-4" />
+                <Check className="w-4 h-4 text-white" />
                 <span>Assign Target ({totalPieces.toLocaleString()} pcs)</span>
               </>
             )}

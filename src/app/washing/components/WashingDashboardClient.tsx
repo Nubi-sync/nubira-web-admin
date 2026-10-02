@@ -582,17 +582,17 @@ export function WashingDashboardClient({
                     }}
                     className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between border-b border-black/5 mb-1 ${
                       activeSelectedBuyerId === 'ALL'
-                        ? 'bg-[#0B1220] text-white font-bold'
+                        ? 'bg-[#14C8B4] text-[#0B1220] font-bold'
                         : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <div>
                       <div className="font-bold">All Buyers &amp; Contracts</div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-slate-300' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === 'ALL' ? 'text-[#0B1220]/70' : 'text-slate-500'}`}>
                         Show all {allocations.length} floor task allocations
                       </div>
                     </div>
-                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-white shrink-0" />}
+                    {activeSelectedBuyerId === 'ALL' && <Check className="w-4 h-4 text-[#0B1220] shrink-0" />}
                   </button>
 
                   {filteredBuyersList.length === 0 ? (
@@ -610,17 +610,17 @@ export function WashingDashboardClient({
                         }}
                         className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
                           activeSelectedBuyerId === b.id
-                            ? 'bg-[#0B1220] text-white font-bold'
+                            ? 'bg-[#14C8B4] text-[#0B1220] font-bold'
                             : 'text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <div className="truncate pr-2">
                           <div className="font-bold">{b.buyer_name}</div>
-                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-slate-300' : 'text-slate-500'}`}>
+                          <div className={`text-[10px] font-mono mt-0.5 ${activeSelectedBuyerId === b.id ? 'text-[#0B1220]/70' : 'text-slate-500'}`}>
                             {(Number(b.contracted_volume) || 0).toLocaleString('en-IN')} BPO Pcs {b.linked_article_number ? `• ${b.linked_article_number}` : ''}
                           </div>
                         </div>
-                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-white shrink-0" />}
+                        {activeSelectedBuyerId === b.id && <Check className="w-4 h-4 text-[#0B1220] shrink-0" />}
                       </button>
                     ))
                   )}
