@@ -309,6 +309,25 @@ Zigza MES provides transparent, predictable pricing models tailored for Indian a
 
 ---
 
+---
+
+## 🎨 UI Design System & Platform Guidelines
+
+The repository includes strict UI/UX design specifications to maintain a unified, high-contrast industrial design language across both public marketing pages and internal ERP manufacturing modules:
+
+1. **[APP_MODULES_UI_GUIDELINES.md](file:///c:/Users/shaws/NubiSync/nubira-web-admin/APP_MODULES_UI_GUIDELINES.md)**:
+   * Universal specification for all internal ERP modules (Cutting, Merchandising, Store, Ready Goods, Alteration, Design, Printing, Washing, Security, Reports).
+   * Defines the **Mandatory Royal Blue** (`#1D4ED8`) primary buttons, **Crisp White Bordered** (`bg-white border-slate-200`) secondary buttons, **Electric Cyan** (`#14C8B4` + `#0B1220` dark text) active filter pills, modal layouts, and table status badges.
+   * **Zero Dark Buttons Policy**: Strictly prohibits `bg-[#0B1220]`, `bg-[#162032]`, and `bg-slate-900` for interactive buttons.
+
+2. **[LANDING_PAGE_DESKTOP_UI_GUIDELINES.md](file:///c:/Users/shaws/NubiSync/nubira-web-admin/LANDING_PAGE_DESKTOP_UI_GUIDELINES.md)**:
+   * Desktop layout, typography scales, hero section, pricing tiers, and section-by-section specification for `ZigzaLandingPageClient.tsx`.
+
+3. **[LANDING_PAGE_MOBILE_UI_GUIDELINES.md](file:///c:/Users/shaws/NubiSync/nubira-web-admin/LANDING_PAGE_MOBILE_UI_GUIDELINES.md)**:
+   * Mobile 390px responsive viewport rules, touch target ergonomics (min 44px), smartphone mockup specs, and stacked CTAs.
+
+---
+
 ## License & Intellectual Property
 
 Proprietary software. All rights reserved by Zigza / NubiSync.  
