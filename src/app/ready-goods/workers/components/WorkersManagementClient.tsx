@@ -88,7 +88,7 @@ export function WorkersManagementClient({ userEmail, companyName }: WorkersManag
             <span>Finishing Quality & Packing Floor Workforce</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-            Floor Workers & Roles
+            Floor Workers &amp; <span className="text-[#1D4ED8]">Roles</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Manage Quality Checkers (post-wash & iron inspection), Packing Operators, and Dual-Role Specialists.
