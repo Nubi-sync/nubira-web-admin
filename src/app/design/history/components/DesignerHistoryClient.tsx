@@ -568,7 +568,7 @@ export function DesignerHistoryClient({
               <button
                 type="button"
                 onClick={() => setSelectedBrief(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
               >
                 Close Deck
               </button>

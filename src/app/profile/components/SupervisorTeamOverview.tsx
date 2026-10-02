@@ -154,16 +154,16 @@ export function SupervisorTeamOverview({
               onClick={() => setSelectedModule(isSelected ? 'ALL' : dept.route)}
               className={`p-3.5 sm:p-4 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between gap-3 ${
                 isSelected
-                  ? 'bg-[#0B1220] border-[#0B1220] text-white shadow-md ring-2 ring-[#0B1220]/20'
-                  : 'bg-slate-50/70 hover:bg-[#F0FDFA] border-slate-200/80 hover:border-[#14C8B4]/40 text-slate-800 shadow-2xs'
+                  ? 'bg-[#14C8B4] border-[#14C8B4] text-[#0B1220] shadow-md ring-2 ring-[#14C8B4]/20 font-bold'
+                  : 'bg-slate-50/70 hover:bg-[#F0FDFA] border-slate-200/80 hover:border-black/15 text-slate-800 shadow-2xs'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
                     isSelected
-                      ? 'bg-white/15 text-white border border-white/20 shadow-2xs'
-                      : 'bg-white text-[#14C8B4] border border-slate-200/80 shadow-2xs'
+                      ? 'bg-[#0B1220] text-white border border-[#0B1220] shadow-2xs'
+                      : 'bg-white text-slate-900 border border-slate-200/80 shadow-2xs'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -171,7 +171,7 @@ export function SupervisorTeamOverview({
                 <span
                   className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${
                     isSelected
-                      ? 'bg-white/20 text-white'
+                      ? 'bg-[#0B1220] text-white'
                       : hasHead
                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       : 'bg-slate-100 text-slate-500'
@@ -183,7 +183,7 @@ export function SupervisorTeamOverview({
               <div>
                 <p
                   className={`text-xs font-bold leading-tight line-clamp-1 ${
-                    isSelected ? 'text-white' : 'text-[#0B1220]'
+                    isSelected ? 'text-[#0B1220]' : 'text-slate-900'
                   }`}
                   title={dept.name}
                 >
@@ -191,7 +191,7 @@ export function SupervisorTeamOverview({
                 </p>
                 <p
                   className={`text-[11px] font-mono mt-1 ${
-                    isSelected ? 'text-slate-200' : 'text-slate-500'
+                    isSelected ? 'text-slate-800 font-semibold' : 'text-slate-500'
                   }`}
                 >
                   {count === 1 ? '1 Division Head' : `${count} Division Heads`}
@@ -222,8 +222,8 @@ export function SupervisorTeamOverview({
             onClick={() => setSelectedModule('ALL')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
               selectedModule === 'ALL'
-                ? 'bg-[#0B1220] text-white shadow-xs'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
+                ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             All ({executiveHeads.length})
@@ -237,8 +237,8 @@ export function SupervisorTeamOverview({
                 onClick={() => setSelectedModule(dept.route)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
                   selectedModule === dept.route
-                    ? 'bg-[#0B1220] text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-xs'
+                    : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
                 }`}
               >
                 {dept.name.split('&')[0].trim()} ({count})
