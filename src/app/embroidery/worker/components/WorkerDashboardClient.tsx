@@ -638,9 +638,9 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleStartEmbroidery(task.id, task.task_ref, task.table_number, task.alloted_hours)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0B1220] hover:bg-[#2C274E] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <Play className="w-4 h-4 fill-current" />
+                      <Play className="w-4 h-4 fill-current text-white" />
                       <span>Start Stitching on {task.table_number || 'Machine 01'}</span>
                     </button>
                   )}
@@ -649,7 +649,7 @@ export function WorkerDashboardClient({
                     <button
                       type="button"
                       onClick={() => handleFinishWork(task.id, task.task_ref, task.pieces_to_embroider)}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-mono font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-mono font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4 text-white" />
                       <span>✓ Finish Work ({task.pieces_to_embroider.toLocaleString('en-IN')} Pcs Embroidered)</span>
