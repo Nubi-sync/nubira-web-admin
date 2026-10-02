@@ -2921,11 +2921,11 @@ export function ZigzaLandingPageClient({
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         aria-label="Back to top"
-        className={`fixed bottom-6 right-5 sm:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0B1220] text-[#14C8B4] shadow-lg hover:shadow-xl hover:bg-[#162032] flex items-center justify-center transition-all duration-300 cursor-pointer border border-slate-700 active:scale-95 ${
+        className={`fixed bottom-6 right-5 sm:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#1D4ED8] text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:bg-[#1E40AF] flex items-center justify-center transition-all duration-300 cursor-pointer border border-blue-400/30 active:scale-95 ${
           showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
       >
-        <ArrowUp className="w-5 h-5 stroke-[2.2]" />
+        <ArrowUp className="w-5 h-5 stroke-[2.2] text-white" />
       </button>
 
       {/* =================================================================== */}

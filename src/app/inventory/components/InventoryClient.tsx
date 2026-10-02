@@ -1857,9 +1857,9 @@ export function InventoryClient({
                                     await approveQcForStoreInward(lot.id)
                                   })
                                 }}
-                                className="px-3.5 py-1.5 rounded-lg bg-[#0B1220] hover:bg-[#162032] text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                                className="px-3.5 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                               >
-                                <Check className="w-3.5 h-3.5" />
+                                <Check className="w-3.5 h-3.5 text-white" />
                                 <span>Approve for Store Inward</span>
                               </button>
                             </>

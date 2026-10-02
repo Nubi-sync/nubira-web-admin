@@ -72,14 +72,14 @@ export default function RootError({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               onClick={() => reset()}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4 text-white" />
               <span>Retry / Re-render View</span>
             </button>
             <Link
               href="/modules"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#F0FDFA] hover:bg-slate-100 border border-black/15 text-slate-800 rounded-xl text-sm font-bold transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold shadow-2xs transition-all cursor-pointer"
             >
               <LayoutGrid className="w-4 h-4 text-slate-600" />
               <span>Workspace Hub</span>
