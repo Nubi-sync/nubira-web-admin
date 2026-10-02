@@ -1552,11 +1552,11 @@ export function ProductionOrdersClient({
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 group-hover:text-[#0B1220] transition-colors">
                 Article Styles
               </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] group-hover:bg-[#0B1220] group-hover:text-white border border-[#0B1220]/20 px-2 py-0.5 rounded-md transition-all shadow-2xs">
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B1220] bg-[#F0FDFA] border border-[#0B1220]/20 px-2 py-0.5 rounded-md shadow-2xs">
                 Explorer <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </div>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] group-hover:bg-[#0B1220] group-hover:text-white border border-[#0B1220]/20 flex items-center justify-center shrink-0 shadow-2xs transition-all">
+            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs transition-all">
               <Tag className="w-4 h-4" />
             </div>
           </div>
