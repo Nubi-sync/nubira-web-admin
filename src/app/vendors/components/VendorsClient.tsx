@@ -249,7 +249,7 @@ export function VendorsClient({ companyName, brands: initialBrands, vendors: ini
               setEditingVendor(null)
               setIsVendorModalOpen(true)
             }}
-            className="min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] active:scale-[0.98] shadow-xs transition-all cursor-pointer text-center"
+            className="min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer text-center"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Vendor Unit</span>
@@ -329,12 +329,12 @@ export function VendorsClient({ companyName, brands: initialBrands, vendors: ini
             onClick={() => setSelectedBrand('ALL')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
               selectedBrand === 'ALL'
-                ? 'bg-[#0B1220] text-white shadow-xs'
+                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <span>All Brands</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/20">
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${selectedBrand === 'ALL' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-100 text-slate-600'}`}>
               {vendors.length}
             </span>
           </button>
@@ -349,12 +349,12 @@ export function VendorsClient({ companyName, brands: initialBrands, vendors: ini
                 onClick={() => setSelectedBrand(b.brand_name)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isSel
-                    ? 'bg-[#0B1220] text-white shadow-xs'
+                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 <span>{b.brand_name}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${isSel ? 'bg-white/20' : 'bg-slate-100 text-slate-600'}`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${isSel ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-100 text-slate-600'}`}>
                   {count}
                 </span>
               </button>
@@ -412,7 +412,7 @@ export function VendorsClient({ companyName, brands: initialBrands, vendors: ini
                 setEditingVendor(null)
                 setIsVendorModalOpen(true)
               }}
-              className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-colors cursor-pointer"
+              className="mt-2 inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>Add Vendor Unit</span>
@@ -731,14 +731,14 @@ export function VendorsClient({ companyName, brands: initialBrands, vendors: ini
                     setEditingVendor(null)
                   }}
                   disabled={isPending}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/60 border border-slate-200 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-60 active:scale-[0.98]"
                 >
                   {isPending ? 'Saving...' : editingVendor ? 'Update Vendor' : 'Create Vendor'}
                 </button>
@@ -835,14 +835,14 @@ export function VendorsClient({ companyName, brands: initialBrands, vendors: ini
                   type="button"
                   onClick={() => setIsBrandModalOpen(false)}
                   disabled={isPending}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/60 border border-slate-200 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] shadow-xs transition-all cursor-pointer disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-60 active:scale-[0.98]"
                 >
                   {isPending ? 'Registering...' : 'Add Brand'}
                 </button>

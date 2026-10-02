@@ -664,7 +664,7 @@ export function ArticlesClient({
               setAddError(null)
               setShowAddModal(true)
             }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+            className="flex items-center gap-2 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>Add Article</span>
@@ -813,7 +813,7 @@ export function ArticlesClient({
                   }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all outline-none cursor-pointer ${
                     isSelected
-                      ? 'bg-[#0B1220] text-white border-transparent shadow-xs'
+                      ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] shadow-2xs font-bold'
                       : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
@@ -1140,7 +1140,7 @@ export function ArticlesClient({
                     onClick={() => setCurrentPage(pg)}
                     className={`w-8 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[#0B1220] text-white border-transparent shadow-xs'
+                        ? 'bg-[#1D4ED8] text-white border-transparent shadow-xs font-bold'
                         : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
                     }`}
                   >
@@ -1252,7 +1252,7 @@ export function ArticlesClient({
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer shadow-xs bg-[#0B1220] hover:bg-[#162032] disabled:opacity-50 active:scale-[0.98]"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isPending ? 'Saving...' : 'Save Article'}
                 </button>
@@ -1383,7 +1383,7 @@ export function ArticlesClient({
               <button
                 type="button"
                 onClick={() => setHistoryModalState(null)}
-                className="px-4 py-2 bg-[#0B1220] hover:bg-[#162032] text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold shadow-2xs transition-all cursor-pointer"
               >
                 Close History
               </button>
