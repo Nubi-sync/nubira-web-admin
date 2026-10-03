@@ -791,26 +791,35 @@ export default function RegisterFreeTrialPage() {
                 </div>
               </div>
 
-              {/* Mobile Number */}
+              {/* Mobile Number & OTP Verification */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider font-mono">
                     Mobile Number *
                   </label>
-                  {phoneStatus === 'checking' && (
+                  {isPhoneVerified ? (
+                    <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 animate-in fade-in">
+                      <Check className="w-3.5 h-3.5 stroke-[3]" /> Verified
+                    </span>
+                  ) : phoneStatus === 'checking' ? (
                     <span className="text-[10.5px] text-[#0B1220] font-medium flex items-center gap-1">
                       <Loader2 className="w-3 h-3 animate-spin text-[#14C8B4]" /> Checking...
                     </span>
-                  )}
+                  ) : phoneStatus === 'available' ? (
+                    <span className="text-[10.5px] text-emerald-600 font-medium">Available</span>
+                  ) : null}
                 </div>
-                <div className={`flex rounded-xl border bg-slate-50/70 focus-within:bg-white transition-all shadow-2xs overflow-hidden ${
+
+                <div className={`flex items-center rounded-xl border bg-slate-50/70 focus-within:bg-white transition-all shadow-2xs overflow-hidden ${
                   phoneStatus === 'error'
                     ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-500/10'
-                    : phoneStatus === 'available'
+                    : isPhoneVerified
                     ? 'border-emerald-400 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/10'
+                    : phoneStatus === 'available'
+                    ? 'border-blue-300 focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#1D4ED8]/10'
                     : 'border-slate-200 focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10'
                 }`}>
-                  <div className="flex items-center gap-1.5 px-3 bg-[#F0FDFA] border-r border-slate-200 text-[#0B1220] font-mono font-bold text-xs select-none shrink-0">
+                  <div className="flex items-center gap-1.5 px-3 py-2.5 sm:py-3 bg-[#F0FDFA] border-r border-slate-200 text-[#0B1220] font-mono font-bold text-xs select-none shrink-0">
                     <IndiaFlag className="w-4 h-3 rounded-xs shrink-0" />
                     <span>+91</span>
                   </div>
@@ -821,25 +830,160 @@ export default function RegisterFreeTrialPage() {
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="Enter 10-digit number"
                     maxLength={10}
-                    className="w-full px-3 py-2.5 sm:py-3 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono"
+                    disabled={isPhoneVerified}
+                    className="w-full px-3 py-2.5 sm:py-3 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent font-mono disabled:opacity-80"
                   />
-                  <div className="flex items-center pr-3 shrink-0">
-                    {phoneStatus === 'checking' && (
-                      <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin" />
-                    )}
-                    {phoneStatus === 'available' && (
-                      <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
-                    )}
-                    {phoneStatus === 'error' && (
-                      <X className="w-4 h-4 text-rose-500 stroke-[3]" />
+                  
+                  {/* Right Action: Send OTP Button or Verified Status */}
+                  <div className="flex items-center pr-2 shrink-0">
+                    {isPhoneVerified ? (
+                      <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold select-none">
+                        <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600" />
+                        <span>Verified</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        {phoneStatus === 'checking' && (
+                          <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin mr-1" />
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={phone.length !== 10 || phoneStatus !== 'available' || isSendingOtp}
+                          className={`text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 select-none shrink-0 ${
+                            phone.length === 10 && phoneStatus === 'available' && !isSendingOtp
+                              ? 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-xs cursor-pointer active:scale-95'
+                              : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200/70'
+                          }`}
+                        >
+                          {isSendingOtp ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span>Sending...</span>
+                            </>
+                          ) : isOtpBoxOpen ? (
+                            <span>Resend OTP</span>
+                          ) : (
+                            <span>Send OTP</span>
+                          )}
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
+
+                {/* Status Messages */}
                 {phoneStatus === 'error' && phoneErrorMsg && (
                   <p className="text-[11px] text-rose-600 font-medium mt-1 flex items-center gap-1 animate-in fade-in duration-200">
                     <X className="w-3 h-3 text-rose-500 shrink-0" />
                     <span>{phoneErrorMsg}</span>
                   </p>
+                )}
+                {isPhoneVerified && (
+                  <div className="flex items-center justify-between mt-1 text-[11px] text-emerald-600 font-medium animate-in fade-in duration-200">
+                    <span className="flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600 shrink-0" />
+                      Phone authenticated with OTP
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPhoneVerified(false)
+                        setPhone('')
+                        setPhoneStatus('idle')
+                      }}
+                      className="text-slate-400 hover:text-slate-600 underline cursor-pointer"
+                    >
+                      Change
+                    </button>
+                  </div>
+                )}
+
+                {/* 6-Digit OTP Box (Appears directly below when Send OTP is clicked) */}
+                {isOtpBoxOpen && !isPhoneVerified && (
+                  <div className="mt-2.5 p-3.5 sm:p-4 rounded-xl border border-blue-200/90 bg-blue-50/50 shadow-xs space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <KeyRound className="w-4 h-4 text-[#1D4ED8]" />
+                        <span className="text-xs font-bold text-slate-800">
+                          Enter 6-Digit Verification Code
+                        </span>
+                      </div>
+                      {otpCountdown > 0 ? (
+                        <span className="text-[11px] font-mono text-slate-500 font-medium">
+                          Resend in <strong className="text-slate-700">{otpCountdown}s</strong>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={isSendingOtp}
+                          className="text-[11px] font-bold text-[#1D4ED8] hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                          {isSendingOtp ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+
+                    <p className="text-[11.5px] text-slate-600">
+                      We sent a 6-digit SMS code to <span className="font-semibold text-slate-900 font-mono">+91 {phone}</span>
+                    </p>
+
+                    {/* 6 Individual Digit Boxes */}
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+                      {otpValues.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          ref={(el) => { otpInputRefs.current[idx] = el }}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleOtpChange(idx, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                          onPaste={idx === 0 ? handleOtpPaste : undefined}
+                          className={`w-9 h-11 sm:w-11 sm:h-12 text-center text-base sm:text-lg font-bold font-mono rounded-lg border bg-white text-slate-900 shadow-2xs focus:outline-none transition-all ${
+                            digit
+                              ? 'border-[#1D4ED8] ring-1 ring-[#1D4ED8]'
+                              : 'border-slate-300 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20'
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    {otpError && (
+                      <p className="text-[11.5px] text-rose-600 font-medium flex items-center justify-center gap-1 text-center animate-in fade-in">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{otpError}</span>
+                      </p>
+                    )}
+
+                    {/* Verify OTP Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleVerifyOtp()}
+                      disabled={otpValues.join('').length !== 6 || isVerifyingOtp}
+                      className={`w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 select-none ${
+                        otpValues.join('').length === 6 && !isVerifyingOtp
+                          ? 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-xs cursor-pointer active:scale-98'
+                          : 'bg-slate-200/90 text-slate-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {isVerifyingOtp ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Verifying Code...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          <span>Verify OTP</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
 
