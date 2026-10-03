@@ -186,7 +186,8 @@ export async function sendTrialPhoneOtpAction(rawPhone: string): Promise<{
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone: phone10,
+          phone: `+91${phone10}`,
+          sms: { otp },
           otp,
         }),
       })
