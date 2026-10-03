@@ -240,7 +240,7 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
       {/* ==================================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* 2A: Production Trend AreaChart */}
+        {/* 2A: Production Trend SVG Chart */}
         <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -249,57 +249,67 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
                   Production Output Trend (14-Day Trajectory)
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  Daily stitched pieces with moving average • Avg: <strong className="text-slate-800 font-mono">{data.dailyAverage.toLocaleString()} pcs/day</strong>
+                  Daily stitched pieces • Avg: <strong className="text-slate-800 font-mono">{data.dailyAverage.toLocaleString()} pcs/day</strong>
                 </p>
               </div>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#14C8B4]">
+                <span className="w-2.5 h-2.5 rounded bg-[#14C8B4]" />
+                Daily Stitched
+              </span>
             </div>
 
-            <div className="h-[220px] w-full mt-2">
-              <ResponsiveContainer width="100%" height={210}>
-                <AreaChart data={data.productionTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="prodGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#14C8B4" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#14C8B4" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="label"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#64748B', fontSize: 11 }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#94A3B8', fontSize: 10 }}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const item = payload[0].payload
-                        return (
-                          <div className="bg-[#0B1220] text-white p-2.5 rounded-lg shadow-xl text-xs space-y-0.5">
-                            <div className="font-semibold text-slate-300">{item.label}</div>
-                            <div className="font-bold text-base text-[#14C8B4] font-mono">
-                              {Number(item.pieces).toLocaleString()} pieces
-                            </div>
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="pieces"
-                    stroke="#14C8B4"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#prodGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+            {/* Visual SVG / HTML Bar Chart */}
+            <div className="h-[220px] w-full pt-4 pb-2 flex flex-col justify-end">
+              <div className="h-[180px] w-full flex items-end justify-between gap-1.5 sm:gap-2 px-1 relative border-b border-slate-200">
+                {maxProdPieces > 0 && data.dailyAverage > 0 && (
+                  <div
+                    className="absolute left-0 right-0 border-b border-dashed border-slate-300 pointer-events-none z-10 flex items-center justify-end pr-2"
+                    style={{ bottom: `${Math.min(95, (data.dailyAverage / maxProdPieces) * 100)}%` }}
+                  >
+                    <span className="text-[10px] font-mono text-slate-400 bg-white px-1 -translate-y-2">
+                      Avg: {data.dailyAverage}
+                    </span>
+                  </div>
+                )}
+
+                {data.productionTrend.map((entry, idx) => {
+                  const heightPct = maxProdPieces > 0 ? Math.max(6, Math.round((entry.pieces / maxProdPieces) * 100)) : 6
+                  const isHovered = hoveredProdIdx === idx
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer"
+                      onMouseEnter={() => setHoveredProdIdx(idx)}
+                      onMouseLeave={() => setHoveredProdIdx(null)}
+                    >
+                      {isHovered && (
+                        <div className="absolute -top-10 bg-[#0B1220] text-white px-2 py-1 rounded text-[11px] font-mono shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                          {entry.label}: <strong className="text-[#14C8B4]">{entry.pieces.toLocaleString()} pcs</strong>
+                        </div>
+                      )}
+
+                      <span className="text-[9px] font-mono font-bold text-slate-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {entry.pieces}
+                      </span>
+
+                      <div
+                        className="w-full max-w-[28px] bg-[#14C8B4] hover:bg-teal-500 rounded-t-sm transition-all duration-300"
+                        style={{ height: `${heightPct}%` }}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Day Labels below bars */}
+              <div className="flex items-center justify-between gap-1.5 sm:gap-2 px-1 pt-2">
+                {data.productionTrend.map((entry, idx) => (
+                  <div key={idx} className="flex-1 text-center text-[10px] font-semibold text-slate-500 truncate">
+                    {entry.label.split(' ')[0]}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -333,39 +343,63 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
               </div>
             </div>
 
-            <div className="h-[220px] w-full mt-2">
-              <ResponsiveContainer width="100%" height={210}>
-                <BarChart data={data.qcTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis
-                    dataKey="label"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#64748B', fontSize: 11 }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#94A3B8', fontSize: 10 }}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const item = payload[0].payload
-                        return (
-                          <div className="bg-[#0B1220] text-white p-2.5 rounded-lg shadow-xl text-xs space-y-1">
-                            <div className="font-semibold text-slate-300">{item.label}</div>
-                            <div className="text-emerald-400 font-bold font-mono">Passed: {item.passed.toLocaleString()} pcs</div>
-                            <div className="text-rose-400 font-bold font-mono">Rejected: {item.rejected.toLocaleString()} pcs</div>
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Bar dataKey="passed" stackId="qc" fill="#10B981" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="rejected" stackId="qc" fill="#F43F5E" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            {/* Visual SVG / HTML Stacked Bar Chart */}
+            <div className="h-[220px] w-full pt-4 pb-2 flex flex-col justify-end">
+              <div className="h-[180px] w-full flex items-end justify-between gap-2 px-2 relative border-b border-slate-200">
+                {data.qcTrend.map((entry, idx) => {
+                  const total = entry.passed + entry.rejected
+                  const totalHeightPct = maxQcTotal > 0 ? Math.max(6, Math.round((total / maxQcTotal) * 100)) : 6
+                  const passedPct = total > 0 ? (entry.passed / total) * 100 : 100
+                  const isHovered = hoveredQcIdx === idx
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer"
+                      onMouseEnter={() => setHoveredQcIdx(idx)}
+                      onMouseLeave={() => setHoveredQcIdx(null)}
+                    >
+                      {isHovered && (
+                        <div className="absolute -top-12 bg-[#0B1220] text-white p-2 rounded text-[11px] font-mono shadow-lg whitespace-nowrap z-20 pointer-events-none space-y-0.5">
+                          <div className="font-semibold text-slate-300">{entry.label}</div>
+                          <div className="text-emerald-400 font-bold">Passed: {entry.passed.toLocaleString()} pcs</div>
+                          <div className="text-rose-400 font-bold">Rejected: {entry.rejected.toLocaleString()} pcs</div>
+                        </div>
+                      )}
+
+                      <span className="text-[9px] font-mono font-bold text-slate-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {total}
+                      </span>
+
+                      {/* Stacked Bar Container */}
+                      <div
+                        className="w-full max-w-[32px] rounded-t-sm overflow-hidden flex flex-col-reverse transition-all duration-300"
+                        style={{ height: `${totalHeightPct}%` }}
+                      >
+                        <div
+                          className="bg-emerald-500 w-full"
+                          style={{ height: `${passedPct}%` }}
+                        />
+                        {entry.rejected > 0 && (
+                          <div
+                            className="bg-rose-500 w-full"
+                            style={{ height: `${100 - passedPct}%` }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Day Labels below bars */}
+              <div className="flex items-center justify-between gap-2 px-2 pt-2">
+                {data.qcTrend.map((entry, idx) => (
+                  <div key={idx} className="flex-1 text-center text-[10px] font-semibold text-slate-500 truncate">
+                    {entry.label.split(' ')[0]}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
