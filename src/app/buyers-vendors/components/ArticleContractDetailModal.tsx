@@ -24,7 +24,7 @@ import {
   Loader2,
   ArrowRight
 } from 'lucide-react'
-import { BuyerArticleHistory } from '../actions'
+import { BuyerArticleHistory, parseFabricAndBOM } from '../actions'
 
 interface ArticleContractDetailModalProps {
   isOpen: boolean
@@ -66,14 +66,24 @@ export function ArticleContractDetailModal({
   const remaining = Math.max(0, assigned - delivered)
   const percent = assigned > 0 ? Math.min(100, Math.round((delivered / assigned) * 100)) : 0
 
-  const techPack = article.techPack || {
-    styleNumber: article.artNo,
-    category: article.category || 'Apparel',
-    fabricComposition: article.fabricType || '100% Combed Cotton Single Jersey',
-    targetGsm: 180,
-    embellishmentSequence: 'ONLY_EMBROIDERY',
-    bomMaterials: [],
-    constructionNotes: article.challanNotes || ''
+  // Robust parsing of fabric composition and embedded BOM_JSON
+  const rawFabric = article.techPack?.fabricComposition || article.fabricType || ''
+  const { cleanFabric, materials: parsedBOM } = parseFabricAndBOM(rawFabric)
+
+  const effectiveBOM = (article.techPack?.bomMaterials && article.techPack.bomMaterials.length > 0)
+    ? article.techPack.bomMaterials
+    : (parsedBOM && parsedBOM.length > 0 ? parsedBOM : [])
+
+  const techPack = {
+    styleNumber: article.techPack?.styleNumber || article.artNo,
+    category: article.techPack?.category || article.category || 'Apparel Master',
+    fabricComposition: cleanFabric,
+    targetGsm: article.techPack?.targetGsm || 180,
+    embellishmentSequence: article.techPack?.embellishmentSequence || 'ONLY_EMBROIDERY',
+    bomMaterials: effectiveBOM,
+    cadFrontUrl: article.techPack?.cadFrontUrl || '',
+    cadBackUrl: article.techPack?.cadBackUrl || '',
+    constructionNotes: article.techPack?.constructionNotes || article.challanNotes || ''
   }
 
   const contract = article.contract || {
@@ -301,7 +311,7 @@ export function ArticleContractDetailModal({
                     <span>Bill of Materials (BOM) &amp; Trims</span>
                   </h4>
                   <span className="text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] px-2 py-0.5 rounded border border-black/15">
-                    {techPack.bomMaterials && techPack.bomMaterials.length > 0 ? techPack.bomMaterials.length : 3} Items
+                    {techPack.bomMaterials.length} {techPack.bomMaterials.length === 1 ? 'Item' : 'Items'}
                   </span>
                 </div>
 
@@ -316,36 +326,21 @@ export function ArticleContractDetailModal({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-black/5 text-slate-700 font-medium">
-                      {techPack.bomMaterials && techPack.bomMaterials.length > 0 ? (
+                      {techPack.bomMaterials.length > 0 ? (
                         techPack.bomMaterials.map((mat: any, idx: number) => (
                           <tr key={idx} className="hover:bg-slate-50">
-                            <td className="py-2 px-3 font-semibold text-slate-900">{mat.component_type || 'Material'}</td>
-                            <td className="py-2 px-3">{mat.item_name || '-'}</td>
-                            <td className="py-2 px-3 font-mono font-bold text-[#0B1220]">{mat.consumption || '-'}</td>
-                            <td className="py-2 px-3 font-mono text-slate-500">{mat.placement || '-'}</td>
+                            <td className="py-2.5 px-3 font-semibold text-slate-900">{mat.component_type || 'Material'}</td>
+                            <td className="py-2.5 px-3">{mat.item_name || '-'}</td>
+                            <td className="py-2.5 px-3 font-mono font-bold text-[#0B1220]">{mat.consumption || '-'}</td>
+                            <td className="py-2.5 px-3 font-mono text-slate-500">{mat.placement || '-'}</td>
                           </tr>
                         ))
                       ) : (
-                        <>
-                          <tr className="hover:bg-slate-50">
-                            <td className="py-2 px-3 font-semibold text-slate-900">Main Fabric</td>
-                            <td className="py-2 px-3">{techPack.fabricComposition}</td>
-                            <td className="py-2 px-3 font-mono font-bold text-[#0B1220]">0.45 kg / pc</td>
-                            <td className="py-2 px-3 font-mono text-slate-500">Body &amp; Sleeves</td>
-                          </tr>
-                          <tr className="hover:bg-slate-50">
-                            <td className="py-2 px-3 font-semibold text-slate-900">Rib Fabric</td>
-                            <td className="py-2 px-3">1x1 Cotton Spandex Rib</td>
-                            <td className="py-2 px-3 font-mono font-bold text-[#0B1220]">0.05 kg / pc</td>
-                            <td className="py-2 px-3 font-mono text-slate-500">Neck Rib</td>
-                          </tr>
-                          <tr className="hover:bg-slate-50">
-                            <td className="py-2 px-3 font-semibold text-slate-900">Label &amp; Tags</td>
-                            <td className="py-2 px-3">Woven Brand Label &amp; Washcare Tag</td>
-                            <td className="py-2 px-3 font-mono font-bold text-[#0B1220]">1 set / pc</td>
-                            <td className="py-2 px-3 font-mono text-slate-500">Inside Collar &amp; Side Seam</td>
-                          </tr>
-                        </>
+                        <tr>
+                          <td colSpan={4} className="py-6 text-center text-xs text-slate-500 font-medium italic">
+                            No additional BOM trims recorded for this tech pack.
+                          </td>
+                        </tr>
                       )}
                     </tbody>
                   </table>

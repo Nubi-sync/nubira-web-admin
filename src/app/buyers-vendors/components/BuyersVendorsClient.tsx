@@ -41,7 +41,8 @@ import {
   BuyersVendorsHubData,
   BuyerItem,
   BuyerArticleHistory,
-  ModuleVendorItem
+  ModuleVendorItem,
+  getBuyerAvatarInitials
 } from '../actions'
 import { ArticleContractDetailModal } from './ArticleContractDetailModal'
 import { AssignVendorModal } from './AssignVendorModal'
@@ -420,10 +421,10 @@ export function BuyersVendorsClient({
         {/* Desktop 12-Column Guide Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2.5 text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
           <div className="col-span-4">Buyer / Brand</div>
-          <div className="col-span-3">Contact &amp; Location</div>
+          <div className="col-span-2 text-center">PO Contracts</div>
           <div className="col-span-2 text-center">Contracted Articles</div>
-          <div className="col-span-2 text-center">Pcs Delivered / Assigned</div>
-          <div className="col-span-1 text-right">Details</div>
+          <div className="col-span-3 text-center">Pcs Delivered / Assigned</div>
+          <div className="col-span-1 text-right">Action</div>
         </div>
 
         {/* Buyer Rows */}
@@ -456,73 +457,57 @@ export function BuyersVendorsClient({
                   key={buyer.id}
                   className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
                 >
-                  {/* Desktop Clickable Row Header (12-column grid) */}
+                  {/* Desktop Clickable Row Header (12-column grid) - SINGLE CLEAN STRAIGHT LINE */}
                   <div
                     onClick={() => toggleBuyerExpand(buyer.id)}
-                    className="hidden md:grid grid-cols-12 items-center gap-4 p-5 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
+                    className="hidden md:grid grid-cols-12 items-center gap-4 px-6 py-4 cursor-pointer select-none hover:bg-slate-50/70 transition-colors group"
                   >
-                    {/* Col 1: Buyer Name & Code (4 cols) */}
+                    {/* Col 1: DP Initials (HP/OD) + Buyer Name (4 cols) */}
                     <div className="col-span-4 flex items-center gap-3.5 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-sm">
-                        {buyer.brandCode || buyer.brandName.slice(0, 3)}
+                      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-sm tracking-wide">
+                        {getBuyerAvatarInitials(buyer.brandName)}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-base lg:text-lg font-bold text-[#0B1220] truncate flex items-center gap-2">
-                          <span className="truncate">{buyer.brandName}</span>
-                          {buyer.gstin && (
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
-                              GST
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs sm:text-sm font-semibold text-slate-500 truncate">
-                          {buyer.totalContractsCount} {buyer.totalContractsCount === 1 ? 'Contract' : 'Contracts'} on Record
-                        </div>
+                      <div className="min-w-0 flex items-center gap-2">
+                        <span className="text-base font-bold text-[#0B1220] truncate">{buyer.brandName}</span>
+                        {buyer.gstin && (
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                            GST
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Col 2: Contact Person & Phone (3 cols) */}
-                    <div className="col-span-3 min-w-0">
-                      <div className="text-sm font-bold text-[#0B1220] truncate flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#14C8B4] shrink-0" />
-                        <span className="truncate">{buyer.contactPerson}</span>
-                      </div>
-                      <div className="text-xs sm:text-sm font-mono font-bold text-slate-700 truncate pl-3.5">
-                        +91 {buyer.phone} • <span className="font-sans font-medium text-slate-500">{buyer.city}</span>
-                      </div>
+                    {/* Col 2: PO Contracts Count (2 cols) */}
+                    <div className="col-span-2 text-center">
+                      <span className="inline-flex items-center text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                        {buyer.totalContractsCount} {buyer.totalContractsCount === 1 ? 'Contract' : 'Contracts'}
+                      </span>
                     </div>
 
                     {/* Col 3: Contracted Articles Count (2 cols) */}
                     <div className="col-span-2 text-center">
-                      <div className="text-sm sm:text-base font-bold text-[#0B1220] font-mono">
+                      <span className="inline-flex items-center text-xs font-mono font-bold text-[#0B1220] bg-[#F0FDFA] px-2.5 py-1 rounded-lg border border-black/15 shadow-2xs">
                         {buyer.totalArticlesCount} {buyer.totalArticlesCount === 1 ? 'Article' : 'Articles'}
-                      </div>
-                      <div className="text-[11px] font-semibold text-slate-500">
-                        {buyer.totalContractsCount} PO Orders
-                      </div>
+                      </span>
                     </div>
 
-                    {/* Col 4: Pcs Delivered / Assigned Progress (2 cols) */}
-                    <div className="col-span-2 text-center">
-                      <div className="text-sm font-bold text-[#0B1220] font-mono">
-                        {buyer.totalDeliveredPieces.toLocaleString()} / {buyer.totalAssignedPieces.toLocaleString()} pcs
-                      </div>
-                      <div className="flex items-center justify-center gap-1.5 mt-1">
-                        <div className="w-24 bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-emerald-500 h-full rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min(100, buyer.deliveryPercentage)}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] font-bold text-emerald-700 font-mono">
-                          {buyer.deliveryPercentage}%
-                        </span>
-                      </div>
+                    {/* Col 4: Pcs Delivered / Assigned Progress (3 cols) */}
+                    <div className="col-span-3 flex items-center justify-center gap-2.5">
+                      <span className="text-xs sm:text-sm font-bold text-[#0B1220] font-mono">
+                        {buyer.totalDeliveredPieces.toLocaleString('en-IN')} / {buyer.totalAssignedPieces.toLocaleString('en-IN')} pcs
+                      </span>
+                      <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                        buyer.deliveryPercentage >= 100
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}>
+                        {buyer.deliveryPercentage}%
+                      </span>
                     </div>
 
                     {/* Col 5: Chevron Action (1 col) */}
                     <div className="col-span-1 flex items-center justify-end">
-                      <div className={`p-2 rounded-xl text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
+                      <div className={`p-1.5 rounded-xl text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
                         isExpanded ? 'rotate-180 text-[#0B1220]' : ''
                       }`}>
                         <ChevronDown className="w-5 h-5" />
@@ -533,25 +518,25 @@ export function BuyersVendorsClient({
                   {/* Mobile Clickable Row Header (390px Viewport) */}
                   <div
                     onClick={() => toggleBuyerExpand(buyer.id)}
-                    className="block md:hidden p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
+                    className="block md:hidden p-4 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-xs">
-                          {buyer.brandCode || buyer.brandName.slice(0, 3)}
+                        <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-xs tracking-wide">
+                          {getBuyerAvatarInitials(buyer.brandName)}
                         </div>
                         <div className="min-w-0">
                           <div className="text-base font-bold text-[#0B1220] truncate">
                             {buyer.brandName}
                           </div>
-                          <div className="text-xs font-semibold text-slate-500 truncate">
-                            {buyer.contactPerson} • +91 {buyer.phone}
+                          <div className="text-xs font-semibold text-slate-500">
+                            {buyer.totalContractsCount} {buyer.totalContractsCount === 1 ? 'Contract' : 'Contracts'} • {buyer.totalArticlesCount} Articles
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                           {buyer.deliveryPercentage}%
                         </span>
                         <div className={`p-1.5 rounded-lg text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
@@ -561,64 +546,38 @@ export function BuyersVendorsClient({
                         </div>
                       </div>
                     </div>
-
-                    {/* Mobile sub-strip with pcs and articles */}
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                      <span className="font-semibold text-slate-600">
-                        {buyer.totalArticlesCount} Articles • {buyer.totalContractsCount} Contracts
-                      </span>
-                      <span className="font-mono font-bold text-slate-800">
-                        {buyer.totalDeliveredPieces.toLocaleString()} / {buyer.totalAssignedPieces.toLocaleString()} pcs
-                      </span>
-                    </div>
                   </div>
 
                   {/* EXPANDED CONTENT UNDER BUYER ROW */}
                   {isExpanded && (
-                    <div className="border-t border-slate-200/80 bg-[#F8FAFC]/80 p-4 sm:p-6 space-y-5 animate-in slide-in-from-top-1 duration-150">
+                    <div className="border-t border-slate-200/80 bg-[#F8FAFC]/80 p-4 sm:p-5 space-y-4 animate-in slide-in-from-top-1 duration-150">
                       
-                      {/* Buyer Details Snapshot Bar */}
-                      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div className="space-y-1 text-xs sm:text-sm">
-                          <div className="flex items-center gap-2 font-bold text-[#0B1220]">
-                            <Building2 className="w-4 h-4 text-[#1D4ED8]" />
-                            {buyer.brandName} Master Profile
-                          </div>
-                          <div className="flex items-center gap-3 text-slate-600 font-medium flex-wrap text-xs">
-                            <span>Contact: <strong className="text-slate-900">{buyer.contactPerson}</strong></span>
-                            <span>Phone: <strong className="text-slate-900 font-mono">+91 {buyer.phone}</strong></span>
-                            {buyer.email && <span>Email: <strong className="text-slate-900">{buyer.email}</strong></span>}
-                            <span>Location: <strong className="text-slate-900">{buyer.city}</strong></span>
-                            {buyer.gstin && <span>GSTIN: <strong className="text-slate-900 font-mono">{buyer.gstin}</strong></span>}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 self-start md:self-center">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setSelectedBuyerForEdit(buyer)
-                              setIsAddBuyerModalOpen(true)
-                            }}
-                            className="min-h-[38px] px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold border border-slate-300/80 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                            <span>Edit Profile</span>
-                          </button>
-                        </div>
-                      </div>
-
                       {/* ARTICLES CONTRACTED LIST (With 5-per-page Pagination) */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-3 flex-wrap">
-                          <h3 className="text-sm sm:text-base font-bold text-[#0B1220] flex items-center gap-2">
-                            <Scissors className="w-4 h-4 text-[#14C8B4]" />
-                            Contracted Articles Roster
-                            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">
-                              {articles.length} Total
-                            </span>
-                          </h3>
+                          <div className="flex items-center gap-2.5">
+                            <h3 className="text-sm sm:text-base font-bold text-[#0B1220] flex items-center gap-2">
+                              <Scissors className="w-4 h-4 text-[#14C8B4]" />
+                              Contracted Articles Roster
+                              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">
+                                {articles.length} Total
+                              </span>
+                            </h3>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedBuyerForEdit(buyer)
+                                setIsAddBuyerModalOpen(true)
+                              }}
+                              className="min-h-[30px] px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 flex items-center gap-1 cursor-pointer shadow-2xs ml-1"
+                            >
+                              <Edit2 className="w-3 h-3 text-slate-500" />
+                              <span>Edit Buyer</span>
+                            </button>
+                          </div>
+
 
                           {/* Article-Level Pagination Controls */}
                           {totalArtPages > 1 && (

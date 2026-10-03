@@ -156,6 +156,76 @@ export interface BuyersVendorsHubData {
 }
 
 // ----------------------------------------------------------------------
+// DATA CLEANING & REPUTABLE PARSING HELPERS
+// ----------------------------------------------------------------------
+export function parseFabricAndBOM(rawFabric?: string | null): {
+  cleanFabric: string
+  targetCutDate?: string
+  materials: Array<{
+    component_type: string
+    item_name: string
+    specification?: string
+    consumption: string
+    placement: string
+  }>
+} {
+  if (!rawFabric) {
+    return { cleanFabric: '100% Combed Cotton Single Jersey', materials: [] }
+  }
+
+  let text = String(rawFabric)
+  let targetCutDate: string | undefined
+  let materials: any[] = []
+
+  // 1. Extract and parse BOM_JSON
+  const bomMatch = text.match(/\[BOM_JSON:\s*(\[[\s\S]*?\])\]/i)
+  if (bomMatch && bomMatch[1]) {
+    try {
+      const parsed = JSON.parse(bomMatch[1])
+      if (Array.isArray(parsed)) {
+        materials = parsed.map((m: any) => ({
+          component_type: m.component_type || m.type || 'Trim / Material',
+          item_name: m.item_name || m.name || '-',
+          specification: m.specification || '',
+          consumption: m.consumption ? `${m.consumption} pcs / unit` : '-',
+          placement: m.placement || '-'
+        }))
+      }
+    } catch (_) {}
+    text = text.replace(/\[BOM_JSON:\s*\[[\s\S]*?\]\]\s*/gi, '')
+  }
+
+  // 2. Extract TARGET_CUT_DATE
+  const cutMatch = text.match(/\[TARGET_CUT_DATE:\s*([\s\S]*?)\]/i)
+  if (cutMatch && cutMatch[1]) {
+    targetCutDate = cutMatch[1].trim()
+    text = text.replace(/\[TARGET_CUT_DATE:\s*[\s\S]*?\]\s*/gi, '')
+  }
+
+  // 3. Extract INSTRUCTIONS
+  const instMatch = text.match(/\[INSTRUCTIONS:\s*([\s\S]*?)\]/i)
+  if (instMatch && instMatch[1]) {
+    text = text.replace(/\[INSTRUCTIONS:\s*[\s\S]*?\]\s*/gi, '')
+  }
+
+  const cleanFabric = text.trim() || '100% Combed Cotton Single Jersey'
+  return { cleanFabric, targetCutDate, materials }
+}
+
+export function getBuyerAvatarInitials(name?: string | null): string {
+  if (!name) return 'BY'
+  const cleaned = name.replace(/[^\w\s]/gi, '').trim()
+  const words = cleaned.split(/\s+/).filter(Boolean)
+  if (words.length === 0) return 'BY'
+  if (words.length === 1) {
+    const w = words[0]
+    if (w.length <= 1) return w.toUpperCase()
+    return (w[0] + w[w.length - 1]).toUpperCase()
+  }
+  return (words[0][0] + words[1][0]).toUpperCase()
+}
+
+// ----------------------------------------------------------------------
 // 1. FETCH BUYERS & VENDORS HUB DATA
 // ----------------------------------------------------------------------
 export async function fetchBuyersVendorsHubAction(companyNameOverride?: string): Promise<BuyersVendorsHubData> {
@@ -175,7 +245,7 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
     }
 
     const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
-    const cacheKey = `company:${normComp}:buyers_vendors_hub:v3`
+    const cacheKey = `company:${normComp}:buyers_vendors_hub:v4`
 
     return CacheManager.fetchOrSet<BuyersVendorsHubData>(
       cacheKey,
@@ -378,14 +448,20 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
           const unitFobPrice = Number(mOrder.fob_price_per_piece) || 450.00
           const totalVal = Number(mOrder.total_contract_value) || (totalQty * unitFobPrice)
 
+          const rawFabricStr = mOrder.design_tech_packs?.fabric_composition || mOrder.fabric_composition || ''
+          const { cleanFabric, materials: parsedBOM } = parseFabricAndBOM(rawFabricStr)
+          const cleanTargetGsm = Number(mOrder.design_tech_packs?.target_gsm) || 180
+          const cleanEmbSeq = mOrder.design_tech_packs?.embellishment_sequence || 'Only Embroidery'
+
           const techPack: TechPackSpec = {
             styleNumber: styleRef,
             category,
             cadFrontUrl: mOrder.design_tech_packs?.cad_front_url || '',
             cadBackUrl: mOrder.design_tech_packs?.cad_back_url || '',
-            fabricComposition: mOrder.design_tech_packs?.fabric_composition || '100% Cotton Combed Sinking',
-            targetGsm: Number(mOrder.design_tech_packs?.target_gsm) || 300,
-            embellishmentSequence: mOrder.design_tech_packs?.embellishment_sequence || 'Screen Print → Multi-Head Embroidery → Soft Silicon Wash',
+            fabricComposition: cleanFabric,
+            targetGsm: cleanTargetGsm,
+            embellishmentSequence: cleanEmbSeq,
+            bomMaterials: parsedBOM,
             constructionNotes: 'Single Needle Lockstitch seams with 4-thread overlock safety.'
           }
 
@@ -421,7 +497,7 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
             challanNo: mOrder.order_number || `PO-${mOrder.id.slice(0, 6).toUpperCase()}`,
             contractDate: mOrder.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
             deliveryDate: mOrder.ex_factory_date || '',
-            fabricType: mOrder.design_tech_packs?.fabric_composition || 'Cotton Sinking / Lycra',
+            fabricType: cleanFabric,
             sampleGiven: true,
             challanNotes: `Season: ${mOrder.season || 'Current'} • FOB: ₹${unitFobPrice}/pc`,
             artNo: styleRef,
@@ -482,13 +558,15 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
           }
 
           const artNo = artObj?.art_no || `ART-${al.id.slice(0, 4).toUpperCase()}`
+          const { cleanFabric: alCleanFabric, materials: alParsedBOM } = parseFabricAndBOM(matchingChallan?.fabric_type || 'Cotton / Lycra Blend')
 
           const techPack: TechPackSpec = {
             styleNumber: artNo,
             category: artObj?.description || 'Floor Article',
-            fabricComposition: matchingChallan?.fabric_type || 'Cotton Single Jersey',
+            fabricComposition: alCleanFabric,
             targetGsm: 240,
             embellishmentSequence: 'Cutting → Stitching Assembly → Iron Pressing',
+            bomMaterials: alParsedBOM,
             constructionNotes: 'Factory floor production order.'
           }
 
@@ -524,7 +602,7 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
             challanNo: matchingChallan?.challan_no || `CH-${al.id.slice(0, 6).toUpperCase()}`,
             contractDate: matchingChallan?.challan_date || al.allotment_date || al.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
             deliveryDate: matchingChallan?.delivery_date || '',
-            fabricType: matchingChallan?.fabric_type || 'Cotton / Lycra Blend',
+            fabricType: alCleanFabric,
             sampleGiven: Boolean(matchingChallan?.sample_given),
             challanNotes: matchingChallan?.notes || '',
             artNo,
@@ -573,14 +651,20 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
           const totalDeliveredPieces = buyerArticles.reduce((sum, a) => sum + a.deliveredQty, 0)
           const deliveryPercentage = totalAssignedPieces > 0 ? Math.round((totalDeliveredPieces / totalAssignedPieces) * 100) : 0
 
+          // Clean out synthetic demo fallbacks (no fake procurement lead, fake phone, fake email, fake location)
+          const cleanPerson = (mb.contact_person && mb.contact_person !== 'Procurement Lead') ? mb.contact_person.trim() : ''
+          const cleanPhone = (mb.contact_phone && mb.contact_phone !== '9876543210') ? mb.contact_phone.trim() : ''
+          const cleanEmail = (mb.contact_email && !mb.contact_email.startsWith('buyer@')) ? mb.contact_email.trim() : ''
+          const cleanCity = (mb.city && mb.city !== 'Kolkata, WB') ? mb.city.trim() : ''
+
           buyers.push({
             id: mb.id || `merch-buyer-${bKey.replace(/[^A-Z0-9]/gi, '_')}`,
-            brandCode: mb.buyer_code || bKey.slice(0, 3),
+            brandCode: getBuyerAvatarInitials(bName),
             brandName: bName,
-            contactPerson: mb.contact_person || '',
-            phone: mb.contact_phone || '',
-            email: mb.contact_email || '',
-            city: 'Kolkata, WB',
+            contactPerson: cleanPerson,
+            phone: cleanPhone,
+            email: cleanEmail,
+            city: cleanCity,
             address: '',
             companyName: mb.company_name || targetCompany,
             isActive: true,
@@ -604,15 +688,22 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
             const totalDeliveredPieces = articles.reduce((sum, a) => sum + a.deliveredQty, 0)
             const deliveryPercentage = totalAssignedPieces > 0 ? Math.round((totalDeliveredPieces / totalAssignedPieces) * 100) : 0
             const uniqueContracts = new Set(articles.map(a => a.challanId).filter(Boolean))
+            const rawBrandName = matchingBrand?.brand_name || (buyerKey.charAt(0) + buyerKey.slice(1).toLowerCase())
+
+            // Clean out synthetic demo fallbacks
+            const cleanPerson = (matchingBrand?.contact_person && matchingBrand.contact_person !== 'Procurement Lead') ? matchingBrand.contact_person.trim() : ''
+            const cleanPhone = (matchingBrand?.phone && matchingBrand.phone !== '9876543210') ? matchingBrand.phone.trim() : ''
+            const cleanEmail = (matchingBrand?.email && !matchingBrand.email.startsWith('buyer@')) ? matchingBrand.email.trim() : ''
+            const cleanCity = (matchingBrand?.city && matchingBrand.city !== 'Kolkata, WB') ? matchingBrand.city.trim() : ''
 
             buyers.push({
               id: matchingBrand?.id || `buyer-${buyerKey.replace(/[^A-Z0-9]/gi, '_')}`,
-              brandCode: matchingBrand?.brand_code || buyerKey.slice(0, 3),
-              brandName: matchingBrand?.brand_name || (buyerKey.charAt(0) + buyerKey.slice(1).toLowerCase()),
-              contactPerson: matchingBrand?.contact_person || '',
-              phone: matchingBrand?.phone || '',
-              email: matchingBrand?.email || '',
-              city: matchingBrand?.city || 'Kolkata, WB',
+              brandCode: getBuyerAvatarInitials(rawBrandName),
+              brandName: rawBrandName,
+              contactPerson: cleanPerson,
+              phone: cleanPhone,
+              email: cleanEmail,
+              city: cleanCity,
               companyName: targetCompany,
               isActive: true,
               createdAt: matchingBrand?.created_at || new Date().toISOString(),
