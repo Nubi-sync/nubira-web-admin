@@ -93,17 +93,17 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
   }
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 font-[family-name:var(--font-public-sans)] select-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220] font-[family-name:var(--font-public-sans)]">
       
       {/* ==================================================================== */}
-      {/* 1. TOP HEADER: CONSISTENT PLATFORM STYLE (NO OBSOLETE PILLS/BLINK)  */}
+      {/* 1. TOP HEADER CARD: MATCHING ALL MODULES LAYOUT & SIZE               */}
       {/* ==================================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
-        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
+        <div className="flex items-center gap-3.5 sm:gap-4">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <FileSpreadsheet className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
-          <div className="min-w-0">
+          <div>
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Plant <span className="text-[#1D4ED8]">Reports &amp; Analytics</span>
@@ -112,14 +112,14 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
                 {data.companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Production trends, quality inspections audit, and exportable ledger.
             </p>
           </div>
         </div>
 
         {/* Date presets and Export actions */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto justify-between lg:justify-end">
           
           {/* Preset Buttons */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold text-slate-600">
@@ -160,29 +160,29 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
           {/* Export to Excel */}
           <button
             onClick={handleExportExcel}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200 rounded-xl shadow-xs transition-all cursor-pointer"
+            className="min-h-[40px] sm:min-h-[42px] flex items-center gap-1.5 px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200 rounded-xl shadow-xs transition-all cursor-pointer"
             title="Download Excel Spreadsheet"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <Download className="w-4 h-4 text-emerald-600" />
             <span>Excel</span>
           </button>
 
           {/* Print PDF */}
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all cursor-pointer"
+            className="min-h-[40px] sm:min-h-[42px] flex items-center gap-1.5 px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all cursor-pointer"
             title="Print or Save as PDF"
           >
-            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <Printer className="w-4 h-4 text-slate-500" />
             <span>Print</span>
           </button>
 
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-slate-800 active:scale-95 rounded-xl shadow-xs transition-all"
+            className="min-h-[40px] sm:min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 hover:bg-[#1E40AF] hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer"
           >
             <span>Live Floor</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </Link>
         </div>
       </div>
@@ -536,13 +536,13 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
                 placeholder="Search style or description..."
                 value={searchArticle}
                 onChange={e => setSearchArticle(e.target.value)}
-                className="pl-9 pr-3 py-1.5 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#14C8B4] w-56 sm:w-64"
+                className="pl-9 pr-3 py-2 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] w-56 sm:w-64"
               />
             </div>
 
             <button
               onClick={handleExportExcel}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all cursor-pointer"
+              className="min-h-[38px] flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-slate-500" />
               <span>Export</span>
