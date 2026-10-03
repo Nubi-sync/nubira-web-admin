@@ -263,20 +263,20 @@ export function BuyersVendorsClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
       {/* 1. Header Banner - Matching Tab Header Standard */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
-        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-6 transition-all">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Buyers &amp; <span className="text-[#1D4ED8]">Vendors Hub</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {companyName}
               </span>
             </div>
@@ -289,22 +289,22 @@ export function BuyersVendorsClient({
         {/* Global Search Bar */}
         <div className="w-full sm:w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
-            <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search buyer, phone, article code, or vendor..."
-              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
+              className="min-h-[38px] sm:min-h-[42px] w-full pl-9 pr-8 py-1.5 sm:py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -312,63 +312,63 @@ export function BuyersVendorsClient({
       </div>
 
       {/* 2. Top Summary KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Total Buyers */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Buyers</span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Total Buyers</span>
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono">
               {kpis.totalBuyers}
             </div>
-            <span className="text-[11px] text-slate-500 font-medium">Registered Brands</span>
+            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">Registered Brands</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Building2 className="w-5 h-5 text-[#0B1220]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Building2 className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
           </div>
         </div>
 
         {/* Contracted Articles */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Articles Contracted</span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Articles Contracted</span>
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono">
               {kpis.totalArticles}
             </div>
-            <span className="text-[11px] text-slate-500 font-medium">Total Active Styles</span>
+            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">Total Active Styles</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Scissors className="w-5 h-5 text-[#0B1220]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Scissors className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
           </div>
         </div>
 
         {/* Total Pieces Delivered / Assigned */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1 min-w-0">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pieces Delivered</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-emerald-700 font-mono truncate">
+        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Pieces Delivered</span>
+            <div className="text-base sm:text-2xl font-extrabold text-emerald-700 font-mono truncate">
               {kpis.totalDeliveredPieces.toLocaleString()} / {kpis.totalAssignedPieces.toLocaleString()}
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              {kpis.overallDeliveryPercent}% Fulfilled
+            <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-700 font-bold truncate">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+              <span>{kpis.overallDeliveryPercent}% Fulfilled</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
-            <PackageCheck className="w-5 h-5 text-emerald-600" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
+            <PackageCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-600" />
           </div>
         </div>
 
         {/* 12 Factory Modules Assigned */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vendor Modules</span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Vendor Modules</span>
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono">
               {kpis.assignedModulesCount} / 12
             </div>
-            <span className="text-[11px] text-slate-500 font-medium">Divisions Assigned</span>
+            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">Divisions Assigned</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Layers className="w-5 h-5 text-[#0B1220]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Layers className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
           </div>
         </div>
       </div>

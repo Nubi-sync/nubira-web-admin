@@ -302,21 +302,20 @@ export function DepartmentHeadsClient({
   const primaryPM = productionManagersList[0] || null
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-
       {/* 1. Header Banner - Clean with Department Pill */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
-        <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <ShieldCheck className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-6 transition-all">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {divisions.length} Departments
               </span>
             </div>
@@ -329,22 +328,22 @@ export function DepartmentHeadsClient({
         {/* Right Search Input - Generous touch target & clear readability */}
         <div className="w-full sm:w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
-            <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search departments or staff..."
-              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
+              className="min-h-[38px] sm:min-h-[42px] w-full pl-9 pr-8 py-1.5 sm:py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -352,13 +351,13 @@ export function DepartmentHeadsClient({
       </div>
 
       {/* 2. ROW 1: Written About the Owner - No pill clutter */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-all">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Crown className="w-6 h-6 text-[#0B1220]" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 sm:gap-6 transition-all">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
               <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
                 {owner.name}
               </span>
