@@ -153,9 +153,9 @@ export function CompanyOwnerHeader({
       id: 'fabric-store',
       label: 'Fabric & Store',
       lines: ['Fabric &', 'Store'],
-      href: '/store',
+      href: '/fabric-store',
       icon: FabricStoreNavIcon,
-      isActive: pathname === '/store' || pathname?.startsWith('/store') || pathname === '/fabric-store'
+      isActive: pathname === '/fabric-store' || pathname?.startsWith('/fabric-store')
     },
     {
       id: 'zigza-ai',
