@@ -101,6 +101,12 @@ export async function updateSession(request: NextRequest) {
     '/reset-password',
     '/zigza-ai',
     '/vendors',
+    '/buyers-vendors',
+    '/fabric-store',
+    '/all-designs',
+    '/access-control',
+    '/supervisor-workers',
+    '/company-profile',
     '/profile',
   ]
   const isProtectedRoute = PROTECTED_DASHBOARD_ROUTES.some(route => pathname === route || pathname.startsWith(`${route}/`))
@@ -115,6 +121,8 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (user) {
+      const userEmail = (user.email || '').trim().toLowerCase()
+
       // Resolve user role & allowed modules
       let userRole = (user.user_metadata?.role || '').toUpperCase()
       if (!userRole) {
@@ -128,12 +136,25 @@ export async function updateSession(request: NextRequest) {
         } catch (_) {}
       }
 
+      // If user is the registered primary admin of a factory tenant, treat as SUPERADMIN
+      if (!userRole) {
+        try {
+          const { data: tenantAdmin } = await supabase
+            .from('platform_tenant_factories')
+            .select('id')
+            .ilike('admin_email', userEmail)
+            .maybeSingle()
+          if (tenantAdmin) {
+            userRole = 'SUPERADMIN'
+          }
+        } catch (_) {}
+      }
+
       const { getUserAllowedModules, isRouteAuthorized, getDefaultLandingRoute } = await import('@/lib/access-control')
       const allowedModules = getUserAllowedModules(user, { role: userRole })
       const defaultLanding = getDefaultLandingRoute(allowedModules, userRole, user.email)
 
       // 1. Check if logged in user's tenant account has expired or been revoked
-      const userEmail = (user.email || '').trim().toLowerCase()
       const isPlatformAdmin = userEmail === 'admin@zigza.in' || userRole === 'PLATFORM_SUPERADMIN'
       const isProfileRoute = pathname === '/profile' || pathname.startsWith('/profile') || pathname === '/modules/profile' || pathname.startsWith('/modules/profile')
       

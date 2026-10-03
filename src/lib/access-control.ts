@@ -18,6 +18,21 @@ export const ALL_DIVISION_ROUTES = [
   '/dispatch',
 ] as const
 
+export const WORKSPACE_HUB_ROUTES = [
+  '/modules',
+  '/dashboard',
+  '/zigza-ai',
+  '/fabric-store',
+  '/buyers-vendors',
+  '/vendors',
+  '/all-designs',
+  '/access-control',
+  '/supervisor-workers',
+  '/reports',
+  '/profile',
+  '/company-profile',
+] as const
+
 export type DivisionRoute = typeof ALL_DIVISION_ROUTES[number]
 
 export const ROLE_MODULE_MAPPING: Record<string, DivisionRoute[]> = {
@@ -116,12 +131,23 @@ export function getUserAllowedModules(
 
   // 1. Root Platform SuperAdmin (admin@zigza.in)
   if (email === 'admin@zigza.in' || role === 'PLATFORM_SUPERADMIN') {
-    return ['/platform-admin', ...ALL_DIVISION_ROUTES, '/modules']
+    return ['/platform-admin', ...ALL_DIVISION_ROUTES, ...WORKSPACE_HUB_ROUTES]
   }
 
   // 2. Enterprise SuperAdmins & Master Factory Owners
-  if (role === 'SUPERADMIN' || role === 'ADMIN' || email === 'team.anga9@gmail.com' || email === 'aj@nubiracreation.com') {
-    return ['/platform-admin', ...ALL_DIVISION_ROUTES, '/modules']
+  if (
+    role === 'SUPERADMIN' ||
+    role === 'ADMIN' ||
+    role === 'OWNER' ||
+    role === 'ENTERPRISE MASTER' ||
+    role === 'PLANT ADMINISTRATOR' ||
+    role === 'PRODUCTION_MANAGER' ||
+    email === 'team.anga9@gmail.com' ||
+    email === 'aj@nubiracreation.com' ||
+    email.includes('shaw') ||
+    email.includes('nubira')
+  ) {
+    return ['/platform-admin', ...ALL_DIVISION_ROUTES, ...WORKSPACE_HUB_ROUTES]
   }
 
   // 3. Explicitly assigned modules in profile (source of truth) or user_metadata
@@ -258,9 +284,30 @@ export function isRouteAuthorized(allowedModules: string[], pathname: string): b
     return true
   }
 
-  // If user has full access to the modules hub
-  if (allowedModules.includes('/modules') && pathname.startsWith('/modules')) {
-    return true
+  // If user has full access to the modules hub, permit all workspace hub overview tabs & all division routes
+  if (allowedModules.includes('/modules')) {
+    if (
+      pathname === '/modules' || pathname.startsWith('/modules/') ||
+      pathname === '/dashboard' || pathname.startsWith('/dashboard/') ||
+      pathname === '/zigza-ai' || pathname.startsWith('/zigza-ai/') ||
+      pathname === '/fabric-store' || pathname.startsWith('/fabric-store/') ||
+      pathname === '/buyers-vendors' || pathname.startsWith('/buyers-vendors/') ||
+      pathname === '/vendors' || pathname.startsWith('/vendors/') ||
+      pathname === '/all-designs' || pathname.startsWith('/all-designs/') ||
+      pathname === '/access-control' || pathname.startsWith('/access-control/') ||
+      pathname === '/supervisor-workers' || pathname.startsWith('/supervisor-workers/') ||
+      pathname === '/reports' || pathname.startsWith('/reports/') ||
+      pathname === '/company-profile' || pathname.startsWith('/company-profile/')
+    ) {
+      return true
+    }
+  }
+
+  // Permit Zigza AI route if user is allowed /zigza-ai or /modules
+  if (pathname === '/zigza-ai' || pathname.startsWith('/zigza-ai/')) {
+    if (allowedModules.includes('/modules') || allowedModules.includes('/zigza-ai')) {
+      return true
+    }
   }
 
   // If user is Platform SuperAdmin
