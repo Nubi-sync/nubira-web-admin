@@ -36,7 +36,8 @@ import {
   Wrench,
   Store,
   ClipboardList,
-  FileText
+  FileText,
+  Building2
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 
@@ -89,17 +90,29 @@ const PORTAL_METADATA: Record<PortalType, {
   queries: QueryCard[]
 }> = {
   'modules': {
-    title: 'Zigza AI • Enterprise Hub',
+    title: 'Zigza AI • Master Enterprise Hub',
     subtitle: 'Cross-division executive intelligence and multi-plant operations',
-    badge: 'ENTERPRISE AI',
-    heroTitle: 'Executive workspace overview & multi-plant status',
-    heroDescription: 'Ask for holistic updates across all 11 operating divisions, plant-wide output, and master logistics.',
+    badge: 'SUPER ADMIN AI',
+    heroTitle: 'Executive multi-plant intelligence & factory oversight',
+    heroDescription: 'Ask for holistic updates across all 11 operating divisions, fabric store stock, floor output, QC rates, and master dispatches.',
     queries: [
       {
         icon: LayoutGrid,
         title: 'Enterprise Health Check',
         description: 'Audit live operations across all 11 manufacturing divisions.',
         prompt: 'Give me an overall factory health check across all operational divisions including total running orders, ready stock, and dispatches.'
+      },
+      {
+        icon: Store,
+        title: 'Fabric & Trims in Store',
+        description: 'Audit cloth meters and trims left in godown store and allocated styles.',
+        prompt: 'How much fabric cloth and required trims are left in store, and what articles are they assigned to?'
+      },
+      {
+        icon: Briefcase,
+        title: 'Buyers & Active Contracts',
+        description: 'Review registered buyers, contracted pieces, and vendor modules.',
+        prompt: 'Show our registered buyers, active style contracts, and vendor module assignments.'
       },
       {
         icon: Warehouse,
@@ -115,21 +128,9 @@ const PORTAL_METADATA: Record<PortalType, {
       },
       {
         icon: CheckCircle2,
-        title: 'Plant QC & Defects',
+        title: 'Plant QC & Defect Rates',
         description: 'Inspect passed pieces vs rejections and defect rates.',
         prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
-      },
-      {
-        icon: Tag,
-        title: 'Article Styles & Rates',
-        description: 'Active design styles and piece-rate stitching cost breakdown.',
-        prompt: 'List all active article styles with their descriptions and stitching piece rates.'
-      },
-      {
-        icon: Truck,
-        title: 'Dispatches & Gate Passes',
-        description: 'Recent delivery challans dispatched out of factory.',
-        prompt: 'Show recent delivery challans dispatched to buyers with total pieces and vehicle details.'
       }
     ]
   },
@@ -621,29 +622,56 @@ const PORTAL_METADATA: Record<PortalType, {
   }
 }
 
+export const MASTER_DIVISIONS: Array<{
+  id: PortalType
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+}> = [
+  { id: 'modules', label: 'All Divisions (Master)', icon: LayoutGrid },
+  { id: 'store', label: 'Central Store & Fabric', icon: Store },
+  { id: 'cutting', label: 'Cutting Floor', icon: Scissors },
+  { id: 'stitching-sewing', label: 'Stitching & Sewing', icon: Layers },
+  { id: 'ready-goods', label: 'Quality & Packing', icon: Boxes },
+  { id: 'design', label: 'Design Studio', icon: Palette },
+  { id: 'merchandising', label: 'Merchandising', icon: Briefcase },
+  { id: 'printing', label: 'Printing Division', icon: Printer },
+  { id: 'embroidery', label: 'Embroidery Unit', icon: Sparkles },
+  { id: 'washing', label: 'Industrial Washing', icon: Waves },
+  { id: 'iron', label: 'Ironing & Finishing', icon: Flame },
+  { id: 'dispatch', label: 'Dispatch Logistics', icon: Truck },
+  { id: 'brands', label: 'Buyers & Vendors', icon: Building2 },
+]
+
 interface ZigzaAiClientProps {
   userEmail?: string
   portal?: PortalType
+  companyName?: string
+  isMaster?: boolean
 }
 
 export function ZigzaAiClient({ 
   userEmail = 'admin@nubira.local',
-  portal
+  portal,
+  companyName,
+  isMaster = false
 }: ZigzaAiClientProps) {
   const pathname = usePathname()
+  const isMasterHub = isMaster || pathname === '/zigza-ai' || pathname?.startsWith('/zigza-ai')
+
+  const [selectedDivision, setSelectedDivision] = useState<PortalType>(portal || 'modules')
 
   // Resolve active portal context
-  const activePortal: PortalType = portal || (() => {
+  const activePortal: PortalType = isMasterHub ? selectedDivision : (portal || (() => {
     if (pathname?.startsWith('/modules')) return 'modules'
     if (pathname?.startsWith('/factory')) return 'factory'
     if (pathname?.startsWith('/brands')) return 'brands'
     if (pathname?.startsWith('/washing')) return 'washing'
     if (pathname?.startsWith('/printing')) return 'printing'
     if (pathname?.startsWith('/embroidery')) return 'embroidery'
-    return 'stitching-sewing'
-  })()
+    return 'modules'
+  })())
 
-  const meta = PORTAL_METADATA[activePortal] || PORTAL_METADATA['stitching-sewing']
+  const meta = PORTAL_METADATA[activePortal] || PORTAL_METADATA['modules']
 
   const [isMounted, setIsMounted] = useState(false)
   const [sessions, setSessions] = useState<ChatSession[]>([])
@@ -1310,7 +1338,7 @@ export function ZigzaAiClient({
   )
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-[#F8FAFC] relative">
+    <div className="flex flex-1 min-h-0 w-full overflow-hidden bg-[#F8FAFC] relative">
       
       {/* ======================================================== */}
       {/* 1. DESKTOP LEFT CHAT HISTORY SIDEBAR (lg and up)         */}
@@ -1331,21 +1359,23 @@ export function ZigzaAiClient({
       <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#F8FAFC]">
         
         {/* Top App Bar with Navigation, Title, and Action Buttons (Elevated & Spacious) */}
-        <header className="px-4 sm:px-8 py-3.5 sm:py-4.5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-xs">
+        <header className="px-4 sm:px-8 py-3 sm:py-3.5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between z-10 shrink-0 shadow-xs">
           <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
-            {/* Mobile Hamburger Menu Button to open AdminSidebar */}
-            <button
-              type="button"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('toggle-mobile-menu'))
-                }
-              }}
-              className="lg:hidden w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-[#F0FDFA] transition-colors cursor-pointer shadow-2xs shrink-0 mr-1 active:scale-95"
-              aria-label="Open staff navigation menu"
-            >
-              <Menu className="w-5 h-5 text-[#0B1220]" />
-            </button>
+            {/* Mobile Hamburger Menu Button to open AdminSidebar - only on non-master portal pages */}
+            {!isMasterHub && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('toggle-mobile-menu'))
+                  }
+                }}
+                className="lg:hidden w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-[#F0FDFA] transition-colors cursor-pointer shadow-2xs shrink-0 mr-1 active:scale-95"
+                aria-label="Open staff navigation menu"
+              >
+                <Menu className="w-5 h-5 text-[#0B1220]" />
+              </button>
+            )}
 
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
               <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#0B1220]" />
@@ -1353,14 +1383,16 @@ export function ZigzaAiClient({
             <div className="min-w-0 hidden sm:block">
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
-                  {meta.title}
+                  {isMasterHub ? 'Zigza AI • Master Enterprise Copilot' : meta.title}
                 </h1>
                 <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
-                  {meta.badge}
+                  {isMasterHub ? 'SUPER ADMIN AI' : meta.badge}
                 </span>
               </div>
               <p className="text-xs text-slate-500 truncate font-medium">
-                {meta.subtitle}
+                {isMasterHub 
+                  ? `Cross-division factory intelligence and multi-plant operations • ${companyName || 'Apparel Factory'}`
+                  : meta.subtitle}
               </p>
             </div>
           </div>
@@ -1395,6 +1427,39 @@ export function ZigzaAiClient({
             >
               <PanelLeft className="w-4 h-4 hidden lg:block" />
               <PanelRight className="w-4 h-4 lg:hidden" />
+              <span className="text-xs sm:text-sm font-bold whitespace-nowrap">History</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Master Cross-Division Selector (Only shown for Super Admin Master Hub) */}
+        {isMasterHub && (
+          <div className="px-4 sm:px-8 py-2 bg-white border-b border-slate-200/80 flex items-center gap-2 overflow-x-auto shrink-0 shadow-2xs">
+            <span className="text-[11px] font-mono font-bold uppercase text-slate-500 tracking-wider whitespace-nowrap shrink-0 flex items-center gap-1.5 mr-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#14C8B4]" />
+              Look From:
+            </span>
+            {MASTER_DIVISIONS.map(div => {
+              const DivIcon = div.icon
+              const isSelected = activePortal === div.id
+              return (
+                <button
+                  key={div.id}
+                  type="button"
+                  onClick={() => setSelectedDivision(div.id)}
+                  className={`px-3 py-1.5 text-xs rounded-full transition-all whitespace-nowrap cursor-pointer border flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
+                      : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <DivIcon className="w-3.5 h-3.5" />
+                  <span>{div.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
               <span className="text-xs sm:text-sm font-bold whitespace-nowrap">History</span>
             </button>
           </div>

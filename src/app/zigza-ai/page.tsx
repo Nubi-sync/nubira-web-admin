@@ -27,7 +27,12 @@ export default async function ZigzaAiPage() {
 
   return (
     <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
-      <ZigzaAiClient userEmail={user.email} />
+      <ZigzaAiClient 
+        userEmail={user.email} 
+        portal="modules" 
+        companyName={tenant.companyName}
+        isMaster={true}
+      />
     </AdminShell>
   )
 }

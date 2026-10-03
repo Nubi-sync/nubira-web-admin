@@ -104,6 +104,29 @@ export const GEMINI_TOOLS_DECLARATIONS = [
       },
       required: []
     }
+  },
+  {
+    name: 'get_fabric_store_stock',
+    description: 'Look up fabric rolls, cloth meters left in godown store, booked meters for articles, colors, supplier, and rack location.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        fabric_type: { type: 'STRING', description: 'Filter by fabric type or name (e.g. Cotton, Denim, Ribbon, Fleece)' },
+        color: { type: 'STRING', description: 'Filter by color' }
+      },
+      required: []
+    }
+  },
+  {
+    name: 'get_buyers_and_vendors',
+    description: 'Look up registered buyers, contract orders, contracted pieces, delivery dates, and vendor assignments for the 12 factory divisions.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        buyer_name: { type: 'STRING', description: 'Filter by buyer or brand name' }
+      },
+      required: []
+    }
   }
 ]
 
@@ -407,6 +430,69 @@ export async function executeAiTool(name: string, args: Record<string, any>) {
         return {
           totalDispatches: formatted.length,
           dispatches: formatted
+        }
+      }
+
+      case 'get_fabric_store_stock': {
+        let query = supabase
+          .from('central_fabric_inventory')
+          .select('id, fabric_type, color, supplier_name, total_meters, total_rolls, rack_location, company_name')
+          .order('created_at', { ascending: false })
+          .limit(15)
+
+        if (args.fabric_type) {
+          query = query.ilike('fabric_type', `%${args.fabric_type}%`)
+        }
+        if (args.color) {
+          query = query.ilike('color', `%${args.color}%`)
+        }
+
+        const { data, error } = await query
+        if (error) {
+          return { totalClothRolls: 0, totalMeters: 0, items: [], note: 'No fabric records found in store.' }
+        }
+
+        const totalMeters = (data || []).reduce((sum, f) => sum + (Number(f.total_meters) || 0), 0)
+        const totalRolls = (data || []).reduce((sum, f) => sum + (Number(f.total_rolls) || 0), 0)
+
+        const formatted = (data || []).map(f => ({
+          fabricType: f.fabric_type,
+          color: f.color || 'Standard',
+          totalMeters: Number(f.total_meters) || 0,
+          totalRolls: Number(f.total_rolls) || 1,
+          rackLocation: f.rack_location || 'General Store',
+          supplier: f.supplier_name || 'In-House'
+        }))
+
+        return {
+          totalClothMetersInStore: totalMeters,
+          totalRollsCount: totalRolls,
+          fabricsInGodown: formatted
+        }
+      }
+
+      case 'get_buyers_and_vendors': {
+        const [ordersRes, vendorsRes] = await Promise.all([
+          supabase.from('merchandising_orders').select('id, order_number, buyer_name, total_quantity, company_name').limit(15),
+          supabase.from('module_vendor_assignments').select('module_name, module_route, vendor_profile_id, company_name').limit(15)
+        ])
+
+        const orders = ordersRes.data || []
+        const uniqueBuyers = Array.from(new Set(orders.map(o => o.buyer_name).filter(Boolean)))
+        const totalContractedPieces = orders.reduce((sum, o) => sum + (Number(o.total_quantity) || 0), 0)
+        const assignedVendorsCount = (vendorsRes.data || []).filter(v => Boolean(v.vendor_profile_id)).length
+
+        return {
+          totalRegisteredBuyers: uniqueBuyers.length,
+          buyerNames: uniqueBuyers,
+          activeOrdersCount: orders.length,
+          totalContractedPieces,
+          assignedVendorModules: `${assignedVendorsCount} of 12 divisions assigned`,
+          recentOrders: orders.slice(0, 5).map(o => ({
+            orderNo: o.order_number,
+            buyer: o.buyer_name,
+            pieces: Number(o.total_quantity) || 0
+          }))
         }
       }
 

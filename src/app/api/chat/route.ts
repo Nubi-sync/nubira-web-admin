@@ -250,6 +250,23 @@ function formatFriendlyFallback(toolName: string, data: any): string {
 • **Dispatched to Buyers**: **${(data.totalDispatchedPieces || 0).toLocaleString()} pieces**`
   }
 
+  if (toolName === 'get_fabric_store_stock') {
+    const list = Array.isArray(data.fabricsInGodown) && data.fabricsInGodown.length > 0
+      ? data.fabricsInGodown.map((f: any) => `• **${f.fabricType}** (${f.color}): **${Number(f.totalMeters).toLocaleString()} meters** [Rack: ${f.rackLocation}]`).join('\n')
+      : '• No active fabric rolls found.'
+    return `Here is the current cloth and fabric stock in Godown Store:
+• **Total Cloth in Store**: **${(data.totalClothMetersInStore || 0).toLocaleString()} meters**
+• **Total Fabric Rolls**: **${data.totalRollsCount || 0} rolls**
+${list}`
+  }
+
+  if (toolName === 'get_buyers_and_vendors') {
+    return `Here is the current buyer contracts and vendor module status:
+• **Registered Buyers**: **${data.totalRegisteredBuyers || 0} brands** (${(data.buyerNames || []).join(', ') || 'Direct Buyers'})
+• **Total Contracted Pieces**: **${(data.totalContractedPieces || 0).toLocaleString()} pieces** across **${data.activeOrdersCount || 0} orders**
+• **Vendor Module Assignments**: **${data.assignedVendorModules || '0 / 12'}**`
+  }
+
   if (data.note) {
     return data.note
   }
