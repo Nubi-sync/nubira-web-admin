@@ -990,41 +990,6 @@ export function MasterZigzaAiHubClient({
         {/* ======================================================== */}
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
           
-          {/* Studio Top Sub-header: Division Focus Filter Pills */}
-          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-slate-200/80 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-[#14C8B4]" />
-              </div>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
-                Division Focus:
-              </span>
-            </div>
-
-            {/* Horizontal scrollable pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none min-w-0 flex-1 sm:justify-start">
-              {MASTER_DIVISIONS.map(div => {
-                const DivIcon = div.icon
-                const isSelected = selectedDivision === div.id
-                return (
-                  <button
-                    key={div.id}
-                    type="button"
-                    onClick={() => setSelectedDivision(div.id)}
-                    className={`px-3 py-1 rounded-full transition-all whitespace-nowrap cursor-pointer border flex items-center gap-1.5 text-xs ${
-                      isSelected
-                        ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
-                        : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
-                    }`}
-                  >
-                    <DivIcon className="w-3 h-3 shrink-0" />
-                    <span>{div.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
           {/* Main Conversation Body */}
           <div 
             ref={messagesContainerRef}
