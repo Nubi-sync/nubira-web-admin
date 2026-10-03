@@ -262,20 +262,20 @@ export function BuyersVendorsClient({
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* 1. Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 transition-all">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-[#0B1220]" />
+      {/* 1. Header Banner - Matching Tab Header Standard */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Buyers &amp; <span className="text-[#1D4ED8]">Vendors Hub</span>
               </h1>
-              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {companyName}
               </span>
             </div>
@@ -286,7 +286,7 @@ export function BuyersVendorsClient({
         </div>
 
         {/* Global Search Bar */}
-        <div className="w-full lg:w-96 relative shrink-0">
+        <div className="w-full sm:w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
             <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 pointer-events-none" />
             <input
@@ -294,7 +294,7 @@ export function BuyersVendorsClient({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search buyer, phone, article code, or vendor..."
-              className="min-h-[44px] w-full pl-10 pr-9 py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
+              className="min-h-[42px] w-full pl-10 pr-9 py-2 sm:py-2.5 bg-slate-50 focus:bg-white text-xs sm:text-sm font-medium border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button

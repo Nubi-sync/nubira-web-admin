@@ -96,13 +96,20 @@ export function ArticleContractDetailModal({
                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
                 {buyerName}
               </span>
+              <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                article.sourceType === 'MERCHANDISING_PO' 
+                  ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                  : 'bg-slate-100 text-slate-700 border border-slate-200'
+              }`}>
+                {article.sourceType === 'MERCHANDISING_PO' ? 'Merchandising PO' : 'Floor Challan'}
+              </span>
               {getStatusBadge(article.status)}
             </div>
             <h2 className="text-lg sm:text-xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
               {article.description || article.product || `Contract Details • ${article.artNo}`}
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              Challan #{article.challanNo} • Contracted on {article.contractDate}
+              {article.sourceType === 'MERCHANDISING_PO' ? 'Order' : 'Challan'} #{article.challanNo} • Contracted on {article.contractDate}
             </p>
           </div>
 
