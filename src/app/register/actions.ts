@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import crypto from 'crypto'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 const supabaseAdmin = createAdminClient(
@@ -136,6 +137,164 @@ export async function checkPhoneAvailabilityAction(rawPhone: string): Promise<{
   } catch (err) {
     console.error('[checkPhoneAvailabilityAction] Notice:', err)
     return { available: true }
+  }
+}
+
+// ----------------------------------------------------------------------
+// SEND OTP ACTION (MSG91 Flow via Supabase Edge Function / Auth Hook)
+// ----------------------------------------------------------------------
+export async function sendTrialPhoneOtpAction(rawPhone: string): Promise<{
+  success: boolean
+  error?: string
+  verificationToken?: string
+}> {
+  try {
+    const digits = (rawPhone || '').replace(/\D/g, '')
+    const phone10 = digits.slice(-10)
+    if (!phone10 || phone10.length !== 10) {
+      return { success: false, error: 'Enter a valid 10-digit mobile number.' }
+    }
+
+    // Double check availability against database
+    const avail = await checkPhoneAvailabilityAction(phone10)
+    if (!avail.available) {
+      return { success: false, error: avail.error || 'This mobile number is already registered. Please sign in.' }
+    }
+
+    // Generate a secure 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiresAt = Date.now() + 5 * 60 * 1000 // 5 minutes valid
+
+    // Create a cryptographic verification token
+    const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'zigza_secure_otp_salt_2026'
+    const signature = crypto
+      .createHmac('sha256', secretKey)
+      .update(`${phone10}:${otp}:${expiresAt}`)
+      .digest('hex')
+    const verificationToken = `${phone10}.${expiresAt}.${signature}`
+
+    // 1. Deliver OTP directly to the deployed Edge Function
+    const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-sms`
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    
+    let delivered = false
+    try {
+      const edgeRes = await fetch(edgeFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${anonKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: `91${phone10}`,
+          otp,
+        }),
+      })
+
+      const edgeJson = await edgeRes.json().catch(() => ({}))
+      if (edgeRes.ok && edgeJson?.success) {
+        delivered = true
+      } else {
+        console.warn('[sendTrialPhoneOtpAction] Edge function returned:', edgeJson)
+      }
+    } catch (edgeErr) {
+      console.error('[sendTrialPhoneOtpAction] Edge function dispatch failed:', edgeErr)
+    }
+
+    // 2. Fallback: If edge function direct call didn't return ok, try Supabase Auth signInWithOtp
+    if (!delivered) {
+      try {
+        const { error: authOtpErr } = await supabaseAdmin.auth.signInWithOtp({
+          phone: `+91${phone10}`,
+        })
+        if (!authOtpErr) {
+          delivered = true
+        } else {
+          console.warn('[sendTrialPhoneOtpAction] Supabase Auth signInWithOtp notice:', authOtpErr)
+        }
+      } catch (authErr) {
+        console.warn('[sendTrialPhoneOtpAction] Supabase Auth fallback notice:', authErr)
+      }
+    }
+
+    if (!delivered) {
+      return { success: false, error: 'Could not deliver SMS at this moment. Please verify your phone number and try again.' }
+    }
+
+    return { success: true, verificationToken }
+  } catch (err: any) {
+    console.error('[sendTrialPhoneOtpAction] Error:', err)
+    return { success: false, error: err?.message || 'Failed to send OTP. Please try again.' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// VERIFY OTP ACTION
+// ----------------------------------------------------------------------
+export async function verifyTrialPhoneOtpAction(
+  rawPhone: string,
+  userOtp: string,
+  verificationToken?: string
+): Promise<{
+  success: boolean
+  error?: string
+}> {
+  try {
+    const digits = (rawPhone || '').replace(/\D/g, '')
+    const phone10 = digits.slice(-10)
+    const cleanOtp = (userOtp || '').replace(/\D/g, '')
+
+    if (phone10.length !== 10) {
+      return { success: false, error: 'Invalid mobile number.' }
+    }
+
+    if (cleanOtp.length !== 6) {
+      return { success: false, error: 'Please enter the complete 6-digit OTP code.' }
+    }
+
+    // 1. Verify via cryptographic token if present
+    if (verificationToken) {
+      const parts = verificationToken.split('.')
+      if (parts.length === 3) {
+        const [tokenPhone, expStr, tokenSig] = parts
+        const expiresAt = parseInt(expStr, 10)
+
+        if (tokenPhone !== phone10) {
+          return { success: false, error: 'Verification token does not match this mobile number.' }
+        }
+
+        if (Date.now() > expiresAt) {
+          return { success: false, error: 'OTP has expired. Please request a new OTP.' }
+        }
+
+        const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'zigza_secure_otp_salt_2026'
+        const expectedSig = crypto
+          .createHmac('sha256', secretKey)
+          .update(`${phone10}:${cleanOtp}:${expiresAt}`)
+          .digest('hex')
+
+        if (crypto.timingSafeEqual(Buffer.from(tokenSig), Buffer.from(expectedSig))) {
+          return { success: true }
+        }
+      }
+    }
+
+    // 2. Fallback: verify via Supabase Auth
+    try {
+      const { data, error } = await supabaseAdmin.auth.verifyOtp({
+        phone: `+91${phone10}`,
+        token: cleanOtp,
+        type: 'sms',
+      })
+      if (!error && (data?.user || data?.session)) {
+        return { success: true }
+      }
+    } catch (_) {}
+
+    return { success: false, error: 'Incorrect OTP code. Please check and re-enter.' }
+  } catch (err: any) {
+    console.error('[verifyTrialPhoneOtpAction] Error:', err)
+    return { success: false, error: err?.message || 'Verification failed. Please try again.' }
   }
 }
 

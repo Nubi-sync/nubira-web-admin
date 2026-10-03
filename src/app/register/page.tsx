@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -21,7 +21,13 @@ import {
   X
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { registerFreeTrialAction, checkEmailAvailabilityAction, checkPhoneAvailabilityAction } from './actions'
+import { 
+  registerFreeTrialAction, 
+  checkEmailAvailabilityAction, 
+  checkPhoneAvailabilityAction,
+  sendTrialPhoneOtpAction,
+  verifyTrialPhoneOtpAction
+} from './actions'
 import { PLATFORM_UPDATE_EVENT } from '../platform-admin/utils/platformStorage'
 
 function IndiaFlag({ className = 'w-5 h-3.5' }: { className?: string }) {
@@ -90,6 +96,26 @@ export default function RegisterFreeTrialPage() {
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'checking' | 'available' | 'error'>('idle')
   const [phoneErrorMsg, setPhoneErrorMsg] = useState<string | null>(null)
   
+  // Phone OTP Verification States
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false)
+  const [isOtpBoxOpen, setIsOtpBoxOpen] = useState(false)
+  const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', ''])
+  const [isSendingOtp, setIsSendingOtp] = useState(false)
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
+  const [otpError, setOtpError] = useState<string | null>(null)
+  const [otpCountdown, setOtpCountdown] = useState(0)
+  const [verificationToken, setVerificationToken] = useState<string | null>(null)
+  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  // Resend OTP Countdown Timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return
+    const timer = setInterval(() => {
+      setOtpCountdown((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [otpCountdown])
+
   // Step 2 Fields: Pre-select all modules
   const [selectedDivisions, setSelectedDivisions] = useState<string[]>(
     ALL_12_MODULES.map(m => m.route)
@@ -113,6 +139,15 @@ export default function RegisterFreeTrialPage() {
     setPhone(raw)
     setErrorMsg(null)
 
+    // Reset phone verification if number is changed
+    if (isPhoneVerified || isOtpBoxOpen) {
+      setIsPhoneVerified(false)
+      setIsOtpBoxOpen(false)
+      setOtpValues(['', '', '', '', '', ''])
+      setOtpError(null)
+      setVerificationToken(null)
+    }
+
     if (raw.length < 10) {
       setPhoneStatus('idle')
       setPhoneErrorMsg(null)
@@ -135,6 +170,116 @@ export default function RegisterFreeTrialPage() {
       }
     } catch (_) {
       setPhoneStatus('available')
+    }
+  }
+
+  // Send OTP Trigger
+  const handleSendOtp = async () => {
+    if (phone.length !== 10 || phoneStatus !== 'available' || isSendingOtp) return
+
+    setIsSendingOtp(true)
+    setOtpError(null)
+    try {
+      const res = await sendTrialPhoneOtpAction(phone)
+      if (res.success) {
+        if (res.verificationToken) {
+          setVerificationToken(res.verificationToken)
+        }
+        setIsOtpBoxOpen(true)
+        setOtpValues(['', '', '', '', '', ''])
+        setOtpCountdown(30)
+        toast.success(`Verification code sent to +91 ${phone}`)
+        setTimeout(() => {
+          otpInputRefs.current[0]?.focus()
+        }, 150)
+      } else {
+        setOtpError(res.error || 'Failed to send OTP. Please try again.')
+        toast.error(res.error || 'Failed to send OTP')
+      }
+    } catch (err: any) {
+      setOtpError(err?.message || 'Failed to send OTP. Please try again.')
+      toast.error('Failed to send OTP')
+    } finally {
+      setIsSendingOtp(false)
+    }
+  }
+
+  // Handle Individual OTP Digit Input
+  const handleOtpChange = (index: number, val: string) => {
+    const digit = val.replace(/\D/g, '').slice(-1)
+    const newValues = [...otpValues]
+    newValues[index] = digit
+    setOtpValues(newValues)
+    setOtpError(null)
+
+    // Auto-advance to next box if digit typed
+    if (digit && index < 5) {
+      otpInputRefs.current[index + 1]?.focus()
+    }
+
+    // Auto-verify if all 6 digits completed
+    if (digit && index === 5) {
+      const full = newValues.join('')
+      if (full.length === 6) {
+        handleVerifyOtp(full)
+      }
+    }
+  }
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (!otpValues[index] && index > 0) {
+        otpInputRefs.current[index - 1]?.focus()
+      }
+    }
+  }
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+    if (!pasted) return
+
+    const newValues = [...otpValues]
+    for (let i = 0; i < 6; i++) {
+      newValues[i] = pasted[i] || ''
+    }
+    setOtpValues(newValues)
+    setOtpError(null)
+
+    const focusIdx = Math.min(pasted.length, 5)
+    otpInputRefs.current[focusIdx]?.focus()
+
+    if (pasted.length === 6) {
+      handleVerifyOtp(pasted)
+    }
+  }
+
+  // Verify OTP Trigger
+  const handleVerifyOtp = async (codeToVerify?: string) => {
+    const fullCode = codeToVerify || otpValues.join('')
+    if (fullCode.length !== 6) {
+      setOtpError('Please enter the full 6-digit OTP.')
+      return
+    }
+
+    setIsVerifyingOtp(true)
+    setOtpError(null)
+    try {
+      const res = await verifyTrialPhoneOtpAction(phone, fullCode, verificationToken || undefined)
+      if (res.success) {
+        setIsPhoneVerified(true)
+        setIsOtpBoxOpen(false)
+        setOtpError(null)
+        toast.success('Mobile number verified successfully!')
+      } else {
+        setOtpError(res.error || 'Invalid or expired OTP. Please try again.')
+        toast.error(res.error || 'Invalid OTP code')
+      }
+    } catch (err: any) {
+      setOtpError(err?.message || 'Verification failed. Please try again.')
+      toast.error('Verification failed')
+    } finally {
+      setIsVerifyingOtp(false)
     }
   }
 
@@ -315,6 +460,15 @@ export default function RegisterFreeTrialPage() {
 
     if (phone.length !== 10) {
       setErrorMsg('Please enter a valid 10-digit Indian mobile number.')
+      return
+    }
+
+    if (!isPhoneVerified) {
+      setErrorMsg('Please verify your mobile number with OTP before continuing.')
+      toast.error('Please verify your mobile number with OTP')
+      if (!isOtpBoxOpen && phoneStatus === 'available') {
+        handleSendOtp()
+      }
       return
     }
 
