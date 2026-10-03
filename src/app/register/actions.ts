@@ -186,7 +186,7 @@ export async function sendTrialPhoneOtpAction(rawPhone: string): Promise<{
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phone: `91${phone10}`,
+          phone: phone10,
           otp,
         }),
       })
@@ -205,16 +205,18 @@ export async function sendTrialPhoneOtpAction(rawPhone: string): Promise<{
     if (!delivered) {
       try {
         const msg91AuthKey = process.env.MSG91_AUTH_KEY || ''
-        const msg91FlowId = process.env.MSG91_OTP_FLOW_ID || '1277179069308301096'
+        const msg91FlowId = process.env.MSG91_OTP_FLOW_ID || '6ac155107f1d7896d107b4f2'
         if (msg91AuthKey) {
           const directRes = await fetch('https://control.msg91.com/api/v5/flow/', {
             method: 'POST',
             headers: {
               authkey: msg91AuthKey,
               'Content-Type': 'application/json',
+              'accept': 'application/json',
             },
             body: JSON.stringify({
               template_id: msg91FlowId,
+              sender: 'ZIGZIN',
               short_url: '0',
               recipients: [{ mobiles: `91${phone10}`, otp }],
             }),
