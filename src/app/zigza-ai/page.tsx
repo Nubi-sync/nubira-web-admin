@@ -1,7 +1,8 @@
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { ZigzaAiClient } from './components/ZigzaAiClient'
+import { MasterZigzaAiHubClient } from './components/MasterZigzaAiHubClient'
+import { fetchMasterZigzaAiData } from './actions'
 import { resolveUserTenant } from '@/lib/tenant-context'
 
 export const dynamic = 'force-dynamic'
@@ -25,14 +26,21 @@ export default async function ZigzaAiPage() {
     redirect('/store')
   }
 
+  const initialKpis = await fetchMasterZigzaAiData(tenant.companyName)
+
   return (
-    <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
-      <ZigzaAiClient 
+    <AdminShell 
+      userEmail={user.email} 
+      userRole={userRole} 
+      companyName={tenant.companyName}
+      allowedTabs={tenant.allowedTabs}
+    >
+      <MasterZigzaAiHubClient 
         userEmail={user.email} 
-        portal="modules" 
         companyName={tenant.companyName}
-        isMaster={true}
+        initialKpis={initialKpis}
       />
     </AdminShell>
   )
 }
+
