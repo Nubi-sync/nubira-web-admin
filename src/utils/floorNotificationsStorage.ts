@@ -93,12 +93,17 @@ export function saveFloorNotification(event: FloorRealtimeEvent): void {
   }
 }
 
-export function markAllNotificationsAsRead(companyName?: string): void {
+export function markAllNotificationsAsRead(companyName?: string, filterModule?: FloorModule): void {
   if (typeof window === 'undefined') return
   try {
     const key = getStorageKey(companyName)
-    const existing = getFloorNotifications(companyName)
-    const updated = existing.map(item => ({ ...item, isRead: true }))
+    const existing = getFloorNotifications(companyName, 'all')
+    const updated = existing.map(item => {
+      if (!filterModule || filterModule === 'all' || item.sourceModule === filterModule || item.targetModule === filterModule) {
+        return { ...item, isRead: true }
+      }
+      return item
+    })
     localStorage.setItem(key, JSON.stringify(updated))
     window.dispatchEvent(new CustomEvent(FLOOR_NOTIFICATIONS_UPDATE_EVENT))
   } catch (err) {
@@ -110,7 +115,7 @@ export function markNotificationAsRead(id: string, companyName?: string): void {
   if (typeof window === 'undefined') return
   try {
     const key = getStorageKey(companyName)
-    const existing = getFloorNotifications(companyName)
+    const existing = getFloorNotifications(companyName, 'all')
     const updated = existing.map(item => item.id === id ? { ...item, isRead: true } : item)
     localStorage.setItem(key, JSON.stringify(updated))
     window.dispatchEvent(new CustomEvent(FLOOR_NOTIFICATIONS_UPDATE_EVENT))
@@ -124,11 +129,17 @@ export function getUnreadNotificationCount(companyName?: string, filterModule?: 
   return items.filter(n => !n.isRead).length
 }
 
-export function clearFloorNotifications(companyName?: string): void {
+export function clearFloorNotifications(companyName?: string, filterModule?: FloorModule): void {
   if (typeof window === 'undefined') return
   try {
     const key = getStorageKey(companyName)
-    localStorage.removeItem(key)
+    if (!filterModule || filterModule === 'all') {
+      localStorage.removeItem(key)
+    } else {
+      const existing = getFloorNotifications(companyName, 'all')
+      const remaining = existing.filter(item => item.sourceModule !== filterModule && item.targetModule !== filterModule)
+      localStorage.setItem(key, JSON.stringify(remaining))
+    }
     window.dispatchEvent(new CustomEvent(FLOOR_NOTIFICATIONS_UPDATE_EVENT))
   } catch (err) {
     console.warn('[FloorNotifications] Error clearing notifications:', err)

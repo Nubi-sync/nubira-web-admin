@@ -65,13 +65,13 @@ export function ModuleNotificationPageClient({
   moduleHref,
   companyName
 }: ModuleNotificationPageClientProps) {
-  const [activeTab, setActiveTab] = useState<'MODULE' | 'ALL' | 'UNREAD'>('MODULE')
+  const [activeTab, setActiveTab] = useState<'MODULE' | 'UNREAD'>('MODULE')
   const [searchQuery, setSearchQuery] = useState('')
   const [notifications, setNotifications] = useState<FloorRealtimeEvent[]>([])
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'offline'>('offline')
 
   const refreshList = () => {
-    const list = getFloorNotifications(companyName, 'all')
+    const list = getFloorNotifications(companyName, currentModule)
     setNotifications(list)
   }
 
@@ -103,25 +103,13 @@ export function ModuleNotificationPageClient({
     }
   }, [currentModule, companyName])
 
-  // Counts
-  const moduleEvents = useMemo(() => {
-    return notifications.filter(
-      n => n.sourceModule === currentModule || n.targetModule === currentModule
-    )
-  }, [notifications, currentModule])
-
+  // Unread counts for current module
   const unreadEvents = useMemo(() => {
     return notifications.filter(n => !n.isRead)
   }, [notifications])
 
   const filteredNotifications = useMemo(() => {
-    let baseList = notifications
-
-    if (activeTab === 'MODULE') {
-      baseList = moduleEvents
-    } else if (activeTab === 'UNREAD') {
-      baseList = unreadEvents
-    }
+    let baseList = activeTab === 'UNREAD' ? unreadEvents : notifications
 
     if (!searchQuery.trim()) return baseList
 
@@ -135,18 +123,18 @@ export function ModuleNotificationPageClient({
       (n.targetModule && n.targetModule.toLowerCase().includes(q)) ||
       (n.taskRef && n.taskRef.toLowerCase().includes(q))
     )
-  }, [notifications, activeTab, moduleEvents, unreadEvents, searchQuery])
+  }, [notifications, activeTab, unreadEvents, searchQuery])
 
   const handleMarkAllRead = () => {
-    markAllNotificationsAsRead(companyName)
+    markAllNotificationsAsRead(companyName, currentModule)
     refreshList()
-    toast.success('All notifications marked as read')
+    toast.success(`All ${moduleName} notifications marked as read`)
   }
 
   const handleClear = () => {
-    clearFloorNotifications(companyName)
+    clearFloorNotifications(companyName, currentModule)
     refreshList()
-    toast.info('Notification history cleared')
+    toast.info(`${moduleName} notification history cleared`)
   }
 
   const handleItemClick = (id: string) => {
@@ -195,7 +183,7 @@ export function ModuleNotificationPageClient({
                 {moduleName} Notifications
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-                {moduleEvents.length} Events Logged
+                {notifications.length} Events Logged
               </span>
               {/* WebSocket Status Indicator */}
               <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-black/10 bg-slate-50 text-[10px] font-mono">
@@ -259,23 +247,6 @@ export function ModuleNotificationPageClient({
             <span>{moduleName} Events</span>
             <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
               activeTab === 'MODULE' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
-            }`}>
-              {moduleEvents.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('ALL')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'ALL'
-                ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>All Floor Activity</span>
-            <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-              activeTab === 'ALL' ? 'bg-[#0B1220] text-white font-bold' : 'bg-slate-200 text-slate-700'
             }`}>
               {notifications.length}
             </span>
