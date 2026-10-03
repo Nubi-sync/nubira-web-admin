@@ -24,7 +24,8 @@ import {
   Loader2,
   ArrowRight
 } from 'lucide-react'
-import { BuyerArticleHistory, parseFabricAndBOM } from '../actions'
+import { BuyerArticleHistory } from '../actions'
+import { parseFabricAndBOM } from '../utils/buyerUtils'
 
 interface ArticleContractDetailModalProps {
   isOpen: boolean
