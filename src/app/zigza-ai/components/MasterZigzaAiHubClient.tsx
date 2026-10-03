@@ -613,6 +613,18 @@ export function MasterZigzaAiHubClient({
     }
   }
 
+  function clearAllSessions() {
+    const fresh: ChatSession = {
+      id: 'session_' + Date.now(),
+      title: 'New Conversation',
+      messages: [],
+      updatedAt: Date.now()
+    }
+    persistSessions([fresh])
+    setCurrentSessionId(fresh.id)
+    setIsHistoryDrawerOpen(false)
+  }
+
   async function handleSendMessage(promptText?: string) {
     const query = (promptText || inputPrompt).trim()
     if (!query || isLoading) return
@@ -838,18 +850,11 @@ export function MasterZigzaAiHubClient({
     arr.findIndex(m => m.id === msg.id) === idx
   )
 
-  const kpis = initialKpis || {
-    activeStylesCount: 2,
-    runningOrdersCount: 2,
-    readyStockGodownPieces: 8000,
-    dispatchedPieces: 0
-  }
-
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="p-4 sm:p-6 md:p-8 space-y-4 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* 1. Header Banner - Matching Tab Header Standard */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
+      {/* 1. Top Header Banner */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Bot className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
@@ -869,367 +874,322 @@ export function MasterZigzaAiHubClient({
           </div>
         </div>
 
-        {/* Right Action buttons */}
+        {/* Right Actions */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 self-start sm:self-center">
           <TvViewButton size="md" />
+          {/* Mobile history toggle button */}
           <button
             type="button"
-            onClick={createNewSession}
-            className="min-h-[42px] px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+            onClick={() => setIsHistoryDrawerOpen(!isHistoryDrawerOpen)}
+            className="lg:hidden px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
           >
-            <Plus className="w-4 h-4 text-white" />
-            <span>New Conversation</span>
+            <MessageSquare className="w-4 h-4 text-[#0B1220]" />
+            <span>History ({sessions.length})</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Top 4 Summary KPI Cards - Exact Approved Color Rules (Numbers Black, Icons Blackout on Cyan, Only Green Permitted) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-        {/* Box 1: Active Styles */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Active Styles
-            </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.activeStylesCount.toLocaleString('en-IN')}
-            </div>
-            <span className="text-[11px] text-slate-500 font-medium">Live Production Designs</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Tag className="w-5 h-5 text-[#0B1220]" />
-          </div>
-        </div>
-
-        {/* Box 2: Running Orders */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Running Orders
-            </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.runningOrdersCount.toLocaleString('en-IN')}
-            </div>
-            <span className="text-[11px] text-slate-500 font-medium">Cutting &amp; Sewing Lots</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Layers className="w-5 h-5 text-[#0B1220]" />
-          </div>
-        </div>
-
-        {/* Box 3: Finished Godown Stock (Green Permitted) */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1 min-w-0">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Godown Stock
-            </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-emerald-700 font-mono truncate">
-              {kpis.readyStockGodownPieces.toLocaleString('en-IN')}{' '}
-              <span className="text-sm font-semibold text-slate-400">pcs</span>
-            </div>
-            <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              Ready for Dispatch
-            </div>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
-            <PackageCheck className="w-5 h-5 text-emerald-600" />
-          </div>
-        </div>
-
-        {/* Box 4: Dispatched Goods */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Dispatched Goods
-            </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.dispatchedPieces.toLocaleString('en-IN')}{' '}
-              <span className="text-sm font-semibold text-slate-400">pcs</span>
-            </div>
-            <span className="text-[11px] text-slate-500 font-medium">Buyer Gate Passes</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Truck className="w-5 h-5 text-[#0B1220]" />
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Division Quick Switcher Bar (Filter Pills) */}
-      <div className="space-y-2.5 pt-1">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-base sm:text-lg font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2">
-            <Sparkles className="w-4.5 h-4.5 text-[#1D4ED8]" />
-            Division Intelligence Focus
-          </h2>
-          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            {MASTER_DIVISIONS.length} Divisions Active
-          </span>
-        </div>
-
-        {/* Horizontal scrollable pills */}
-        <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-          {MASTER_DIVISIONS.map(div => {
-            const DivIcon = div.icon
-            const isSelected = selectedDivision === div.id
-            return (
-              <button
-                key={div.id}
-                type="button"
-                onClick={() => setSelectedDivision(div.id)}
-                className={`px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer border flex items-center gap-1.5 text-xs ${
-                  isSelected
-                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
-                    : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <DivIcon className="w-3.5 h-3.5 shrink-0" />
-                <span>{div.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* 4. Master Copilot Interactive Studio Card (Opens Downwards) */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-7 space-y-6">
+      {/* 2. Window-Type Studio with Side Nav of Conversation History (No 4 Boxes) */}
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row h-[750px] xl:h-[800px] transition-all">
         
-        {/* Studio Card Header */}
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 flex-wrap">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-              <Bot className="w-5 h-5 text-[#0B1220]" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base sm:text-lg font-bold text-[#0B1220] truncate font-[family-name:var(--font-heading)]">
-                  {meta.title}
+        {/* ======================================================== */}
+        {/* LEFT SIDE NAV: CONVERSATION HISTORY (Window Side Nav)    */}
+        {/* ======================================================== */}
+        <aside className={`w-full lg:w-72 xl:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-slate-200/80 bg-slate-50/70 flex-col justify-between overflow-hidden transition-all ${
+          isHistoryDrawerOpen ? 'flex' : 'hidden lg:flex'
+        }`}>
+          {/* Top of Side Nav: Heading + New Conversation Button */}
+          <div className="p-3.5 sm:p-4 border-b border-slate-200/70 space-y-3 shrink-0 bg-white/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-[#0B1220]" />
+                <h3 className="text-xs sm:text-sm font-bold text-[#0B1220] uppercase font-mono tracking-wider">
+                  Conversations
                 </h3>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-                  {meta.badge}
-                </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
-                {meta.subtitle}
-              </p>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+                {sessions.length}
+              </span>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsHistoryDrawerOpen(!isHistoryDrawerOpen)}
-              className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              onClick={createNewSession}
+              className="w-full py-2.5 px-3.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
-              <span>History ({sessions.length})</span>
+              <Plus className="w-4 h-4 text-white stroke-[2.5]" />
+              <span>New Conversation</span>
             </button>
           </div>
-        </div>
 
-        {/* History Drawer Popover (when open) */}
-        {isHistoryDrawerOpen && (
-          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3 animate-in fade-in zoom-in-95 duration-100">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-              <span className="text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">
-                Saved Conversations
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsHistoryDrawerOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-56 overflow-y-auto">
-              {sessions.map(s => {
-                const isActive = s.id === currentSessionId
-                return (
-                  <div
-                    key={s.id}
-                    onClick={() => {
-                      setCurrentSessionId(s.id)
-                      setIsHistoryDrawerOpen(false)
-                    }}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
-                      isActive
-                        ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
-                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <span className="truncate flex-1 mr-2">{s.title || 'New Conversation'}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => deleteSession(e, s.id)}
-                      className="p-1 hover:text-rose-600 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 opacity-70 hover:opacity-100" />
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* EMPTY STATE: Hero Greetings & Quick Query Cards */}
-        {(!currentSession || displayMessages.length === 0) && (
-          <div className="py-4 space-y-5 animate-in fade-in duration-200">
-            <div className="space-y-1.5 text-center max-w-xl mx-auto">
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] font-mono font-bold shadow-2xs">
-                <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
-                <span>{meta.badge}</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight leading-snug font-[family-name:var(--font-heading)]">
-                {meta.heroTitle}
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed font-medium">
-                {meta.heroDescription}
-              </p>
-            </div>
-
-            {/* Grid of Query Prompt Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
-              {meta.queries.map((card, idx) => {
-                const CardIcon = card.icon
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSendMessage(card.prompt)}
-                    className="text-left p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-black/30 hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer select-none bg-gradient-to-b from-white to-[#F8FAFC] active:scale-[0.98] shadow-2xs min-h-[100px]"
-                  >
-                    <div className="flex items-center justify-between w-full mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-                        <CardIcon className="w-4 h-4 text-[#0B1220]" />
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 transition-all" />
-                    </div>
-
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs sm:text-sm font-bold text-[#0B1220] group-hover:text-[#1D4ED8] transition-colors leading-snug">
-                        {card.title}
-                      </h4>
-                      <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                        {card.description}
+          {/* List of Chat Sessions */}
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
+            {sessions.map(s => {
+              const isActive = s.id === currentSessionId
+              const lastMsg = s.messages && s.messages.length > 0 ? s.messages[s.messages.length - 1] : null
+              return (
+                <div
+                  key={s.id}
+                  onClick={() => {
+                    setCurrentSessionId(s.id)
+                    setIsHistoryDrawerOpen(false)
+                  }}
+                  className={`group relative flex items-start justify-between p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer border ${
+                    isActive
+                      ? 'bg-white border-[#14C8B4] text-[#0B1220] shadow-2xs ring-1 ring-[#14C8B4]/30'
+                      : 'bg-transparent border-transparent hover:bg-white hover:border-slate-200 text-slate-700'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1 pr-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#14C8B4]' : 'bg-slate-300'}`} />
+                      <p className={`text-xs sm:text-sm truncate ${isActive ? 'font-bold text-[#0B1220]' : 'font-medium text-slate-800 group-hover:text-[#0B1220]'}`}>
+                        {s.title || 'New Conversation'}
                       </p>
                     </div>
+                    {lastMsg && (
+                      <p className="text-[11px] text-slate-500 truncate mt-1 pl-3.5">
+                        {lastMsg.content}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => deleteSession(e, s.id)}
+                    title="Delete chat"
+                    className={`p-1 rounded-md text-slate-400 hover:text-rose-600 transition-opacity cursor-pointer shrink-0 ${
+                      isActive ? 'opacity-80 hover:opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Bottom of Side Nav: Clear History */}
+          <div className="p-3 border-t border-slate-200/70 bg-slate-100/60 flex items-center justify-between shrink-0">
+            <button
+              type="button"
+              onClick={clearAllSessions}
+              className="text-[11px] font-mono font-semibold text-slate-500 hover:text-rose-600 flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear History</span>
+            </button>
+            <span className="text-[10px] font-mono text-slate-400">
+              Super Admin AI
+            </span>
+          </div>
+        </aside>
+
+        {/* ======================================================== */}
+        {/* RIGHT MAIN WINDOW: CONVERSATION STUDIO                   */}
+        {/* ======================================================== */}
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
+          
+          {/* Studio Top Sub-header: Division Focus Filter Pills */}
+          <div className="px-4 sm:px-6 py-2.5 sm:py-3 border-b border-slate-200/80 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+                <Sparkles className="w-3.5 h-3.5 text-[#14C8B4]" />
+              </div>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+                Division Focus:
+              </span>
+            </div>
+
+            {/* Horizontal scrollable pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none min-w-0 flex-1 sm:justify-start">
+              {MASTER_DIVISIONS.map(div => {
+                const DivIcon = div.icon
+                const isSelected = selectedDivision === div.id
+                return (
+                  <button
+                    key={div.id}
+                    type="button"
+                    onClick={() => setSelectedDivision(div.id)}
+                    className={`px-3 py-1 rounded-full transition-all whitespace-nowrap cursor-pointer border flex items-center gap-1.5 text-xs ${
+                      isSelected
+                        ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
+                        : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <DivIcon className="w-3 h-3 shrink-0" />
+                    <span>{div.label}</span>
                   </button>
                 )
               })}
             </div>
           </div>
-        )}
 
-        {/* ACTIVE CONVERSATION: Message Stream */}
-        {currentSession && displayMessages.length > 0 && (
+          {/* Main Conversation Body */}
           <div 
             ref={messagesContainerRef}
-            className="space-y-4 max-h-[500px] overflow-y-auto px-1 py-2"
+            className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-4"
           >
-            {displayMessages.map(msg => (
-              <div
-                key={msg.id}
-                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {msg.role === 'model' && (
-                  <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 mt-1 shadow-2xs">
-                    <Bot className="w-4 h-4 text-[#0B1220]" />
+            {/* EMPTY STATE: Hero Greetings & Quick Query Cards */}
+            {(!currentSession || displayMessages.length === 0) && (
+              <div className="py-6 space-y-5 animate-in fade-in duration-200">
+                <div className="space-y-1.5 text-center max-w-xl mx-auto">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] font-mono font-bold shadow-2xs">
+                    <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
+                    <span>{meta.badge}</span>
                   </div>
-                )}
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight leading-snug font-[family-name:var(--font-heading)]">
+                    {meta.heroTitle}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed font-medium">
+                    {meta.heroDescription}
+                  </p>
+                </div>
 
-                <div className={`space-y-1 max-w-[90%] sm:max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                  {msg.role === 'user' ? (
-                    <div className="px-4 py-2.5 rounded-2xl rounded-tr-xs bg-[#0B1220] text-white shadow-sm select-text">
-                      <p className="text-white text-xs sm:text-sm font-semibold whitespace-pre-wrap leading-relaxed">
-                        {msg.content}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="p-4 sm:p-5 rounded-2xl rounded-tl-xs bg-slate-50/70 border border-slate-200 text-slate-900 shadow-2xs leading-relaxed">
-                      {renderAiContent(msg.content)}
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-3 px-1 text-[10px] font-mono text-slate-400">
-                    <span>{msg.timestamp}</span>
-                    {msg.role === 'model' && (
+                {/* Grid of Query Prompt Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+                  {meta.queries.map((card, idx) => {
+                    const CardIcon = card.icon
+                    return (
                       <button
+                        key={idx}
                         type="button"
-                        onClick={() => handleCopy(msg.content, msg.id)}
-                        className="hover:text-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
+                        onClick={() => handleSendMessage(card.prompt)}
+                        className="text-left p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-black/30 hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer select-none bg-gradient-to-b from-white to-[#F8FAFC] active:scale-[0.98] shadow-2xs min-h-[100px]"
                       >
-                        {copiedMsgId === msg.id ? (
-                          <>
-                            <Check className="w-3 h-3 text-emerald-600" />
-                            <span className="text-emerald-600 font-semibold">Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copy</span>
-                          </>
-                        )}
+                        <div className="flex items-center justify-between w-full mb-2">
+                          <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+                            <CardIcon className="w-4 h-4 text-[#0B1220]" />
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B1220] group-hover:translate-x-0.5 transition-all" />
+                        </div>
+
+                        <div className="space-y-0.5">
+                          <h4 className="text-xs sm:text-sm font-bold text-[#0B1220] group-hover:text-[#1D4ED8] transition-colors leading-snug">
+                            {card.title}
+                          </h4>
+                          <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                            {card.description}
+                          </p>
+                        </div>
                       </button>
-                    )}
-                  </div>
-                </div>
-
-                {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-xl bg-[#0B1220] text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-xs">
-                    {userEmail.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* Loading Indicator */}
-            {isLoading && (
-              <div className="flex gap-3 justify-start items-center">
-                <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
-                  <Bot className="w-4 h-4 animate-pulse text-[#0B1220]" />
-                </div>
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
-                  <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin shrink-0" />
-                  <span className="text-xs sm:text-sm font-semibold text-slate-600">
-                    Querying live factory database...
-                  </span>
+                    )
+                  })}
                 </div>
               </div>
             )}
+
+            {/* ACTIVE CONVERSATION: Message Stream */}
+            {currentSession && displayMessages.length > 0 && (
+              <div className="space-y-4 py-2">
+                {displayMessages.map(msg => (
+                  <div
+                    key={msg.id}
+                    className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {msg.role === 'model' && (
+                      <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 mt-1 shadow-2xs">
+                        <Bot className="w-4 h-4 text-[#0B1220]" />
+                      </div>
+                    )}
+
+                    <div className={`space-y-1 max-w-[90%] sm:max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                      {msg.role === 'user' ? (
+                        <div className="px-4 py-2.5 rounded-2xl rounded-tr-xs bg-[#0B1220] text-white shadow-sm select-text">
+                          <p className="text-white text-xs sm:text-sm font-semibold whitespace-pre-wrap leading-relaxed">
+                            {msg.content}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-4 sm:p-5 rounded-2xl rounded-tl-xs bg-slate-50/70 border border-slate-200 text-slate-900 shadow-2xs leading-relaxed">
+                          {renderAiContent(msg.content)}
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-3 px-1 text-[10px] font-mono text-slate-400">
+                        <span>{msg.timestamp}</span>
+                        {msg.role === 'model' && (
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(msg.content, msg.id)}
+                            className="hover:text-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
+                          >
+                            {copiedMsgId === msg.id ? (
+                              <>
+                                <Check className="w-3 h-3 text-emerald-600" />
+                                <span className="text-emerald-600 font-semibold">Copied</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {msg.role === 'user' && (
+                      <div className="w-8 h-8 rounded-xl bg-[#0B1220] text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-xs">
+                        {userEmail.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Loading Indicator */}
+                {isLoading && (
+                  <div className="flex gap-3 justify-start items-center">
+                    <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+                      <Bot className="w-4 h-4 animate-pulse text-[#0B1220]" />
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
+                      <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin shrink-0" />
+                      <span className="text-xs sm:text-sm font-semibold text-slate-600">
+                        Querying live factory database...
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Prompt Input Form Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            handleSendMessage()
-          }}
-          className="relative flex items-center rounded-2xl border border-slate-300 bg-slate-50/70 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/15 transition-all px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-2xs"
-        >
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputPrompt}
-            onChange={(e) => setInputPrompt(e.target.value)}
-            placeholder={`Ask about ${meta.title.toLowerCase()}, orders, stock, or production...`}
-            disabled={isLoading}
-            className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 outline-none font-medium min-w-0 py-1"
-          />
+          {/* Pinned Bottom Input Form Bar */}
+          <div className="p-3 sm:p-4 border-t border-slate-200/80 bg-white shrink-0">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSendMessage()
+              }}
+              className="relative flex items-center rounded-2xl border border-slate-300 bg-slate-50/70 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/15 transition-all px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-2xs"
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputPrompt}
+                onChange={(e) => setInputPrompt(e.target.value)}
+                placeholder={`Ask about ${meta.title.toLowerCase()}, orders, stock, or production...`}
+                disabled={isLoading}
+                className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 outline-none font-medium min-w-0 py-1"
+              />
 
-          <button
-            type="submit"
-            disabled={!inputPrompt.trim() || isLoading}
-            className="w-9 h-9 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white disabled:opacity-35 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex items-center justify-center shrink-0 ml-2 active:scale-95"
-            aria-label="Send query"
-          >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </button>
-        </form>
+              <button
+                type="submit"
+                disabled={!inputPrompt.trim() || isLoading}
+                className="w-9 h-9 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white disabled:opacity-35 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex items-center justify-center shrink-0 ml-2 active:scale-95"
+                aria-label="Send query"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </button>
+            </form>
+          </div>
+
+        </div>
       </div>
 
     </div>
   )
 }
+
