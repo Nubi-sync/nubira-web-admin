@@ -12,16 +12,6 @@ import {
   Shirt,
   Info
 } from 'lucide-react'
-import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts'
 import { ReportsData, ArticleReportRow } from '../actions'
 
 type DateFilterPreset = 'today' | '7days' | '30days' | 'all'
@@ -32,6 +22,11 @@ export function OwnerReportsClient({ initialData }: { initialData: ReportsData }
   const [searchArticle, setSearchArticle] = useState('')
   const [sortField, setSortField] = useState<keyof ArticleReportRow>('targetPcs')
   const [sortAsc, setSortAsc] = useState(false)
+  const [hoveredProdIdx, setHoveredProdIdx] = useState<number | null>(null)
+  const [hoveredQcIdx, setHoveredQcIdx] = useState<number | null>(null)
+
+  const maxProdPieces = Math.max(...data.productionTrend.map(d => d.pieces), 1)
+  const maxQcTotal = Math.max(...data.qcTrend.map(d => (d.passed + d.rejected)), 1)
 
   // Filtered and sorted article reports table
   const filteredArticles = useMemo(() => {

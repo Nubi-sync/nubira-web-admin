@@ -526,20 +526,25 @@ async function resolveUserTenantFresh(user: {
 }
 
 /**
- * Checks if a resolved tenant profile belongs to the custom/flagship Nubira Creation plant or CUSTOM tier.
+ * Checks if a resolved tenant profile belongs to the custom/flagship Nubira Creation plant.
+ * Strictly prevents non-Nubira tenants from seeing Nubira's proprietary articles and production data.
  */
 export function isLegacyNubiraTenant(tenant: ResolvedTenantProfile): boolean {
   if (!tenant) return false
-  const comp = (tenant.companyName || '').toLowerCase()
-  const email = (tenant.userEmail || '').toLowerCase()
+  const comp = (tenant.companyName || '').toLowerCase().trim()
+  const email = (tenant.userEmail || '').toLowerCase().trim()
+
+  // If company name explicitly belongs to another tenant/business, NEVER treat as Nubira
+  if (comp && !comp.includes('nubira') && comp !== 'account deactivated' && comp !== 'zigza mes platform operations') {
+    return false
+  }
+
   return (
-    !tenant.isProvisionedTenant ||
     comp.includes('nubira') ||
     email === 'aj@nubiracreation.com' ||
     email === 'team.anga9@gmail.com' ||
-    email === 'admin@zigza.in' ||
     email.endsWith('@nubira.local') ||
-    email.includes('nubira') ||
-    tenant.subscriptionTier === 'CUSTOM'
+    email.includes('nubira')
   )
 }
+

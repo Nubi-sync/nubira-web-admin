@@ -174,13 +174,13 @@ export async function fetchOwnerDashboardData(
       const tenantMerchOrderIds = rawMerchOrders.map(o => o.id).filter(Boolean)
 
       // 5. Dependent Production Queries (Filtered to Tenant's Articles & Orders)
-      let dailyProdPromise: Promise<any> = Promise.resolve({ data: [] })
-      let qcPromise: Promise<any> = Promise.resolve({ data: [] })
-      let storePromise: Promise<any> = Promise.resolve({ data: [] })
-      let dispatchPromise: Promise<any> = Promise.resolve({ data: [] })
-      let cuttingPromise: Promise<any> = Promise.resolve({ data: [] })
-      let readyGoodsPromise: Promise<any> = Promise.resolve({ data: [] })
-      let allotmentsPromise: Promise<any> = Promise.resolve({ data: [] })
+      let dailyProdPromise: PromiseLike<any> = Promise.resolve({ data: [] })
+      let qcPromise: PromiseLike<any> = Promise.resolve({ data: [] })
+      let storePromise: PromiseLike<any> = Promise.resolve({ data: [] })
+      let dispatchPromise: PromiseLike<any> = Promise.resolve({ data: [] })
+      let cuttingPromise: PromiseLike<any> = Promise.resolve({ data: [] })
+      let readyGoodsPromise: PromiseLike<any> = Promise.resolve({ data: [] })
+      let allotmentsPromise: PromiseLike<any> = Promise.resolve({ data: [] })
 
       if (isLegacy) {
         dailyProdPromise = supabaseAdmin.from('daily_product').select('id, quantity, entry_date, article_id').order('entry_date', { ascending: false }).limit(600)
@@ -223,25 +223,25 @@ export async function fetchOwnerDashboardData(
       const rawAllotments = allotmentsRes.data || []
 
       // 1. KPI Pulse (REAL DATA ONLY - ZERO DUMMY NUMBERS)
-      const activeStyles = rawArticles.filter(a => a.is_active !== false).length
-      const runningOrders = rawChallans.filter(c => c.status !== 'COMPLETED').length
-      const targetPieces = rawChallans.reduce((s, c) => s + (Number(c.total_pcs) || 0), 0)
+      const activeStyles = rawArticles.filter((a: any) => a.is_active !== false).length
+      const runningOrders = rawChallans.filter((c: any) => c.status !== 'COMPLETED').length
+      const targetPieces = rawChallans.reduce((s: number, c: any) => s + (Number(c.total_pcs) || 0), 0)
 
-      const todayProdRows = rawDailyProd.filter(p => p.entry_date === todayStr)
-      const yesterdayProdRows = rawDailyProd.filter(p => p.entry_date === yesterdayStr)
+      const todayProdRows = rawDailyProd.filter((p: any) => p.entry_date === todayStr)
+      const yesterdayProdRows = rawDailyProd.filter((p: any) => p.entry_date === yesterdayStr)
       
-      const todayOutput = todayProdRows.reduce((s, p) => s + (Number(p.quantity) || 0), 0)
-      const yesterdayOutput = yesterdayProdRows.reduce((s, p) => s + (Number(p.quantity) || 0), 0)
+      const todayOutput = todayProdRows.reduce((s: number, p: any) => s + (Number(p.quantity) || 0), 0)
+      const yesterdayOutput = yesterdayProdRows.reduce((s: number, p: any) => s + (Number(p.quantity) || 0), 0)
       const todayTrendPct = yesterdayOutput > 0 ? Math.round(((todayOutput - yesterdayOutput) / yesterdayOutput) * 100) : 0
 
       let netGodownStock = 0
-      rawStore.forEach(tx => {
+      rawStore.forEach((tx: any) => {
         const q = Number(tx.quantity) || 0
         if (tx.type === 'INWARD') netGodownStock += q
         else if (tx.type === 'OUTWARD') netGodownStock -= q
       })
       const godownStock = Math.max(0, netGodownStock)
-      const dispatchedPieces = rawDispatch.reduce((s, d) => s + (Number(d.total_pieces) || 0), 0)
+      const dispatchedPieces = rawDispatch.reduce((s: number, d: any) => s + (Number(d.total_pieces) || 0), 0)
 
       const pulse: FactoryPulseKPIs = {
         activeStyles,
@@ -254,11 +254,11 @@ export async function fetchOwnerDashboardData(
       }
 
       // 2. Production Pipeline (REAL DATA ONLY)
-      const cutPcs = rawCutting.reduce((s, c) => s + (Number(c.actual_cut_pieces) || 0), 0)
-      const stitchPcs = rawDailyProd.reduce((s, p) => s + (Number(p.quantity) || 0), 0)
-      const qcPcs = rawQc.reduce((s, q) => s + (Number(q.qty_passed) || 0), 0)
+      const cutPcs = rawCutting.reduce((s: number, c: any) => s + (Number(c.actual_cut_pieces) || 0), 0)
+      const stitchPcs = rawDailyProd.reduce((s: number, p: any) => s + (Number(p.quantity) || 0), 0)
+      const qcPcs = rawQc.reduce((s: number, q: any) => s + (Number(q.qty_passed) || 0), 0)
       const ironPcs = Math.round(qcPcs * 0.95)
-      const packPcs = rawReadyGoods.reduce((s, r) => s + (Number(r.total_pieces) || 0), 0)
+      const packPcs = rawReadyGoods.reduce((s: number, r: any) => s + (Number(r.total_pieces) || 0), 0)
 
       const pipeline: ProductionPipelineStage[] = [
         { id: 'cut', label: 'CUT', count: cutPcs, unit: 'pcs', status: cutPcs > 0 ? 'active' : 'idle' },
@@ -282,8 +282,8 @@ export async function fetchOwnerDashboardData(
         const dayLabel = `${dayNames[d.getDay()]} ${d.getDate()}`
         
         const dayPcs = rawDailyProd
-          .filter(p => p.entry_date === dStr)
-          .reduce((s, p) => s + (Number(p.quantity) || 0), 0)
+          .filter((p: any) => p.entry_date === dStr)
+          .reduce((s: number, p: any) => s + (Number(p.quantity) || 0), 0)
 
         total7DayPieces += dayPcs
         last7Days.push({
@@ -297,13 +297,13 @@ export async function fetchOwnerDashboardData(
       const dailyAverage = Math.round(total7DayPieces / 7)
 
       // 4. QC Pass Rate & Defects (REAL DATA ONLY)
-      const totalPassed = rawQc.reduce((s, q) => s + (Number(q.qty_passed) || 0), 0)
-      const totalRejected = rawQc.reduce((s, q) => s + (Number(q.qty_rejected) || 0), 0)
+      const totalPassed = rawQc.reduce((s: number, q: any) => s + (Number(q.qty_passed) || 0), 0)
+      const totalRejected = rawQc.reduce((s: number, q: any) => s + (Number(q.qty_rejected) || 0), 0)
       const totalInspected = totalPassed + totalRejected
       const passRatePct = totalInspected > 0 ? Number(((totalPassed / totalInspected) * 100).toFixed(1)) : 100
 
       const defectCounts: Record<string, number> = {}
-      rawQc.forEach(q => {
+      rawQc.forEach((q: any) => {
         if (Number(q.qty_rejected) > 0 && q.defect_type && q.defect_type !== 'NONE') {
           const type = q.defect_type.trim()
           defectCounts[type] = (defectCounts[type] || 0) + Number(q.qty_rejected)
@@ -328,14 +328,14 @@ export async function fetchOwnerDashboardData(
 
       // 5. Buyer Order Status (REAL DATA ONLY)
       const buyerMap = new Map<string, { target: number; delivered: number; po: string }>()
-      rawMerchOrders.forEach(o => {
+      rawMerchOrders.forEach((o: any) => {
         const buyer = o.buyer_name || 'Direct Buyer'
         const existing = buyerMap.get(buyer) || { target: 0, delivered: 0, po: o.order_number || 'PO' }
         existing.target += Number(o.total_quantity) || 0
         buyerMap.set(buyer, existing)
       })
 
-      rawDispatch.forEach(d => {
+      rawDispatch.forEach((d: any) => {
         const buyer = d.buyer_name || 'Direct Buyer'
         if (buyerMap.has(buyer)) {
           const item = buyerMap.get(buyer)!

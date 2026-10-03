@@ -165,12 +165,12 @@ export async function fetchReportsData(
       const tenantMerchOrderIds = rawMerch.map(m => m.id).filter(Boolean)
 
       // 4. Dependent Queries
-      let dailyProdPromise: Promise<any> = Promise.resolve({ data: [] })
-      let qcPromise: Promise<any> = Promise.resolve({ data: [] })
-      let storePromise: Promise<any> = Promise.resolve({ data: [] })
-      let dispatchPromise: Promise<any> = Promise.resolve({ data: [] })
-      let cuttingPromise: Promise<any> = Promise.resolve({ data: [] })
-      let allotmentsPromise: Promise<any> = Promise.resolve({ data: [] })
+      let dailyProdPromise: any = Promise.resolve({ data: [] })
+      let qcPromise: any = Promise.resolve({ data: [] })
+      let storePromise: any = Promise.resolve({ data: [] })
+      let dispatchPromise: any = Promise.resolve({ data: [] })
+      let cuttingPromise: any = Promise.resolve({ data: [] })
+      let allotmentsPromise: any = Promise.resolve({ data: [] })
 
       if (isLegacy) {
         dailyProdPromise = supabaseAdmin
@@ -269,21 +269,21 @@ export async function fetchReportsData(
       const rawAllotments = allotmentsRes.data || []
 
       // 1. KPI Aggregation (REAL NUMBERS ONLY)
-      const totalProduced = rawProd.reduce((s, p) => s + (Number(p.quantity) || 0), 0)
-      const totalPassed = rawQc.reduce((s, q) => s + (Number(q.qty_passed) || 0), 0)
-      const totalRejected = rawQc.reduce((s, q) => s + (Number(q.qty_rejected) || 0), 0)
+      const totalProduced = rawProd.reduce((s: number, p: any) => s + (Number(p.quantity) || 0), 0)
+      const totalPassed = rawQc.reduce((s: number, q: any) => s + (Number(q.qty_passed) || 0), 0)
+      const totalRejected = rawQc.reduce((s: number, q: any) => s + (Number(q.qty_rejected) || 0), 0)
       const totalInspected = totalPassed + totalRejected
       const qcPassRate = totalInspected > 0 ? Number(((totalPassed / totalInspected) * 100).toFixed(1)) : 100
 
       let netWarehouseStock = 0
-      rawStore.forEach(t => {
+      rawStore.forEach((t: any) => {
         const q = Number(t.quantity) || 0
         if (t.type === 'INWARD') netWarehouseStock += q
         else if (t.type === 'OUTWARD') netWarehouseStock -= q
       })
       netWarehouseStock = Math.max(0, netWarehouseStock)
 
-      const totalDispatched = rawDispatch.reduce((s, d) => s + (Number(d.total_pieces) || 0), 0)
+      const totalDispatched = rawDispatch.reduce((s: number, d: any) => s + (Number(d.total_pieces) || 0), 0)
 
       const kpis: ReportKpis = {
         totalProduced,
@@ -302,12 +302,12 @@ export async function fetchReportsData(
       const qcTrendMap = new Map<string, { passed: number; rejected: number }>()
       const warehouseMoveMap = new Map<string, { inward: number; outward: number }>()
 
-      rawProd.forEach(p => {
+      rawProd.forEach((p: any) => {
         if (!p.entry_date) return
         prodTrendMap.set(p.entry_date, (prodTrendMap.get(p.entry_date) || 0) + (Number(p.quantity) || 0))
       })
 
-      rawQc.forEach(q => {
+      rawQc.forEach((q: any) => {
         if (!q.entry_date) return
         const existing = qcTrendMap.get(q.entry_date) || { passed: 0, rejected: 0 }
         existing.passed += Number(q.qty_passed) || 0
@@ -315,7 +315,7 @@ export async function fetchReportsData(
         qcTrendMap.set(q.entry_date, existing)
       })
 
-      rawStore.forEach(s => {
+      rawStore.forEach((s: any) => {
         const dStr = s.entry_date || (s.created_at ? s.created_at.split('T')[0] : '')
         if (!dStr) return
         const existing = warehouseMoveMap.get(dStr) || { inward: 0, outward: 0 }
@@ -366,7 +366,7 @@ export async function fetchReportsData(
 
       // 3. Top Tailors (REAL DATA ONLY)
       const tailorMap = new Map<string, number>()
-      rawProd.forEach(p => {
+      rawProd.forEach((p: any) => {
         const tailor = (p.lineman as any)?.username
         if (tailor) {
           tailorMap.set(tailor, (tailorMap.get(tailor) || 0) + (Number(p.quantity) || 0))
@@ -386,7 +386,7 @@ export async function fetchReportsData(
 
       // 4. Top Styles (REAL DATA ONLY)
       const styleMap = new Map<string, { desc: string; pcs: number }>()
-      rawProd.forEach(p => {
+      rawProd.forEach((p: any) => {
         const art = (p.article as any)
         const artNo = art?.art_no
         if (artNo) {
@@ -413,12 +413,12 @@ export async function fetchReportsData(
       }))
 
       // 5. Buyer Delivery Fulfillment (REAL DATA ONLY)
-      const buyerFulfillments: BuyerFulfillmentItem[] = rawMerch.slice(0, 5).map(m => {
+      const buyerFulfillments: BuyerFulfillmentItem[] = rawMerch.slice(0, 5).map((m: any) => {
         const target = Number(m.total_quantity) || 0
         const buyer = m.buyer_name || 'Buyer'
         const delivered = rawDispatch
-          .filter(d => (d.buyer_name || '').toLowerCase() === buyer.toLowerCase())
-          .reduce((s, d) => s + (Number(d.total_pieces) || 0), 0)
+          .filter((d: any) => (d.buyer_name || '').toLowerCase() === buyer.toLowerCase())
+          .reduce((s: number, d: any) => s + (Number(d.total_pieces) || 0), 0)
         const pct = target > 0 ? Math.min(100, Math.round((delivered / target) * 100)) : 0
 
         return {
@@ -434,7 +434,7 @@ export async function fetchReportsData(
       })
 
       // 6. Fabric Consumption vs Stock (REAL DATA ONLY)
-      const fabricComparison: FabricUsagePoint[] = rawFabric.slice(0, 5).map(f => ({
+      const fabricComparison: FabricUsagePoint[] = rawFabric.slice(0, 5).map((f: any) => ({
         fabricType: f.fabric_type || 'Fabric',
         consumedMeters: 0,
         remainingMeters: Number(f.total_meters) || 0
@@ -450,23 +450,23 @@ export async function fetchReportsData(
       ]
 
       // 8. Article-Level Report (REAL DATA ONLY)
-      const articlesReport: ArticleReportRow[] = rawArticles.map(art => {
+      const articlesReport: ArticleReportRow[] = rawArticles.map((art: any) => {
         const artId = art.id
         const artAllotmentTarget = rawAllotments
-          .filter(a => a.article_id === artId)
-          .reduce((s, a) => s + (Number(a.target_qty) || 0), 0)
+          .filter((a: any) => a.article_id === artId)
+          .reduce((s: number, a: any) => s + (Number(a.target_qty) || 0), 0)
         const artStitched = rawProd
-          .filter(p => p.article_id === artId)
-          .reduce((s, p) => s + (Number(p.quantity) || 0), 0)
+          .filter((p: any) => p.article_id === artId)
+          .reduce((s: number, p: any) => s + (Number(p.quantity) || 0), 0)
         const artPassed = rawQc
-          .filter(q => q.article_id === artId)
-          .reduce((s, q) => s + (Number(q.qty_passed) || 0), 0)
+          .filter((q: any) => q.article_id === artId)
+          .reduce((s: number, q: any) => s + (Number(q.qty_passed) || 0), 0)
         const artRejected = rawQc
-          .filter(q => q.article_id === artId)
-          .reduce((s, q) => s + (Number(q.qty_rejected) || 0), 0)
+          .filter((q: any) => q.article_id === artId)
+          .reduce((s: number, q: any) => s + (Number(q.qty_rejected) || 0), 0)
         const artNetStock = rawStore
-          .filter(s => s.article_id === artId)
-          .reduce((s, tx) => {
+          .filter((s: any) => s.article_id === artId)
+          .reduce((s: number, tx: any) => {
             const q = Number(tx.quantity) || 0
             return tx.type === 'INWARD' ? s + q : tx.type === 'OUTWARD' ? s - q : s
           }, 0)
