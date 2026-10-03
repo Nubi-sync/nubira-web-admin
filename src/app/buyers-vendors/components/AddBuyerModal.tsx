@@ -54,7 +54,7 @@ export function AddBuyerModal({
       setContactPerson('')
       setPhone('')
       setEmail('')
-      setCity('Kolkata, WB')
+      setCity('')
       setAddress('')
       setGstin('')
     }
@@ -95,7 +95,7 @@ export function AddBuyerModal({
         contactPerson: cleanPerson,
         phone: cleanPhone,
         email: email.trim(),
-        city: city.trim() || 'Kolkata, WB',
+        city: city.trim(),
         address: address.trim(),
         gstin: gstin.trim().toUpperCase()
       })
