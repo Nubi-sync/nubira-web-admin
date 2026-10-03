@@ -19,7 +19,23 @@ TARGET AUDIENCE:
 You are speaking directly to garment factory owners, business merchants, senior directors, and workshop managers. Many are experienced businessmen who prefer simple, practical, everyday spoken English. They do NOT know software jargon, database terms, or code variables.
 
 COMMUNICATION RULES:
-1. Pure Plain English: Speak naturally, politely, and directly.
+1. Natural Warm Tone & Conversational Lead-ins:
+   - Speak naturally, warmly, and directly like an experienced operations partner on the factory floor.
+   - NEVER use computational, mechanical, or robotic language.
+   - NEVER start answers with computational leading phrases such as:
+     • "Based on the database records..."
+     • "According to the system / database..."
+     • "Querying records..."
+     • "Here is the data retrieved..."
+     • "Executing calculation..."
+     • "Based on the parameters provided..."
+     • "System output indicates..."
+   - Instead, lead into the answer naturally, warmly, and directly:
+     • "Here is a quick look at where we stand on the floor today:"
+     • "Here is the latest update on our active lines and orders:"
+     • "Looking at the godown and workshop right now:"
+     • "Everything is moving along smoothly. Here are the latest numbers:"
+     • Or jump straight into the insights with clear, helpful context.
    - NEVER use developer or database jargon (e.g. NEVER say "KPI", "API", "JSON", "schema", "table", "public.qc_inspections", "activeArticlesCount", "totalOrderTargetPieces", or any camelCase text).
    - Translate all data into everyday garment factory terms:
      • "Garment Styles / Designs" (not articles or SKUs)
@@ -37,7 +53,7 @@ COMMUNICATION RULES:
    - Keep answers clear and to the point—no fluff or unnecessary paragraphs.
 
 3. Zero Code or Error Dumps:
-   - If there are no records in the database or if an action has 0 entries, explain it warmly in plain English (e.g. "There are no quality rejection records logged today—all production lines are running smoothly.").
+   - If there are no records in the system or if an action has 0 entries, explain it warmly in plain English (e.g. "There are no quality rejection records logged today—all production lines are running smoothly.").
    - Never show technical error messages or raw database responses.
 
 4. Branding:
@@ -238,11 +254,11 @@ export async function POST(req: NextRequest) {
 
 function formatFriendlyFallback(toolName: string, data: any): string {
   if (!data || typeof data !== 'object') {
-    return 'Here is the current information from your factory records.'
+    return 'Here is the latest update from your factory floor.'
   }
 
   if (toolName === 'get_factory_kpis') {
-    return `Here is the current status of your factory floor:
+    return `Here is a quick look at where we stand on the floor today:
 • **Active Garment Styles**: **${data.activeGarmentStyles || 0} designs**
 • **Running Production Orders**: **${data.runningOrdersCount || 0} active orders**
 • **Total Pieces to Make**: **${(data.totalTargetPieces || 0).toLocaleString()} pieces**
@@ -253,15 +269,15 @@ function formatFriendlyFallback(toolName: string, data: any): string {
   if (toolName === 'get_fabric_store_stock') {
     const list = Array.isArray(data.fabricsInGodown) && data.fabricsInGodown.length > 0
       ? data.fabricsInGodown.map((f: any) => `• **${f.fabricType}** (${f.color}): **${Number(f.totalMeters).toLocaleString()} meters** [Rack: ${f.rackLocation}]`).join('\n')
-      : '• No active fabric rolls found.'
-    return `Here is the current cloth and fabric stock in Godown Store:
+      : '• No active fabric rolls found right now.'
+    return `Here is what is currently resting in the fabric store:
 • **Total Cloth in Store**: **${(data.totalClothMetersInStore || 0).toLocaleString()} meters**
 • **Total Fabric Rolls**: **${data.totalRollsCount || 0} rolls**
 ${list}`
   }
 
   if (toolName === 'get_buyers_and_vendors') {
-    return `Here is the current buyer contracts and vendor module status:
+    return `Here is how our active buyer orders and partner workshops look right now:
 • **Registered Buyers**: **${data.totalRegisteredBuyers || 0} brands** (${(data.buyerNames || []).join(', ') || 'Direct Buyers'})
 • **Total Contracted Pieces**: **${(data.totalContractedPieces || 0).toLocaleString()} pieces** across **${data.activeOrdersCount || 0} orders**
 • **Vendor Module Assignments**: **${data.assignedVendorModules || '0 / 12'}**`
@@ -271,5 +287,5 @@ ${list}`
     return data.note
   }
 
-  return 'Here is the current summary from your factory records.'
+  return 'Here is the latest update from your factory floor.'
 }

@@ -713,7 +713,7 @@ export function MasterZigzaAiHubClient({
       const errorMessage: Message = {
         id: 'err_' + Date.now(),
         role: 'model',
-        content: `⚠️ **Unable to fetch factory data**: ${err.message || 'Error executing request'}. Please verify your connection.`,
+        content: `⚠️ **Unable to connect to the floor**: ${err.message || 'Could not retrieve updates right now'}. Please check your connection and try again.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
       const latestPersist = updatedSessions.map(s => {
@@ -1104,7 +1104,7 @@ export function MasterZigzaAiHubClient({
                     <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
                       <Loader2 className="w-4 h-4 text-[#0B1220] animate-spin shrink-0" />
                       <span className="text-xs sm:text-sm font-semibold text-slate-600">
-                        Querying live factory database...
+                        Checking live floor status...
                       </span>
                     </div>
                   </div>
