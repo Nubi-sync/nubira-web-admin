@@ -331,13 +331,13 @@ export function BuyersVendorsClient({
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Articles Contracted</span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#1D4ED8] font-mono">
+            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
               {kpis.totalArticles}
             </div>
             <span className="text-[11px] text-slate-500 font-medium">Total Active Styles</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1D4ED8] shrink-0 shadow-2xs">
-            <Scissors className="w-5 h-5 text-[#1D4ED8]" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Scissors className="w-5 h-5 text-[#0B1220]" />
           </div>
         </div>
 

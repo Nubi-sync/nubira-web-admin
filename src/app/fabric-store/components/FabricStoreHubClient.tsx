@@ -287,14 +287,14 @@ export function FabricStoreHubClient({
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Cloth Assigned
             </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-[#1D4ED8] font-mono">
+            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
               {kpis.totalClothAssignedMeters.toLocaleString('en-IN')}{' '}
               <span className="text-sm font-semibold text-slate-400">m</span>
             </div>
             <span className="text-[11px] text-slate-500 font-medium">Booked for Articles</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1D4ED8] shrink-0 shadow-2xs">
-            <Layers className="w-5 h-5 text-[#1D4ED8]" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Layers className="w-5 h-5 text-[#0B1220]" />
           </div>
         </div>
 
