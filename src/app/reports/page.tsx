@@ -1,9 +1,9 @@
 import { AdminShell } from '@/components/layout/AdminShell'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { ReportsClient } from './components/ReportsClient'
 import { resolveUserTenant } from '@/lib/tenant-context'
-import Link from 'next/link'
+import { fetchReportsData } from './actions'
+import { OwnerReportsClient } from './components/OwnerReportsClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,148 +18,26 @@ export default async function ReportsPage() {
     redirect('/login')
   }
 
-  // Centrally resolve tenant identity
+  // Centrally resolve the authenticated tenant profile
   const tenant = await resolveUserTenant(user)
-  const isProvisionedTenant = tenant.isProvisionedTenant
+  const userRole = (tenant.role || '').toUpperCase()
 
   // Restrict Store Supervisors from admin factory reports
-  const userRole = tenant.role.toUpperCase()
   if (userRole === 'STORE' || userRole === 'STORE_SUPERVISOR' || userRole === 'GODOWN' || user.email?.startsWith('store@')) {
     redirect('/store')
   }
 
-  // Parallel concurrent data fetching
-  const [
-    { data: rawDailyProducts },
-    { data: rawQcLogs },
-    { data: rawStoreTransactions },
-    { data: rawWorkerAssignments }
-  ] = await Promise.all([
-    supabase
-      .from('daily_product')
-      .select(`
-        id,
-        entry_date,
-        quantity,
-        notes,
-        color,
-        size,
-        created_at,
-        lineman:profiles!daily_product_lineman_id_fkey(username),
-        article:articles(art_no, description)
-      `)
-      .order('entry_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(400),
-
-    supabase
-      .from('qc_logs')
-      .select(`
-        id,
-        entry_date,
-        stage,
-        qty_received,
-        qty_passed,
-        qty_rejected,
-        defect_type,
-        remarks,
-        color,
-        size,
-        mending_returned_qty,
-        mending_scrap_qty,
-        mending_status,
-        bundle_size,
-        total_bundles,
-        sent_to_store,
-        created_at,
-        lineman:profiles!qc_logs_from_lineman_id_fkey(username),
-        article:articles(art_no, description)
-      `)
-      .order('entry_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(400),
-
-    supabase
-      .from('store_transactions')
-      .select(`
-        id,
-        entry_date,
-        created_at,
-        type,
-        quantity,
-        party_name,
-        article:articles(art_no, description)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(400),
-
-    supabase
-      .from('worker_assignments')
-      .select(`
-        id,
-        worker_name,
-        assigned_qty,
-        completed_qty,
-        color,
-        size,
-        status,
-        notes,
-        assigned_at,
-        completed_at,
-        entry_date,
-        lineman:profiles!worker_assignments_lineman_id_fkey(username),
-        article:articles(art_no, description)
-      `)
-      .order('entry_date', { ascending: false })
-      .order('assigned_at', { ascending: false })
-      .limit(400)
-  ])
-
-  const targetCompany = tenant.companyName.toUpperCase()
-
-  const dailyProducts = isProvisionedTenant
-    ? (rawDailyProducts || []).filter((d: any) => (d.notes || '').toUpperCase().includes(targetCompany))
-    : (rawDailyProducts || [])
-
-  const qcLogs = isProvisionedTenant
-    ? (rawQcLogs || []).filter((q: any) => (q.remarks || '').toUpperCase().includes(targetCompany))
-    : (rawQcLogs || [])
-
-  const storeTransactions = isProvisionedTenant
-    ? (rawStoreTransactions || []).filter((s: any) => (s.party_name || '').toUpperCase().includes(targetCompany))
-    : (rawStoreTransactions || [])
-
-  const workerAssignments = isProvisionedTenant
-    ? (rawWorkerAssignments || []).filter((w: any) => (w.notes || '').toUpperCase().includes(targetCompany))
-    : (rawWorkerAssignments || [])
+  // Fetch verified executive reports dataset
+  const reportsData = await fetchReportsData(tenant.companyName)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={userRole} companyName={tenant.companyName}>
-      <div className="flex-1 p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-5">
-        
-        {/* 1. Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/stitching-sewing/dashboard" className="hover:text-[#0B1220] transition-colors">
-            Sewing Dashboard
-          </Link>
-          <span>/</span>
-          <span className="font-bold text-slate-900">
-            Reports & Analytics
-          </span>
-          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 ml-auto border border-slate-200">
-            {tenant.companyName}
-          </span>
-        </div>
-
-        {/* 2. Client Reports Component */}
-        <ReportsClient 
-          dailyProducts={(dailyProducts as any) || []}
-          qcLogs={(qcLogs as any) || []}
-          storeTransactions={(storeTransactions as any) || []}
-          workerAssignments={(workerAssignments as any) || []}
-        />
-
-      </div>
+    <AdminShell
+      userEmail={user.email}
+      userRole={userRole}
+      companyName={tenant.companyName}
+      allowedTabs={tenant.allowedTabs}
+    >
+      <OwnerReportsClient initialData={reportsData} />
     </AdminShell>
   )
 }
