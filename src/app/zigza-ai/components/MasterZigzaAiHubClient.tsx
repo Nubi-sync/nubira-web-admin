@@ -926,7 +926,6 @@ export function MasterZigzaAiHubClient({
           <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
             {sessions.map(s => {
               const isActive = s.id === currentSessionId
-              const lastMsg = s.messages && s.messages.length > 0 ? s.messages[s.messages.length - 1] : null
               return (
                 <div
                   key={s.id}
@@ -934,24 +933,17 @@ export function MasterZigzaAiHubClient({
                     setCurrentSessionId(s.id)
                     setIsHistoryDrawerOpen(false)
                   }}
-                  className={`group relative flex items-start justify-between p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer border ${
+                  className={`group relative flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer border ${
                     isActive
                       ? 'bg-white border-[#14C8B4] text-[#0B1220] shadow-2xs ring-1 ring-[#14C8B4]/30'
                       : 'bg-transparent border-transparent hover:bg-white hover:border-slate-200 text-slate-700'
                   }`}
                 >
-                  <div className="min-w-0 flex-1 pr-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#14C8B4]' : 'bg-slate-300'}`} />
-                      <p className={`text-xs sm:text-sm truncate ${isActive ? 'font-bold text-[#0B1220]' : 'font-medium text-slate-800 group-hover:text-[#0B1220]'}`}>
-                        {s.title || 'New Conversation'}
-                      </p>
-                    </div>
-                    {lastMsg && (
-                      <p className="text-[11px] text-slate-500 truncate mt-1 pl-3.5">
-                        {lastMsg.content}
-                      </p>
-                    )}
+                  <div className="min-w-0 flex-1 pr-2 flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#14C8B4]' : 'bg-slate-300'}`} />
+                    <p className={`text-xs sm:text-sm truncate ${isActive ? 'font-bold text-[#0B1220]' : 'font-medium text-slate-800 group-hover:text-[#0B1220]'}`}>
+                      {s.title || 'New Conversation'}
+                    </p>
                   </div>
 
                   <button
@@ -1060,8 +1052,8 @@ export function MasterZigzaAiHubClient({
 
                     <div className={`space-y-1 max-w-[90%] sm:max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                       {msg.role === 'user' ? (
-                        <div className="px-4 py-2.5 rounded-2xl rounded-tr-xs bg-[#0B1220] text-white shadow-sm select-text">
-                          <p className="text-white text-xs sm:text-sm font-semibold whitespace-pre-wrap leading-relaxed">
+                        <div className="px-4 py-2.5 rounded-2xl rounded-tr-xs bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] shadow-2xs select-text">
+                          <p className="text-[#0B1220] text-xs sm:text-sm font-bold whitespace-pre-wrap leading-relaxed">
                             {msg.content}
                           </p>
                         </div>
@@ -1096,7 +1088,7 @@ export function MasterZigzaAiHubClient({
                     </div>
 
                     {msg.role === 'user' && (
-                      <div className="w-8 h-8 rounded-xl bg-[#0B1220] text-white flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-xs">
+                      <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-xs">
                         {userEmail.slice(0, 2).toUpperCase()}
                       </div>
                     )}
