@@ -400,47 +400,36 @@ export default function RegisterFreeTrialPage() {
       if (parsed.confirmPassword) setConfirmPassword(parsed.confirmPassword)
       if (parsed.userNavigatedBack) setUserNavigatedBack(true)
 
-      const isStep1Filled =
-        typeof parsed.fullName === 'string' && parsed.fullName.trim().length >= 2 &&
-        typeof parsed.email === 'string' && parsed.email.includes('@') &&
-        typeof parsed.phone === 'string' && parsed.phone.length === 10 &&
-        typeof parsed.password === 'string' && parsed.password.length >= 6 &&
-        parsed.password === parsed.confirmPassword
+      // Always start fresh at Step 1 on page open/refresh so uncompleted sessions require phone re-verification
+      setCurrentStep(1)
+      setIsPhoneVerified(false)
+      setIsOtpBoxOpen(false)
+      setOtpValues(['', '', '', '', '', ''])
 
-      if (parsed.step === 2 || (isStep1Filled && !parsed.userNavigatedBack)) {
-        setCurrentStep(2)
+      if (parsed.phone && typeof parsed.phone === 'string' && parsed.phone.length === 10) {
+        triggerPhoneCheck(parsed.phone)
       }
     } catch (_) {}
   }, [])
 
-  // Auto-sync form data to localStorage
+  // Auto-sync form field values to draft (step is never saved as 2 so tab close requires re-verification)
   useEffect(() => {
     if (fullName || email || phone || password || confirmPassword) {
       try {
-        const isStep1Filled =
-          fullName.trim().length >= 2 &&
-          email.trim().includes('@') &&
-          email.trim().includes('.') &&
-          phone.length === 10 &&
-          password.length >= 6 &&
-          password === confirmPassword
-
-        const targetStep: 1 | 2 = (currentStep === 2 || (isStep1Filled && !userNavigatedBack)) ? 2 : 1
-
         const draft = {
           fullName,
           email,
           phone,
           password,
           confirmPassword,
-          step: targetStep,
+          step: 1, // Always 1 in draft: never allow bypassing OTP verification upon reopening
           userNavigatedBack,
           savedAt: Date.now()
         }
         localStorage.setItem(STEP1_CACHE_KEY, JSON.stringify(draft))
       } catch (_) {}
     }
-  }, [fullName, email, phone, password, confirmPassword, currentStep, userNavigatedBack])
+  }, [fullName, email, phone, password, confirmPassword, userNavigatedBack])
 
   // Handle Step 1 Validation -> Proceed to Step 2
   const handleStep1Next = async (e: React.FormEvent) => {

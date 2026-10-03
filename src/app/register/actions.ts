@@ -201,19 +201,31 @@ export async function sendTrialPhoneOtpAction(rawPhone: string): Promise<{
       console.error('[sendTrialPhoneOtpAction] Edge function dispatch failed:', edgeErr)
     }
 
-    // 2. Fallback: If edge function direct call didn't return ok, try Supabase Auth signInWithOtp
+    // Direct MSG91 Flow fallback (if edge function endpoint unreachable)
     if (!delivered) {
       try {
-        const { error: authOtpErr } = await supabaseAdmin.auth.signInWithOtp({
-          phone: `+91${phone10}`,
-        })
-        if (!authOtpErr) {
-          delivered = true
-        } else {
-          console.warn('[sendTrialPhoneOtpAction] Supabase Auth signInWithOtp notice:', authOtpErr)
+        const msg91AuthKey = process.env.MSG91_AUTH_KEY || ''
+        const msg91FlowId = process.env.MSG91_OTP_FLOW_ID || '1277179069308301096'
+        if (msg91AuthKey) {
+          const directRes = await fetch('https://control.msg91.com/api/v5/flow/', {
+            method: 'POST',
+            headers: {
+              authkey: msg91AuthKey,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              template_id: msg91FlowId,
+              short_url: '0',
+              recipients: [{ mobiles: `91${phone10}`, otp }],
+            }),
+          })
+          const directJson = await directRes.json().catch(() => ({}))
+          if (directRes.ok && directJson?.type !== 'error') {
+            delivered = true
+          }
         }
-      } catch (authErr) {
-        console.warn('[sendTrialPhoneOtpAction] Supabase Auth fallback notice:', authErr)
+      } catch (directErr) {
+        console.warn('[sendTrialPhoneOtpAction] Direct MSG91 notice:', directErr)
       }
     }
 
@@ -229,7 +241,7 @@ export async function sendTrialPhoneOtpAction(rawPhone: string): Promise<{
 }
 
 // ----------------------------------------------------------------------
-// VERIFY OTP ACTION
+// VERIFY OTP ACTION (Strictly Stateless & Cryptographic)
 // ----------------------------------------------------------------------
 export async function verifyTrialPhoneOtpAction(
   rawPhone: string,
@@ -252,44 +264,36 @@ export async function verifyTrialPhoneOtpAction(
       return { success: false, error: 'Please enter the complete 6-digit OTP code.' }
     }
 
-    // 1. Verify via cryptographic token if present
-    if (verificationToken) {
-      const parts = verificationToken.split('.')
-      if (parts.length === 3) {
-        const [tokenPhone, expStr, tokenSig] = parts
-        const expiresAt = parseInt(expStr, 10)
-
-        if (tokenPhone !== phone10) {
-          return { success: false, error: 'Verification token does not match this mobile number.' }
-        }
-
-        if (Date.now() > expiresAt) {
-          return { success: false, error: 'OTP has expired. Please request a new OTP.' }
-        }
-
-        const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'zigza_secure_otp_salt_2026'
-        const expectedSig = crypto
-          .createHmac('sha256', secretKey)
-          .update(`${phone10}:${cleanOtp}:${expiresAt}`)
-          .digest('hex')
-
-        if (crypto.timingSafeEqual(Buffer.from(tokenSig), Buffer.from(expectedSig))) {
-          return { success: true }
-        }
-      }
+    if (!verificationToken) {
+      return { success: false, error: 'Session expired. Please click Send OTP to request a fresh code.' }
     }
 
-    // 2. Fallback: verify via Supabase Auth
-    try {
-      const { data, error } = await supabaseAdmin.auth.verifyOtp({
-        phone: `+91${phone10}`,
-        token: cleanOtp,
-        type: 'sms',
-      })
-      if (!error && (data?.user || data?.session)) {
-        return { success: true }
-      }
-    } catch (_) {}
+    // Verify cryptographic token (Tamper-proof HMAC, 0 DB writes)
+    const parts = verificationToken.split('.')
+    if (parts.length !== 3) {
+      return { success: false, error: 'Invalid verification token. Please request a new OTP.' }
+    }
+
+    const [tokenPhone, expStr, tokenSig] = parts
+    const expiresAt = parseInt(expStr, 10)
+
+    if (tokenPhone !== phone10) {
+      return { success: false, error: 'Verification token does not match this mobile number.' }
+    }
+
+    if (Date.now() > expiresAt) {
+      return { success: false, error: 'OTP has expired. Please request a new OTP.' }
+    }
+
+    const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'zigza_secure_otp_salt_2026'
+    const expectedSig = crypto
+      .createHmac('sha256', secretKey)
+      .update(`${phone10}:${cleanOtp}:${expiresAt}`)
+      .digest('hex')
+
+    if (crypto.timingSafeEqual(Buffer.from(tokenSig), Buffer.from(expectedSig))) {
+      return { success: true }
+    }
 
     return { success: false, error: 'Incorrect OTP code. Please check and re-enter.' }
   } catch (err: any) {
