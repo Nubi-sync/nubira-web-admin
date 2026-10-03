@@ -129,9 +129,9 @@ export function CompanyOwnerHeader({
       id: 'buyers-vendors',
       label: 'Buyers & Vendors',
       lines: ['Buyers &', 'Vendors'],
-      href: '/vendors',
+      href: '/buyers-vendors',
       icon: BuyersVendorsNavIcon,
-      isActive: pathname === '/vendors' || pathname?.startsWith('/vendors') || pathname === '/buyers-vendors'
+      isActive: pathname === '/buyers-vendors' || pathname?.startsWith('/buyers-vendors') || pathname === '/vendors' || pathname?.startsWith('/vendors')
     },
     {
       id: 'supervisor-workers',
