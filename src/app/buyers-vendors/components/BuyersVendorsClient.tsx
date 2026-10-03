@@ -41,9 +41,9 @@ import {
   BuyersVendorsHubData,
   BuyerItem,
   BuyerArticleHistory,
-  ModuleVendorItem,
-  getBuyerAvatarInitials
+  ModuleVendorItem
 } from '../actions'
+import { getBuyerAvatarInitials } from '../utils/buyerUtils'
 import { ArticleContractDetailModal } from './ArticleContractDetailModal'
 import { AssignVendorModal } from './AssignVendorModal'
 import { AddBuyerModal } from './AddBuyerModal'
