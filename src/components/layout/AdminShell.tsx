@@ -158,7 +158,7 @@ function AdminShellContent({
 
       {/* Main Content Area */}
       <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${!isTvMode && !isWorkspaceHubPage ? 'lg:pl-[72px]' : ''} ${
-        isAiPage 
+        isAiPage && !isWorkspaceHubPage
           ? 'h-dvh overflow-hidden' 
           : 'min-h-screen overflow-y-auto'
       }`}>
