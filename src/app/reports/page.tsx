@@ -27,8 +27,8 @@ export default async function ReportsPage() {
     redirect('/store')
   }
 
-  // Fetch verified executive reports dataset
-  const reportsData = await fetchReportsData(tenant.companyName)
+  // Fetch verified executive reports dataset strictly isolated to tenant
+  const reportsData = await fetchReportsData(tenant)
 
   return (
     <AdminShell

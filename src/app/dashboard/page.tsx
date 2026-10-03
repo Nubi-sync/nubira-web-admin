@@ -27,8 +27,8 @@ export default async function DashboardPage() {
     redirect('/store')
   }
 
-  // Fetch all aggregated operations data across modules
-  const dashboardData = await fetchOwnerDashboardData(tenant.companyName)
+  // Fetch strictly isolated tenant operations data
+  const dashboardData = await fetchOwnerDashboardData(tenant)
 
   return (
     <AdminShell

@@ -15,35 +15,15 @@ import {
   Sparkles,
   Cpu,
   Droplets,
-  TrendingUp,
-  TrendingDown,
   ArrowRight,
   ChevronDown,
   RefreshCw,
-  Search,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  Package,
-  Activity,
-  Layers as LayersIcon,
   Shirt,
-  Calendar,
-  ExternalLink
+  LayoutDashboard,
+  ExternalLink,
+  Info
 } from 'lucide-react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  ReferenceLine
-} from 'recharts'
-import { OwnerDashboardData, ArticleJourneyItem } from '../actions'
+import { OwnerDashboardData } from '../actions'
 
 const DIVISION_ICONS: Record<string, React.ElementType> = {
   Scissors,
@@ -61,11 +41,11 @@ const DIVISION_ICONS: Record<string, React.ElementType> = {
 }
 
 export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashboardData }) {
-  const [data, setData] = useState<OwnerDashboardData>(initialData)
+  const [data] = useState<OwnerDashboardData>(initialData)
   const [selectedArticleId, setSelectedArticleId] = useState<string>(
     initialData.articlesCatalog[0]?.id || ''
   )
-  const [articleSearchQuery, setArticleSearchQuery] = useState('')
+  const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Selected article for deep dive
@@ -77,56 +57,52 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
     )
   }, [data.articlesCatalog, selectedArticleId])
 
-  // Filtered articles list for dropdown
-  const filteredArticles = useMemo(() => {
-    if (!articleSearchQuery.trim()) return data.articlesCatalog
-    const q = articleSearchQuery.toLowerCase()
-    return data.articlesCatalog.filter(
-      a => a.artNo.toLowerCase().includes(q) || a.description.toLowerCase().includes(q)
-    )
-  }, [data.articlesCatalog, articleSearchQuery])
-
-  // Recharts Donut data for QC
-  const qcDonutData = useMemo(() => {
-    return [
-      { name: 'Passed', value: data.qc.totalPassed, color: '#10B981' },
-      { name: 'Rejected', value: data.qc.totalRejected, color: '#F43F5E' }
-    ]
-  }, [data.qc])
-
   const handleRefresh = () => {
     setIsRefreshing(true)
-    setTimeout(() => {
-      setIsRefreshing(false)
-    }, 600)
+    if (typeof window !== 'undefined') {
+      window.location.reload()
+    }
   }
+
+  // 7-Day Trend Chart Calculations
+  const maxTrendPieces = Math.max(...data.outputTrend.map(d => d.pieces), 1)
+
+  // QC Donut Chart Calculations (Circumference of r=52 is ~326.7)
+  const donutRadius = 52
+  const donutCircumference = 2 * Math.PI * donutRadius
+  const passStrokeDash = (data.qc.passRatePct / 100) * donutCircumference
+  const rejectStrokeDash = donutCircumference - passStrokeDash
 
   return (
     <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 font-[family-name:var(--font-public-sans)] select-none">
       
       {/* ==================================================================== */}
-      {/* TOP HEADER CONTROLS BAR */}
+      {/* 1. TOP HEADER: CONSISTENT PLATFORM STYLE (NO OBSOLETE PILLS/BLINK)  */}
       {/* ==================================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              Factory Control Center
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              LIVE
-            </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <LayoutDashboard className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Real-time multi-stage operations overview for <span className="font-semibold text-slate-700">{data.companyName}</span>
-          </p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                Plant <span className="text-[#1D4ED8]">Operations Dashboard</span>
+              </h1>
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+                {data.companyName}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+              Real-time manufacturing throughput, multi-stage floor reconciliation, and executive metrics.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 self-start sm:self-auto">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="text-right hidden sm:block">
-            <div className="text-xs text-slate-400 font-medium">Last synced</div>
-            <div className="text-xs font-bold text-slate-700">{data.lastUpdated}</div>
+            <div className="text-[11px] text-slate-400 font-medium">Synced at</div>
+            <div className="text-xs font-bold text-slate-700 font-mono">{data.lastUpdated}</div>
           </div>
           <button
             onClick={handleRefresh}
@@ -134,148 +110,115 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             title="Refresh Live Data"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Sync</span>
+            <span>Refresh</span>
           </button>
           <Link
             href="/reports"
             className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#0B1220] hover:bg-slate-800 active:scale-95 rounded-xl shadow-xs transition-all"
           >
-            <span>Analytics & Reports</span>
+            <span>Reports &amp; Analytics</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
 
       {/* ==================================================================== */}
-      {/* SECTION 1: FACTORY PULSE (6 KPI CARDS IN A ROW) */}
+      {/* 2. SECTION 1: FACTORY PULSE (6 KPI CARDS — HEADING & NUMBER ONLY)    */}
+      {/* (NO DESCRIPTION LINES, NO GREEN DOTS, NO LIVE BLINKS)               */}
       {/* ==================================================================== */}
-      <div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
-          
-          {/* Card 1: Active Styles */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:border-slate-300 transition-all">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Active Styles</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              {data.pulse.activeStyles}
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-              <Shirt className="w-3.5 h-3.5" />
-              <span>In production catalog</span>
-            </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+        
+        {/* Card 1: Active Styles */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+            Active Styles
+          </span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+            {data.pulse.activeStyles.toLocaleString()}
           </div>
-
-          {/* Card 2: Running Orders */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:border-slate-300 transition-all">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Running Orders</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              {data.pulse.runningOrders}
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
-              <span>Active challan orders</span>
-            </div>
-          </div>
-
-          {/* Card 3: Target Pieces */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:border-slate-300 transition-all">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Target Pieces</span>
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              {data.pulse.targetPieces.toLocaleString()}
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-blue-600">
-              <LayersIcon className="w-3.5 h-3.5" />
-              <span>Total booked volume</span>
-            </div>
-          </div>
-
-          {/* Card 4: Today's Output */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:border-slate-300 transition-all relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-[#14C8B4]/10 rounded-full blur-xl pointer-events-none" />
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Today's Output</span>
-              <span className="w-2 h-2 rounded-full bg-[#14C8B4]" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              {data.pulse.todayOutput.toLocaleString()}
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>+{data.pulse.todayTrendPct}% vs yesterday</span>
-            </div>
-          </div>
-
-          {/* Card 5: Ready in Godown */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:border-slate-300 transition-all">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">In Godown</span>
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              {data.pulse.godownStock.toLocaleString()}
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-amber-600">
-              <Warehouse className="w-3.5 h-3.5" />
-              <span>Net ready inventory</span>
-            </div>
-          </div>
-
-          {/* Card 6: Dispatched */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:border-slate-300 transition-all">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Dispatched</span>
-              <span className="w-2 h-2 rounded-full bg-purple-500" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] tracking-tight">
-              {data.pulse.dispatchedPieces.toLocaleString()}
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-purple-600">
-              <Truck className="w-3.5 h-3.5" />
-              <span>Delivered to buyers</span>
-            </div>
-          </div>
-
         </div>
+
+        {/* Card 2: Running Orders */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+            Running Orders
+          </span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+            {data.pulse.runningOrders.toLocaleString()}
+          </div>
+        </div>
+
+        {/* Card 3: Target Pieces */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+            Target Pieces
+          </span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+            {data.pulse.targetPieces.toLocaleString()}
+          </div>
+        </div>
+
+        {/* Card 4: Today's Output */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+            Today&apos;s Output
+          </span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+            {data.pulse.todayOutput.toLocaleString()}
+          </div>
+        </div>
+
+        {/* Card 5: In Godown */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+            In Godown
+          </span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+            {data.pulse.godownStock.toLocaleString()}
+          </div>
+        </div>
+
+        {/* Card 6: Dispatched */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+            Dispatched
+          </span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+            {data.pulse.dispatchedPieces.toLocaleString()}
+          </div>
+        </div>
+
       </div>
 
       {/* ==================================================================== */}
-      {/* SECTION 2: LIVE PRODUCTION FLOW (HORIZONTAL PIPELINE) */}
+      {/* 3. SECTION 2: LIVE PRODUCTION FLOW (HORIZONTAL PIPELINE)             */}
       {/* ==================================================================== */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
               Live Production Flow
             </h2>
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
               Current pieces across all manufacturing stages
             </p>
           </div>
-          <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">
+          <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
             7 Stages Active
           </span>
         </div>
 
-        {/* Horizontal Pipeline Visual */}
         <div className="overflow-x-auto pb-2">
-          <div className="min-w-[780px] flex items-center justify-between gap-2 bg-gradient-to-r from-slate-50 via-teal-50/20 to-slate-50 p-4 rounded-xl border border-slate-200/60">
+          <div className="min-w-[780px] flex items-center justify-between gap-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/60">
             {data.pipeline.map((stage, index) => {
               const isLast = index === data.pipeline.length - 1
               return (
                 <React.Fragment key={stage.id}>
-                  <div className="flex-1 bg-white rounded-xl border border-slate-200 p-3 shadow-xs hover:shadow-md transition-all text-center group">
-                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-[#14C8B4] transition-colors">
+                  <div className="flex-1 bg-white rounded-xl border border-slate-200 p-3 shadow-xs text-center group hover:border-[#14C8B4] transition-all">
+                    <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#14C8B4] transition-colors">
                       {stage.label}
                     </div>
-                    <div className="text-lg sm:text-xl font-extrabold text-[#0B1220] mt-1">
+                    <div className="text-lg sm:text-xl font-extrabold text-[#0B1220] font-mono mt-1">
                       {stage.count.toLocaleString()}
                     </div>
                     <div className="text-[10px] font-semibold text-slate-400 mt-0.5">
@@ -295,19 +238,20 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       </div>
 
       {/* ==================================================================== */}
-      {/* SECTION 3: CHARTS ROW (DAILY OUTPUT BAR + QC PASS DONUT) */}
+      {/* 4. SECTION 3: VISUAL CHARTS (ZERO-DEPENDENCY SVG RENDERING)          */}
+      {/* GUARANTEED VISIBLE ON FIRST FRAME — NO BLANK BOXES EVER             */}
       {/* ==================================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* 3A: Daily Output (7-Day Trend) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+        {/* 3A: Daily Sewing Output (7-Day Bar Chart) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                   Daily Sewing Output (7-Day Trend)
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
                   Stitched pieces per day • Avg: <span className="font-bold text-slate-800">{data.dailyAverage.toLocaleString()} pcs/day</span>
                 </p>
               </div>
@@ -316,120 +260,132 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                   <span className="w-2.5 h-2.5 rounded bg-[#14C8B4]" />
                   Stitched
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-amber-600">
+                <span className="inline-flex items-center gap-1.5 text-amber-700">
                   <span className="w-2.5 h-2.5 rounded bg-amber-400" />
                   Today
                 </span>
               </div>
             </div>
 
-            {/* Recharts Bar Chart */}
-            <div className="h-[240px] w-full mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.outputTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis
-                    dataKey="dayName"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#64748B', fontSize: 11, fontWeight: 600 }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#94A3B8', fontSize: 10 }}
-                  />
-                  <Tooltip
-                    cursor={{ fill: '#F1F5F9', radius: 6 }}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const item = payload[0].payload
-                        return (
-                          <div className="bg-[#0B1220] text-white p-2.5 rounded-lg shadow-xl text-xs space-y-0.5">
-                            <div className="font-semibold text-slate-300">{item.dayName}</div>
-                            <div className="font-bold text-base text-[#14C8B4]">
-                              {Number(item.pieces).toLocaleString()} pcs
-                            </div>
-                            {item.isToday && (
-                              <div className="text-[10px] text-amber-400 font-semibold">Today's active line</div>
-                            )}
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <ReferenceLine
-                    y={data.dailyAverage}
-                    stroke="#CBD5E1"
-                    strokeDasharray="4 4"
-                    label={{ value: 'Daily Avg', position: 'insideTopRight', fill: '#94A3B8', fontSize: 10 }}
-                  />
-                  <Bar
-                    dataKey="pieces"
-                    radius={[6, 6, 0, 0]}
+            {/* Robust Visual SVG / HTML Bar Chart */}
+            <div className="h-[220px] w-full pt-4 pb-2 flex flex-col justify-end">
+              <div className="h-[180px] w-full flex items-end justify-between gap-2 sm:gap-4 px-2 relative border-b border-slate-200">
+                
+                {/* Horizontal reference average line */}
+                {maxTrendPieces > 0 && data.dailyAverage > 0 && (
+                  <div
+                    className="absolute left-0 right-0 border-b border-dashed border-slate-300 pointer-events-none z-10 flex items-center justify-end pr-2"
+                    style={{ bottom: `${Math.min(95, (data.dailyAverage / maxTrendPieces) * 100)}%` }}
                   >
-                    {data.outputTrend.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={entry.isToday ? '#F59E0B' : '#14C8B4'}
+                    <span className="text-[10px] font-mono text-slate-400 bg-white px-1 -translate-y-2">
+                      Avg: {data.dailyAverage}
+                    </span>
+                  </div>
+                )}
+
+                {data.outputTrend.map((entry, idx) => {
+                  const heightPct = maxTrendPieces > 0 ? Math.max(6, Math.round((entry.pieces / maxTrendPieces) * 100)) : 6
+                  const isHovered = hoveredBarIndex === idx
+                  const barColor = entry.isToday ? 'bg-amber-400 hover:bg-amber-500' : 'bg-[#14C8B4] hover:bg-teal-500'
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex-1 flex flex-col items-center justify-end h-full relative group cursor-pointer"
+                      onMouseEnter={() => setHoveredBarIndex(idx)}
+                      onMouseLeave={() => setHoveredBarIndex(null)}
+                    >
+                      {/* Hover Tooltip */}
+                      {isHovered && (
+                        <div className="absolute -top-10 bg-[#0B1220] text-white px-2 py-1 rounded text-[11px] font-mono shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                          {entry.dayName}: <strong className="text-[#14C8B4]">{entry.pieces.toLocaleString()} pcs</strong>
+                        </div>
+                      )}
+
+                      {/* Bar Value above bar */}
+                      <span className="text-[10px] font-mono font-bold text-slate-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {entry.pieces}
+                      </span>
+
+                      {/* The Bar */}
+                      <div
+                        className={`w-full max-w-[42px] ${barColor} rounded-t-md transition-all duration-300`}
+                        style={{ height: `${heightPct}%` }}
                       />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Day Labels below bars */}
+              <div className="flex items-center justify-between gap-2 sm:gap-4 px-2 pt-2">
+                {data.outputTrend.map((entry, idx) => (
+                  <div key={idx} className="flex-1 text-center text-[11px] font-semibold text-slate-600 truncate">
+                    {entry.dayName}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Peak capacity target: 1,800 pcs/day</span>
-            <span className="font-bold text-emerald-600">89% line efficiency</span>
+            <span>Production throughput</span>
+            <span className="font-bold text-slate-700">7-Day Continuous Flow</span>
           </div>
         </div>
 
-        {/* 3B: QC Pass Rate (Donut + Top Defects) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+        {/* 3B: Quality Control Rate (SVG Donut Chart + Defect Breakdown) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
-                <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                   Quality Control Rate
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
                   3-Stage QC inspection pass vs scrap
                 </p>
               </div>
-              <span className="px-2.5 py-1 text-xs font-extrabold bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200">
-                Grade A
+              <span className="text-xs font-bold text-[#0B1220] bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                QC Standard
               </span>
             </div>
 
             {/* Donut and breakdown */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-4 py-2">
-              {/* Donut with center text */}
-              <div className="sm:col-span-5 h-[160px] relative flex items-center justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={qcDonutData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={70}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {qcDonutData.map((entry, index) => (
-                        <Cell key={`qc-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                {/* Center text */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-4 py-4">
+              
+              {/* Reliable Pure SVG Donut Chart */}
+              <div className="sm:col-span-5 flex items-center justify-center relative">
+                <svg width="140" height="140" viewBox="0 0 140 140" className="transform -rotate-90">
+                  {/* Background Circle (Rejected) */}
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r={donutRadius}
+                    fill="transparent"
+                    stroke="#F43F5E"
+                    strokeWidth="16"
+                  />
+                  {/* Foreground Circle (Passed) */}
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r={donutRadius}
+                    fill="transparent"
+                    stroke="#10B981"
+                    strokeWidth="16"
+                    strokeDasharray={`${passStrokeDash} ${rejectStrokeDash}`}
+                    strokeLinecap="round"
+                    className="transition-all duration-700"
+                  />
+                </svg>
+
+                {/* Donut Center Text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-black text-[#0B1220]">
+                  <span className="text-2xl font-black text-[#0B1220] font-mono leading-none">
                     {data.qc.passRatePct}%
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
                     Pass
                   </span>
                 </div>
@@ -438,47 +394,53 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
               {/* Defect Breakdown Bars */}
               <div className="sm:col-span-7 space-y-2.5">
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  Top 3 Defects Recorded
+                  Top Defects Recorded
                 </div>
-                {data.qc.topDefects.map((defect, i) => (
-                  <div key={i} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                      <span>{defect.name}</span>
-                      <span className="font-bold text-slate-900">{defect.count} pcs ({defect.pct}%)</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-rose-500 rounded-full"
-                        style={{ width: `${Math.min(100, defect.pct * 1.8)}%` }}
-                      />
-                    </div>
+                {data.qc.topDefects.length === 0 ? (
+                  <div className="text-xs text-slate-400 py-2">
+                    No quality defects recorded for this tenant.
                   </div>
-                ))}
+                ) : (
+                  data.qc.topDefects.map((defect, i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                        <span>{defect.name}</span>
+                        <span className="font-bold text-slate-900 font-mono">{defect.count} pcs ({defect.pct}%)</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-rose-500 rounded-full"
+                          style={{ width: `${Math.min(100, defect.pct)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Passed: <strong className="text-emerald-600">{data.qc.totalPassed.toLocaleString()}</strong> pcs</span>
-            <span>Rejected: <strong className="text-rose-600">{data.qc.totalRejected.toLocaleString()}</strong> pcs</span>
+            <span>Passed: <strong className="text-emerald-600 font-mono">{data.qc.totalPassed.toLocaleString()}</strong> pcs</span>
+            <span>Rejected: <strong className="text-rose-600 font-mono">{data.qc.totalRejected.toLocaleString()}</strong> pcs</span>
           </div>
         </div>
 
       </div>
 
       {/* ==================================================================== */}
-      {/* SECTION 4: BUYER ORDER PROGRESS & FABRIC INVENTORY */}
+      {/* 5. SECTION 4: BUYER ORDERS & FABRIC STOCK                            */}
       {/* ==================================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* 4A: Buyer Order Progress */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 Buyer Orders Fulfillment
               </h3>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
                 Delivered vs target pieces by active buyer contract
               </p>
             </div>
@@ -491,61 +453,66 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             </Link>
           </div>
 
-          <div className="space-y-4">
-            {data.buyerOrders.map((bo, idx) => {
-              const barColor =
-                bo.status === 'on_track'
-                  ? 'bg-emerald-500'
-                  : bo.status === 'caution'
-                  ? 'bg-amber-500'
-                  : 'bg-rose-500'
-              const badgeBg =
-                bo.status === 'on_track'
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : bo.status === 'caution'
-                  ? 'bg-amber-50 text-amber-700'
-                  : 'bg-rose-50 text-rose-700'
+          <div className="space-y-3">
+            {data.buyerOrders.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-100">
+                No active buyer contracts booked for this company yet.
+              </div>
+            ) : (
+              data.buyerOrders.map((bo, idx) => {
+                const barColor =
+                  bo.status === 'on_track'
+                    ? 'bg-emerald-500'
+                    : bo.status === 'caution'
+                    ? 'bg-amber-500'
+                    : 'bg-rose-500'
+                const badgeBg =
+                  bo.status === 'on_track'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : bo.status === 'caution'
+                    ? 'bg-amber-50 text-amber-700'
+                    : 'bg-rose-50 text-rose-700'
 
-              return (
-                <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900">{bo.buyerName}</span>
-                      <span className="text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                        {bo.poNumber}
+                return (
+                  <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900">{bo.buyerName}</span>
+                        <span className="text-[10px] font-mono text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                          {bo.poNumber}
+                        </span>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold uppercase tracking-wider ${badgeBg}`}>
+                        {bo.percent}% fulfilled
                       </span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${badgeBg}`}>
-                      {bo.percent}% fulfilled
-                    </span>
-                  </div>
 
-                  {/* Progress bar */}
-                  <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${barColor} rounded-full transition-all duration-500`}
-                      style={{ width: `${bo.percent}%` }}
-                    />
-                  </div>
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${barColor} rounded-full transition-all duration-500`}
+                        style={{ width: `${bo.percent}%` }}
+                      />
+                    </div>
 
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-0.5">
-                    <span>Delivered: <strong>{bo.deliveredPieces.toLocaleString()}</strong> pcs</span>
-                    <span>Target: <strong>{bo.targetPieces.toLocaleString()}</strong> pcs</span>
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-0.5">
+                      <span>Delivered: <strong className="font-mono text-slate-700">{bo.deliveredPieces.toLocaleString()}</strong> pcs</span>
+                      <span>Target: <strong className="font-mono text-slate-700">{bo.targetPieces.toLocaleString()}</strong> pcs</span>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })
+            )}
           </div>
         </div>
 
-        {/* 4B: Fabric Stock Meters in Godown */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs">
+        {/* 4B: Fabric Stock in Godown */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 Fabric Stock in Godown
               </h3>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
                 Meters on hand by raw material classification
               </p>
             </div>
@@ -558,54 +525,59 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             </Link>
           </div>
 
-          <div className="space-y-3.5">
-            {data.fabricStock.map((fab, idx) => {
-              const maxMeters = Math.max(...data.fabricStock.map(f => f.meters), 1)
-              const pct = Math.round((fab.meters / maxMeters) * 100)
+          <div className="space-y-3">
+            {data.fabricStock.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-100">
+                No fabric rolls logged in godown for this company.
+              </div>
+            ) : (
+              data.fabricStock.map((fab, idx) => {
+                const maxMeters = Math.max(...data.fabricStock.map(f => f.meters), 1)
+                const pct = Math.round((fab.meters / maxMeters) * 100)
 
-              return (
-                <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-900 truncate max-w-[240px]">
-                      {fab.fabricType}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-                        {fab.rolls} Rolls
+                return (
+                  <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-900 truncate max-w-[240px]">
+                        {fab.fabricType}
                       </span>
-                      <span className="font-extrabold text-[#0B1220]">
-                        {fab.meters.toLocaleString()} m
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                          {fab.rolls} Rolls
+                        </span>
+                        <span className="font-extrabold text-[#0B1220] font-mono">
+                          {fab.meters.toLocaleString()} m
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#14C8B4] rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+
+                    <div className="text-[10px] text-slate-400 font-medium">
+                      Color: {fab.color}
                     </div>
                   </div>
-
-                  {/* Horizontal Bar */}
-                  <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#14C8B4] rounded-full transition-all duration-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-
-                  <div className="text-[10px] text-slate-400 font-medium">
-                    Shades: {fab.color}
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })
+            )}
           </div>
         </div>
 
       </div>
 
       {/* ==================================================================== */}
-      {/* SECTION 5: ARTICLE DEEP-DIVE (DROPDOWN -> PER-ARTICLE STATUS JOURNEY) */}
+      {/* 6. SECTION 5: ARTICLE DEEP-DIVE (STRICTLY ISOLATED TO TENANT)        */}
       {/* ==================================================================== */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-teal-50 text-[#14C8B4] rounded-lg">
+              <span className="p-1.5 bg-[#F0FDFA] text-[#0B1220] rounded-lg border border-black/10">
                 <Shirt className="w-4 h-4" />
               </span>
               <h3 className="text-base font-extrabold text-[#0B1220]">
@@ -613,12 +585,12 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
               </h3>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Select any garment style to view its lifecycle progress across all factory divisions
+              Select any garment style to view its lifecycle progress across factory divisions
             </p>
           </div>
 
           {/* Article Dropdown Picker */}
-          <div className="flex items-center gap-3">
+          {data.articlesCatalog.length > 0 && (
             <div className="relative min-w-[280px]">
               <select
                 aria-label="Select Garment Style"
@@ -626,7 +598,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                 onChange={e => setSelectedArticleId(e.target.value)}
                 className="w-full pl-3 pr-9 py-2 text-xs font-bold text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl appearance-none cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#14C8B4]"
               >
-                {filteredArticles.map(art => (
+                {data.articlesCatalog.map(art => (
                   <option key={art.id} value={art.id}>
                     {art.artNo} — {art.description}
                   </option>
@@ -634,11 +606,16 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
               </select>
               <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Selected Article Detailed Journey Stepper */}
-        {selectedArticle && (
+        {data.articlesCatalog.length === 0 ? (
+          <div className="p-8 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-slate-200/60 space-y-1">
+            <Info className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+            <div className="font-bold text-slate-700">No garment articles found for this company.</div>
+            <div>Create styles in All Designs or Production Orders to track live throughput.</div>
+          </div>
+        ) : selectedArticle ? (
           <div className="space-y-4">
             {/* Header summary of selected article */}
             <div className="p-4 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -649,7 +626,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                   </span>
                   <span className="text-sm font-bold">{selectedArticle.description}</span>
                 </div>
-                <div className="text-xs text-slate-300 mt-1">
+                <div className="text-xs text-slate-300 mt-1 font-mono">
                   Contract Target: <strong className="text-white">{selectedArticle.buyerPoTarget.toLocaleString()} pieces</strong>
                 </div>
               </div>
@@ -657,11 +634,11 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <div className="text-xs text-slate-300">Overall Progress</div>
-                  <div className="text-xl font-extrabold text-[#14C8B4]">
+                  <div className="text-xl font-extrabold text-[#14C8B4] font-mono">
                     {selectedArticle.overallProgressPct}%
                   </div>
                 </div>
-                <div className="w-24 h-3 bg-white/20 rounded-full overflow-hidden">
+                <div className="w-24 h-2.5 bg-white/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-[#14C8B4] rounded-full"
                     style={{ width: `${selectedArticle.overallProgressPct}%` }}
@@ -672,79 +649,69 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
             {/* Stepper Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-              
-              {/* Step 1: Design Tech Pack */}
-              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-center">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">1. Tech-Pack</div>
-                <div className="mt-1 text-sm font-extrabold text-emerald-900">APPROVED</div>
-                <div className="text-[10px] text-emerald-600 mt-0.5">CAD & Specs ready</div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">1. Tech-Pack</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800">READY</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">CAD &amp; Specs</div>
               </div>
 
-              {/* Step 2: Buyer PO */}
-              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-center">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">2. Buyer PO</div>
-                <div className="mt-1 text-sm font-extrabold text-emerald-900">{selectedArticle.buyerPoTarget.toLocaleString()}</div>
-                <div className="text-[10px] text-emerald-600 mt-0.5">Target pieces</div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">2. Buyer PO</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.buyerPoTarget.toLocaleString()}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Target pieces</div>
               </div>
 
-              {/* Step 3: Fabric in Store */}
-              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-center">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">3. Raw Fabric</div>
-                <div className="mt-1 text-sm font-extrabold text-emerald-900">{selectedArticle.fabricMetersInStore.toLocaleString()} m</div>
-                <div className="text-[10px] text-emerald-600 mt-0.5">In Godown rolls</div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">3. Raw Fabric</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.fabricMetersInStore.toLocaleString()} m</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">In Godown</div>
               </div>
 
-              {/* Step 4: Cutting */}
-              <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-center">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">4. Cutting</div>
-                <div className="mt-1 text-sm font-extrabold text-emerald-900">{selectedArticle.cutPieces.toLocaleString()}</div>
-                <div className="text-[10px] text-emerald-600 mt-0.5">Bundles cut</div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">4. Cutting</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.cutPieces.toLocaleString()}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Bundles cut</div>
               </div>
 
-              {/* Step 5: Stitching */}
-              <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-center ring-2 ring-[#14C8B4]/40">
+              <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-center ring-1 ring-[#14C8B4]/40">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-[#0e7490]">5. Stitching</div>
-                <div className="mt-1 text-sm font-extrabold text-[#0B1220]">{selectedArticle.stitchedPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-[#0B1220] font-mono">{selectedArticle.stitchedPieces.toLocaleString()}</div>
                 <div className="text-[10px] font-bold text-[#0e7490] mt-0.5">Sewing active</div>
               </div>
 
-              {/* Step 6: QC Passed */}
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">6. QC Passed</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-900">{selectedArticle.qcPassedPieces.toLocaleString()}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Defects cleared</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.qcPassedPieces.toLocaleString()}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Cleared</div>
               </div>
 
-              {/* Step 7: In Godown */}
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">7. Godown</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-900">{selectedArticle.godownPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.godownPieces.toLocaleString()}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Finished stock</div>
               </div>
 
-              {/* Step 8: Dispatched */}
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">8. Dispatch</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-900">{selectedArticle.dispatchedPieces.toLocaleString()}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Shipped to buyer</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.dispatchedPieces.toLocaleString()}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Shipped</div>
               </div>
-
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* ==================================================================== */}
-      {/* SECTION 6: DIVISION HEARTBEAT (12 OPERATIONAL DIVISIONS MINI-GRID) */}
+      {/* 7. SECTION 6: DIVISION HEARTBEAT (REAL COUNTS ONLY — NO DUMMY DATA)  */}
       {/* ==================================================================== */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
               Division Heartbeat (12 Operational Departments)
             </h3>
-            <p className="text-xs text-slate-500 font-medium">
-              Click any department to jump directly into its operational control desk
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Verified active department status and direct navigation
             </p>
           </div>
           <Link
@@ -759,12 +726,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {data.divisionHeartbeat.map(div => {
             const IconComp = DIVISION_ICONS[div.iconName] || Layers
-            const statusDot =
-              div.status === 'ACTIVE'
-                ? 'bg-emerald-500 ring-2 ring-emerald-200'
-                : div.status === 'LOW'
-                ? 'bg-amber-500 ring-2 ring-amber-200'
-                : 'bg-slate-300'
+            const isIdle = div.status === 'IDLE'
 
             return (
               <Link
@@ -774,10 +736,10 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="p-1.5 rounded-lg bg-slate-50 group-hover:bg-teal-50 group-hover:text-[#14C8B4] text-slate-600 transition-colors">
+                    <span className="p-1.5 rounded-lg bg-slate-50 group-hover:bg-[#F0FDFA] group-hover:text-[#0B1220] text-slate-600 transition-colors">
                       <IconComp className="w-4 h-4" />
                     </span>
-                    <span className={`w-2 h-2 rounded-full ${statusDot}`} />
+                    <span className={`w-2 h-2 rounded-full ${isIdle ? 'bg-slate-300' : 'bg-emerald-500'}`} />
                   </div>
                   <div className="text-xs font-bold text-slate-800 group-hover:text-[#14C8B4] transition-colors line-clamp-1">
                     {div.name}
