@@ -74,39 +74,39 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
   const rejectStrokeDash = donutCircumference - passStrokeDash
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220] font-[family-name:var(--font-public-sans)]">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220] font-[family-name:var(--font-public-sans)]">
       
       {/* ==================================================================== */}
       {/* 1. TOP HEADER CARD: MATCHING ALL MODULES LAYOUT & SIZE               */}
       {/* ==================================================================== */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
-        <div className="flex items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <LayoutDashboard className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+            <LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Plant <span className="text-[#1D4ED8]">Operations Dashboard</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {data.companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Real-time manufacturing throughput, multi-stage floor reconciliation, and executive metrics.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
           <div className="text-right hidden sm:block">
             <div className="text-[11px] text-slate-400 font-medium">Synced at</div>
             <div className="text-xs font-bold text-slate-700 font-mono">{data.lastUpdated}</div>
           </div>
           <button
             onClick={handleRefresh}
-            className="min-h-[40px] sm:min-h-[42px] flex items-center gap-2 px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all cursor-pointer"
+            className="min-h-[38px] sm:min-h-[42px] flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2.5 text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all cursor-pointer"
             title="Refresh Live Data"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -114,10 +114,10 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
           </button>
           <Link
             href="/reports"
-            className="min-h-[40px] sm:min-h-[42px] inline-flex items-center justify-center gap-2 px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 hover:bg-[#1E40AF] hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer"
+            className="min-h-[38px] sm:min-h-[42px] flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4.5 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 hover:bg-[#1E40AF] hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
           >
             <span>Reports &amp; Analytics</span>
-            <ArrowRight className="w-4 h-4 text-white" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           </Link>
         </div>
       </div>
@@ -126,64 +126,64 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       {/* 2. SECTION 1: FACTORY PULSE (6 KPI CARDS — HEADING & NUMBER ONLY)    */}
       {/* (NO DESCRIPTION LINES, NO GREEN DOTS, NO LIVE BLINKS)               */}
       {/* ==================================================================== */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
         
         {/* Card 1: Active Styles */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
             Active Styles
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
             {data.pulse.activeStyles.toLocaleString()}
           </div>
         </div>
 
         {/* Card 2: Running Orders */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
             Running Orders
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
             {data.pulse.runningOrders.toLocaleString()}
           </div>
         </div>
 
         {/* Card 3: Target Pieces */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
             Target Pieces
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
             {data.pulse.targetPieces.toLocaleString()}
           </div>
         </div>
 
         {/* Card 4: Today's Output */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
             Today&apos;s Output
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
             {data.pulse.todayOutput.toLocaleString()}
           </div>
         </div>
 
         {/* Card 5: In Godown */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
             In Godown
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
             {data.pulse.godownStock.toLocaleString()}
           </div>
         </div>
 
         {/* Card 6: Dispatched */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
             Dispatched
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
             {data.pulse.dispatchedPieces.toLocaleString()}
           </div>
         </div>
