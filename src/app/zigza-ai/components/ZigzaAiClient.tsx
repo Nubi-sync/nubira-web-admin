@@ -1460,10 +1460,6 @@ export function ZigzaAiClient({
             })}
           </div>
         )}
-              <span className="text-xs sm:text-sm font-bold whitespace-nowrap">History</span>
-            </button>
-          </div>
-        </header>
 
         {/* Message Stream Area - contained scroll so the top bar and mobile viewport NEVER scroll off-screen */}
         <div 
@@ -1616,7 +1612,7 @@ export function ZigzaAiClient({
                 type="text"
                 value={inputPrompt}
                 onChange={(e) => setInputPrompt(e.target.value)}
-                placeholder="Ask about orders, godown stock, linemen, QC..."
+                placeholder={isMasterHub ? "Ask anything across all 11 factory divisions (e.g. fabric stock, cutting, orders, QC)..." : "Ask about orders, godown stock, linemen, QC..."}
                 disabled={isLoading}
                 className="flex-1 bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 outline-none font-medium min-w-0 py-1"
               />
