@@ -851,20 +851,20 @@ export function MasterZigzaAiHubClient({
   )
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-4 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-4 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
       {/* 1. Top Header Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
-        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <Bot className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+            <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Zigza AI • <span className="text-[#1D4ED8]">Master Copilot</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 SUPER ADMIN AI • {companyName}
               </span>
             </div>
@@ -875,22 +875,22 @@ export function MasterZigzaAiHubClient({
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 self-start sm:self-center">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 self-start sm:self-center">
           <TvViewButton size="md" />
           {/* Mobile history toggle button */}
           <button
             type="button"
             onClick={() => setIsHistoryDrawerOpen(!isHistoryDrawerOpen)}
-            className="lg:hidden px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            className="lg:hidden min-h-[38px] px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
           >
-            <MessageSquare className="w-4 h-4 text-[#0B1220]" />
+            <MessageSquare className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>History ({sessions.length})</span>
           </button>
         </div>
       </div>
 
       {/* 2. Window-Type Studio with Side Nav of Conversation History (No 4 Boxes) */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row h-[750px] xl:h-[800px] transition-all">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row h-[calc(100dvh-200px)] min-h-[520px] lg:h-[750px] xl:h-[800px] transition-all">
         
         {/* ======================================================== */}
         {/* LEFT SIDE NAV: CONVERSATION HISTORY (Window Side Nav)    */}
