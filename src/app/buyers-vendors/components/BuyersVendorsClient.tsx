@@ -692,7 +692,14 @@ export function BuyersVendorsClient({
                                         </span>
                                       </div>
                                       <div className="text-xs text-slate-500 font-medium flex items-center gap-2 flex-wrap">
-                                        <span>Challan: <strong className="text-slate-700 font-mono">{art.challanNo}</strong></span>
+                                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                                          art.sourceType === 'MERCHANDISING_PO'
+                                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                                            : 'bg-slate-100 text-slate-700 border border-slate-200'
+                                        }`}>
+                                          {art.sourceType === 'MERCHANDISING_PO' ? 'PO' : 'CH'}
+                                        </span>
+                                        <span>Ref: <strong className="text-slate-700 font-mono">{art.challanNo}</strong></span>
                                         <span>• Color: <strong className="text-slate-700">{art.colorPattern}</strong></span>
                                         <span>• Size: <strong className="text-slate-700">{art.sizeRange}</strong></span>
                                         {art.deliveryDate && <span>• Target: <strong className="text-slate-700">{art.deliveryDate}</strong></span>}
