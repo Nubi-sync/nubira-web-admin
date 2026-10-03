@@ -659,65 +659,41 @@ export function BuyersVendorsClient({
                           <div className="grid grid-cols-1 gap-2.5">
                             {paginatedArticles.map(art => {
                               const assigned = art.assignedQty || 0
-                              const delivered = art.deliveredQty || 0
-                              const artPercent = assigned > 0 ? Math.round((delivered / assigned) * 100) : 0
 
                               return (
                                 <div
                                   key={art.id}
-                                  className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-2xs hover:border-slate-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
+                                  className="bg-white rounded-xl px-4 py-3 border border-slate-200/90 shadow-2xs hover:border-slate-300 transition-all flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap"
                                 >
-                                  <div className="flex items-start sm:items-center gap-3 min-w-0">
-                                    <div className="w-10 h-10 rounded-lg bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 font-mono font-bold text-xs">
-                                      {art.artNo.slice(0, 4)}
-                                    </div>
-                                    <div className="space-y-0.5 min-w-0">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-sm font-bold text-[#0B1220] font-mono">
-                                          {art.artNo}
-                                        </span>
-                                        <span className="text-xs text-slate-600 truncate font-medium">
-                                          {art.description || art.product}
-                                        </span>
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                                          art.status === 'DELIVERED'
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                            : art.status === 'IN_PRODUCTION'
-                                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                            : art.status === 'QC_PASSED'
-                                            ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
-                                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                                        }`}>
-                                          • {art.status}
-                                        </span>
-                                      </div>
-                                      <div className="text-xs text-slate-500 font-medium flex items-center gap-2 flex-wrap">
-                                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                                          art.sourceType === 'MERCHANDISING_PO'
-                                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                                            : 'bg-slate-100 text-slate-700 border border-slate-200'
-                                        }`}>
-                                          {art.sourceType === 'MERCHANDISING_PO' ? 'PO' : 'CH'}
-                                        </span>
-                                        <span>Ref: <strong className="text-slate-700 font-mono">{art.challanNo}</strong></span>
-                                        <span>• Color: <strong className="text-slate-700">{art.colorPattern}</strong></span>
-                                        <span>• Size: <strong className="text-slate-700">{art.sizeRange}</strong></span>
-                                        {art.deliveryDate && <span>• Target: <strong className="text-slate-700">{art.deliveryDate}</strong></span>}
-                                      </div>
-                                    </div>
+                                  {/* Left: Article No, PO Number, Total Booked Pcs, Status - Single Clean Straight Line */}
+                                  <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-wrap">
+                                    <span className="text-xs sm:text-sm font-mono font-bold px-2.5 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs shrink-0">
+                                      {art.artNo}
+                                    </span>
+
+                                    <span className="text-xs sm:text-sm font-mono font-bold text-slate-700 shrink-0">
+                                      {art.sourceType === 'MERCHANDISING_PO' ? 'PO' : 'CH'} #{art.challanNo}
+                                    </span>
+
+                                    <span className="inline-flex items-center text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 shrink-0">
+                                      {assigned.toLocaleString('en-IN')} pcs
+                                    </span>
+
+                                    <span className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${
+                                      art.status === 'DELIVERED' || art.status === 'DISPATCHED'
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : art.status === 'IN_PRODUCTION'
+                                        ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                        : art.status === 'QC_PASSED'
+                                        ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                                    }`}>
+                                      • {art.status.replace('_', ' ')}
+                                    </span>
                                   </div>
 
-                                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                                    <div className="text-left sm:text-right">
-                                      <div className="text-xs sm:text-sm font-bold text-[#0B1220] font-mono">
-                                        {delivered.toLocaleString()} / {assigned.toLocaleString()} pcs
-                                      </div>
-                                      <div className="text-[11px] font-semibold text-emerald-700">
-                                        {artPercent}% Delivered
-                                      </div>
-                                    </div>
-
-                                    {/* View More Button */}
+                                  {/* Right: View More Button */}
+                                  <div className="flex items-center gap-2 shrink-0 ml-auto sm:ml-0">
                                     <button
                                       type="button"
                                       onClick={() => setSelectedArticleForDetail({
@@ -726,7 +702,7 @@ export function BuyersVendorsClient({
                                         buyerContact: buyer.contactPerson,
                                         buyerPhone: buyer.phone
                                       })}
-                                      className="min-h-[36px] px-3.5 py-1.5 bg-[#F0FDFA] hover:bg-slate-100 text-[#0B1220] border border-black/20 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                                      className="min-h-[34px] px-3.5 py-1.5 bg-[#F0FDFA] hover:bg-slate-100 text-[#0B1220] border border-black/20 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                                     >
                                       <Eye className="w-3.5 h-3.5 text-[#1D4ED8]" />
                                       <span>View More</span>
