@@ -200,22 +200,27 @@ export function AssignFabricArticleModal({
           </div>
 
           {/* Allocation Calculation Preview */}
-          <div className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50 space-y-2">
+          <div className="p-3.5 rounded-xl border border-slate-200 border-l-4 border-l-[#14C8B4] bg-white space-y-2 shadow-2xs">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-600 font-medium">Assigned to {targetArticle || 'Unassigned'}:</span>
-              <span className="font-mono font-bold text-[#1D4ED8]">
-                {allocatedMeters.toLocaleString()} m ({allocPercent}%)
+              <span className="font-bold text-slate-600 uppercase text-[11px] tracking-wider">
+                Assigned to {targetArticle || 'Unassigned'}:
+              </span>
+              <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40 shrink-0">
+                {allocPercent}%
               </span>
             </div>
-            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex">
+            <div className="text-xs font-mono font-bold text-slate-900">
+              <span>{allocatedMeters.toLocaleString()} meters assigned</span>
+            </div>
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div 
-                className="bg-[#1D4ED8] h-full transition-all duration-300"
+                className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500"
                 style={{ width: `${allocPercent}%` }}
               />
             </div>
-            <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium pt-0.5">
+            <div className="flex items-center justify-between text-[11px] text-slate-600 font-medium pt-0.5">
               <span>Remaining Free in Store:</span>
-              <span className="font-mono font-bold text-slate-700">
+              <span className="font-mono font-bold text-slate-900">
                 {freeMeters.toLocaleString()} meters
               </span>
             </div>

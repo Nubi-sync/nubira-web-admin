@@ -21,6 +21,7 @@ import {
   FabricAllocationItem,
   TrimAllocationItem
 } from '../actions'
+import { getStoreAvatarInitials } from '../utils/storeUtils'
 import { AssignFabricArticleModal } from './AssignFabricArticleModal'
 import { AddClothModal } from './AddClothModal'
 
@@ -205,7 +206,7 @@ export function FabricStoreHubClient({
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* 1. Header Banner - Clean, Human, Simple English */}
+      {/* 1. Header Banner - Matching Tab Header Standard */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 transition-all">
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
@@ -214,13 +215,13 @@ export function FabricStoreHubClient({
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-                Fabric &amp; Store
+                Fabric &amp; <span className="text-[#1D4ED8]">Store</span>
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)]">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Cloth and trims left in store, and which article they are assigned to.
             </p>
           </div>
@@ -251,18 +252,19 @@ export function FabricStoreHubClient({
         </div>
       </div>
 
-      {/* 2. Top 4 KPI Boxes - STRICT BRAND STANDARD: ONE HEADER & THE NUMBER ONLY, NO OTHER COLOR */}
+      {/* 2. Top 4 Summary KPI Cards - Exact Typography & Hierarchy as First Screenshot */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Box 1: Cloth in Store */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
           <div className="space-y-1">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Cloth in Store
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.totalClothMeters.toLocaleString()}{' '}
+            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+              {kpis.totalClothMeters.toLocaleString('en-IN')}{' '}
               <span className="text-sm font-semibold text-slate-400">m</span>
             </div>
+            <span className="text-[11px] text-slate-500 font-medium">Total Godown Stock</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Scissors className="w-5 h-5 text-[#0B1220]" />
@@ -270,31 +272,33 @@ export function FabricStoreHubClient({
         </div>
 
         {/* Box 2: Cloth Assigned */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
           <div className="space-y-1">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Cloth Assigned
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.totalClothAssignedMeters.toLocaleString()}{' '}
+            <div className="text-xl sm:text-2xl font-extrabold text-[#1D4ED8] font-mono">
+              {kpis.totalClothAssignedMeters.toLocaleString('en-IN')}{' '}
               <span className="text-sm font-semibold text-slate-400">m</span>
             </div>
+            <span className="text-[11px] text-slate-500 font-medium">Booked for Articles</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Layers className="w-5 h-5 text-[#0B1220]" />
+          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1D4ED8] shrink-0 shadow-2xs">
+            <Layers className="w-5 h-5 text-[#1D4ED8]" />
           </div>
         </div>
 
         {/* Box 3: Trims in Store */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
           <div className="space-y-1">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Trims in Store
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.totalTrimUnitsInStore.toLocaleString()}{' '}
+            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+              {kpis.totalTrimUnitsInStore.toLocaleString('en-IN')}{' '}
               <span className="text-sm font-semibold text-slate-400">pcs</span>
             </div>
+            <span className="text-[11px] text-slate-500 font-medium">Total Inventory</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Boxes className="w-5 h-5 text-[#0B1220]" />
@@ -302,18 +306,22 @@ export function FabricStoreHubClient({
         </div>
 
         {/* Box 4: Trims Assigned */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+          <div className="space-y-1 min-w-0">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Trims Assigned
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono">
-              {kpis.totalTrimAssignedUnits.toLocaleString()}{' '}
+            <div className="text-xl sm:text-2xl font-extrabold text-emerald-700 font-mono">
+              {kpis.totalTrimAssignedUnits.toLocaleString('en-IN')}{' '}
               <span className="text-sm font-semibold text-slate-400">pcs</span>
             </div>
+            <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              100% BOM Allocated
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <PackageCheck className="w-5 h-5 text-[#0B1220]" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
+            <PackageCheck className="w-5 h-5 text-emerald-600" />
           </div>
         </div>
       </div>
@@ -325,24 +333,24 @@ export function FabricStoreHubClient({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2.5">
-              <Scissors className="w-6 h-6 text-[#0B1220]" />
+              <Scissors className="w-6 h-6 text-[#1D4ED8]" />
               Cloth Left in Store
             </h2>
-            <span className="text-xs sm:text-sm font-mono font-bold px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <span className="text-xs sm:text-sm font-mono font-bold px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
               {filteredFabrics.length} {filteredFabrics.length === 1 ? 'Cloth Type' : 'Cloth Types'}
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start sm:self-center flex-wrap">
-            {/* Simple Status Filter Tabs */}
-            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-semibold">
+          <div className="flex items-center gap-3 self-start sm:self-center flex-wrap">
+            {/* Status Filter Pills - As in Screenshot: Active #14C8B4, Inactive White with Slate Border */}
+            <div className="flex items-center gap-2 overflow-x-auto text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setFabricFilter('ALL')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer border ${
                   fabricFilter === 'ALL'
-                    ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
-                    : 'text-slate-600 hover:text-[#0B1220]'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
+                    : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 All Cloth
@@ -350,10 +358,10 @@ export function FabricStoreHubClient({
               <button
                 type="button"
                 onClick={() => setFabricFilter('ASSIGNED')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer border ${
                   fabricFilter === 'ASSIGNED'
-                    ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
-                    : 'text-slate-600 hover:text-[#0B1220]'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
+                    : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 Assigned
@@ -361,25 +369,34 @@ export function FabricStoreHubClient({
               <button
                 type="button"
                 onClick={() => setFabricFilter('UNASSIGNED')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer border ${
                   fabricFilter === 'UNASSIGNED'
-                    ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
-                    : 'text-slate-600 hover:text-[#0B1220]'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
+                    : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 Free Stock
               </button>
             </div>
 
+            {/* Primary Action Button - Blue */}
             <button
               type="button"
               onClick={() => setIsAddClothModalOpen(true)}
-              className="min-h-[38px] px-3.5 py-1.5 bg-[#0B1220] hover:bg-slate-800 text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+              className="min-h-[42px] px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4 text-white" />
               <span>Record Cloth Inward</span>
             </button>
           </div>
+        </div>
+
+        {/* Desktop 12-Column Guide Header - Single Straight Line Alignment */}
+        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2.5 text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
+          <div className="col-span-4">Cloth / Fabric Type</div>
+          <div className="col-span-2 text-center">Left in Store</div>
+          <div className="col-span-4 text-center">Assigned Article &amp; Progress</div>
+          <div className="col-span-2 text-right">Action</div>
         </div>
 
         {/* Section 1 Item List */}
@@ -396,89 +413,136 @@ export function FabricStoreHubClient({
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {paginatedFabrics.map((fabric) => {
               const isAssigned = Boolean(fabric.bookedForArticle) && fabric.bookedMeters > 0
               return (
                 <div
                   key={fabric.id}
-                  className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
                 >
-                  {/* Left: Cloth Name & Details */}
-                  <div className="space-y-1.5 min-w-0 max-w-md">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-base sm:text-lg font-bold text-[#0B1220] font-[family-name:var(--font-heading)] leading-snug">
-                        {fabric.fabricType}
-                      </span>
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                        {fabric.color}
-                      </span>
+                  {/* Desktop Clickable Row (12-column grid) */}
+                  <div className="hidden md:grid grid-cols-12 items-center gap-4 px-6 py-4">
+                    {/* Col 1: Avatar Initials + Fabric Name & Specs (4 cols) */}
+                    <div className="col-span-4 flex items-center gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-sm tracking-wide">
+                        {getStoreAvatarInitials(fabric.fabricType)}
+                      </div>
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-base font-bold text-[#0B1220] truncate">{fabric.fabricType}</span>
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                            {fabric.color}
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500 font-medium truncate">
+                          Rack: <strong className="text-slate-700 font-mono">{fabric.rackLocation}</strong> • Rolls: <strong className="text-slate-700 font-mono">{fabric.totalRolls}</strong>
+                          {fabric.supplierName && <> • Supplier: <strong className="text-slate-700">{fabric.supplierName}</strong></>}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 font-medium flex-wrap">
-                      <span>Rack: <strong className="text-slate-700 font-mono">{fabric.rackLocation}</strong></span>
-                      <span>•</span>
-                      <span>Rolls: <strong className="text-slate-700 font-mono">{fabric.totalRolls} rolls</strong></span>
-                      {fabric.supplierName && (
-                        <>
-                          <span>•</span>
-                          <span>Supplier: <strong className="text-slate-700">{fabric.supplierName}</strong></span>
-                        </>
-                      )}
+
+                    {/* Col 2: Left in Store (2 cols) */}
+                    <div className="col-span-2 text-center">
+                      <div className="text-base sm:text-lg font-extrabold font-mono text-[#0B1220]">
+                        {fabric.totalMeters.toLocaleString('en-IN')}{' '}
+                        <span className="text-xs font-normal text-slate-500">meters</span>
+                      </div>
+                      <span className="text-[11px] text-slate-500 font-medium">{fabric.totalRolls} Rolls</span>
+                    </div>
+
+                    {/* Col 3: Assigned Article & Progress Card (4 cols) */}
+                    <div className="col-span-4">
+                      <div className="bg-white p-3 rounded-xl border border-slate-200 border-l-4 border-l-[#14C8B4] shadow-2xs space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-bold text-slate-600 uppercase text-[11px] tracking-wider">Assigned Article:</span>
+                            {isAssigned ? (
+                              <span className="font-mono font-bold text-[#0B1220] bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-md text-[11px]">
+                                {fabric.bookedForArticle}
+                              </span>
+                            ) : (
+                              <span className="text-slate-500 font-medium">Free Stock</span>
+                            )}
+                          </div>
+                          <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40 shrink-0">
+                            {fabric.allocationPercentage}%
+                          </span>
+                        </div>
+
+                        <div className="flex items-baseline justify-between text-xs font-mono font-bold text-slate-900">
+                          <span>{fabric.bookedMeters.toLocaleString('en-IN')} meters assigned</span>
+                        </div>
+
+                        {/* Progress Bar in Royal Blue on Slate-100 Track */}
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500"
+                            style={{ width: `${fabric.allocationPercentage}%` }}
+                          />
+                        </div>
+
+                        <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5 font-medium">
+                          <span>Free Left: <strong className="text-[#0B1220] font-mono">{fabric.availableMeters.toLocaleString('en-IN')} m</strong></span>
+                          {fabric.articlePo && <span>PO: <strong className="text-[#0B1220] font-mono">{fabric.articlePo}</strong></span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Col 4: Action Button (2 cols) */}
+                    <div className="col-span-2 flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenAssignModal(fabric)}
+                        className="min-h-[38px] px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs shadow-blue-500/15 flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                      >
+                        <span>Assign</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-white" />
+                      </button>
                     </div>
                   </div>
 
-                  {/* Middle Column 1: Total in Store */}
-                  <div className="space-y-0.5 min-w-[160px]">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                      Left in Store
-                    </span>
-                    <div className="text-xl sm:text-2xl font-extrabold font-mono text-[#0B1220]">
-                      {fabric.totalMeters.toLocaleString()}{' '}
-                      <span className="text-xs font-normal text-slate-500">meters</span>
+                  {/* Mobile Row Header (390px Viewport) */}
+                  <div className="block md:hidden p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-xs tracking-wide">
+                        {getStoreAvatarInitials(fabric.fabricType)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-base font-bold text-[#0B1220] truncate">{fabric.fabricType}</div>
+                        <div className="text-xs text-slate-500 font-medium">
+                          {fabric.color} • {fabric.totalMeters.toLocaleString('en-IN')} meters left
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Middle Column 2: Assigned to Article */}
-                  <div className="bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-200 min-w-[280px] max-w-sm space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-600">Assigned Article:</span>
-                      {isAssigned ? (
-                        <span className="font-mono font-bold text-[#0B1220] bg-white border border-slate-300 px-2 py-0.5 rounded-md shadow-2xs">
-                          {fabric.bookedForArticle}
+                    
+                    {/* Progress Card in Mobile */}
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 border-l-4 border-l-[#14C8B4] shadow-2xs space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-600 uppercase text-[11px]">Assigned: {fabric.bookedForArticle || 'Free Stock'}</span>
+                        <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
+                          {fabric.allocationPercentage}%
                         </span>
-                      ) : (
-                        <span className="text-slate-500 font-medium">Free Stock</span>
-                      )}
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-[#1D4ED8] h-full rounded-full"
+                          style={{ width: `${fabric.allocationPercentage}%` }}
+                        />
+                      </div>
+                      <div className="text-[11px] text-slate-600 flex items-center justify-between">
+                        <span>Assigned: <strong className="text-[#0B1220]">{fabric.bookedMeters.toLocaleString('en-IN')} m</strong></span>
+                        <span>Free: <strong className="text-[#0B1220]">{fabric.availableMeters.toLocaleString('en-IN')} m</strong></span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs font-mono font-bold text-[#0B1220]">
-                      <span>{fabric.bookedMeters.toLocaleString()} m assigned</span>
-                      <span>{fabric.allocationPercentage}%</span>
-                    </div>
-
-                    {/* Clean Progress Bar in Brand Dark */}
-                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex">
-                      <div 
-                        className="bg-[#0B1220] h-full transition-all duration-300"
-                        style={{ width: `${fabric.allocationPercentage}%` }}
-                      />
-                    </div>
-
-                    <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5">
-                      <span>Free Left: <strong className="text-[#0B1220]">{fabric.availableMeters.toLocaleString()} m</strong></span>
-                      {fabric.articlePo && <span>PO: <strong className="text-[#0B1220]">{fabric.articlePo}</strong></span>}
-                    </div>
-                  </div>
-
-                  {/* Right: Action */}
-                  <div className="flex items-center gap-2 self-end lg:self-center shrink-0">
                     <button
                       type="button"
                       onClick={() => handleOpenAssignModal(fabric)}
-                      className="px-3.5 py-2 bg-white hover:bg-slate-50 text-[#0B1220] border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs hover:border-[#0B1220] flex items-center gap-1.5"
+                      className="w-full min-h-[40px] px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                     >
-                      <span>Assign</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Assign Cloth</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-white" />
                     </button>
                   </div>
                 </div>
@@ -530,31 +594,39 @@ export function FabricStoreHubClient({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2.5">
-              <Boxes className="w-6 h-6 text-[#0B1220]" />
+              <Boxes className="w-6 h-6 text-[#1D4ED8]" />
               Required Trims &amp; Accessories
             </h2>
-            <span className="text-xs sm:text-sm font-mono font-bold px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <span className="text-xs sm:text-sm font-mono font-bold px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
               {filteredTrims.length} {filteredTrims.length === 1 ? 'Trim Item' : 'Trim Items'}
             </span>
           </div>
 
-          {/* Category Filter Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full">
+          {/* Category Filter Pills - As in Screenshot: Active #14C8B4, Inactive White with Slate Border */}
+          <div className="flex items-center gap-2 overflow-x-auto py-1 max-w-full text-xs font-semibold">
             {trimCategories.map(cat => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setTrimCategoryFilter(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full transition-all whitespace-nowrap cursor-pointer border ${
                   trimCategoryFilter === cat
-                    ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-[#14C8B4] text-[#0B1220] border-[#14C8B4] font-bold shadow-2xs'
+                    : 'text-slate-700 bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 {cat === 'ALL' ? 'All Trims' : cat}
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Desktop 12-Column Guide Header - Single Straight Line Alignment */}
+        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2.5 text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
+          <div className="col-span-4">Trim / Accessory Item</div>
+          <div className="col-span-2 text-center">Left in Store</div>
+          <div className="col-span-4 text-center">Assigned Article &amp; Progress</div>
+          <div className="col-span-2 text-right">Status</div>
         </div>
 
         {/* Section 2 Item List */}
@@ -571,83 +643,128 @@ export function FabricStoreHubClient({
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {paginatedTrims.map((trim) => {
               const isAssigned = Boolean(trim.assignedArticle) && trim.assignedQuantity > 0
               return (
                 <div
                   key={trim.id}
-                  className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
                 >
-                  {/* Left: Trim Item details */}
-                  <div className="space-y-1.5 min-w-0 max-w-md">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-base sm:text-lg font-bold text-[#0B1220] font-[family-name:var(--font-heading)] leading-snug">
-                        {trim.itemName}
-                      </span>
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                        {trim.category}
-                      </span>
-                      <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/10">
-                        {trim.unit}
+                  {/* Desktop Clickable Row (12-column grid) */}
+                  <div className="hidden md:grid grid-cols-12 items-center gap-4 px-6 py-4">
+                    {/* Col 1: Avatar Initials + Trim Name & Category (4 cols) */}
+                    <div className="col-span-4 flex items-center gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-sm tracking-wide">
+                        {getStoreAvatarInitials(trim.itemName)}
+                      </div>
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-base font-bold text-[#0B1220] truncate">{trim.itemName}</span>
+                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                            {trim.category}
+                          </span>
+                          <span className="text-[10px] font-mono uppercase font-bold px-1.5 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/10">
+                            {trim.unit}
+                          </span>
+                        </div>
+                        {trim.notes && (
+                          <div className="text-xs text-slate-500 font-medium truncate">
+                            {trim.notes}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Col 2: Left in Store (2 cols) */}
+                    <div className="col-span-2 text-center">
+                      <div className="text-base sm:text-lg font-extrabold font-mono text-[#0B1220]">
+                        {trim.totalInStore.toLocaleString('en-IN')}{' '}
+                        <span className="text-xs font-normal text-slate-500">{trim.unit}</span>
+                      </div>
+                      <span className="text-[11px] text-slate-500 font-medium">BOM Unit</span>
+                    </div>
+
+                    {/* Col 3: Assigned Article & Progress Card (4 cols) */}
+                    <div className="col-span-4">
+                      <div className="bg-white p-3 rounded-xl border border-slate-200 border-l-4 border-l-[#14C8B4] shadow-2xs space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-bold text-slate-600 uppercase text-[11px] tracking-wider">Assigned Article:</span>
+                            {isAssigned ? (
+                              <span className="font-mono font-bold text-[#0B1220] bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-md text-[11px]">
+                                {trim.assignedArticle}
+                              </span>
+                            ) : (
+                              <span className="text-slate-500 font-medium">Free Stock</span>
+                            )}
+                          </div>
+                          <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40 shrink-0">
+                            {trim.allocationPercentage}%
+                          </span>
+                        </div>
+
+                        <div className="flex items-baseline justify-between text-xs font-mono font-bold text-slate-900">
+                          <span>{trim.assignedQuantity.toLocaleString('en-IN')} {trim.unit} assigned</span>
+                        </div>
+
+                        {/* Progress Bar in Royal Blue on Slate-100 Track */}
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-[#1D4ED8] h-full rounded-full transition-all duration-500"
+                            style={{ width: `${trim.allocationPercentage}%` }}
+                          />
+                        </div>
+
+                        <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5 font-medium">
+                          <span>Free Left: <strong className="text-[#0B1220] font-mono">{trim.freeQuantity.toLocaleString('en-IN')} {trim.unit}</strong></span>
+                          <span className="text-slate-500">BOM Required</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Col 4: Status Badge (2 cols) */}
+                    <div className="col-span-2 flex items-center justify-end">
+                      <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-black/10 bg-[#F0FDFA] text-[#0B1220] flex items-center gap-1.5 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Assigned</span>
                       </span>
                     </div>
-                    {trim.notes && (
-                      <p className="text-xs text-slate-500 font-medium">
-                        {trim.notes}
-                      </p>
-                    )}
                   </div>
 
-                  {/* Middle Column 1: Total in Store */}
-                  <div className="space-y-0.5 min-w-[160px]">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                      Left in Store
-                    </span>
-                    <div className="text-xl sm:text-2xl font-extrabold font-mono text-[#0B1220]">
-                      {trim.totalInStore.toLocaleString()}{' '}
-                      <span className="text-xs font-normal text-slate-500">{trim.unit}</span>
+                  {/* Mobile Row Header (390px Viewport) */}
+                  <div className="block md:hidden p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-xs tracking-wide">
+                        {getStoreAvatarInitials(trim.itemName)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-base font-bold text-[#0B1220] truncate">{trim.itemName}</div>
+                        <div className="text-xs text-slate-500 font-medium">
+                          {trim.category} • {trim.totalInStore.toLocaleString('en-IN')} {trim.unit} left
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Middle Column 2: Article Allocation Card */}
-                  <div className="bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-200 min-w-[280px] max-w-sm space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-600">Assigned Article:</span>
-                      {isAssigned ? (
-                        <span className="font-mono font-bold text-[#0B1220] bg-white border border-slate-300 px-2 py-0.5 rounded-md shadow-2xs">
-                          {trim.assignedArticle}
+                    
+                    {/* Progress Card in Mobile */}
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 border-l-4 border-l-[#14C8B4] shadow-2xs space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-600 uppercase text-[11px]">Assigned: {trim.assignedArticle || 'Free Stock'}</span>
+                        <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
+                          {trim.allocationPercentage}%
                         </span>
-                      ) : (
-                        <span className="text-slate-500 font-medium">Free Stock</span>
-                      )}
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-[#1D4ED8] h-full rounded-full"
+                          style={{ width: `${trim.allocationPercentage}%` }}
+                        />
+                      </div>
+                      <div className="text-[11px] text-slate-600 flex items-center justify-between">
+                        <span>Assigned: <strong className="text-[#0B1220]">{trim.assignedQuantity.toLocaleString('en-IN')} {trim.unit}</strong></span>
+                        <span>Free: <strong className="text-[#0B1220]">{trim.freeQuantity.toLocaleString('en-IN')} {trim.unit}</strong></span>
+                      </div>
                     </div>
-
-                    <div className="flex items-center justify-between text-xs font-mono font-bold text-[#0B1220]">
-                      <span>{trim.assignedQuantity.toLocaleString()} {trim.unit} assigned</span>
-                      <span>{trim.allocationPercentage}%</span>
-                    </div>
-
-                    {/* Progress Bar in Brand Dark */}
-                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex">
-                      <div 
-                        className="bg-[#0B1220] h-full transition-all duration-300"
-                        style={{ width: `${trim.allocationPercentage}%` }}
-                      />
-                    </div>
-
-                    <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5">
-                      <span>Free Left: <strong className="text-[#0B1220]">{trim.freeQuantity.toLocaleString()} {trim.unit}</strong></span>
-                      <span className="text-slate-500 font-medium">BOM Required</span>
-                    </div>
-                  </div>
-
-                  {/* Right Status Badge in Brand Palette */}
-                  <div className="flex items-center gap-2 self-end lg:self-center shrink-0">
-                    <span className="px-3 py-1 rounded-xl text-xs font-bold border border-black/10 bg-[#F0FDFA] text-[#0B1220] flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#0B1220]" />
-                      <span>Assigned</span>
-                    </span>
                   </div>
                 </div>
               )

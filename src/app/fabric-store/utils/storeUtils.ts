@@ -91,3 +91,17 @@ export function parseBOMFromFabric(raw: string): {
 
   return { cleanFabric, materials }
 }
+
+export function getStoreAvatarInitials(name?: string | null): string {
+  if (!name) return 'FS'
+  const cleaned = name.replace(/[^\w\s]/gi, '').trim()
+  const words = cleaned.split(/\s+/).filter(Boolean)
+  if (words.length === 0) return 'FS'
+  if (words.length === 1) {
+    const w = words[0]
+    if (w.length <= 1) return w.toUpperCase()
+    return (w[0] + w[w.length - 1]).toUpperCase()
+  }
+  return (words[0][0] + words[1][0]).toUpperCase()
+}
+
