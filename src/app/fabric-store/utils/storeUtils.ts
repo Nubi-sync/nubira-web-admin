@@ -61,7 +61,7 @@ export function parseBOMFromFabric(raw: string): {
 } {
   if (!raw) return { cleanFabric: '', materials: [] }
 
-  const bomMatch = raw.match(/\[BOM_JSON:\s*(\[.*?\])\]/s)
+  const bomMatch = raw.match(/\[BOM_JSON:\s*(\[[\s\S]*?\])\]/)
   let materials: Array<{
     component: string
     item: string
@@ -84,7 +84,7 @@ export function parseBOMFromFabric(raw: string): {
   }
 
   const cleanFabric = raw
-    .replace(/\[BOM_JSON:\s*\[.*?\]\]/gs, '')
+    .replace(/\[BOM_JSON:\s*\[[\s\S]*?\]\]/g, '')
     .replace(/\[TARGET_CUT_DATE:\s*[^\]]+\]/gi, '')
     .replace(/\[INSTRUCTIONS:\s*[^\]]+\]/gi, '')
     .trim()
