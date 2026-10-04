@@ -103,8 +103,8 @@ export default async function CompanyProfilePage(props: {
         {/* 2. Page Header Card */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 transition-all">
           <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 mt-0.5 sm:mt-0">
-              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
             </div>
             <div>
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
