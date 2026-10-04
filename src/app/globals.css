@@ -199,6 +199,35 @@
   animation: spinOnce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Mechanical 2-Stage Ratchet Spin (Starts -> Stops Midway at 180° -> Snaps Forward to 360°) */
+@keyframes mechanicalSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  28% {
+    transform: rotate(192deg) scale(1.08);
+  }
+  38% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  58% {
+    transform: rotate(180deg) scale(1.05); /* Distinct mechanical midway pause / latch */
+  }
+  84% {
+    transform: rotate(374deg) scale(1.1); /* Snaps forward through second half with slight overshoot */
+  }
+  94% {
+    transform: rotate(358deg) scale(1.03);
+  }
+  100% {
+    transform: rotate(360deg) scale(1.05); /* Rigid mechanical lock into final position */
+  }
+}
+
+.animate-mechanical-spin {
+  animation: mechanicalSpin 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
 @keyframes shimmer {
   0% {
     background-position: 200% 0;

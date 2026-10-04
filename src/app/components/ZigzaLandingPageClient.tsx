@@ -1693,25 +1693,28 @@ export function ZigzaLandingPageClient({
                         <div
                           key={stage.step}
                           onClick={() => setActivePipelineStep(idx)}
-                          className="relative cursor-pointer group"
+                          className="relative cursor-pointer"
                         >
-                          {/* Timeline node (circle) */}
-                          <div className={`absolute -left-8 top-2.5 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
-                            isActive
-                              ? 'bg-[#14C8B4] text-[#0B1220] shadow-sm ring-2 ring-[#14C8B4]/40 scale-110 border border-[#14C8B4]'
-                              : 'bg-[#F0FDFA] text-[#0B1220] border-2 border-[#14C8B4]/30 group-hover:border-[#14C8B4] group-hover:scale-105'
-                          }`}>
+                          {/* Timeline node (circle) - mechanical ratchet spin with midway pause */}
+                          <div
+                            key={isActive ? `m-step-active-${stage.step}` : `m-step-idle-${stage.step}`}
+                            className={`absolute -left-8 top-2.5 w-[30px] h-[30px] rounded-full font-mono font-bold text-[11px] flex items-center justify-center z-10 transition-all duration-300 ${
+                              isActive
+                                ? 'bg-[#14C8B4] text-[#0B1220] shadow-sm ring-2 ring-[#14C8B4]/40 scale-110 border border-[#14C8B4] animate-mechanical-spin'
+                                : 'bg-[#F0FDFA] text-[#0B1220] border-2 border-[#14C8B4]/30'
+                            }`}
+                          >
                             {stage.step}
                           </div>
 
-                          {/* Content Card Box with animated outline on hover */}
+                          {/* Content Card Box with animated outline */}
                           <div className={`py-2.5 px-3.5 rounded-xl border transition-all duration-300 ease-out ${
                             isActive 
                               ? 'border-[#0B1220] bg-[#F0FDFA] shadow-2xs' 
-                              : 'border-transparent bg-transparent hover:border-slate-300 hover:bg-[#F0FDFA]/40 hover:shadow-2xs'
+                              : 'border-dashed border-slate-200 bg-transparent hover:border-slate-400 hover:bg-[#F0FDFA]/40 hover:shadow-2xs'
                           }`}>
                             <h3 className={`text-[15px] font-bold tracking-tight leading-snug transition-colors ${
-                              isActive ? 'text-[#0B1220]' : 'text-slate-900 group-hover:text-[#1D4ED8]'
+                              isActive ? 'text-[#0B1220]' : 'text-slate-900'
                             }`}>
                               {stage.title}
                             </h3>
@@ -1739,15 +1742,20 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(idx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border-2 border-dotted border-slate-300 hover:border-slate-400 hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#0B1220] shadow-md -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dashed border-slate-300 hover:border-slate-400 hover:shadow-2xs'
                             }`}
                           >
                             <div>
                               <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
-                                <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                                  isActive ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
-                                }`}>
+                                <span
+                                  key={isActive ? `step-active-${stage.step}` : `step-idle-${stage.step}`}
+                                  className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all duration-300 ${
+                                    isActive 
+                                      ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs animate-mechanical-spin' 
+                                      : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
+                                  }`}
+                                >
                                   {stage.step}
                                 </span>
                                 <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">{stage.title}</h3>
@@ -1780,15 +1788,20 @@ export function ZigzaLandingPageClient({
                             onClick={() => setActivePipelineStep(globalIdx)}
                             className={`cursor-pointer bg-white rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between min-h-[175px] sm:min-h-[185px] ${
                               isActive
-                                ? 'border-2 border-solid border-[#0B1220] shadow-sm -translate-y-1 bg-[#F0FDFA]/50'
-                                : 'border-2 border-dotted border-slate-300 hover:border-slate-400 hover:shadow-2xs'
+                                ? 'border-2 border-solid border-[#0B1220] shadow-md -translate-y-1 bg-[#F0FDFA]/50'
+                                : 'border-2 border-dashed border-slate-300 hover:border-slate-400 hover:shadow-2xs'
                             }`}
                           >
                             <div>
                               <div className="flex items-center gap-3 mb-3.5 sm:mb-4">
-                                <span className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all ${
-                                  isActive ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs' : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
-                                }`}>
+                                <span
+                                  key={isActive ? `step-active-${stage.step}` : `step-idle-${stage.step}`}
+                                  className={`w-8 h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 transition-all duration-300 ${
+                                    isActive 
+                                      ? 'bg-[#14C8B4] text-[#0B1220] border border-[#14C8B4] shadow-2xs animate-mechanical-spin' 
+                                      : 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
+                                  }`}
+                                >
                                   {stage.step}
                                 </span>
                                 <h3 className="text-[16.5px] sm:text-[17.5px] font-bold text-slate-900 tracking-tight leading-snug">{stage.title}</h3>
