@@ -95,12 +95,12 @@ export function FabricGodownClient() {
       {/* Header Banner */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/15 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <Layers className="w-6 h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Layers className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Fabric Godown &amp; <span className="text-[#1D4ED8]">4-Point QC</span>
               </h1>
               <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
@@ -113,23 +113,22 @@ export function FabricGodownClient() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
+          <Link
+            href="/store"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-2xs transition-all cursor-pointer"
+          >
+            <span>Central Store Hub</span>
+          </Link>
+
           <button
             type="button"
             onClick={() => setIsInwardModalOpen(true)}
-            className="px-4.5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all inline-flex items-center gap-1.5 shrink-0 cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all shrink-0 cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" />
-            <span>+ Inward Fabric Rolls</span>
+            <Plus className="w-4 h-4 text-white" />
+            <span>Inward Fabric Rolls</span>
           </button>
-
-          <Link
-            href="/store/material-issues"
-            className="px-4 py-2.5 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-xs font-bold hover:bg-[#E6FFFA] transition-all shadow-2xs inline-flex items-center gap-2 shrink-0 cursor-pointer"
-          >
-            <span>Issue Passed Rolls to Cutting</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </div>
 
@@ -226,10 +225,10 @@ export function FabricGodownClient() {
               <button
                 key={tab}
                 onClick={() => setShadeFilter(tab)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   active 
-                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold' 
-                    : 'bg-[#F0FDFA] text-slate-600 hover:text-slate-900 hover:bg-[#E6FFFA] border border-black/15'
+                    ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold' 
+                    : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
                 }`}
               >
                 {label}
