@@ -185,7 +185,7 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
         const targetCompany = companyName.trim()
         const targetCompUpper = targetCompany.toUpperCase()
 
-        // 1. Fetch concurrently across all tables
+        // 1. Fetch concurrently across all tables strictly filtered by targetCompany
         const [
           brandsRes,
           merchBuyersRes,
@@ -198,19 +198,11 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
           vendorsRes,
           moduleVendorsRes
         ] = await Promise.all([
-          // Brands / Buyers Master
+          // Brands / Buyers Master for THIS company
           (async () => {
             try {
-              const { data } = await supabaseAdmin.from('brands').select('*').order('brand_name', { ascending: true })
-              return data || []
-            } catch { return [] }
-          })(),
-
-          // Merchandising Active Buyers
-          (async () => {
-            try {
-              let q = supabaseAdmin.from('merchandising_active_buyers').select('*')
-              if (!isRootSuperAdmin && targetCompUpper !== 'NUBIRA CREATION') {
+              let q = supabaseAdmin.from('brands').select('*').order('brand_name', { ascending: true })
+              if (targetCompany) {
                 q = q.ilike('company_name', targetCompany)
               }
               const { data } = await q
@@ -218,7 +210,19 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
             } catch { return [] }
           })(),
 
-          // Merchandising Orders (PO contracts)
+          // Merchandising Active Buyers for THIS company
+          (async () => {
+            try {
+              let q = supabaseAdmin.from('merchandising_active_buyers').select('*')
+              if (targetCompany) {
+                q = q.ilike('company_name', targetCompany)
+              }
+              const { data } = await q
+              return data || []
+            } catch { return [] }
+          })(),
+
+          // Merchandising Orders (PO contracts) for THIS company
           (async () => {
             try {
               let q = supabaseAdmin
@@ -231,7 +235,7 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
                 `)
                 .order('created_at', { ascending: false })
               
-              if (!isRootSuperAdmin && targetCompUpper !== 'NUBIRA CREATION') {
+              if (targetCompany) {
                 q = q.ilike('company_name', targetCompany)
               }
               const { data } = await q
@@ -295,19 +299,23 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
             } catch { return [] }
           })(),
 
-          // Master Vendors table
+          // Master Vendors table for THIS company
           (async () => {
             try {
-              const { data } = await supabaseAdmin.from('vendors').select('*')
+              let q = supabaseAdmin.from('vendors').select('*')
+              if (targetCompany) {
+                q = q.or(`tenant_company.ilike.${targetCompany},brand_name.ilike.${targetCompany}`)
+              }
+              const { data } = await q
               return data || []
             } catch { return [] }
           })(),
 
-          // Module Vendors dedicated table
+          // Module Vendors dedicated table for THIS company
           (async () => {
             try {
               let q = supabaseAdmin.from('module_vendors').select('*')
-              if (!isRootSuperAdmin && targetCompUpper !== 'NUBIRA CREATION') {
+              if (targetCompany) {
                 q = q.ilike('tenant_company', targetCompany)
               }
               const { data } = await q
@@ -460,11 +468,21 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
           buyerArticlesMap.set(buyerKey, existing)
         }
 
-        // B. Ingest Floor Production Allotments & Challans
+        // Build set of valid buyer/brand names that strictly belong to THIS company
+        const companyBrandNames = new Set<string>([
+          ...rawBrands.map(b => (b.brand_name || '').trim().toUpperCase()),
+          ...rawMerchBuyers.map(b => (b.buyer_name || b.brand_name || '').trim().toUpperCase()),
+          ...rawMerchOrders.map((o: any) => (o.brands?.brand_name || o.brand_name || '').trim().toUpperCase())
+        ].filter(Boolean))
+
+        // B. Ingest Floor Production Allotments & Challans strictly for THIS company's brands
         for (const al of rawAllotments) {
           const matchingChallan = rawChallans.find(ch => ch.id === al.challan_id)
           const buyerKey = (matchingChallan?.brand || '').trim().toUpperCase()
           if (!buyerKey) continue
+
+          // Strictly skip challans that do not belong to this company's brand roster
+          if (!companyBrandNames.has(buyerKey) && !buyerArticlesMap.has(buyerKey)) continue
 
           const alVars = rawVariants.filter((v: any) => v.allotment_id === al.id)
           const artObj = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
@@ -872,11 +890,17 @@ export async function assignModuleVendorAction(payload: {
 // ----------------------------------------------------------------------
 export async function removeModuleVendorAction(moduleRoute: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const tenantCompany = tenant?.companyName || 'Nubira Creation'
+
     try {
       await supabaseAdmin
         .from('module_vendors')
         .delete()
         .eq('module_route', moduleRoute)
+        .ilike('tenant_company', tenantCompany)
     } catch (_) {}
 
     await CacheManager.invalidateTag('module_vendors')
