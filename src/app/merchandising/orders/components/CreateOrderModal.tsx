@@ -151,7 +151,10 @@ export function CreateOrderModal({
         if (!isMounted) return
 
         // 1. Tech Packs
-        const localTps = getStoredTechPacks()
+        const allLocalTps = getStoredTechPacks()
+        const localTps = companyName 
+          ? allLocalTps.filter(tp => !tp.company_name || tp.company_name.toLowerCase() === companyName.toLowerCase())
+          : allLocalTps
         const tpMap = new Map<string, TechPack>()
         localTps.forEach(tp => { if (tp.id) tpMap.set(tp.id, tp) })
         serverTps.forEach(tp => { if (tp.id) tpMap.set(tp.id, tp) })
@@ -162,7 +165,7 @@ export function CreateOrderModal({
         setTechPacks(combinedTps)
 
         // 2. Active Buyers
-        const localBuyers = getActiveBuyers()
+        const localBuyers = getActiveBuyers(companyName)
         const buyerMap = new Map<string, ActiveBuyer>()
         localBuyers.forEach(b => { if (b.id) buyerMap.set(b.id, b) })
         serverBuyers.forEach(b => { if (b.id) buyerMap.set(b.id, b) })
@@ -446,6 +449,7 @@ export function CreateOrderModal({
 
     const finalBrand = brandName.trim()
     const finalStyleRef = styleRef.trim().toUpperCase()
+    const selectedTechPack = techPacks.find(tp => tp.id === selectedTechPackId)
 
     const newOrder: MerchandisingOrder = {
       id: `ord-${Date.now()}`,

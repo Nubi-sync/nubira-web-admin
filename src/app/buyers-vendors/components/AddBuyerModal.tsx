@@ -17,6 +17,7 @@ import { BuyerItem, createOrUpdateBuyerAction } from '../actions'
 interface AddBuyerModalProps {
   isOpen: boolean
   buyer?: BuyerItem | null
+  companyName?: string
   onClose: () => void
   onSuccess: () => void
 }
@@ -24,6 +25,7 @@ interface AddBuyerModalProps {
 export function AddBuyerModal({
   isOpen,
   buyer,
+  companyName,
   onClose,
   onSuccess
 }: AddBuyerModalProps) {
@@ -97,7 +99,8 @@ export function AddBuyerModal({
         email: email.trim(),
         city: city.trim(),
         address: address.trim(),
-        gstin: gstin.trim().toUpperCase()
+        gstin: gstin.trim().toUpperCase(),
+        companyName
       })
 
       if (res.success) {

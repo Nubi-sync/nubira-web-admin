@@ -936,12 +936,16 @@ export async function createOrUpdateBuyerAction(payload: {
   city?: string
   address?: string
   gstin?: string
+  companyName?: string
 }): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    const tenant = user ? await resolveUserTenant(user) : null
-    const tenantCompany = (tenant?.companyName || '').trim()
+    let tenantCompany = (payload.companyName || '').trim()
+    if (!tenantCompany) {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      const tenant = user ? await resolveUserTenant(user) : null
+      tenantCompany = (tenant?.companyName || '').trim()
+    }
 
     if (!tenantCompany) return { success: false, error: 'Tenant company context required to create or edit buyers.' }
 
