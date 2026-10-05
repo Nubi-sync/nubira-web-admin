@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_merch_orders_company_name
 UPDATE public.merchandising_orders o
   SET company_name = tp.company_name
   FROM public.design_tech_packs tp
-  WHERE o.tech_pack_id = tp.id 
+  WHERE o.tech_pack_id::text = tp.id::text 
     AND tp.company_name IS NOT NULL
     AND (o.company_name IS NULL OR o.company_name != tp.company_name);
 
@@ -51,7 +51,7 @@ UPDATE public.merchandising_orders o
 UPDATE public.merchandising_active_buyers b
   SET company_name = tp.company_name
   FROM public.design_tech_packs tp
-  WHERE b.linked_article_id = tp.id 
+  WHERE (b.linked_article_id::text = tp.id::text OR b.linked_article_number = tp.style_number)
     AND tp.company_name IS NOT NULL
     AND (b.company_name IS NULL OR b.company_name != tp.company_name);
 
@@ -59,7 +59,7 @@ UPDATE public.merchandising_active_buyers b
 UPDATE public.brands br
   SET company_name = o.company_name
   FROM public.merchandising_orders o
-  WHERE o.buyer_id = br.id 
+  WHERE o.buyer_id::text = br.id::text 
     AND o.company_name IS NOT NULL
     AND (br.company_name IS NULL OR br.company_name != o.company_name);
 
@@ -68,30 +68,30 @@ UPDATE public.brands br
 UPDATE public.merchandising_orders 
   SET company_name = 'Demo Industries' 
   WHERE order_number IN ('HOLL-2026-2963', 'BYRO-2026-6837') 
-     OR tech_pack_id IN (
-       SELECT id FROM public.design_tech_packs 
+     OR tech_pack_id::text IN (
+       SELECT id::text FROM public.design_tech_packs 
        WHERE style_number IN ('DEMO-101-03', 'DEMO-102')
      );
 
 UPDATE public.merchandising_active_buyers 
   SET company_name = 'Demo Industries' 
-  WHERE buyer_name IN ('Hollypop', 'ollywood')
+  WHERE buyer_name ILIKE ANY (ARRAY['%Hollypop%', '%ollywood%'])
      OR linked_article_number IN ('DEMO-101-03', 'DEMO-102');
 
 UPDATE public.brands 
   SET company_name = 'Demo Industries' 
-  WHERE brand_name IN ('Hollypop', 'ollywood');
+  WHERE brand_name ILIKE 'Hollypop' OR brand_name ILIKE 'ollywood';
 
 -- Point Demo Tech Packs to their genuine buyer brands
 UPDATE public.design_tech_packs tp
   SET brand_id = br.id
   FROM public.brands br
-  WHERE tp.style_number = 'DEMO-101-03' AND br.brand_name = 'Hollypop';
+  WHERE tp.style_number = 'DEMO-101-03' AND br.brand_name ILIKE 'Hollypop';
 
 UPDATE public.design_tech_packs tp
   SET brand_id = br.id
   FROM public.brands br
-  WHERE tp.style_number = 'DEMO-102' AND br.brand_name = 'ollywood';
+  WHERE tp.style_number = 'DEMO-102' AND br.brand_name ILIKE 'ollywood';
 
 -- Purge legacy unused dummy seed brands from early development
 DELETE FROM public.brands 
