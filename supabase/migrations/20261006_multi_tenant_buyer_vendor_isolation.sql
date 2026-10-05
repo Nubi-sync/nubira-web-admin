@@ -1,8 +1,12 @@
 -- =============================================================================
--- 20261006_multi_tenant_buyer_vendor_isolation.sql
--- Strict Multi-Tenant Buyer & Vendor Isolation for Zigza Platform
+-- Migration: Strict Multi-Tenant Buyer, Vendor & Contract Isolation
+-- Description: Enforces strict tenant scoping across all buyer profiles, 
+-- brands, vendor assignments, and merchandising contracts.
+-- Contracts forged in Merchandising or Buyers & Vendors belong strictly to the
+-- tenant company that created them and cannot leak into other company profiles.
 -- =============================================================================
 
+-- 1. Ensure company_name / tenant_company columns exist with proper defaults
 ALTER TABLE public.brands 
   ADD COLUMN IF NOT EXISTS company_name TEXT;
 
@@ -10,7 +14,7 @@ ALTER TABLE public.vendors
   ADD COLUMN IF NOT EXISTS tenant_company TEXT;
 
 ALTER TABLE public.module_vendors 
-  ADD COLUMN IF NOT EXISTS tenant_company TEXT DEFAULT 'Nubira Creation';
+  ADD COLUMN IF NOT EXISTS tenant_company TEXT;
 
 ALTER TABLE public.merchandising_active_buyers 
   ADD COLUMN IF NOT EXISTS company_name TEXT;
@@ -18,40 +22,67 @@ ALTER TABLE public.merchandising_active_buyers
 ALTER TABLE public.merchandising_orders 
   ADD COLUMN IF NOT EXISTS company_name TEXT;
 
-CREATE INDEX IF NOT EXISTS idx_brands_company_name ON public.brands (company_name);
-CREATE INDEX IF NOT EXISTS idx_vendors_tenant_company ON public.vendors (tenant_company);
-CREATE INDEX IF NOT EXISTS idx_module_vendors_tenant_company ON public.module_vendors (tenant_company);
-CREATE INDEX IF NOT EXISTS idx_merch_buyers_company_name ON public.merchandising_active_buyers (company_name);
-CREATE INDEX IF NOT EXISTS idx_merch_orders_company_name ON public.merchandising_orders (company_name);
+-- 2. Multi-Tenant Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_brands_company_name 
+  ON public.brands (company_name);
 
-UPDATE public.brands 
+CREATE INDEX IF NOT EXISTS idx_vendors_tenant_company 
+  ON public.vendors (tenant_company);
+
+CREATE INDEX IF NOT EXISTS idx_module_vendors_tenant_company 
+  ON public.module_vendors (tenant_company);
+
+CREATE INDEX IF NOT EXISTS idx_merch_buyers_company_name 
+  ON public.merchandising_active_buyers (company_name);
+
+CREATE INDEX IF NOT EXISTS idx_merch_orders_company_name 
+  ON public.merchandising_orders (company_name);
+
+-- 3. Dynamic Contract Ownership Alignment
+-- Align merchandising orders to the company that owns the underlying tech pack
+UPDATE public.merchandising_orders o
+  SET company_name = tp.company_name
+  FROM public.design_tech_packs tp
+  WHERE o.tech_pack_id = tp.id 
+    AND tp.company_name IS NOT NULL
+    AND (o.company_name IS NULL OR o.company_name != tp.company_name);
+
+-- Align active buyer contracts to the company that owns the linked article/tech pack
+UPDATE public.merchandising_active_buyers b
+  SET company_name = tp.company_name
+  FROM public.design_tech_packs tp
+  WHERE b.linked_article_id = tp.id 
+    AND tp.company_name IS NOT NULL
+    AND (b.company_name IS NULL OR b.company_name != tp.company_name);
+
+-- Align brand ownership to the company that forged contracts with it
+UPDATE public.brands br
+  SET company_name = o.company_name
+  FROM public.merchandising_orders o
+  WHERE o.buyer_id = br.id 
+    AND o.company_name IS NOT NULL
+    AND (br.company_name IS NULL OR br.company_name != o.company_name);
+
+-- 4. Correct Historical Demo Industries Contracts
+-- Hollypop (DEMO-101-03) and ollywood (DEMO-102) contracts were both forged for Demo Industries
+UPDATE public.merchandising_orders 
   SET company_name = 'Demo Industries' 
-  WHERE brand_name ILIKE 'Hollypop' AND (company_name IS NULL OR company_name != 'Demo Industries');
+  WHERE order_number IN ('HOLL-2026-2963', 'BYRO-2026-6837') 
+     OR tech_pack_id IN (
+       SELECT id FROM public.design_tech_packs 
+       WHERE style_number IN ('DEMO-101-03', 'DEMO-102')
+     );
 
 UPDATE public.merchandising_active_buyers 
   SET company_name = 'Demo Industries' 
-  WHERE buyer_name ILIKE 'Hollypop' AND (company_name IS NULL OR company_name != 'Demo Industries');
-
-UPDATE public.merchandising_orders 
-  SET company_name = 'Demo Industries' 
-  WHERE order_number ILIKE 'HOLL-%' AND (company_name IS NULL OR company_name != 'Demo Industries');
-
-UPDATE public.brands 
-  SET company_name = 'Nubira Creation' 
-  WHERE brand_name ILIKE 'ollywood' AND (company_name IS NULL OR company_name != 'Nubira Creation');
-
-UPDATE public.merchandising_active_buyers 
-  SET company_name = 'Nubira Creation' 
-  WHERE buyer_name ILIKE 'ollywood' AND (company_name IS NULL OR company_name != 'Nubira Creation');
-
-UPDATE public.merchandising_orders 
-  SET company_name = 'Nubira Creation' 
-  WHERE order_number ILIKE 'BYRO-%' AND (company_name IS NULL OR company_name != 'Nubira Creation');
-
-UPDATE public.brands 
-  SET company_name = 'Nubira Creation' 
-  WHERE brand_name ILIKE '%NUBIRA%' AND company_name IS NULL;
+  WHERE buyer_name IN ('Hollypop', 'ollywood')
+     OR linked_article_number IN ('DEMO-101-03', 'DEMO-102');
 
 UPDATE public.brands 
   SET company_name = 'Demo Industries' 
-  WHERE company_name IS NULL;
+  WHERE brand_name IN ('Hollypop', 'ollywood', 'FIRST SMILE', 'LAZY BONES', 'CANDY POP', 'CHERRY POP', 'PRIVATE LABEL');
+
+-- 5. Proprietary In-House Brands for Nubira Creation
+UPDATE public.brands 
+  SET company_name = 'Nubira Creation' 
+  WHERE brand_name ILIKE '%NUBIRA%' AND (company_name IS NULL OR company_name != 'Nubira Creation');

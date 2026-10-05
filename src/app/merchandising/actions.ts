@@ -3,6 +3,8 @@
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { createClient } from '@/utils/supabase/server'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { 
   MerchandisingOrder, 
   BomCosting, 
@@ -89,7 +91,7 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
     cacheKey,
     async () => {
       try {
-        const { data, error } = await supabaseAdmin
+        let q = supabaseAdmin
           .from('merchandising_orders')
           .select(`
             *,
@@ -99,6 +101,12 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
           `)
           .order('created_at', { ascending: false })
 
+        if (companyName && companyName.trim()) {
+          q = q.ilike('company_name', companyName.trim())
+        }
+
+        const { data, error } = await q
+
         if (error) {
           console.error('[fetchMerchandisingOrdersAction] Error:', error)
           return []
@@ -106,22 +114,7 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
 
         if (!data || data.length === 0) return []
 
-        let filteredData = data
-        if (companyName && companyName.trim()) {
-          const target = companyName.trim().toLowerCase()
-          filteredData = data.filter((row: any) => {
-            const orderComp = (row.company_name || '').toLowerCase()
-            const brandComp = (row.brands?.company_name || '').toLowerCase()
-            const brandName = (row.brands?.brand_name || '').toLowerCase()
-            const tpComp = (row.design_tech_packs?.company_name || '').toLowerCase()
-            return orderComp === target || orderComp.includes(target) ||
-                   brandComp === target || brandComp.includes(target) ||
-                   tpComp === target || tpComp.includes(target) ||
-                   brandName === target || brandName.includes(target)
-          })
-        }
-
-        return filteredData.map((row: any) => {
+        return data.map((row: any) => {
           // Group ratios by color_name
           const colorGroups: Record<string, { sizes: Record<string, number>; total: number }> = {}
           ;(row.merchandising_order_ratios || []).forEach((r: any) => {
@@ -155,7 +148,7 @@ export async function fetchMerchandisingOrdersAction(companyName?: string): Prom
             currency: (row.currency || 'INR') as 'INR' | 'USD' | 'EUR' | 'GBP',
             ex_factory_date: row.ex_factory_date || new Date(Date.now() + 60 * 86400000).toISOString().split('T')[0],
             status: mapDbStatusToUI(row.status),
-            company_name: row.company_name || 'Nubira Creation',
+            company_name: row.company_name || row.design_tech_packs?.company_name || companyName || '',
             cad_front_url: row.design_tech_packs?.cad_front_url,
             cad_back_url: row.design_tech_packs?.cad_back_url,
             fabric_composition: meta.fabric || 'Cotton Blend',
@@ -192,14 +185,44 @@ export async function createBuyerOrderAction(payload: {
   company_name?: string
 }): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
-    // 1. Resolve Brand (strictly scoped by company_name)
+    let targetCompany = (payload.company_name || '').trim()
+    if (!targetCompany) {
+      try {
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
+        if (user) {
+          const tenant = await resolveUserTenant(user)
+          targetCompany = (tenant.companyName || '').trim()
+        }
+      } catch (_) {}
+    }
+
+    // 1. Resolve Tech Pack first (to extract company if missing)
+    let techPackId: string | null = null
+    let tpQuery = supabaseAdmin
+      .from('design_tech_packs')
+      .select('id, style_number, company_name')
+      .ilike('style_number', payload.style_ref)
+    if (targetCompany) {
+      tpQuery = tpQuery.ilike('company_name', targetCompany)
+    }
+    const { data: tp } = await tpQuery.limit(1).maybeSingle()
+
+    if (tp) {
+      techPackId = tp.id
+      if (!targetCompany && tp.company_name) {
+        targetCompany = tp.company_name.trim()
+      }
+    }
+
+    // 2. Resolve Brand (strictly scoped by company_name)
     let brandId: string | null = null
     let brandQuery = supabaseAdmin
       .from('brands')
       .select('id')
       .ilike('brand_name', payload.brand_name)
-    if (payload.company_name) {
-      brandQuery = brandQuery.ilike('company_name', payload.company_name)
+    if (targetCompany) {
+      brandQuery = brandQuery.ilike('company_name', targetCompany)
     }
     const { data: brand } = await brandQuery.limit(1).maybeSingle()
     
@@ -211,7 +234,7 @@ export async function createBuyerOrderAction(payload: {
         .insert({
           brand_name: payload.brand_name.trim(),
           brand_code: payload.brand_name.trim().replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND',
-          company_name: payload.company_name || null
+          company_name: targetCompany || null
         })
         .select('id')
         .maybeSingle()
@@ -220,39 +243,26 @@ export async function createBuyerOrderAction(payload: {
 
     if (!brandId) return { success: false, error: 'No active brand found in database.' }
 
-    // 2. Resolve Tech Pack (strictly scoped by company_name)
-    let techPackId: string | null = null
-    let tpQuery = supabaseAdmin
-      .from('design_tech_packs')
-      .select('id')
-      .ilike('style_number', payload.style_ref)
-    if (payload.company_name) {
-      tpQuery = tpQuery.ilike('company_name', payload.company_name)
-    }
-    const { data: tp } = await tpQuery.limit(1).maybeSingle()
-
-    if (tp) {
-      techPackId = tp.id
-    } else {
+    if (!techPackId) {
       const { data: newTp } = await supabaseAdmin
         .from('design_tech_packs')
         .insert({
           style_number: payload.style_ref.trim().toUpperCase(),
           brand_id: brandId,
-          company_name: payload.company_name || null,
+          company_name: targetCompany || null,
           category: 'HOODIE',
           fabric_composition: '100% Cotton',
           target_gsm: 300,
           status: 'DRAFT'
         })
-        .select('id')
+        .select('id, company_name')
         .maybeSingle()
       techPackId = newTp?.id
     }
 
     if (!techPackId) return { success: false, error: 'No active tech pack found in database.' }
 
-    // 3. Insert Master Order
+    // 3. Insert Master Order strictly scoped to the forging company
     const { data: order, error: orderErr } = await supabaseAdmin
       .from('merchandising_orders')
       .insert({
@@ -266,7 +276,7 @@ export async function createBuyerOrderAction(payload: {
         order_date: new Date().toISOString().split('T')[0],
         ex_factory_date: payload.ex_factory_date,
         incoterm: payload.incoterm || 'FOB',
-        company_name: payload.company_name || 'Nubira Creation',
+        company_name: targetCompany,
         status: 'CONFIRMED'
       })
       .select()
@@ -276,6 +286,25 @@ export async function createBuyerOrderAction(payload: {
       console.error('[createBuyerOrderAction] Order error:', orderErr)
       return { success: false, error: orderErr.message }
     }
+
+    // 3.5 Automatically register or update the active buyer contract for this company
+    try {
+      await supabaseAdmin.from('merchandising_active_buyers').upsert({
+        buyer_name: payload.brand_name.trim(),
+        buyer_code: payload.brand_name.trim().replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase(),
+        brand_name: payload.brand_name.trim(),
+        contact_person: 'Procurement Lead',
+        contracted_volume: Number(payload.total_quantity),
+        price_per_piece: Number(payload.unit_fob_price),
+        currency: payload.currency || 'INR',
+        total_contract_value: Number(payload.total_quantity) * Number(payload.unit_fob_price),
+        status: 'LINKED',
+        linked_article_id: techPackId,
+        linked_article_number: payload.style_ref,
+        company_name: targetCompany,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'buyer_name,company_name' })
+    } catch (_) {}
 
     // 4. Insert Ratios
     const ratioInserts: any[] = []
@@ -850,6 +879,18 @@ export async function fetchActiveBuyersAction(companyName?: string): Promise<any
 
 export async function saveActiveBuyerAction(payload: any): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
+    let targetCompany = (payload.company_name || '').trim()
+    if (!targetCompany) {
+      try {
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
+        if (user) {
+          const tenant = await resolveUserTenant(user)
+          targetCompany = (tenant.companyName || '').trim()
+        }
+      } catch (_) {}
+    }
+
     const { data, error } = await supabaseAdmin
       .from('merchandising_active_buyers')
       .upsert({
@@ -871,7 +912,7 @@ export async function saveActiveBuyerAction(payload: any): Promise<{ success: bo
         linked_at: payload.linked_at,
         notes: payload.notes,
         embellishment_sequence: payload.embellishment_sequence,
-        company_name: payload.company_name,
+        company_name: targetCompany || null,
         updated_at: new Date().toISOString()
       })
       .select()
@@ -882,10 +923,14 @@ export async function saveActiveBuyerAction(payload: any): Promise<{ success: bo
       return { success: false, error: error.message }
     }
 
-    await CacheManager.invalidateCompanyModule(payload.company_name || 'all', 'merchandising')
+    const normComp = (targetCompany || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.invalidateCompanyModule(targetCompany || 'all', 'merchandising')
     await CacheManager.invalidateTag('merchandising_buyers')
+    await CacheManager.invalidateTag(`company:${normComp}:merchandising`)
+    await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
     revalidatePath('/merchandising')
     revalidatePath('/merchandising/buyers')
+    revalidatePath('/buyers-vendors')
     return { success: true, data }
   } catch (err: any) {
     console.error('[saveActiveBuyerAction] Unexpected error:', err)

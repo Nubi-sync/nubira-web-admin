@@ -34,6 +34,7 @@ export default async function MerchandisingOrdersPage() {
         initialOrders={initialOrders} 
         availableTechPacks={initialTechPacks}
         availableBrands={initialBrands}
+        companyName={companyFilter}
       />
     </AdminShell>
   )
