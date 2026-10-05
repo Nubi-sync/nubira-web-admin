@@ -91,51 +91,140 @@ export async function checkPhoneAvailabilityAction(rawPhone: string): Promise<{
       return { available: false, error: 'Enter a valid 10-digit mobile number.' }
     }
 
+    const p1 = phone10.slice(0, 5)
+    const p2 = phone10.slice(5)
+    const wildcardPattern = `%${phone10[0]}%${phone10[1]}%${phone10[2]}%${phone10[3]}%${phone10[4]}%${phone10[5]}%${phone10[6]}%${phone10[7]}%${phone10[8]}%${phone10[9]}%`
+
     // 1. Check Supabase Auth Users metadata
-    const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
-    if (!listErr && userList?.users) {
-      const matchedAuth = userList.users.find(u => {
-        const p = (u.user_metadata?.phone || '').replace(/\D/g, '')
-        return p.endsWith(phone10)
-      })
-      if (matchedAuth) {
-        return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    try {
+      const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
+      if (!listErr && userList?.users) {
+        const matchedAuth = userList.users.find(u => {
+          const p = (u.phone || '').replace(/\D/g, '')
+          const mp = (u.user_metadata?.phone || '').replace(/\D/g, '')
+          const mp2 = (u.user_metadata?.phone2 || '').replace(/\D/g, '')
+          const mcp = (u.user_metadata?.contact_phone || '').replace(/\D/g, '')
+          const mpn = (u.user_metadata?.phone_number || '').replace(/\D/g, '')
+          return (
+            p.endsWith(phone10) ||
+            mp.endsWith(phone10) ||
+            mp2.endsWith(phone10) ||
+            mcp.endsWith(phone10) ||
+            mpn.endsWith(phone10)
+          )
+        })
+        if (matchedAuth) {
+          return { available: false, error: 'Mobile number already registered to a workspace. Please sign in.' }
+        }
       }
+    } catch (e) {
+      console.warn('[checkPhoneAvailabilityAction] Auth users notice:', e)
     }
 
-    // 2. Check cutting_workers
-    const { data: cw } = await supabaseAdmin
-      .from('cutting_workers')
-      .select('id')
-      .or(`phone_number.eq.${phone10},phone_number.ilike.%${phone10}%`)
-      .limit(1)
-    if (cw && cw.length > 0) {
-      return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    // 2. Check platform_tenant_factories (handles formatted "+91 80109 39887", "8010939887", and expired trials)
+    try {
+      const { data: ptf } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('id, phone, company_name, status')
+        .or(`phone.ilike.%${phone10}%,phone.ilike.%${p1}%${p2}%,phone.ilike.${wildcardPattern}`)
+      
+      if (ptf && ptf.length > 0) {
+        const hasMatch = ptf.some(row => (row.phone || '').replace(/\D/g, '').endsWith(phone10))
+        if (hasMatch) {
+          return {
+            available: false,
+            error: 'This mobile number is already registered with an existing workspace. A free trial has already been claimed for this mobile number. Please sign in.'
+          }
+        }
+      }
+
+      // Supplementary verification across all tenants
+      const { data: allTenants } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('id, phone')
+        .not('phone', 'is', null)
+        .limit(200)
+
+      if (allTenants) {
+        const found = allTenants.some(row => (row.phone || '').replace(/\D/g, '').endsWith(phone10))
+        if (found) {
+          return {
+            available: false,
+            error: 'This mobile number is already registered with an existing workspace. A free trial has already been claimed for this mobile number. Please sign in.'
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[checkPhoneAvailabilityAction] Tenant factories notice:', e)
     }
 
     // 3. Check company_profile
-    const { data: cp } = await supabaseAdmin
-      .from('company_profile')
-      .select('id')
-      .ilike('contact_phone', `%${phone10}%`)
-      .limit(1)
-    if (cp && cp.length > 0) {
-      return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    try {
+      const { data: cp } = await supabaseAdmin
+        .from('company_profile')
+        .select('id, contact_phone')
+        .or(`contact_phone.ilike.%${phone10}%,contact_phone.ilike.%${p1}%${p2}%,contact_phone.ilike.${wildcardPattern}`)
+
+      if (cp && cp.length > 0) {
+        const hasMatch = cp.some(row => (row.contact_phone || '').replace(/\D/g, '').endsWith(phone10))
+        if (hasMatch) {
+          return { available: false, error: 'Mobile number already registered to an existing company profile. Please sign in.' }
+        }
+      }
+    } catch (e) {
+      console.warn('[checkPhoneAvailabilityAction] Company profile notice:', e)
     }
 
-    // 4. Check platform_tenant_factories
-    const { data: ptf } = await supabaseAdmin
-      .from('platform_tenant_factories')
-      .select('id')
-      .ilike('phone', `%${phone10}%`)
-      .limit(1)
-    if (ptf && ptf.length > 0) {
-      return { available: false, error: 'Mobile number already registered. Please sign in.' }
+    // 4. Check platform_demo_requests
+    try {
+      const { data: pdr } = await supabaseAdmin
+        .from('platform_demo_requests')
+        .select('id, phone')
+        .or(`phone.ilike.%${phone10}%,phone.ilike.%${p1}%${p2}%,phone.ilike.${wildcardPattern}`)
+
+      if (pdr && pdr.length > 0) {
+        const hasMatch = pdr.some(row => (row.phone || '').replace(/\D/g, '').endsWith(phone10))
+        if (hasMatch) {
+          return { available: false, error: 'A trial request has already been registered for this mobile number. Please sign in.' }
+        }
+      }
+    } catch (e) {
+      console.warn('[checkPhoneAvailabilityAction] Demo requests notice:', e)
+    }
+
+    // 5. Check cutting_workers and other floor worker tables
+    const workerTables = [
+      'cutting_workers',
+      'stitching_workers',
+      'printing_workers',
+      'embroidery_workers',
+      'washing_workers',
+      'iron_workers',
+      'design_team_members',
+      'ready_goods_workers',
+      'packing_workers'
+    ]
+
+    for (const tbl of workerTables) {
+      try {
+        const { data: wData } = await supabaseAdmin
+          .from(tbl)
+          .select('id, phone_number')
+          .or(`phone_number.ilike.%${phone10}%,phone_number.ilike.%${p1}%${p2}%`)
+          .limit(5)
+
+        if (wData && wData.length > 0) {
+          const hasMatch = wData.some((w: any) => (w.phone_number || w.phone || '').replace(/\D/g, '').endsWith(phone10))
+          if (hasMatch) {
+            return { available: false, error: 'Mobile number already registered to a staff member. Please sign in.' }
+          }
+        }
+      } catch (_) {}
     }
 
     return { available: true }
   } catch (err) {
-    console.error('[checkPhoneAvailabilityAction] Notice:', err)
+    console.error('[checkPhoneAvailabilityAction] Error:', err)
     return { available: true }
   }
 }

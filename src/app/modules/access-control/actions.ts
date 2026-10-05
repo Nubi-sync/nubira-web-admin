@@ -516,6 +516,23 @@ export async function checkPhoneNumberAvailabilityAction(
       } catch (_) {}
     }
 
+    // 4. Check platform_tenant_factories
+    try {
+      const { data: ptf } = await supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('id, phone')
+        .limit(200)
+      if (ptf && ptf.length > 0) {
+        const hasMatch = ptf.some(row => (row.phone || '').replace(/\D/g, '').endsWith(cleanPhone))
+        if (hasMatch) {
+          return {
+            isAvailable: false,
+            message: 'This mobile number is already registered to a workspace administrator.'
+          }
+        }
+      }
+    } catch (_) {}
+
     return { isAvailable: true }
   } catch (err: any) {
     console.error('[checkPhoneNumberAvailabilityAction] Error:', err)

@@ -3,44 +3,73 @@
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Menu } from 'lucide-react'
+import { Menu, Zap } from 'lucide-react'
 import { AdminSidebar } from './AdminSidebar'
 import { CompanyOwnerHeader } from './CompanyOwnerHeader'
 import { TvModeProvider, useTvMode } from '@/context/TvModeContext'
 import { TvTopBar } from './TvTopBar'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
+import { getTenantSubscriptionStatusAction } from '@/app/profile/actions'
+import { RechargeModal } from '@/components/subscription/RechargeModal'
 
-function MobileTopBar({ onMenuToggle, logoHref = '/modules' }: { onMenuToggle: () => void; logoHref?: string }) {
+function MobileTopBar({ 
+  onMenuToggle, 
+  logoHref = '/modules',
+  isTrial = false,
+  daysLeft = 7
+}: { 
+  onMenuToggle: () => void
+  logoHref?: string
+  isTrial?: boolean
+  daysLeft?: number
+}) {
   return (
-    <header className="lg:hidden sticky top-0 z-30 w-full bg-white border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between shadow-xs">
-      {/* Hamburger Button */}
-      <button
-        type="button"
-        onClick={onMenuToggle}
-        className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-[#0B1220] hover:bg-slate-50 transition-colors cursor-pointer shadow-xs"
-        aria-label="Open navigation menu"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+    <header className="lg:hidden sticky top-0 z-30 w-full bg-white border-b border-slate-200/80 px-3.5 py-2.5 flex items-center justify-between shadow-xs gap-2">
+      {/* Left: Hamburger Button */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          className="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-[#0B1220] hover:bg-slate-50 transition-colors cursor-pointer shadow-xs"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
-      {/* Center: Brand Logo */}
-      <Link href={logoHref} className="flex items-center gap-2">
-        <img 
-          src="/new icon.png" 
-          alt="" 
-          className="h-7 w-auto object-contain shrink-0"
-        />
-        <img 
-          src="/zigza new logo.png" 
-          alt="Zigza" 
-          className="h-5.5 w-auto object-contain shrink-0"
-        />
-      </Link>
+        {/* Brand Logo */}
+        <Link href={logoHref} className="flex items-center gap-2">
+          <img 
+            src="/new icon.png" 
+            alt="" 
+            className="h-6.5 w-auto object-contain shrink-0"
+          />
+          <img 
+            src="/zigza new logo.png" 
+            alt="Zigza" 
+            className="h-5 w-auto object-contain shrink-0"
+          />
+        </Link>
+      </div>
 
-      {/* Right: ERP Badge */}
-      <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
-        ERP MES
-      </span>
+      {/* Right: Trial Recharge CTA (If Trial) OR ERP MES Badge */}
+      <div className="flex items-center gap-2">
+        {isTrial ? (
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-recharge-modal'))}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300 text-amber-950 text-[11px] font-black shadow-2xs cursor-pointer active:scale-95"
+            title="Free Trial Active - Click to recharge"
+          >
+            <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-600 animate-pulse shrink-0" />
+            <span>{daysLeft}d left</span>
+            <span className="text-[#1D4ED8] underline font-black ml-0.5">Recharge</span>
+          </button>
+        ) : (
+          <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
+            ERP MES
+          </span>
+        )}
+      </div>
     </header>
   )
 }

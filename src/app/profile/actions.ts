@@ -304,4 +304,72 @@ export async function upgradeTenantSubscriptionAction(params: {
   }
 }
 
+export async function getTenantSubscriptionStatusAction(): Promise<{
+  isTrial: boolean
+  accessType: 'DEMO_TRIAL' | 'FULL_ACCESS'
+  daysLeft: number
+  expiresAt?: string
+  provisionedAt?: string
+  isExpired: boolean
+  companyName: string
+  subscriptionTier: string
+  monthlyBillingInr: number
+}> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return {
+        isTrial: false,
+        accessType: 'FULL_ACCESS',
+        daysLeft: 0,
+        isExpired: false,
+        companyName: '',
+        subscriptionTier: 'FULL_PLANT_AI',
+        monthlyBillingInr: 4999
+      }
+    }
+
+    const tenant = await resolveUserTenant(user)
+    const isTrial = tenant.accessType === 'DEMO_TRIAL'
+    const baseProvisionedTime = tenant.provisionedAt ? new Date(tenant.provisionedAt).getTime() : Date.now()
+    const effectiveExpiresAt = tenant.expiresAt || (
+      isTrial
+        ? new Date(baseProvisionedTime + 7 * 24 * 60 * 60 * 1000).toISOString()
+        : new Date(baseProvisionedTime + 30 * 24 * 60 * 60 * 1000).toISOString()
+    )
+
+    const expiryTime = effectiveExpiresAt ? new Date(effectiveExpiresAt).getTime() : 0
+    const now = Date.now()
+    const daysLeft = expiryTime ? Math.max(0, Math.ceil((expiryTime - now) / (1000 * 60 * 60 * 24))) : 0
+
+    return {
+      isTrial,
+      accessType: tenant.accessType || 'FULL_ACCESS',
+      daysLeft,
+      expiresAt: effectiveExpiresAt,
+      provisionedAt: tenant.provisionedAt,
+      isExpired: tenant.isExpired || (isTrial && daysLeft <= 0),
+      companyName: tenant.companyName || '',
+      subscriptionTier: tenant.subscriptionTier || 'FULL_PLANT_AI',
+      monthlyBillingInr: tenant.monthlyBillingInr || (tenant.subscriptionTier === 'MODULAR' ? 1999 : 4999)
+    }
+  } catch (err) {
+    console.error('Error fetching tenant subscription status:', err)
+    return {
+      isTrial: false,
+      accessType: 'FULL_ACCESS',
+      daysLeft: 0,
+      isExpired: false,
+      companyName: '',
+      subscriptionTier: 'FULL_PLANT_AI',
+      monthlyBillingInr: 4999
+    }
+  }
+}
+
+
 

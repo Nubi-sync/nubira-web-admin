@@ -520,7 +520,8 @@ export async function provisionTenantFactoryAction(
           role: 'SUPERADMIN',
           username: customUsername,
           displayName: payload.adminName,
-          company: payload.companyName
+          company: payload.companyName,
+          phone: payload.phone
         }
       })
 
@@ -534,7 +535,13 @@ export async function provisionTenantFactoryAction(
           authUserId = existing.id
           await supabaseAdmin.auth.admin.updateUserById(existing.id, {
             password: payload.initialPassword,
-            user_metadata: { role: 'SUPERADMIN', username: customUsername, displayName: payload.adminName, company: payload.companyName }
+            user_metadata: {
+              role: 'SUPERADMIN',
+              username: customUsername,
+              displayName: payload.adminName,
+              company: payload.companyName,
+              phone: payload.phone
+            }
           })
         }
       }
@@ -542,17 +549,28 @@ export async function provisionTenantFactoryAction(
       console.warn('[provisionTenantFactoryAction] Auth create warning:', authErr)
     }
 
-    // Step B: Upsert into public.profiles
+    // Step B: Upsert into public.profiles & company_profile
     if (authUserId) {
       try {
         await supabaseAdmin.from('profiles').upsert({
           id: authUserId,
           username: customUsername,
+          phone: payload.phone,
+          company_name: payload.companyName,
           role: 'SUPERADMIN',
           is_active: true
         })
       } catch (_) {}
     }
+
+    try {
+      await supabaseAdmin.from('company_profile').upsert({
+        company_name: payload.companyName,
+        contact_email: payload.adminEmail,
+        contact_phone: payload.phone,
+        factory_address: payload.cityState || 'India'
+      }, { onConflict: 'company_name' })
+    } catch (_) {}
 
     // Step C: Insert into public.platform_tenant_factories
     const tenantRow = {
