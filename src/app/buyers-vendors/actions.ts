@@ -122,6 +122,7 @@ export interface ModuleVendorItem {
   defaultDesignation: string
   iconName: string
   description: string
+  isCustom?: boolean
   
   // Assigned vendor details
   assignedVendor: {
@@ -168,12 +169,14 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
     let companyName = (companyNameOverride || '').trim()
     let userRole = 'SUPERADMIN'
     let isRootSuperAdmin = false
+    let allowedDivisions: string[] = []
 
     if (user) {
       const tenant = await resolveUserTenant(user)
       companyName = (tenant.companyName || companyName).trim()
       userRole = tenant.role.toUpperCase()
       isRootSuperAdmin = tenant.isSuperAdmin || user.email === 'admin@zigza.in' || user.email === 'team.anga9@gmail.com'
+      allowedDivisions = Array.isArray(tenant.allowedDivisions) ? tenant.allowedDivisions : []
     }
 
     const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
@@ -184,6 +187,21 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
       async () => {
         const targetCompany = companyName.trim()
         const targetCompUpper = targetCompany.toUpperCase()
+
+        // Also fetch factory division permissions dynamically for this company
+        let effectiveAllowedDivisions = [...allowedDivisions]
+        if (targetCompany) {
+          try {
+            const { data: tenantFactory } = await supabaseAdmin
+              .from('platform_tenant_factories')
+              .select('allowed_divisions')
+              .ilike('company_name', targetCompany)
+              .maybeSingle()
+            if (tenantFactory?.allowed_divisions && Array.isArray(tenantFactory.allowed_divisions) && tenantFactory.allowed_divisions.length > 0) {
+              effectiveAllowedDivisions = tenantFactory.allowed_divisions
+            }
+          } catch (_) {}
+        }
 
         // 1. Fetch concurrently across all tables strictly filtered by targetCompany
         const [
@@ -667,9 +685,37 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
           }
         }
 
-        // 3. Build 12 Modules Vendor Roster
-        const moduleVendors: ModuleVendorItem[] = DEPARTMENT_HEADS_CATALOG.map(cat => {
-          const dbModVendor = rawModuleVendors.find((mv: any) => 
+        // 3. Build Subscribed Modules & Custom Factory Modules Vendor Roster
+        // Only include modules from DEPARTMENT_HEADS_CATALOG that the factory has subscribed to!
+        const subscribedCatalog = DEPARTMENT_HEADS_CATALOG.filter(cat => {
+          if (effectiveAllowedDivisions.length > 0) {
+            return effectiveAllowedDivisions.includes(cat.route)
+          }
+          return true
+        })
+
+        // Separate standard catalog module vendor rows vs custom modules
+        const customModuleRows: any[] = []
+        const standardModuleRows: any[] = []
+
+        rawModuleVendors.forEach((mv: any) => {
+          let isCustom = Boolean(mv.is_custom) || (mv.module_route && mv.module_route.startsWith('/custom'))
+          if (!isCustom && mv.notes) {
+            try {
+              const parsed = JSON.parse(mv.notes)
+              if (parsed.isCustom) isCustom = true
+            } catch (_) {}
+          }
+          if (isCustom) {
+            customModuleRows.push(mv)
+          } else {
+            standardModuleRows.push(mv)
+          }
+        })
+
+        // A. Standard Catalog Subscribed Modules
+        const catalogModuleVendors: ModuleVendorItem[] = subscribedCatalog.map(cat => {
+          const dbModVendor = standardModuleRows.find((mv: any) => 
             mv.module_route === cat.route || 
             (mv.module_name && mv.module_name.toLowerCase() === cat.name.toLowerCase())
           )
@@ -681,12 +727,12 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
 
           let assignedVendor: ModuleVendorItem['assignedVendor'] = null
 
-          if (dbModVendor) {
+          if (dbModVendor && dbModVendor.company_name && dbModVendor.company_name !== 'Unassigned' && dbModVendor.company_name !== 'Not Assigned') {
             assignedVendor = {
               id: dbModVendor.id,
               companyName: dbModVendor.company_name,
-              contactPerson: dbModVendor.contact_person,
-              phone: dbModVendor.phone,
+              contactPerson: dbModVendor.contact_person || '',
+              phone: dbModVendor.phone || '',
               notes: dbModVendor.notes || '',
               isActive: dbModVendor.is_active ?? true,
               createdAt: dbModVendor.created_at
@@ -711,9 +757,55 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
             defaultDesignation: cat.defaultDesignation,
             iconName: cat.iconName,
             description: cat.description,
+            isCustom: false,
             assignedVendor
           }
         })
+
+        // B. Custom Modules Created for this Tenant
+        const customModuleVendors: ModuleVendorItem[] = customModuleRows.map((mv: any) => {
+          let meta: any = {}
+          try {
+            if (mv.notes && (mv.notes.startsWith('{') || mv.notes.startsWith('['))) {
+              meta = JSON.parse(mv.notes)
+            }
+          } catch (_) {}
+
+          const hasRealVendor = Boolean(
+            mv.company_name &&
+            mv.company_name !== 'Unassigned' &&
+            mv.company_name !== 'Not Assigned' &&
+            mv.company_name.trim().length > 0
+          )
+
+          let assignedVendor: ModuleVendorItem['assignedVendor'] = null
+          if (hasRealVendor) {
+            assignedVendor = {
+              id: mv.id,
+              companyName: mv.company_name,
+              contactPerson: mv.contact_person || '',
+              phone: mv.phone || '',
+              notes: meta.vendorNotes || (typeof mv.notes === 'string' && !mv.notes.startsWith('{') ? mv.notes : ''),
+              isActive: mv.is_active ?? true,
+              createdAt: mv.created_at
+            }
+          }
+
+          return {
+            id: mv.id,
+            moduleRoute: mv.module_route,
+            moduleCode: mv.module_code || meta.moduleCode || 'CUST',
+            moduleName: mv.module_name,
+            defaultDesignation: meta.defaultDesignation || 'Station Head / Unit In-Charge',
+            iconName: mv.icon_name || meta.iconName || 'Layers',
+            description: meta.description || (typeof mv.notes === 'string' && !mv.notes.startsWith('{') ? mv.notes : 'Custom factory floor module'),
+            isCustom: true,
+            assignedVendor
+          }
+        })
+
+        // Combined roster: subscribed catalog modules + custom tenant modules
+        const moduleVendors: ModuleVendorItem[] = [...catalogModuleVendors, ...customModuleVendors]
 
         // 4. Compute Summary KPIs
         const totalBuyers = buyers.length
@@ -891,7 +983,7 @@ export async function assignModuleVendorAction(payload: {
 }
 
 // ----------------------------------------------------------------------
-// 3. REMOVE VENDOR FROM MODULE
+// 3. REMOVE VENDOR FROM MODULE (SOFT RESET FOR CUSTOM MODULES)
 // ----------------------------------------------------------------------
 export async function removeModuleVendorAction(moduleRoute: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -903,11 +995,25 @@ export async function removeModuleVendorAction(moduleRoute: string): Promise<{ s
     if (!tenantCompany) return { success: false, error: 'Tenant company context required.' }
 
     try {
-      await supabaseAdmin
-        .from('module_vendors')
-        .delete()
-        .eq('module_route', moduleRoute)
-        .ilike('tenant_company', tenantCompany)
+      // If it's a custom module, unassign the vendor rather than deleting the custom station
+      if (moduleRoute.startsWith('/custom')) {
+        await supabaseAdmin
+          .from('module_vendors')
+          .update({
+            company_name: 'Unassigned',
+            contact_person: 'Not Assigned',
+            phone: '0000000000',
+            updated_at: new Date().toISOString()
+          })
+          .eq('module_route', moduleRoute)
+          .ilike('tenant_company', tenantCompany)
+      } else {
+        await supabaseAdmin
+          .from('module_vendors')
+          .delete()
+          .eq('module_route', moduleRoute)
+          .ilike('tenant_company', tenantCompany)
+      }
     } catch (_) {}
 
     const normComp = tenantCompany.toLowerCase().replace(/[^a-z0-9]/g, '_')
@@ -920,6 +1026,145 @@ export async function removeModuleVendorAction(moduleRoute: string): Promise<{ s
   } catch (error: any) {
     console.error('Error removing module vendor:', error)
     return { success: false, error: error?.message || 'Failed to remove vendor' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// 3B. CREATE CUSTOM MODULE (FOR FACTORY WORKSTATIONS & VENDOR SCOPING)
+// ----------------------------------------------------------------------
+export async function createCustomModuleAction(payload: {
+  moduleName: string
+  moduleCode?: string
+  defaultDesignation?: string
+  description?: string
+  iconName?: string
+  vendorCompanyName?: string
+  contactPerson?: string
+  phone?: string
+  vendorNotes?: string
+  companyNameOverride?: string
+}): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const tenantCompany = (payload.companyNameOverride || tenant?.companyName || '').trim()
+
+    if (!tenantCompany) {
+      return { success: false, error: 'Tenant company context required to create a module.' }
+    }
+
+    const cleanName = (payload.moduleName || '').trim()
+    if (!cleanName) {
+      return { success: false, error: 'Please enter a valid Module Name.' }
+    }
+
+    const slug = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 24)
+    const moduleRoute = `/custom/${slug}-${Date.now().toString(36)}`
+    const moduleCode = (payload.moduleCode || cleanName.slice(0, 4).toUpperCase()).trim()
+    const defaultDesignation = (payload.defaultDesignation || 'Unit In-Charge').trim()
+    const iconName = payload.iconName || 'Layers'
+    const description = (payload.description || `${cleanName} operational station`).trim()
+
+    const hasVendor = Boolean(payload.vendorCompanyName && payload.vendorCompanyName.trim().length > 0)
+    const company_name = hasVendor ? payload.vendorCompanyName!.trim() : 'Unassigned'
+    const contact_person = hasVendor ? (payload.contactPerson?.trim() || 'Unit Representative') : 'Not Assigned'
+    const phone = hasVendor ? (payload.phone?.trim().replace(/\D/g, '').slice(-10) || '0000000000') : '0000000000'
+
+    const metaNotes = JSON.stringify({
+      isCustom: true,
+      moduleCode,
+      defaultDesignation,
+      iconName,
+      description,
+      vendorNotes: payload.vendorNotes || ''
+    })
+
+    let recordData: any = null
+    // Try insert with native columns first (Migration 72), fallback to base schema
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('module_vendors')
+        .insert({
+          module_route: moduleRoute,
+          module_name: cleanName,
+          module_code: moduleCode,
+          icon_name: iconName,
+          is_custom: true,
+          company_name,
+          contact_person,
+          phone,
+          notes: metaNotes,
+          tenant_company: tenantCompany,
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      recordData = data
+    } catch {
+      // Graceful fallback for pre-migration schema
+      const { data, error } = await supabaseAdmin
+        .from('module_vendors')
+        .insert({
+          module_route: moduleRoute,
+          module_name: cleanName,
+          company_name,
+          contact_person,
+          phone,
+          notes: metaNotes,
+          tenant_company: tenantCompany,
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (error) throw new Error(error.message)
+      recordData = data
+    }
+
+    const normComp = tenantCompany.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.invalidateTag('module_vendors')
+    await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
+    revalidatePath('/buyers-vendors')
+    revalidatePath('/vendors')
+
+    return { success: true, data: recordData }
+  } catch (error: any) {
+    console.error('Error creating custom module:', error)
+    return { success: false, error: error?.message || 'Failed to create custom module' }
+  }
+}
+
+// ----------------------------------------------------------------------
+// 3C. DELETE CUSTOM MODULE
+// ----------------------------------------------------------------------
+export async function deleteCustomModuleAction(moduleRoute: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const tenant = user ? await resolveUserTenant(user) : null
+    const tenantCompany = (tenant?.companyName || '').trim()
+
+    if (!tenantCompany) return { success: false, error: 'Tenant company context required.' }
+
+    await supabaseAdmin
+      .from('module_vendors')
+      .delete()
+      .eq('module_route', moduleRoute)
+      .ilike('tenant_company', tenantCompany)
+
+    const normComp = tenantCompany.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    await CacheManager.invalidateTag('module_vendors')
+    await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
+    revalidatePath('/buyers-vendors')
+    revalidatePath('/vendors')
+
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error deleting custom module:', error)
+    return { success: false, error: error?.message || 'Failed to delete custom module' }
   }
 }
 
