@@ -417,7 +417,7 @@ export async function fetchBomCostingsAction(companyName?: string): Promise<BomC
           filteredData = data.filter((row: any) => {
             const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
             const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
-            return oc === target || oc.includes(target) || tc === target || tc.includes(target)
+            return oc === target || tc === target
           })
         }
 
@@ -536,7 +536,7 @@ export async function fetchTnaMilestonesAction(companyName?: string): Promise<Tn
           filteredData = data.filter((row: any) => {
             const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
             const tc = (row.merchandising_orders?.design_tech_packs?.company_name || '').toLowerCase()
-            return oc === target || oc.includes(target) || tc === target || tc.includes(target)
+            return oc === target || tc === target
           })
         }
 
@@ -695,7 +695,7 @@ export async function fetchShipmentsAction(companyName?: string): Promise<Export
           const target = companyName.trim().toLowerCase()
           filteredData = data.filter((row: any) => {
             const oc = (row.merchandising_orders?.company_name || '').toLowerCase()
-            return oc === target || oc.includes(target)
+            return oc === target
           })
         }
 

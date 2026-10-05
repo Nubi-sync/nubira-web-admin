@@ -786,7 +786,9 @@ export async function assignModuleVendorAction(payload: {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     const tenant = user ? await resolveUserTenant(user) : null
-    const tenantCompany = tenant?.companyName || 'Nubira Creation'
+    const tenantCompany = (tenant?.companyName || '').trim()
+
+    if (!tenantCompany) return { success: false, error: 'Tenant company context required to assign vendors.' }
 
     const cleanCompany = payload.companyName.trim()
     const cleanPerson = payload.contactPerson.trim()
@@ -865,8 +867,11 @@ export async function assignModuleVendorAction(payload: {
         }, { onConflict: 'vendor_name' })
     } catch (_) {}
 
+    const normComp = tenantCompany.toLowerCase().replace(/[^a-z0-9]/g, '_')
     await CacheManager.invalidateTag('module_vendors')
     await CacheManager.invalidateTag('vendors')
+    await CacheManager.invalidateTag(`company:${normComp}:vendors`)
+    await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
     revalidatePath('/buyers-vendors')
     revalidatePath('/vendors')
 
@@ -893,7 +898,9 @@ export async function removeModuleVendorAction(moduleRoute: string): Promise<{ s
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     const tenant = user ? await resolveUserTenant(user) : null
-    const tenantCompany = tenant?.companyName || 'Nubira Creation'
+    const tenantCompany = (tenant?.companyName || '').trim()
+
+    if (!tenantCompany) return { success: false, error: 'Tenant company context required.' }
 
     try {
       await supabaseAdmin
@@ -903,7 +910,9 @@ export async function removeModuleVendorAction(moduleRoute: string): Promise<{ s
         .ilike('tenant_company', tenantCompany)
     } catch (_) {}
 
+    const normComp = tenantCompany.toLowerCase().replace(/[^a-z0-9]/g, '_')
     await CacheManager.invalidateTag('module_vendors')
+    await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
     revalidatePath('/buyers-vendors')
     revalidatePath('/vendors')
 
@@ -932,7 +941,9 @@ export async function createOrUpdateBuyerAction(payload: {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     const tenant = user ? await resolveUserTenant(user) : null
-    const tenantCompany = tenant?.companyName || 'Nubira Creation'
+    const tenantCompany = (tenant?.companyName || '').trim()
+
+    if (!tenantCompany) return { success: false, error: 'Tenant company context required to create or edit buyers.' }
 
     const cleanName = payload.brandName.trim().toUpperCase()
     const cleanCode = (payload.brandCode || cleanName.slice(0, 3)).trim().toUpperCase()
@@ -942,6 +953,8 @@ export async function createOrUpdateBuyerAction(payload: {
     if (!cleanName) {
       return { success: false, error: 'Please enter Buyer / Company Name.' }
     }
+
+    const normComp = tenantCompany.toLowerCase().replace(/[^a-z0-9]/g, '_')
 
     if (payload.id && !payload.id.startsWith('virtual-') && !payload.id.startsWith('merch-buyer-')) {
       const { data, error } = await supabaseAdmin
@@ -977,7 +990,10 @@ export async function createOrUpdateBuyerAction(payload: {
       } catch (_) {}
 
       await CacheManager.invalidateTag('brands')
+      await CacheManager.invalidateTag(`company:${normComp}:brands`)
       await CacheManager.invalidateTag('merchandising_buyers')
+      await CacheManager.invalidateTag(`company:${normComp}:merchandising`)
+      await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
       revalidatePath('/buyers-vendors')
       revalidatePath('/vendors')
       revalidatePath('/merchandising')
@@ -1015,7 +1031,10 @@ export async function createOrUpdateBuyerAction(payload: {
       } catch (_) {}
 
       await CacheManager.invalidateTag('brands')
+      await CacheManager.invalidateTag(`company:${normComp}:brands`)
       await CacheManager.invalidateTag('merchandising_buyers')
+      await CacheManager.invalidateTag(`company:${normComp}:merchandising`)
+      await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
       revalidatePath('/buyers-vendors')
       revalidatePath('/vendors')
       revalidatePath('/merchandising')
