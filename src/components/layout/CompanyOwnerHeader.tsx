@@ -110,7 +110,13 @@ export function CompanyOwnerHeader({
               action: {
                 label: 'Recharge',
                 onClick: () => {
-                  window.location.href = '/profile?highlight=subscription#subscription'
+                  if (typeof window !== 'undefined') {
+                    if (window.location.pathname.startsWith('/profile')) {
+                      window.dispatchEvent(new CustomEvent('blink-active-subscription'))
+                      return
+                    }
+                    window.location.href = '/profile?highlight=subscription'
+                  }
                 }
               },
               duration: 7000
@@ -312,8 +318,15 @@ export function CompanyOwnerHeader({
                 type="button"
                 disabled={isRechargingTop}
                 onClick={() => {
-                  setIsRechargingTop(true)
-                  window.location.href = '/profile?highlight=subscription#subscription'
+                  if (typeof window !== 'undefined') {
+                    if (window.location.pathname.startsWith('/profile')) {
+                      window.dispatchEvent(new CustomEvent('blink-active-subscription'))
+                      setIsRechargingTop(false)
+                      return
+                    }
+                    setIsRechargingTop(true)
+                    window.location.href = '/profile?highlight=subscription'
+                  }
                 }}
                 className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 hover:border-[#14C8B4] text-[#0B1220] font-bold text-xs shadow-2xs transition-all cursor-pointer group active:scale-95 disabled:opacity-80"
                 title="Free Trial Active - Click here to recharge"
@@ -341,8 +354,15 @@ export function CompanyOwnerHeader({
                 type="button"
                 disabled={isRechargingTop}
                 onClick={() => {
-                  setIsRechargingTop(true)
-                  window.location.href = '/profile?highlight=subscription#subscription'
+                  if (typeof window !== 'undefined') {
+                    if (window.location.pathname.startsWith('/profile')) {
+                      window.dispatchEvent(new CustomEvent('blink-active-subscription'))
+                      setIsRechargingTop(false)
+                      return
+                    }
+                    setIsRechargingTop(true)
+                    window.location.href = '/profile?highlight=subscription'
+                  }
                 }}
                 className="sm:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] text-[11px] font-bold shadow-2xs cursor-pointer active:scale-95 disabled:opacity-80"
               >
@@ -654,9 +674,16 @@ export function CompanyOwnerHeader({
                         type="button"
                         disabled={isRechargingMobile}
                         onClick={() => {
-                          setIsRechargingMobile(true)
                           setIsMobileDrawerOpen(false)
-                          window.location.href = '/profile?highlight=subscription#subscription'
+                          if (typeof window !== 'undefined') {
+                            if (window.location.pathname.startsWith('/profile')) {
+                              window.dispatchEvent(new CustomEvent('blink-active-subscription'))
+                              setIsRechargingMobile(false)
+                              return
+                            }
+                            setIsRechargingMobile(true)
+                            window.location.href = '/profile?highlight=subscription'
+                          }
                         }}
                         className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-80"
                       >

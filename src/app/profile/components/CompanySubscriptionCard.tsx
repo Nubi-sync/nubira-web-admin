@@ -46,7 +46,7 @@ export function CompanySubscriptionCard({
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  // Trigger 3-second blinking border animation if redirected from "Click here to recharge" button
+  // Trigger 3.5-second blinking animation without any scrolling
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href)
@@ -54,17 +54,34 @@ export function CompanySubscriptionCard({
         url.searchParams.get('highlight') === 'subscription' || 
         window.location.hash === '#subscription'
 
-      if (shouldHighlight) {
+      let activeTimer: ReturnType<typeof setTimeout> | undefined
+
+      const triggerBlink = () => {
         setIsHighlighted(true)
-        setTimeout(() => {
-          document.getElementById('active-subscription-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 150)
-
-        const timer = setTimeout(() => {
+        if (activeTimer) clearTimeout(activeTimer)
+        activeTimer = setTimeout(() => {
           setIsHighlighted(false)
-        }, 3000)
+        }, 3500)
+      }
 
-        return () => clearTimeout(timer)
+      if (shouldHighlight) {
+        triggerBlink()
+        // Clean URL to prevent repeated execution and avoid browser hash jumping
+        try {
+          const cleanUrl = window.location.pathname
+          window.history.replaceState({}, '', cleanUrl)
+        } catch (_) {}
+      }
+
+      const handleBlinkEvent = () => {
+        triggerBlink()
+      }
+
+      window.addEventListener('blink-active-subscription', handleBlinkEvent)
+
+      return () => {
+        if (activeTimer) clearTimeout(activeTimer)
+        window.removeEventListener('blink-active-subscription', handleBlinkEvent)
       }
     }
   }, [])
@@ -183,24 +200,21 @@ export function CompanySubscriptionCard({
             <div className="relative inline-flex shrink-0 w-full sm:w-auto">
               {isHighlighted && (
                 <span 
-                  className="absolute -inset-1 rounded-2xl bg-[#1D4ED8] pointer-events-none"
+                  className="absolute -inset-1.5 rounded-2xl pointer-events-none"
                   style={{
-                    animation: 'subBorderBlink 0.5s ease-in-out infinite alternate',
-                    boxShadow: '0 0 12px rgba(29, 78, 216, 0.75)'
+                    animation: 'subBorderBlink 0.6s ease-in-out infinite alternate'
                   }}
                 />
               )}
               <style jsx global>{`
                 @keyframes subBorderBlink {
-                  from {
-                    opacity: 0.3;
-                    transform: scale(0.98);
-                    box-shadow: 0 0 0 2px #1D4ED8, 0 0 4px rgba(29, 78, 216, 0.4);
+                  0% {
+                    opacity: 0.4;
+                    box-shadow: 0 0 0 2px #3B82F6, 0 0 8px rgba(59, 130, 246, 0.4);
                   }
-                  to {
+                  100% {
                     opacity: 1;
-                    transform: scale(1.05);
-                    box-shadow: 0 0 0 5px #1D4ED8, 0 0 18px rgba(29, 78, 216, 0.9);
+                    box-shadow: 0 0 0 6px #1D4ED8, 0 0 24px rgba(29, 78, 216, 0.9);
                   }
                 }
               `}</style>
@@ -213,7 +227,7 @@ export function CompanySubscriptionCard({
                   setTimeout(() => setIsOpeningModal(false), 400)
                 }}
                 className={`relative z-10 min-h-[42px] px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0 flex items-center justify-center gap-2 ${
-                  isHighlighted ? 'ring-2 ring-white shadow-lg shadow-blue-600/50' : ''
+                  isHighlighted ? 'ring-4 ring-blue-300 ring-offset-2 scale-[1.03] shadow-xl shadow-blue-600/50' : ''
                 }`}
               >
                 {isOpeningModal ? (

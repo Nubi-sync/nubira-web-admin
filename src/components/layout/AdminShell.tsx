@@ -57,7 +57,13 @@ function MobileTopBar({
           <button
             type="button"
             onClick={() => {
-              window.location.href = '/profile?highlight=subscription#subscription'
+              if (typeof window !== 'undefined') {
+                if (window.location.pathname.startsWith('/profile')) {
+                  window.dispatchEvent(new CustomEvent('blink-active-subscription'))
+                  return
+                }
+                window.location.href = '/profile?highlight=subscription'
+              }
             }}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] text-[11px] font-bold shadow-2xs cursor-pointer active:scale-95"
             title="Free Trial Active - Click to recharge"
