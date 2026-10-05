@@ -38,6 +38,7 @@ interface CreateOrderModalProps {
   availableTechPacks?: TechPack[]
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
   availableBuyers?: ActiveBuyer[]
+  companyName?: string
 }
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL']
@@ -85,7 +86,8 @@ export function CreateOrderModal({
   onSuccess,
   availableTechPacks: propTechPacks,
   availableBrands: propBrands,
-  availableBuyers: propBuyers
+  availableBuyers: propBuyers,
+  companyName
 }: CreateOrderModalProps) {
   const [step, setStep] = useState<1 | 2>(1)
   const [error, setError] = useState<string | null>(null)
@@ -141,9 +143,9 @@ export function CreateOrderModal({
     async function loadCatalog() {
       try {
         const [serverTps, serverBrands, serverBuyers] = await Promise.all([
-          fetchTechPacksAction(),
-          fetchBrandsAction(),
-          fetchActiveBuyersAction()
+          fetchTechPacksAction(companyName),
+          fetchBrandsAction(companyName),
+          fetchActiveBuyersAction(companyName)
         ])
 
         if (!isMounted) return

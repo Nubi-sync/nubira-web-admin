@@ -27,12 +27,14 @@ interface OrdersCatalogClientProps {
   initialOrders?: MerchandisingOrder[]
   availableTechPacks?: TechPack[]
   availableBrands?: { id: string; brand_name: string; brand_code: string }[]
+  companyName?: string
 }
 
 export function OrdersCatalogClient({ 
   initialOrders,
   availableTechPacks = [],
-  availableBrands = []
+  availableBrands = [],
+  companyName
 }: OrdersCatalogClientProps = {}) {
   const [orders, setOrders] = useState<MerchandisingOrder[]>(() => {
     if (initialOrders && initialOrders.length > 0) return initialOrders
@@ -368,6 +370,7 @@ export function OrdersCatalogClient({
         onSuccess={reloadData}
         availableTechPacks={availableTechPacks}
         availableBrands={availableBrands}
+        companyName={companyName}
       />
     </div>
   )
