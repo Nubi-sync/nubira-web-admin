@@ -1,6 +1,8 @@
 'use server'
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/server'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { revalidatePath } from 'next/cache'
 import { CacheManager } from '@/lib/cache/cache-manager'
 import { 
@@ -167,7 +169,7 @@ export async function fetchTechPacksAction(companyName?: string): Promise<TechPa
             created_by_ph: row.created_by_ph || undefined,
             approved_by_sa: Boolean(row.approved_by_sa),
             sa_verdict: row.sa_verdict || 'PENDING',
-            company_name: row.company_name || 'Nubira Creation'
+            company_name: row.company_name || row.brands?.company_name || companyName || undefined
           }
         })
       } catch (err) {

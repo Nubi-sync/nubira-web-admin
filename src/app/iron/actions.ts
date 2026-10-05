@@ -33,26 +33,41 @@ export async function fetchIronDashboardDataAction(companyName?: string): Promis
     cacheKey,
     async () => {
       try {
-        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-        const targetComp = (companyName || '').toUpperCase()
+        const target = (companyName || '').trim().toLowerCase()
 
         const [tablesRes, logsRes, defectsRes] = await Promise.all([
           supabaseAdmin.from('iron_tables').select('*').order('table_code', { ascending: true }),
           supabaseAdmin
             .from('iron_production_logs')
-            .select('*, table:iron_tables(table_code), order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name))')
+            .select('*, table:iron_tables(table_code), order:merchandising_orders(po_number, style_name, company_name, brands:buyer_id(brand_name, company_name))')
             .order('created_at', { ascending: false })
             .limit(50),
           supabaseAdmin
             .from('iron_defect_audits')
-            .select('*, iron_log:iron_production_logs(log_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
+            .select('*, iron_log:iron_production_logs(log_number, order:merchandising_orders(company_name, brands:buyer_id(brand_name, company_name)))')
             .order('created_at', { ascending: false })
             .limit(50)
         ])
 
         const rawTables = tablesRes.data || []
-        const rawLogs = logsRes.data || []
-        const rawDefects = defectsRes.data || []
+        const rawLogs = (logsRes.data || []).filter((l: any) => {
+          if (!target) return true
+          const ordComp = (l.order?.company_name || '').trim().toLowerCase()
+          const brandComp = (l.order?.brands?.company_name || '').trim().toLowerCase()
+          if (ordComp) return ordComp === target
+          if (brandComp) return brandComp === target
+          if (l.company_name) return l.company_name.toLowerCase() === target
+          return false
+        })
+        const rawDefects = (defectsRes.data || []).filter((d: any) => {
+          if (!target) return true
+          const ordComp = (d.iron_log?.order?.company_name || '').trim().toLowerCase()
+          const brandComp = (d.iron_log?.order?.brands?.company_name || '').trim().toLowerCase()
+          if (ordComp) return ordComp === target
+          if (brandComp) return brandComp === target
+          if (d.company_name) return d.company_name.toLowerCase() === target
+          return false
+        })
 
         const tables: IronTable[] = rawTables.map((t: any, idx: number) => ({
           id: t.id,

@@ -34,35 +34,50 @@ export async function fetchAlterDashboardDataAction(companyName?: string): Promi
     cacheKey,
     async () => {
       try {
-        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-        const targetComp = (companyName || '').toUpperCase()
+        const target = (companyName || '').trim().toLowerCase()
+
+        let companyBrands = new Set<string>()
+        if (target) {
+          try {
+            const { data: bData } = await supabaseAdmin
+              .from('brands')
+              .select('brand_name')
+              .ilike('company_name', target)
+            if (bData) {
+              bData.forEach((b: any) => {
+                if (b.brand_name) companyBrands.add(b.brand_name.trim().toLowerCase())
+              })
+            }
+          } catch (_) {}
+        }
 
         const [ticketsRes, scrapRes] = await Promise.all([
           supabaseAdmin
             .from('alteration_tickets')
-            .select('*, allotment:allotments(art_no, color, challan_id, challans(id, brand)), bundle:cutting_bundles(bundle_barcode, size)')
+            .select('*, allotment:allotments(art_no, color, challan_id, challans(id, brand)), bundle:cutting_bundles(bundle_barcode, size, cutting_lay_sheets:lay_sheet_id(merchandising_orders:order_id(company_name, brands:buyer_id(brand_name, company_name))))')
             .order('created_at', { ascending: false })
             .limit(50),
           supabaseAdmin
             .from('alteration_scrap_logs')
-            .select('*, ticket:alteration_tickets(ticket_number, allotment:allotments(challans(id, brand)))')
+            .select('*, ticket:alteration_tickets(ticket_number, allotment:allotments(challans(id, brand)), bundle:cutting_bundles(cutting_lay_sheets:lay_sheet_id(merchandising_orders:order_id(company_name, brands:buyer_id(brand_name, company_name)))))')
             .order('created_at', { ascending: false })
             .limit(50)
         ])
 
-        const rawTickets = isNonNubira
-          ? (ticketsRes.data || []).filter((t: any) => {
-              const brand = (t.allotment?.challans?.brand || '').toUpperCase()
-              return brand.length > 0 && brand.includes(targetComp)
-            })
-          : (ticketsRes.data || [])
+        const isMatch = (item: any) => {
+          if (!target) return true
+          const brand = (item.allotment?.challans?.brand || '').trim().toLowerCase()
+          if (brand && companyBrands.has(brand)) return true
+          const bundleOrdComp = (item.bundle?.cutting_lay_sheets?.merchandising_orders?.company_name || '').trim().toLowerCase()
+          const bundleBrandComp = (item.bundle?.cutting_lay_sheets?.merchandising_orders?.brands?.company_name || '').trim().toLowerCase()
+          if (bundleOrdComp && bundleOrdComp === target) return true
+          if (bundleBrandComp && bundleBrandComp === target) return true
+          if (item.company_name && item.company_name.toLowerCase() === target) return true
+          return false
+        }
 
-        const rawScrap = isNonNubira
-          ? (scrapRes.data || []).filter((s: any) => {
-              const brand = (s.ticket?.allotment?.challans?.brand || '').toUpperCase()
-              return brand.length > 0 && brand.includes(targetComp)
-            })
-          : (scrapRes.data || [])
+        const rawTickets = (ticketsRes.data || []).filter(isMatch)
+        const rawScrap = (scrapRes.data || []).filter((s: any) => isMatch(s.ticket || s))
 
         const tickets: AlterationTicket[] = rawTickets.map((t: any) => {
           const statusMap: Record<string, ResolutionStatus> = {
