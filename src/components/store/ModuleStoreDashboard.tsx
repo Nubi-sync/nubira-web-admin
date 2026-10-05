@@ -12,7 +12,15 @@ import {
   Clock,
   Layers,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Scissors,
+  Printer,
+  Sparkles,
+  Waves,
+  Wind,
+  Briefcase,
+  Store,
+  type LucideIcon
 } from 'lucide-react'
 import { CentralStoreBespokeIcon, MaterialFlowBespokeIcon } from '@/components/icons/CustomStoreIcons'
 import { MaterialIssueRecord, MaterialReceiptRecord, MaterialFlowDivision } from '@/app/store/types/store'
@@ -29,6 +37,18 @@ interface ModuleStoreDashboardProps {
   companyName: string
 }
 
+function getDivisionHeaderIcon(div: string): LucideIcon {
+  const code = (div || '').toUpperCase()
+  if (code.includes('CUT')) return Scissors
+  if (code.includes('PRINT')) return Printer
+  if (code.includes('EMB')) return Sparkles
+  if (code.includes('SEW') || code.includes('STITCH')) return Layers
+  if (code.includes('WASH')) return Waves
+  if (code.includes('IRON')) return Wind
+  if (code.includes('MERCH')) return Briefcase
+  return Store
+}
+
 export function ModuleStoreDashboard({
   moduleName,
   divisionCode,
@@ -39,6 +59,7 @@ export function ModuleStoreDashboard({
   pendingIssuesForMe,
   companyName
 }: ModuleStoreDashboardProps) {
+  const HeaderIcon = getDivisionHeaderIcon(String(divisionCode))
   const [activeTab, setActiveTab] = useState<'RECEIPTS' | 'ISSUES' | 'PENDING'>('RECEIPTS')
   const [searchQuery, setSearchQuery] = useState('')
   const [receipts, setReceipts] = useState<MaterialReceiptRecord[]>(initialReceipts)
@@ -204,12 +225,12 @@ export function ModuleStoreDashboard({
       {/* Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <CentralStoreBespokeIcon className="w-5 h-5" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <HeaderIcon className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 {moduleName} Store
               </h1>
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
@@ -222,12 +243,12 @@ export function ModuleStoreDashboard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
           <Link
-            href="/store"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all cursor-pointer"
+            href={baseRoute || "/store"}
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-2xs transition-all cursor-pointer"
           >
-            <MaterialFlowBespokeIcon className="w-4 h-4" />
+            <MaterialFlowBespokeIcon className="w-4 h-4 text-[#0B1220]" />
             <span>Central Store Hub</span>
           </Link>
 
@@ -237,9 +258,9 @@ export function ModuleStoreDashboard({
               setFormError(null)
               setIsIssueModalOpen(true)
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 cursor-pointer active:scale-[0.98]"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-white" />
             <span>Issue Challan</span>
           </button>
         </div>
@@ -362,8 +383,8 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('RECEIPTS')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'RECEIPTS'
-                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
-                  : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
               }`}
             >
               Inwards Received ({receipts.length})
@@ -374,8 +395,8 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('ISSUES')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'ISSUES'
-                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
-                  : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
               }`}
             >
               Outward Issues ({issues.length})
@@ -386,8 +407,8 @@ export function ModuleStoreDashboard({
               onClick={() => setActiveTab('PENDING')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'PENDING'
-                  ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
-                  : 'text-slate-600 bg-slate-100 hover:bg-slate-200/80 border border-slate-200'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
               }`}
             >
               Pending Inward ({pendingIssues.length})

@@ -40,6 +40,14 @@ const DIVISION_ICONS: Record<string, React.ElementType> = {
   Droplets
 }
 
+const numFormatter = new Intl.NumberFormat('en-IN')
+function formatNum(num: number | string | undefined | null): string {
+  if (num === null || num === undefined) return '0'
+  const val = typeof num === 'string' ? parseFloat(num) : num
+  if (isNaN(val)) return '0'
+  return numFormatter.format(val)
+}
+
 export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashboardData }) {
   const [data] = useState<OwnerDashboardData>(initialData)
   const [selectedArticleId, setSelectedArticleId] = useState<string>(
@@ -134,7 +142,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             Active Styles
           </span>
           <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {data.pulse.activeStyles.toLocaleString()}
+            {formatNum(data.pulse.activeStyles)}
           </div>
         </div>
 
@@ -144,7 +152,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             Running Orders
           </span>
           <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {data.pulse.runningOrders.toLocaleString()}
+            {formatNum(data.pulse.runningOrders)}
           </div>
         </div>
 
@@ -154,7 +162,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             Target Pieces
           </span>
           <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {data.pulse.targetPieces.toLocaleString()}
+            {formatNum(data.pulse.targetPieces)}
           </div>
         </div>
 
@@ -164,7 +172,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             Today&apos;s Output
           </span>
           <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {data.pulse.todayOutput.toLocaleString()}
+            {formatNum(data.pulse.todayOutput)}
           </div>
         </div>
 
@@ -174,7 +182,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             In Godown
           </span>
           <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {data.pulse.godownStock.toLocaleString()}
+            {formatNum(data.pulse.godownStock)}
           </div>
         </div>
 
@@ -184,7 +192,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             Dispatched
           </span>
           <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {data.pulse.dispatchedPieces.toLocaleString()}
+            {formatNum(data.pulse.dispatchedPieces)}
           </div>
         </div>
 
@@ -219,7 +227,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                       {stage.label}
                     </div>
                     <div className="text-lg sm:text-xl font-extrabold text-[#0B1220] font-mono mt-1">
-                      {stage.count.toLocaleString()}
+                      {formatNum(stage.count)}
                     </div>
                     <div className="text-[10px] font-semibold text-slate-400 mt-0.5">
                       {stage.unit}
@@ -252,7 +260,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                   Daily Sewing Output (7-Day Trend)
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  Stitched pieces per day • Avg: <span className="font-bold text-slate-800">{data.dailyAverage.toLocaleString()} pcs/day</span>
+                  Stitched pieces per day • Avg: <span className="font-bold text-slate-800">{formatNum(data.dailyAverage)} pcs/day</span>
                 </p>
               </div>
               <div className="flex items-center gap-3 text-xs font-bold">
@@ -278,7 +286,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                     style={{ bottom: `${Math.min(95, (data.dailyAverage / maxTrendPieces) * 100)}%` }}
                   >
                     <span className="text-[10px] font-mono text-slate-400 bg-white px-1 -translate-y-2">
-                      Avg: {data.dailyAverage}
+                      Avg: {formatNum(data.dailyAverage)}
                     </span>
                   </div>
                 )}
@@ -298,13 +306,13 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                       {/* Hover Tooltip */}
                       {isHovered && (
                         <div className="absolute -top-10 bg-[#0B1220] text-white px-2 py-1 rounded text-[11px] font-mono shadow-lg whitespace-nowrap z-20 pointer-events-none">
-                          {entry.dayName}: <strong className="text-[#14C8B4]">{entry.pieces.toLocaleString()} pcs</strong>
+                          {entry.dayName}: <strong className="text-[#14C8B4]">{formatNum(entry.pieces)} pcs</strong>
                         </div>
                       )}
 
                       {/* Bar Value above bar */}
                       <span className="text-[10px] font-mono font-bold text-slate-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {entry.pieces}
+                        {formatNum(entry.pieces)}
                       </span>
 
                       {/* The Bar */}
@@ -421,8 +429,8 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Passed: <strong className="text-emerald-600 font-mono">{data.qc.totalPassed.toLocaleString()}</strong> pcs</span>
-            <span>Rejected: <strong className="text-rose-600 font-mono">{data.qc.totalRejected.toLocaleString()}</strong> pcs</span>
+            <span>Passed: <strong className="text-emerald-600 font-mono">{formatNum(data.qc.totalPassed)}</strong> pcs</span>
+            <span>Rejected: <strong className="text-rose-600 font-mono">{formatNum(data.qc.totalRejected)}</strong> pcs</span>
           </div>
         </div>
 
@@ -495,8 +503,8 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                     </div>
 
                     <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-0.5">
-                      <span>Delivered: <strong className="font-mono text-slate-700">{bo.deliveredPieces.toLocaleString()}</strong> pcs</span>
-                      <span>Target: <strong className="font-mono text-slate-700">{bo.targetPieces.toLocaleString()}</strong> pcs</span>
+                      <span>Delivered: <strong className="font-mono text-slate-700">{formatNum(bo.deliveredPieces)}</strong> pcs</span>
+                      <span>Target: <strong className="font-mono text-slate-700">{formatNum(bo.targetPieces)}</strong> pcs</span>
                     </div>
                   </div>
                 )
@@ -546,7 +554,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                           {fab.rolls} Rolls
                         </span>
                         <span className="font-extrabold text-[#0B1220] font-mono">
-                          {fab.meters.toLocaleString()} m
+                          {formatNum(fab.meters)} m
                         </span>
                       </div>
                     </div>
@@ -627,7 +635,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                   <span className="text-sm font-bold">{selectedArticle.description}</span>
                 </div>
                 <div className="text-xs text-slate-300 mt-1 font-mono">
-                  Contract Target: <strong className="text-white">{selectedArticle.buyerPoTarget.toLocaleString()} pieces</strong>
+                  Contract Target: <strong className="text-white">{formatNum(selectedArticle.buyerPoTarget)} pieces</strong>
                 </div>
               </div>
 
@@ -657,43 +665,43 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">2. Buyer PO</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.buyerPoTarget.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.buyerPoTarget)}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Target pieces</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">3. Raw Fabric</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.fabricMetersInStore.toLocaleString()} m</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.fabricMetersInStore)} m</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">In Godown</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">4. Cutting</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.cutPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.cutPieces)}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Bundles cut</div>
               </div>
 
               <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-center ring-1 ring-[#14C8B4]/40">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-[#0e7490]">5. Stitching</div>
-                <div className="mt-1 text-sm font-extrabold text-[#0B1220] font-mono">{selectedArticle.stitchedPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-[#0B1220] font-mono">{formatNum(selectedArticle.stitchedPieces)}</div>
                 <div className="text-[10px] font-bold text-[#0e7490] mt-0.5">Sewing active</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">6. QC Passed</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.qcPassedPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.qcPassedPieces)}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Cleared</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">7. Godown</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.godownPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.godownPieces)}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Finished stock</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">8. Dispatch</div>
-                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{selectedArticle.dispatchedPieces.toLocaleString()}</div>
+                <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.dispatchedPieces)}</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Shipped</div>
               </div>
             </div>
@@ -708,7 +716,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Division Heartbeat (12 Operational Departments)
+              Division Heartbeat ({data.divisionHeartbeat.length} Operational Department{data.divisionHeartbeat.length === 1 ? '' : 's'})
             </h3>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
               Verified active department status and direct navigation
@@ -718,7 +726,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             href="/modules"
             className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
           >
-            <span>All 12 Modules</span>
+            <span>All {data.divisionHeartbeat.length} Modules</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

@@ -120,8 +120,8 @@ export function SupervisorTeamOverview({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs">
-            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#14C8B4]" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -315,7 +315,7 @@ export function SupervisorTeamOverview({
 
                       <td className="py-3.5 px-4">
                         <span className="text-slate-800 font-semibold text-xs sm:text-sm flex items-center gap-1.5">
-                          <DeptIcon className="w-3.5 h-3.5 text-[#14C8B4] shrink-0" />
+                          <DeptIcon className="w-3.5 h-3.5 text-[#0B1220] shrink-0" />
                           <span>{deptTitle}</span>
                         </span>
                       </td>

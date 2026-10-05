@@ -341,8 +341,8 @@ export function ZigzaLandingPageClient({
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0)
   const heroSlides = [
     {
-      src: '/hero_slide_1.jpg',
-      fallback: '/hero_warehouse_test.png',
+      src: '/testimage new 1.jpeg',
+      fallback: '/hero_slide_1.jpg',
       alt: 'Garment factory manager monitoring production output on industrial dashboard',
     },
     {
@@ -351,8 +351,8 @@ export function ZigzaLandingPageClient({
       alt: 'Skilled apparel craftswomen working diligently at computerized sewing stations',
     },
     {
-      src: '/hero_slide_3.jpg',
-      fallback: '/hero_desktop_blend.jpg',
+      src: '/testimage new 2.jpeg',
+      fallback: '/hero_slide_3.jpg',
       alt: 'Apparel quality supervisor using digital tablet on the garment assembly floor',
     },
   ]

@@ -184,8 +184,8 @@ export function PlatformAdminSidebar({
                 />
               </div>
 
-              {/* Expanded Full Logo + ROOT Badge (Shown when sidebar expands) */}
-              <div className={`flex items-center justify-between w-full overflow-hidden transition-all ${
+              {/* Expanded Full Logo (Shown when sidebar expands) */}
+              <div className={`flex items-center w-full overflow-hidden transition-all ${
                 isHovered 
                   ? 'opacity-100 max-w-[220px] duration-200 ease-out' 
                   : 'opacity-0 max-w-0 duration-500 ease-in-out'
@@ -202,9 +202,6 @@ export function PlatformAdminSidebar({
                     className="h-5.5 w-auto object-contain shrink-0"
                   />
                 </div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0B1220] text-white shrink-0 shadow-2xs ml-2">
-                  ROOT
-                </span>
               </div>
             </Link>
           </div>
@@ -316,9 +313,6 @@ export function PlatformAdminSidebar({
               />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#0B1220] text-white">
-                ROOT
-              </span>
               <button
                 type="button"
                 onClick={onMobileClose}

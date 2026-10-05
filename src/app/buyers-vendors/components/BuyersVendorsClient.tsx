@@ -314,13 +314,12 @@ export function BuyersVendorsClient({
       {/* 2. Top Summary KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Total Buyers */}
-        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Total Buyers</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono leading-none pt-0.5">
               {kpis.totalBuyers}
             </div>
-            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">Registered Brands</span>
           </div>
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Building2 className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
@@ -328,13 +327,12 @@ export function BuyersVendorsClient({
         </div>
 
         {/* Contracted Articles */}
-        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Articles Contracted</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono leading-none pt-0.5">
               {kpis.totalArticles}
             </div>
-            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">Total Active Styles</span>
           </div>
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Scissors className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
@@ -342,30 +340,25 @@ export function BuyersVendorsClient({
         </div>
 
         {/* Total Pieces Delivered / Assigned */}
-        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Pieces Delivered</span>
-            <div className="text-base sm:text-2xl font-extrabold text-emerald-700 font-mono truncate">
-              {kpis.totalDeliveredPieces.toLocaleString()} / {kpis.totalAssignedPieces.toLocaleString()}
-            </div>
-            <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-700 font-bold truncate">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-              <span>{kpis.overallDeliveryPercent}% Fulfilled</span>
+            <div className="text-base sm:text-2xl font-extrabold text-[#0B1220] font-mono truncate leading-none pt-0.5">
+              <span className="text-emerald-700">{kpis.totalDeliveredPieces.toLocaleString()}</span> / {kpis.totalAssignedPieces.toLocaleString()}
             </div>
           </div>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
-            <PackageCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-600" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <PackageCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
           </div>
         </div>
 
         {/* 12 Factory Modules Assigned */}
-        <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Vendor Modules</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono">
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono leading-none pt-0.5">
               {kpis.assignedModulesCount} / 12
             </div>
-            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium block truncate">Divisions Assigned</span>
           </div>
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
             <Layers className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0B1220]" />
