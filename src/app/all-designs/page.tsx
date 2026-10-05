@@ -31,7 +31,7 @@ export default async function AllDesignsPage() {
       <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none">
         <SADesignApprovalsClient
           initialSubmissions={submissions}
-          companyName={tenant.companyName || 'Nubira Creation'}
+          companyName={tenant.companyName}
           currentUserId={user.id}
           userRole={tenant.role}
           isModuleView={false}

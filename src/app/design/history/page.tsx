@@ -19,7 +19,7 @@ export default async function DesignerHistoryPage() {
   }
 
   const tenant = await resolveUserTenant(user)
-  const companyName = tenant.companyName || 'Nubira Creation'
+  const companyName = tenant.companyName
 
   // Fetch only briefs for this designer
   const initialBriefs = await fetchDesignBriefsAction({
@@ -29,7 +29,7 @@ export default async function DesignerHistoryPage() {
   })
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole="DESIGNER">
+    <AdminShell userEmail={tenant.userEmail} userRole="DESIGNER" companyName={tenant.companyName}>
       <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
         <DesignerHistoryClient
           initialBriefs={initialBriefs}
