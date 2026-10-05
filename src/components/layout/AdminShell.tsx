@@ -56,13 +56,14 @@ function MobileTopBar({
         {isTrial ? (
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('open-recharge-modal'))}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300 text-amber-950 text-[11px] font-black shadow-2xs cursor-pointer active:scale-95"
+            onClick={() => {
+              window.location.href = '/profile?highlight=subscription#subscription'
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] text-[11px] font-bold shadow-2xs cursor-pointer active:scale-95"
             title="Free Trial Active - Click to recharge"
           >
-            <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-600 animate-pulse shrink-0" />
             <span>{daysLeft}d left</span>
-            <span className="text-[#1D4ED8] underline font-black ml-0.5">Recharge</span>
+            <span className="text-[#1D4ED8] underline font-bold ml-0.5">Recharge</span>
           </button>
         ) : (
           <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import {
   CreditCard,
   Calendar,
@@ -38,11 +38,35 @@ export function CompanySubscriptionCard({
   isExpiredUrlParam = false
 }: CompanySubscriptionCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isHighlighted, setIsHighlighted] = useState(false)
   const activePlanTier = subscriptionTier === 'MODULAR' ? 'MODULAR' : 'FULL_PLANT_AI'
   const [selectedDuration, setSelectedDuration] = useState<number>(1) // months
   const [isPending, startTransition] = useTransition()
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  // Trigger 3-second blinking border animation if redirected from "Click here to recharge" button
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      const shouldHighlight = 
+        url.searchParams.get('highlight') === 'subscription' || 
+        window.location.hash === '#subscription'
+
+      if (shouldHighlight) {
+        setIsHighlighted(true)
+        setTimeout(() => {
+          document.getElementById('active-subscription-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 150)
+
+        const timer = setTimeout(() => {
+          setIsHighlighted(false)
+        }, 3000)
+
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [])
 
   const isTrial = accessType === 'DEMO_TRIAL'
   const isAccountExpired = isExpired || isExpiredUrlParam
@@ -154,14 +178,42 @@ export function CompanySubscriptionCard({
               </div>
             </div>
 
-            {/* Action Trigger */}
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="min-h-[42px] px-4.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0"
-            >
-              {isTrial ? 'Activate Subscription' : 'Renew Subscription'}
-            </button>
+            {/* Action Trigger with 3-second outer border blinking animation */}
+            <div className="relative inline-flex shrink-0 w-full sm:w-auto">
+              {isHighlighted && (
+                <span 
+                  className="absolute -inset-1 rounded-2xl bg-[#1D4ED8] pointer-events-none"
+                  style={{
+                    animation: 'subBorderBlink 0.5s ease-in-out infinite alternate',
+                    boxShadow: '0 0 12px rgba(29, 78, 216, 0.75)'
+                  }}
+                />
+              )}
+              <style jsx global>{`
+                @keyframes subBorderBlink {
+                  from {
+                    opacity: 0.3;
+                    transform: scale(0.98);
+                    box-shadow: 0 0 0 2px #1D4ED8, 0 0 4px rgba(29, 78, 216, 0.4);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: scale(1.05);
+                    box-shadow: 0 0 0 5px #1D4ED8, 0 0 18px rgba(29, 78, 216, 0.9);
+                  }
+                }
+              `}</style>
+              <button
+                id="active-subscription-btn"
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className={`relative z-10 min-h-[42px] px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0 ${
+                  isHighlighted ? 'ring-2 ring-white shadow-lg shadow-blue-600/50' : ''
+                }`}
+              >
+                {isTrial ? 'Activate Subscription' : 'Renew Subscription'}
+              </button>
+            </div>
           </div>
 
           {/* Details 4-Column Grid */}

@@ -102,13 +102,15 @@ export function CompanyOwnerHeader({
           const toastSessionKey = `trial_toast_shown_${res.companyName || companyName || 'trial'}_${res.daysLeft}`
           if (typeof window !== 'undefined' && !sessionStorage.getItem(toastSessionKey)) {
             sessionStorage.setItem(toastSessionKey, 'true')
-            toast.warning(`⏳ 7-Day Free Trial: ${res.daysLeft} day${res.daysLeft === 1 ? '' : 's'} remaining`, {
-              description: 'Your trial workspace is active. Recharge now to keep all 12 manufacturing floors running uninterrupted.',
+            toast(`Free Trial: ${res.daysLeft} days remaining`, {
+              description: 'Recharge to maintain uninterrupted access.',
               action: {
-                label: 'Recharge Now',
-                onClick: () => setIsRechargeOpen(true)
+                label: 'Recharge',
+                onClick: () => {
+                  window.location.href = '/profile?highlight=subscription#subscription'
+                }
               },
-              duration: 9000
+              duration: 7000
             })
           }
         }
@@ -305,18 +307,17 @@ export function CompanyOwnerHeader({
               {/* Desktop / Tablet View */}
               <button
                 type="button"
-                onClick={() => setIsRechargeOpen(true)}
-                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/25 to-orange-500/15 hover:from-amber-500/25 hover:to-orange-500/25 border border-amber-400/80 hover:border-amber-500 text-amber-950 font-bold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer group active:scale-95"
-                title="7-Day Demo Trial Active - Click here to recharge"
+                onClick={() => {
+                  window.location.href = '/profile?highlight=subscription#subscription'
+                }}
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 hover:border-[#14C8B4] text-[#0B1220] font-bold text-xs shadow-2xs transition-all cursor-pointer group active:scale-95"
+                title="Free Trial Active - Click here to recharge"
               >
-                <div className="w-5 h-5 rounded-lg bg-amber-400/80 text-amber-950 flex items-center justify-center shrink-0">
-                  <Zap className="w-3.5 h-3.5 fill-amber-950 text-amber-950 animate-pulse" />
-                </div>
-                <span className="font-semibold text-amber-900">
-                  Trial: <strong className="text-amber-950">{subStatus.daysLeft}d left</strong>
+                <span className="font-semibold text-slate-700">
+                  Trial: <strong className="text-[#0B1220]">{subStatus.daysLeft}d left</strong>
                 </span>
-                <span className="h-3.5 w-px bg-amber-400/80" />
-                <span className="text-[#1D4ED8] font-black group-hover:underline">
+                <span className="h-3 w-px bg-slate-300" />
+                <span className="text-[#1D4ED8] font-bold group-hover:underline">
                   Click here to recharge
                 </span>
               </button>
@@ -324,12 +325,13 @@ export function CompanyOwnerHeader({
               {/* Mobile Header View */}
               <button
                 type="button"
-                onClick={() => setIsRechargeOpen(true)}
-                className="sm:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg bg-amber-100/90 border border-amber-300 text-amber-950 text-[11px] font-black shadow-2xs cursor-pointer active:scale-95"
+                onClick={() => {
+                  window.location.href = '/profile?highlight=subscription#subscription'
+                }}
+                className="sm:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] text-[11px] font-bold shadow-2xs cursor-pointer active:scale-95"
               >
-                <Zap className="w-3 h-3 fill-amber-500 text-amber-600 animate-pulse" />
                 <span>{subStatus.daysLeft}d left</span>
-                <span className="text-[#1D4ED8] underline ml-0.5">Recharge</span>
+                <span className="text-[#1D4ED8] underline font-bold ml-0.5">Recharge</span>
               </button>
             </>
           )}
@@ -605,28 +607,26 @@ export function CompanyOwnerHeader({
 
                   {/* Mobile Side Nav Trial & Recharge Card (Visible ONLY if in Free Trial) */}
                   {subStatus.isTrial && (
-                    <div className="mx-3 my-2.5 p-3.5 rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50/60 to-amber-50 border border-amber-200 shadow-xs">
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
-                          <Clock className="w-3.5 h-3.5 text-amber-600" />
-                          7-Day Free Trial
+                    <div className="mx-3 my-2.5 p-3 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 shadow-xs">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-xs font-bold text-[#0B1220]">
+                          Free Trial Active
                         </span>
-                        <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full bg-amber-200/90 text-amber-950 border border-amber-300 shadow-2xs">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#14C8B4]/15 text-[#0B1220] border border-[#14C8B4]/30">
                           {subStatus.daysLeft} Days Left
                         </span>
                       </div>
-                      <p className="text-[11px] text-amber-900 leading-snug mb-2.5">
-                        Your free trial workspace will expire soon. Recharge now to keep continuous access to all manufacturing divisions.
+                      <p className="text-[11px] text-slate-600 leading-snug mb-2.5 font-medium">
+                        Recharge your subscription to keep all manufacturing divisions active.
                       </p>
                       <button
                         type="button"
                         onClick={() => {
                           setIsMobileDrawerOpen(false)
-                          setIsRechargeOpen(true)
+                          window.location.href = '/profile?highlight=subscription#subscription'
                         }}
-                        className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+                        className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
                       >
-                        <Zap className="w-3.5 h-3.5 fill-current" />
                         <span>Click here to recharge</span>
                       </button>
                     </div>

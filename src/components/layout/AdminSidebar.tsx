@@ -1171,28 +1171,26 @@ export function AdminSidebar({
 
           {/* Mobile Side Nav Trial & Recharge Card (Visible ONLY if in Free Trial) */}
           {subStatus.isTrial && (
-            <div className="mx-3.5 mt-3 p-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-xs">
+            <div className="mx-3.5 mt-3 p-3 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 shadow-xs">
               <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
-                  <Clock className="w-3.5 h-3.5 text-amber-600" />
-                  7-Day Demo Trial
+                <span className="text-xs font-bold text-[#0B1220]">
+                  Free Trial Active
                 </span>
-                <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 border border-amber-300">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#14C8B4]/15 text-[#0B1220] border border-[#14C8B4]/30">
                   {subStatus.daysLeft} Days Left
                 </span>
               </div>
-              <p className="text-[11px] text-amber-900 leading-snug mb-2">
-                Your trial workspace will expire soon. Recharge now to keep all modules active.
+              <p className="text-[11px] text-slate-600 leading-snug mb-2 font-medium">
+                Recharge your subscription to keep all manufacturing divisions active.
               </p>
               <button
                 type="button"
                 onClick={() => {
                   if (onMobileClose) onMobileClose()
-                  window.dispatchEvent(new CustomEvent('open-recharge-modal'))
+                  window.location.href = '/profile?highlight=subscription#subscription'
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+                className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
               >
-                <Zap className="w-3.5 h-3.5 fill-current" />
                 <span>Click here to recharge</span>
               </button>
             </div>
