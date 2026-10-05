@@ -38,10 +38,12 @@ import {
   Zap,
   UserCheck,
   BarChart3,
-  PieChart
+  PieChart,
+  Loader2
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { WorkerAssignmentsTable, type WorkerAssignmentItem } from '@/app/components/WorkerAssignmentsTable'
+import { allotEntireChallan, allotChallanByColor } from '@/app/production-orders/actions'
 
 type RawProd = {
   id?: string
@@ -384,13 +386,107 @@ export default function DashboardClient({
   // Selected Stage Drawer State
   const [activeDrilldownStage, setActiveDrilldownStage] = useState<StageType | null>(null)
   const [drawerSearchQuery, setDrawerSearchQuery] = useState('')
+  const [drawerChallanTab, setDrawerChallanTab] = useState<'PENDING' | 'ALLOTTED'>('PENDING')
   const [expandedLinemen, setExpandedLinemen] = useState<Record<string, boolean>>({})
   const [articleCardTabs, setArticleCardTabs] = useState<Record<string, 'matrix' | 'workers'>>({})
+
+  // Direct Allotment State in Stage 1 Drawer
+  const [selectedChallanLineman, setSelectedChallanLineman] = useState<Record<string, string>>({})
+  const [allotmentMode, setAllotmentMode] = useState<Record<string, 'FULL' | 'COLOR'>>({})
+  const [selectedColorLineman, setSelectedColorLineman] = useState<Record<string, string>>({})
+  const [isAllotting, setIsAllotting] = useState<Record<string, boolean>>({})
+  const [isColorAllotting, setIsColorAllotting] = useState<Record<string, boolean>>({})
+  const [allotMsg, setAllotMsg] = useState<Record<string, { type: 'success' | 'error'; text: string }>>({})
+  const [allLinemenProfiles, setAllLinemenProfiles] = useState<{ id: string; name: string }[]>([])
 
   // Recent Activity Feed Drawer State
   const [isActivityDrawerOpen, setIsActivityDrawerOpen] = useState(false)
   const [activityFilter, setActivityFilter] = useState<'ALL' | 'ALLOTMENT' | 'QC' | 'STORE' | 'DISPATCH'>('ALL')
   const [activitySearchQuery, setActivitySearchQuery] = useState('')
+
+  // Fetch all lineman profiles on mount
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from('profiles')
+      .select('id, username, full_name, role')
+      .order('username')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const filtered = data
+            .filter(p => p.username && p.username.toLowerCase() !== 'admin')
+            .map(p => ({
+              id: p.id,
+              name: p.full_name || p.username
+            }))
+          setAllLinemenProfiles(filtered)
+        }
+      })
+  }, [])
+
+  // Linemen list for allotment
+  const availableLinemen = useMemo(() => {
+    if (allLinemenProfiles.length > 0) return allLinemenProfiles
+    const lmMap = new Map<string, { id: string; name: string }>()
+    allotments.forEach(al => {
+      const prof = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+      if (prof?.id && prof?.username && prof.username.toLowerCase() !== 'admin') {
+        lmMap.set(prof.id, { id: prof.id, name: prof.username })
+      }
+    })
+    return Array.from(lmMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }, [allLinemenProfiles, allotments])
+
+  // Direct Entire Challan Allot Handler
+  const handleDirectAllot = async (challanId: string, challanNo: string) => {
+    const lmId = selectedChallanLineman[challanId]
+    if (!lmId) {
+      alert('Please select a Lineman first.')
+      return
+    }
+
+    setIsAllotting(prev => ({ ...prev, [challanId]: true }))
+    setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'success', text: 'Allotting...' } }))
+    try {
+      const res = await allotEntireChallan(challanId, lmId)
+      if (res?.error) {
+        setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'error', text: res.error } }))
+      } else {
+        setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'success', text: `Successfully allotted to Lineman!` } }))
+        router.refresh()
+      }
+    } catch (e: any) {
+      setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'error', text: e?.message || 'Failed to allot' } }))
+    } finally {
+      setIsAllotting(prev => ({ ...prev, [challanId]: false }))
+    }
+  }
+
+  // Direct Color-Wise Allot Handler
+  const handleColorAllot = async (challanId: string, colorName: string) => {
+    const colorKey = `${challanId}__${colorName}`
+    const lmId = selectedColorLineman[colorKey]
+    if (!lmId) {
+      alert(`Please select a Lineman for ${colorName} first.`)
+      return
+    }
+
+    setIsColorAllotting(prev => ({ ...prev, [colorKey]: true }))
+    setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'success', text: `Allotting ${colorName}...` } }))
+    try {
+      const res = await allotChallanByColor(challanId, colorName, lmId)
+      if (res?.error) {
+        setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'error', text: res.error } }))
+      } else {
+        setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'success', text: `Allotted ${colorName} to Lineman!` } }))
+        router.refresh()
+      }
+    } catch (e: any) {
+      setAllotMsg(prev => ({ ...prev, [challanId]: { type: 'error', text: e?.message || 'Failed to allot color' } }))
+    } finally {
+      setIsColorAllotting(prev => ({ ...prev, [colorKey]: false }))
+    }
+  }
 
   // Real-time live synchronization with mobile floor apps via Supabase WebSockets & Heartbeat Polling
   useEffect(() => {
@@ -2298,7 +2394,7 @@ export default function DashboardClient({
                     Active Records
                   </span>
                   <p className="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5">
-                    {activeDrilldownStage === 'TOTAL_STOCKS' && `${filteredData.allotments.length} Orders`}
+                    {activeDrilldownStage === 'TOTAL_STOCKS' && `${filteredData.challans.length} Challans`}
                     {activeDrilldownStage === 'GOODS_IN_LINE' && `${filteredData.allotments.length} Lots`}
                     {activeDrilldownStage === 'MENDING_CHECKING' && `${filteredData.qc.length} QC Logs`}
                     {activeDrilldownStage === 'READY_GOODS' && `${filteredData.store.filter(s => s.type === 'INWARD').length} Receipts`}
@@ -2333,122 +2429,699 @@ export default function DashboardClient({
             {/* Drawer Content Body */}
             <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5 bg-slate-50/50">
               
-              {/* STAGE 1: TOTAL STOCKS (ORDER PIPELINE TARGETS) */}
+              {/* STAGE 1: TOTAL STOCKS (ORDER PIPELINE - ALL CREATED PRODUCTION CHALLANS) */}
               {activeDrilldownStage === 'TOTAL_STOCKS' && (() => {
-                const filteredDrawerAllotments = filteredData.allotments.filter(al => {
-                  if (!drawerSearchQuery.trim()) return true
-                  const q = drawerSearchQuery.toLowerCase()
-                  const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-                  const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-                  const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                // Build complete list of all production orders / challans from the production chart
+                const challanList = filteredData.challans || []
+                const q = drawerSearchQuery.trim().toLowerCase()
+
+                // Process each Challan record
+                const structuredChallans = challanList.map((ch: any) => {
+                  let articleLines: any[] = []
+                  if (ch.notes) {
+                    try {
+                      const parsed = JSON.parse(ch.notes)
+                      const rawLines = parsed.article_lines || parsed
+                      if (Array.isArray(rawLines)) {
+                        articleLines = rawLines
+                      }
+                    } catch (_) {}
+                  }
+
+                  // Find linked allotments on the floor
+                  const linkedAllotments = (allotments || []).filter((al: any) => {
+                    if (al.challan_id === ch.id) return true
+                    const alCh = Array.isArray(al.challans) ? al.challans[0] : al.challans
+                    if (alCh?.id === ch.id) return true
+                    if (alCh?.challan_no && ch.challan_no && String(alCh.challan_no).trim().toUpperCase() === String(ch.challan_no).trim().toUpperCase()) return true
+                    return false
+                  })
+
+                  // 1. Master Planned Variants & Color Groups (Full Delivery Challan from Production Chart)
+                  const masterVariantsMap = new Map<string, { color: string; size: string; quantity: number }>()
+                  const masterColorMap = new Map<string, { color: string; totalPcs: number; isAllotted: boolean; linemanName?: string; sizeBreakdown: Record<string, number> }>()
+
+                  // Parse all planned article lines from challan notes
+                  if (articleLines.length > 0) {
+                    articleLines.forEach(line => {
+                      const rawColor = (line.color_pattern || line.color || 'Standard').trim().toUpperCase()
+                      
+                      // Split multi-colors if combined
+                      let colorList: string[] = []
+                      if (rawColor === '3 COLOUR' || rawColor === '3 COLOR' || rawColor === 'ALL') {
+                        colorList = ['MUSHROOM', 'DUTCH BLUE', 'SCUBA']
+                      } else if (rawColor.includes(',') || rawColor.includes('/') || rawColor.includes('+') || rawColor.includes('&')) {
+                        colorList = rawColor.split(/[/+&,]/).map((s: string) => s.trim()).filter(Boolean)
+                      } else {
+                        colorList = [rawColor]
+                      }
+
+                      const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+                      const pcsPerColor = colorList.length > 0 ? Math.round(linePcs / colorList.length) : linePcs
+
+                      colorList.forEach(cName => {
+                        if (!masterColorMap.has(cName)) {
+                          masterColorMap.set(cName, {
+                            color: cName,
+                            totalPcs: 0,
+                            isAllotted: false,
+                            sizeBreakdown: {}
+                          })
+                        }
+                        masterColorMap.get(cName)!.totalPcs += pcsPerColor
+
+                        // Size Breakdown
+                        if (Array.isArray(line.size_breakdown) && line.size_breakdown.length > 0) {
+                          line.size_breakdown.forEach((sb: any) => {
+                            const sz = (sb.size || 'STD').trim().toUpperCase()
+                            const qty = Number(sb.qty) || 0
+                            const vKey = `${cName}__${sz}`
+                            if (!masterVariantsMap.has(vKey)) {
+                              masterVariantsMap.set(vKey, { color: cName, size: sz, quantity: 0 })
+                            }
+                            masterVariantsMap.get(vKey)!.quantity += qty
+                            masterColorMap.get(cName)!.sizeBreakdown[sz] = (masterColorMap.get(cName)!.sizeBreakdown[sz] || 0) + qty
+                          })
+                        } else if (line.sizes && typeof line.sizes === 'object') {
+                          Object.entries(line.sizes).forEach(([sz, qty]) => {
+                            const sUpper = sz.trim().toUpperCase()
+                            const numQty = Number(qty) || 0
+                            const vKey = `${cName}__${sUpper}`
+                            if (!masterVariantsMap.has(vKey)) {
+                              masterVariantsMap.set(vKey, { color: cName, size: sUpper, quantity: 0 })
+                            }
+                            masterVariantsMap.get(vKey)!.quantity += numQty
+                            masterColorMap.get(cName)!.sizeBreakdown[sUpper] = (masterColorMap.get(cName)!.sizeBreakdown[sUpper] || 0) + numQty
+                          })
+                        } else {
+                          const rawSizes = (line.size_range || 'Free Size').split(/[/+&,]/).map((s: string) => s.trim().toUpperCase()).filter(Boolean)
+                          // Check standard ratio (e.g. 1:1:2:2:2:2 for 6 sizes)
+                          if (rawSizes.length === 6 && pcsPerColor % 9 === 0) {
+                            const unit = pcsPerColor / 9
+                            const ratios = [1, 1, 2, 2, 2, 2] // XS, S, M, L, XL, XXL
+                            rawSizes.forEach((sz: string, sIdx: number) => {
+                              const qty = Math.round(unit * (ratios[sIdx] || 1))
+                              const vKey = `${cName}__${sz}`
+                              if (!masterVariantsMap.has(vKey)) {
+                                masterVariantsMap.set(vKey, { color: cName, size: sz, quantity: 0 })
+                              }
+                              masterVariantsMap.get(vKey)!.quantity += qty
+                              masterColorMap.get(cName)!.sizeBreakdown[sz] = (masterColorMap.get(cName)!.sizeBreakdown[sz] || 0) + qty
+                            })
+                          } else {
+                            const qtyPerSize = rawSizes.length > 0 ? Math.round(pcsPerColor / rawSizes.length) : pcsPerColor
+                            rawSizes.forEach((sz: string) => {
+                              const vKey = `${cName}__${sz}`
+                              if (!masterVariantsMap.has(vKey)) {
+                                masterVariantsMap.set(vKey, { color: cName, size: sz, quantity: 0 })
+                              }
+                              masterVariantsMap.get(vKey)!.quantity += qtyPerSize
+                              masterColorMap.get(cName)!.sizeBreakdown[sz] = (masterColorMap.get(cName)!.sizeBreakdown[sz] || 0) + qtyPerSize
+                            })
+                          }
+                        }
+                      })
+                    })
+                  }
+
+                  // 2. Map Floor Allotments to identify which colors are already allotted & assigned to which Linemen
+                  linkedAllotments.forEach((al: any) => {
+                    const alVars = (variants || []).filter(v => v.allotment_id === al.id)
+                    const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                    const lmName = formatLinemanName(lm)
+                    const isRealLineman = lmName && lmName !== 'Unassigned (Floor Order)' && lmName !== 'Unassigned'
+
+                    alVars.forEach((v: any) => {
+                      const col = (v.color || 'Standard').trim().toUpperCase()
+                      const sz = (v.size || 'STD').trim().toUpperCase()
+                      const qty = Number(v.quantity) || 0
+
+                      if (!masterColorMap.has(col)) {
+                        masterColorMap.set(col, {
+                          color: col,
+                          totalPcs: 0,
+                          isAllotted: false,
+                          sizeBreakdown: {}
+                        })
+                      }
+
+                      // If no articleLines were found in notes, populate from allotment variants
+                      if (articleLines.length === 0) {
+                        masterColorMap.get(col)!.totalPcs += qty
+                        masterColorMap.get(col)!.sizeBreakdown[sz] = (masterColorMap.get(col)!.sizeBreakdown[sz] || 0) + qty
+                        const vKey = `${col}__${sz}`
+                        if (!masterVariantsMap.has(vKey)) {
+                          masterVariantsMap.set(vKey, { color: col, size: sz, quantity: 0 })
+                        }
+                        masterVariantsMap.get(vKey)!.quantity += qty
+                      }
+
+                      if (isRealLineman) {
+                        masterColorMap.get(col)!.isAllotted = true
+                        masterColorMap.get(col)!.linemanName = lmName
+                      }
+                    })
+                  })
+
+                  const fullVariants = Array.from(masterVariantsMap.values())
+                  const colorGroups = Array.from(masterColorMap.values()).filter(c => c.totalPcs > 0)
+
+                  // Extract Article Numbers and Patterns
+                  const artNosSet = new Set<string>()
+                  const patternSet = new Set<string>()
+
+                  articleLines.forEach(l => {
+                    if (l.art_no) artNosSet.add(String(l.art_no).trim())
+                    const p = (l.pattern_no || l.product || l.category || '').trim()
+                    if (p && p.toUpperCase() !== 'STANDARD' && p.toUpperCase() !== 'DEFAULT') {
+                      patternSet.add(p)
+                    }
+                    const d = cleanDescription(l.description || '').trim()
+                    if (d) {
+                      const stripped = d.replace(/^(art|article|style|no|#)?\s*[0-9A-Z_-]+\s*[-•:]*\s*/i, '').trim()
+                      if (stripped) patternSet.add(stripped)
+                    }
+                  })
+
+                  linkedAllotments.forEach(al => {
+                    const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
+                    if (art?.art_no) artNosSet.add(String(art.art_no).trim())
+                    if (art?.description) {
+                      const clean = cleanDescription(art.description).replace(new RegExp(`^${art.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()
+                      if (clean) patternSet.add(clean)
+                    }
+                  })
+
+                  // Also check master catalog
+                  artNosSet.forEach(artNo => {
+                    const baseNo = artNo.replace(/[A-Za-z]+$/, '').replace(/[-/][A-Za-z0-9]+$/, '').trim() || artNo.trim()
+                    const matched = (articles || []).find((a: any) => a.art_no === artNo || (a.art_no && a.art_no.replace(/[A-Za-z]+$/, '').replace(/[-/][A-Za-z0-9]+$/, '').trim() === baseNo))
+                    if (matched?.description) {
+                      const clean = cleanDescription(matched.description).replace(new RegExp(`^${matched.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()
+                      if (clean) patternSet.add(clean)
+                    }
+                  })
+
+                  // Calculate Total Pcs & Total Sets
+                  let totalPcs = Number(ch.total_pcs) || 0
+                  if (!totalPcs && articleLines.length > 0) {
+                    totalPcs = articleLines.reduce((sum, l) => sum + (Number(l.total_pcs) || ((Number(l.sets) || 1) * (Number(l.pcs_per_set) || 9))), 0)
+                  }
+                  if (!totalPcs && colorGroups.length > 0) {
+                    totalPcs = colorGroups.reduce((sum, c) => sum + c.totalPcs, 0)
+                  }
+                  if (!totalPcs && linkedAllotments.length > 0) {
+                    totalPcs = linkedAllotments.reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
+                  }
+
+                  let totalSets = Number(ch.total_sets) || 0
+                  if (!totalSets && articleLines.length > 0) {
+                    totalSets = articleLines.reduce((sum, l) => sum + (Number(l.sets) || Math.round((Number(l.total_pcs) || 0) / (Number(l.pcs_per_set) || 9))), 0)
+                  }
+
+                  // Determine Linemen breakdown
+                  const linemenMap = new Map<string, { name: string; qty: number; date: string; status: string }>()
+                  linkedAllotments.forEach(al => {
+                    const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
+                    const lmName = formatLinemanName(lm)
+                    const lmKey = lm?.id || lmName
+                    if (!linemenMap.has(lmKey)) {
+                      linemenMap.set(lmKey, {
+                        name: lmName,
+                        qty: 0,
+                        date: al.allotment_date || al.created_at?.split('T')[0] || '',
+                        status: al.status || 'IN_PROGRESS'
+                      })
+                    }
+                    linemenMap.get(lmKey)!.qty += (Number(al.target_qty) || 0)
+                  })
+
+                  // Calculate allotted pieces across all colors
+                  const allottedPcs = colorGroups.filter(c => c.isAllotted).reduce((sum, c) => sum + c.totalPcs, 0)
+                  const allColorsAllotted = colorGroups.length > 0 && colorGroups.every(c => c.isAllotted)
+                  
+                  // Clean Mathematical Determination of Allotment Status
+                  const isFullyAllotted = (totalPcs > 0 && allottedPcs >= totalPcs) || allColorsAllotted
+                  const isPartiallyAllotted = !isFullyAllotted && (
+                    (allottedPcs > 0 && allottedPcs < totalPcs) ||
+                    (colorGroups.length > 1 && colorGroups.some(c => c.isAllotted)) ||
+                    ch.status === 'PARTIALLY_ALLOTTED'
+                  )
+
+                  // Determine production status
+                  let status = 'PENDING_ALLOTMENT'
+                  if (isFullyAllotted) {
+                    if (linkedAllotments.length > 0 && linkedAllotments.every(al => al.status === 'QC_PASSED' || al.status === 'COMPLETED')) {
+                      status = 'QC_PASSED'
+                    } else {
+                      status = 'IN_PROGRESS'
+                    }
+                  } else if (isPartiallyAllotted) {
+                    status = 'PARTIALLY_ALLOTTED'
+                  } else if (linkedAllotments.length === 0 && allottedPcs === 0) {
+                    status = 'PENDING_ALLOTMENT'
+                  } else {
+                    status = ch.status || 'PENDING_ALLOTMENT'
+                  }
+
+                  // Category for the 2 tabs: Pending Allotment vs Allotted
+                  const category: 'PENDING' | 'ALLOTTED' = isFullyAllotted ? 'ALLOTTED' : 'PENDING'
+
+                  return {
+                    id: ch.id,
+                    challan_no: ch.challan_no || 'Direct',
+                    brand: ch.brand || '',
+                    fabric_type: ch.fabric_type || '',
+                    created_at: ch.created_at || '',
+                    totalPcs,
+                    totalSets,
+                    allottedPcs,
+                    isPartiallyAllotted,
+                    category,
+                    status,
+                    articleNumbers: Array.from(artNosSet),
+                    patterns: Array.from(patternSet),
+                    colorGroups,
+                    articleLines,
+                    variants: fullVariants,
+                    linkedAllotments,
+                    linemen: Array.from(linemenMap.values())
+                  }
+                })
+
+                // Tab counts
+                const pendingCount = structuredChallans.filter(c => c.category === 'PENDING').length
+                const allottedCount = structuredChallans.filter(c => c.category === 'ALLOTTED').length
+
+                // Filter by active tab & search query
+                const tabChallans = structuredChallans.filter(c => c.category === drawerChallanTab)
+                const filteredChallans = tabChallans.filter(c => {
+                  if (!q) return true
                   return (
-                    (art?.art_no || '').toLowerCase().includes(q) ||
-                    (art?.description || '').toLowerCase().includes(q) ||
-                    (ch?.challan_no || '').toLowerCase().includes(q) ||
-                    (ch?.brand || '').toLowerCase().includes(q) ||
-                    (lm?.username || '').toLowerCase().includes(q)
+                    String(c.challan_no).toLowerCase().includes(q) ||
+                    c.brand.toLowerCase().includes(q) ||
+                    c.fabric_type.toLowerCase().includes(q) ||
+                    c.articleNumbers.some(art => art.toLowerCase().includes(q)) ||
+                    c.patterns.some(p => p.toLowerCase().includes(q)) ||
+                    c.linemen.some(lm => lm.name.toLowerCase().includes(q))
                   )
                 })
 
-                if (filteredDrawerAllotments.length === 0) {
-                  return (
-                    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
-                      <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
-                        <Warehouse className="w-6 h-6 text-[#0B1220]" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-800">No Orders in Active Pipeline</h4>
-                        <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                          There are no production orders or buyer challans matching the current filters.
-                        </p>
-                      </div>
-                      <div className="pt-2">
-                        <Link
-                          href="/production-orders"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5 text-white" />
-                          <span>New Production Order</span>
-                        </Link>
-                      </div>
-                    </div>
-                  )
-                }
-
                 return (
-                  <div className="space-y-3">
-                    <div className="p-3.5 rounded-xl bg-white border border-black/15 shadow-2xs flex items-center justify-between">
+                  <div className="space-y-3.5">
+                    {/* Two Tabs: Pending Allotment & Allotted (In Production) */}
+                    <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100/90 rounded-2xl border border-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => setDrawerChallanTab('PENDING')}
+                        className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                          drawerChallanTab === 'PENDING'
+                            ? 'bg-white text-amber-900 border border-amber-200/80 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                        }`}
+                      >
+                        <Clock className={`w-4 h-4 ${drawerChallanTab === 'PENDING' ? 'text-amber-600' : 'text-slate-400'}`} />
+                        <span>Pending Allotment</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-mono font-black ${
+                          drawerChallanTab === 'PENDING'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                            : 'bg-slate-200 text-slate-700'
+                        }`}>
+                          {pendingCount}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDrawerChallanTab('ALLOTTED')}
+                        className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                          drawerChallanTab === 'ALLOTTED'
+                            ? 'bg-white text-[#0B1220] border border-black/15 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                        }`}
+                      >
+                        <Zap className={`w-4 h-4 ${drawerChallanTab === 'ALLOTTED' ? 'text-[#0B1220]' : 'text-slate-400'}`} />
+                        <span>Allotted (In Production)</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-mono font-black ${
+                          drawerChallanTab === 'ALLOTTED'
+                            ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15'
+                            : 'bg-slate-200 text-slate-700'
+                        }`}>
+                          {allottedCount}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Sub-header info strip */}
+                    <div className="p-3 rounded-xl bg-white border border-black/15 shadow-2xs flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-800">Pipeline Target Allotments</span>
+                        <span className="font-bold text-slate-800">
+                          {drawerChallanTab === 'PENDING' ? 'Pending Allotment Challans' : 'Allotted Floor Challans'}
+                        </span>
                         <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-                          {filteredDrawerAllotments.length} Active Lots
+                          {filteredChallans.length} {filteredChallans.length === 1 ? 'Challan' : 'Challans'}
                         </span>
                       </div>
                       <Link 
-                        href="/allotments"
-                        className="text-xs font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1"
+                        href="/stitching-sewing/production-orders"
+                        className="font-bold text-[#0B1220] hover:underline inline-flex items-center gap-1"
                       >
-                        Manage Allotments <ExternalLink className="w-3 h-3" />
+                        Manage in Production Orders <ExternalLink className="w-3 h-3" />
                       </Link>
                     </div>
 
-                    {filteredDrawerAllotments.map((al) => {
-                      const art = Array.isArray(al.articles) ? al.articles[0] : al.articles
-                      const ch = Array.isArray(al.challans) ? al.challans[0] : al.challans
-                      const lm = Array.isArray(al.profiles) ? al.profiles[0] : al.profiles
-                      const lotVariants = (variants || []).filter(v => v.allotment_id === al.id)
-
-                      return (
-                        <div key={al.id} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all">
+                    {/* Empty State */}
+                    {filteredChallans.length === 0 ? (
+                      <div className="text-center py-12 px-6 bg-white rounded-2xl border border-black/15 shadow-2xs space-y-3">
+                        <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 mx-auto flex items-center justify-center shadow-2xs">
+                          {drawerChallanTab === 'PENDING' ? (
+                            <Clock className="w-6 h-6 text-amber-600" />
+                          ) : (
+                            <Zap className="w-6 h-6 text-[#0B1220]" />
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">
+                            {drawerChallanTab === 'PENDING' ? 'No Pending Challans' : 'No Allotted Challans in Production'}
+                          </h4>
+                          <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+                            {drawerChallanTab === 'PENDING' 
+                              ? 'All created challans are fully allotted to floor linemen.'
+                              : 'No challans are currently active in sewing floor production.'}
+                          </p>
+                        </div>
+                        <div className="pt-2">
+                          <Link
+                            href="/stitching-sewing/production-orders"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5 text-white" />
+                            <span>New Production Order</span>
+                          </Link>
+                        </div>
+                      </div>
+                    ) : (
+                      filteredChallans.map((ch) => (
+                        <div key={ch.id} className="p-4 rounded-xl border border-black/15 bg-white shadow-2xs hover:border-black/25 transition-all space-y-3">
+                          {/* Challan Card Header */}
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-extrabold text-sm text-slate-900 tracking-tight">
-                                  Art {art?.art_no || 'Style'}
+                                <span className="font-mono font-extrabold text-xs sm:text-sm px-2.5 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+                                  Challan #{ch.challan_no}
                                 </span>
-                                {ch?.challan_no && (
-                                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                                    JOB-{ch.challan_no}
+                                {ch.articleNumbers.map(artNo => (
+                                  <span key={artNo} className="font-bold text-xs sm:text-sm text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                    Art #{artNo}
                                   </span>
-                                )}
-                                {ch?.brand && (
+                                ))}
+                                {ch.brand && (
                                   <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                                     {ch.brand}
                                   </span>
                                 )}
                               </div>
-                              {cleanDescription(art?.description) && (
-                                <p className="text-xs text-slate-500 mt-1 font-medium truncate max-w-sm">
-                                  {cleanDescription(art?.description).replace(new RegExp(`^${art?.art_no}\\s*[-•:]*\\s*`, 'i'), '').trim()}
-                                </p>
+
+                              {/* Pattern / Garment Product Type */}
+                              {ch.patterns.length > 0 && (
+                                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                  <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                                    Pattern
+                                  </span>
+                                  <span className="text-xs font-extrabold text-slate-800">
+                                    {ch.patterns.join(' • ')}
+                                  </span>
+                                </div>
                               )}
+
+                              <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+                                {ch.fabric_type && (
+                                  <span>Fabric: <strong className="text-slate-700">{ch.fabric_type}</strong></span>
+                                )}
+                                <span>Challan Date: <strong className="text-slate-700 font-mono">{ch.created_at?.split('T')[0]}</strong></span>
+                              </div>
                             </div>
 
                             <div className="text-right shrink-0">
-                              <p className="text-base font-black text-slate-900 font-[family-name:var(--font-heading)]">
-                                {al.target_qty?.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
+                              <p className="text-base sm:text-lg font-black text-slate-900 font-[family-name:var(--font-heading)] leading-none">
+                                {ch.totalPcs.toLocaleString()} <span className="text-xs font-normal text-slate-400">pcs</span>
                               </p>
-                              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[9.5px] font-mono font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
-                                {al.status || 'SCHEDULED'}
+                              {ch.totalSets > 0 && (
+                                <span className="text-[11px] font-mono font-semibold text-slate-500 block mt-0.5">
+                                  {ch.totalSets.toLocaleString()} Sets
+                                </span>
+                              )}
+                              <span className={`inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
+                                ch.status === 'PENDING_ALLOTMENT' 
+                                  ? 'bg-amber-50 text-amber-800 border-amber-200' 
+                                  : ch.status === 'PARTIALLY_ALLOTTED'
+                                    ? 'bg-orange-50 text-orange-800 border-orange-200'
+                                    : ch.status === 'IN_PROGRESS' 
+                                      ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                      : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              }`}>
+                                {ch.status === 'PENDING_ALLOTMENT' 
+                                  ? 'Pending Allotment' 
+                                  : ch.status === 'PARTIALLY_ALLOTTED'
+                                    ? `Partially Allotted (${ch.allottedPcs.toLocaleString()}/${ch.totalPcs.toLocaleString()} pcs)`
+                                    : ch.status === 'IN_PROGRESS' 
+                                      ? 'Allotted (In Production)' 
+                                      : ch.status}
                               </span>
                             </div>
                           </div>
 
-                          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 flex-wrap gap-2">
-                            <div className="flex items-center gap-1.5">
-                              <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span>Lineman: <strong className="text-slate-800">{formatLinemanName(lm)}</strong></span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span>Date: <strong className="text-slate-800">{al.allotment_date || al.created_at?.split('T')[0]}</strong></span>
-                            </div>
-                          </div>
+                          {/* Combined Color + Size Matrix Table */}
+                          {ch.variants.length > 0 && (
+                            <VariantMatrixTable variants={ch.variants} />
+                          )}
 
-                          <VariantMatrixTable variants={lotVariants} />
+                          {/* Bottom Area: Live Floor Assignment (for Allotted) OR Quick Allotment (for Pending) */}
+                          {ch.category === 'ALLOTTED' || (ch.colorGroups.length > 0 && ch.colorGroups.every(c => c.isAllotted)) ? (() => {
+                            // Check if assigned to single lineman or multiple distinct linemen
+                            const assignedLinemenList = Array.from(
+                              new Set(
+                                ch.colorGroups
+                                  .map(cg => cg.linemanName)
+                                  .filter((n): n is string => Boolean(n && n !== 'Unassigned' && n !== 'Unassigned (Floor Order)'))
+                              )
+                            )
+                            if (assignedLinemenList.length === 0 && ch.linemen.length > 0) {
+                              ch.linemen.forEach(lm => {
+                                if (lm.name && lm.name !== 'Unassigned' && lm.name !== 'Unassigned (Floor Order)') {
+                                  assignedLinemenList.push(lm.name)
+                                }
+                              })
+                            }
+
+                            const isSingleLineman = assignedLinemenList.length <= 1
+                            const mainLineman = assignedLinemenList[0] || (ch.linemen[0]?.name || 'Assigned Lineman')
+
+                            return (
+                              <div className="pt-2.5 border-t border-slate-100 bg-[#F0FDFA] -mx-4 -mb-4 p-3.5 rounded-b-xl border-t-[#14C8B4]/20 space-y-2.5">
+                                {isSingleLineman ? (
+                                  /* Clean Single-Lineman Executive Card */
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <div className="w-8 h-8 rounded-lg bg-white border border-black/10 flex items-center justify-center text-sm font-bold shrink-0 shadow-2xs">
+                                        🧵
+                                      </div>
+                                      <div className="min-w-0">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                          <span className="text-[10px] font-mono font-bold uppercase text-[#0B1220] bg-white px-1.5 py-0.5 rounded border border-black/10 shadow-2xs">
+                                            Allotted Lineman
+                                          </span>
+                                          <span className="text-xs font-black text-slate-900">
+                                            {mainLineman}
+                                          </span>
+                                        </div>
+                                        <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                                          Active in Sewing Floor • <strong className="text-slate-800 font-mono">{ch.allottedPcs.toLocaleString()} pcs</strong>
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <Link
+                                      href={`/stitching-sewing/allotments?challan_id=${ch.id}`}
+                                      className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-xs font-bold shrink-0 transition-colors inline-flex items-center gap-1.5 shadow-2xs"
+                                      title="View in Allotments Screen"
+                                    >
+                                      <span>Details</span>
+                                      <ExternalLink className="w-3 h-3 text-slate-400" />
+                                    </Link>
+                                  </div>
+                                ) : (
+                                  /* Multi-Lineman Split: Full-Width Clean Stacked Rows (No truncation!) */
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span className="w-2 h-2 rounded-full bg-[#14C8B4]" />
+                                        <span>Multi-Lineman Floor Split ({assignedLinemenList.length} Linemen)</span>
+                                      </span>
+                                      <Link
+                                        href={`/stitching-sewing/allotments?challan_id=${ch.id}`}
+                                        className="text-[#0B1220] hover:underline inline-flex items-center gap-1 text-[11px] font-bold"
+                                      >
+                                        <span>Manage Allotments</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </Link>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                      {ch.colorGroups.map(cg => (
+                                        <div key={cg.color} className="p-2.5 bg-white rounded-lg border border-black/10 flex items-center justify-between gap-3 text-xs shadow-2xs">
+                                          <div className="flex items-center gap-2 min-w-0">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-[#14C8B4] shrink-0" />
+                                            <span className="font-extrabold text-slate-900">{cg.color}</span>
+                                            <span className="text-[11px] font-mono text-slate-500 font-bold">({cg.totalPcs.toLocaleString()} pcs)</span>
+                                          </div>
+                                          <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#0B1220] bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200 shrink-0">
+                                            🧵 {cg.linemanName || mainLineman}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })() : (
+                            /* Direct Allotment Action Area (Only for Pending Allotments) */
+                            <div className="pt-2.5 border-t border-slate-100 flex flex-col gap-2 bg-slate-50/80 -mx-4 -mb-4 p-3 rounded-b-xl">
+                              {/* Mode Selector for Multi-Color Challans */}
+                              {ch.colorGroups.length > 1 && (
+                                <div className="flex items-center justify-between gap-2 flex-wrap pb-1.5 border-b border-slate-200/70">
+                                  <div className="flex items-center gap-1 p-0.5 bg-slate-200/70 rounded-lg text-[11px] font-bold">
+                                    <button
+                                      type="button"
+                                      onClick={() => setAllotmentMode(prev => ({ ...prev, [ch.id]: 'FULL' }))}
+                                      className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                                        (allotmentMode[ch.id] || 'FULL') === 'FULL'
+                                          ? 'bg-white text-slate-900 shadow-2xs font-extrabold'
+                                          : 'text-slate-600 hover:text-slate-900'
+                                      }`}
+                                    >
+                                      Allot Entire Challan
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setAllotmentMode(prev => ({ ...prev, [ch.id]: 'COLOR' }))}
+                                      className={`px-2.5 py-1 rounded-md transition-all cursor-pointer flex items-center gap-1 ${
+                                        allotmentMode[ch.id] === 'COLOR'
+                                          ? 'bg-white text-indigo-950 shadow-2xs font-extrabold'
+                                          : 'text-slate-600 hover:text-slate-900'
+                                      }`}
+                                    >
+                                      <span>Color-Wise Split</span>
+                                      <span className="px-1.5 py-0.2 rounded-full text-[9.5px] bg-indigo-100 text-indigo-900 font-mono">
+                                        {ch.colorGroups.length}
+                                      </span>
+                                    </button>
+                                  </div>
+
+                                  <span className="text-[10px] font-mono font-bold text-slate-400">
+                                    {(allotmentMode[ch.id] || 'FULL') === 'COLOR' ? 'Assign Lineman per Color' : 'Assign 1 Lineman for All Colors'}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Option A: FULL CHALLAN ALLOTMENT */}
+                              {(allotmentMode[ch.id] || 'FULL') === 'FULL' || ch.colorGroups.length <= 1 ? (
+                                <div className="space-y-2 w-full pt-1">
+                                  <div className="flex items-center gap-2 w-full">
+                                    <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center text-xs shrink-0 font-bold shadow-2xs">
+                                      🧵
+                                    </div>
+                                    <select
+                                      value={selectedChallanLineman[ch.id] || ''}
+                                      onChange={(e) => setSelectedChallanLineman(prev => ({ ...prev, [ch.id]: e.target.value }))}
+                                      className="text-xs py-2 px-3 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold outline-none focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220]/20 flex-1 cursor-pointer shadow-2xs truncate"
+                                    >
+                                      <option value="">Select Lineman for Entire Challan...</option>
+                                      {availableLinemen.map(lm => (
+                                        <option key={lm.id} value={lm.id}>
+                                          {lm.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 w-full">
+                                    <Link
+                                      href={`/stitching-sewing/allotments?target_key=FULL_CHALLAN_${ch.id}&lineman_id=${selectedChallanLineman[ch.id] || ''}`}
+                                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-2xs cursor-pointer"
+                                    >
+                                      <Zap className="w-3.5 h-3.5 text-[#14C8B4]" />
+                                      <span>Proceed to Target Allotment ({ch.totalPcs.toLocaleString()} pcs)</span>
+                                      <ArrowRight className="w-3.5 h-3.5 text-white/70" />
+                                    </Link>
+                                  </div>
+                                </div>
+                              ) : (
+                                /* Option B: COLOR-WISE ALLOTMENT */
+                                <div className="space-y-2 w-full pt-1">
+                                  {ch.colorGroups.map((cg) => {
+                                    const colorKey = `${ch.id}__${cg.color}`
+                                    return (
+                                      <div key={cg.color} className="p-2.5 rounded-lg bg-white border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs shadow-2xs">
+                                        <div className="flex items-center gap-2 min-w-[130px]">
+                                          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-slate-400 shrink-0" />
+                                          <span className="font-extrabold text-slate-900 truncate">{cg.color}</span>
+                                          <span className="text-[10.5px] font-mono text-slate-500 font-bold shrink-0">({cg.totalPcs.toLocaleString()} pcs)</span>
+                                        </div>
+
+                                        {cg.isAllotted ? (
+                                          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 w-fit">
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                            <span>Assigned: {cg.linemanName}</span>
+                                          </span>
+                                        ) : (
+                                          <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                                            <select
+                                              value={selectedColorLineman[colorKey] || ''}
+                                              onChange={(e) => setSelectedColorLineman(prev => ({ ...prev, [colorKey]: e.target.value }))}
+                                              className="text-xs py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md text-slate-800 font-medium outline-none focus:border-[#0B1220] flex-1 sm:w-[150px]"
+                                            >
+                                              <option value="">Select Lineman...</option>
+                                              {availableLinemen.map(lm => (
+                                                <option key={lm.id} value={lm.id}>
+                                                  {lm.name}
+                                                </option>
+                                              ))}
+                                            </select>
+
+                                            <Link
+                                              href={`/stitching-sewing/allotments?target_key=COLOR_${encodeURIComponent(cg.color)}_${ch.id}&challan_id=${ch.id}&lineman_id=${selectedColorLineman[colorKey] || ''}`}
+                                              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold text-white bg-[#0B1220] hover:bg-[#162032] transition-all shadow-2xs cursor-pointer shrink-0"
+                                              title={`Open Target Allotment Form for ${cg.color}`}
+                                            >
+                                              <Zap className="w-3 h-3 text-[#14C8B4]" />
+                                              <span>Allot {cg.color} Line</span>
+                                              <ArrowRight className="w-3 h-3 text-white/70" />
+                                            </Link>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
+
+                              {allotMsg[ch.id] && (
+                                <div className={`w-full text-xs font-bold px-2.5 py-1 rounded-md mt-1 flex items-center gap-1.5 ${
+                                  allotMsg[ch.id].type === 'success' 
+                                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                                    : 'bg-rose-50 text-rose-800 border border-rose-200'
+                                }`}>
+                                  {allotMsg[ch.id].type === 'success' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />}
+                                  <span>{allotMsg[ch.id].text}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      )
-                    })}
+                      ))
+                    )}
                   </div>
                 )
               })()}
