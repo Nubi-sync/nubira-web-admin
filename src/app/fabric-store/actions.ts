@@ -73,7 +73,33 @@ export async function fetchFabricStoreHubAction(companyName?: string): Promise<F
     cacheKey,
     async () => {
       try {
-        const targetCompany = companyName?.trim() || 'Demo Industries'
+        let targetCompany = (companyName || '').trim()
+        if (!targetCompany) {
+          try {
+            const authClient = await createClient()
+            const { data: { user } } = await authClient.auth.getUser()
+            if (user) {
+              const tenant = await resolveUserTenant(user)
+              targetCompany = (tenant.companyName || '').trim()
+            }
+          } catch (_) {}
+        }
+
+        if (!targetCompany) {
+          return {
+            inventory: [],
+            orders: [],
+            techPacks: [],
+            stats: {
+              totalFabricStockMeters: 0,
+              totalCommittedMeters: 0,
+              totalFreeStockMeters: 0,
+              lowStockCount: 0,
+              activeRollsCount: 0,
+              fabricVarietiesCount: 0
+            }
+          }
+        }
 
         // 1. Fetch Fabric inventory strictly for this company
         let fabricQuery = supabaseAdmin
@@ -404,7 +430,20 @@ export async function addFabricClothAction(payload: {
   companyName?: string
 }) {
   try {
-    const comp = payload.companyName?.trim() || 'Demo Industries'
+    let comp = payload.companyName?.trim()
+    if (!comp) {
+      try {
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
+        if (user) {
+          const tenant = await resolveUserTenant(user)
+          comp = (tenant.companyName || '').trim()
+        }
+      } catch (_) {}
+    }
+    if (!comp) {
+      return { error: 'Company tenant profile is required to register fabric inventory.' }
+    }
     if (!payload.fabricType?.trim() || !payload.color?.trim() || Number(payload.totalMeters) <= 0) {
       return { error: 'Fabric type, color, and positive total meters are required.' }
     }

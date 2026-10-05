@@ -480,7 +480,7 @@ export function StitchingDashboardClient({
         <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
           <span className="text-slate-600 font-semibold">Welcome, </span>
           <span className="text-[#0B1220] font-extrabold relative inline-block">
-            {companyName || 'Demo Industries'}
+            {companyName || 'Plant Operations'}
             <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-[#14C8B4] rounded-full" />
           </span>
         </h2>
