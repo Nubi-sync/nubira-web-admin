@@ -2841,17 +2841,24 @@ export async function deleteMaterialAction(id: string): Promise<{ success: boole
 // 11. BRANDS LIST
 // -----------------------------------------------------------------------------
 
-export async function fetchBrandsAction(_companyName?: string): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
-  const cacheKey = `global:brands`
+export async function fetchBrandsAction(companyName?: string): Promise<{ id: string; brand_name: string; brand_code: string }[]> {
+  const normComp = (companyName || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
+  const cacheKey = `company:${normComp}:brands_list`
   return CacheManager.fetchOrSet(
     cacheKey,
     async () => {
       try {
-        const { data, error } = await supabaseAdmin
+        let q = supabaseAdmin
           .from('brands')
           .select('id, brand_name, brand_code')
           .eq('is_active', true)
           .order('brand_name')
+
+        if (companyName && companyName.trim()) {
+          q = q.ilike('company_name', companyName.trim())
+        }
+
+        const { data, error } = await q
 
         if (error) {
           console.error('[fetchBrandsAction] DB error:', error)
@@ -2865,6 +2872,6 @@ export async function fetchBrandsAction(_companyName?: string): Promise<{ id: st
       }
     },
     300,
-    ['brands']
+    [`company:${normComp}:brands`, 'brands']
   )
 }
