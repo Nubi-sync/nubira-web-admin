@@ -85,21 +85,21 @@ export function AccountDeletionDangerZone({
       {/* Danger Zone Container (Minimal Executive Neutral Container with Refined Crimson Accents) */}
       <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 relative transition-all">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-          <div className="flex items-start gap-3.5 sm:gap-4">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shrink-0 shadow-2xs">
-              <AlertTriangle className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+          <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                <h3 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                  Danger Zone: Account Decommission
-                </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
+                <h2 className="text-lg sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                  Danger Zone: <span className="text-rose-600">Account Decommission</span>
+                </h2>
+                <span className="px-2.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
                   IRREVERSIBLE
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed font-[family-name:var(--font-public-sans)]">
-                Need to delete or close this company account? Submit an official deletion request.
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed font-[family-name:var(--font-public-sans)] font-medium">
+                Need to decommission or close this company account? Submit an official deletion request.
                 Our administration desk at <strong className="text-slate-900 font-mono">support@zigza.in</strong> will
                 verify your company credentials and securely archive all production records.
               </p>
