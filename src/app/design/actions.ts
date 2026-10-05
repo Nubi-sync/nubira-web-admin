@@ -501,12 +501,14 @@ export async function createTechPackAction(payload: {
     if (!isUUID) {
       const brandToFind = (payload.brand_name && payload.brand_name !== 'inhouse' ? payload.brand_name : 'Inhouse').trim()
       
-      const { data: existingBrand } = await supabaseAdmin
+      let bQuery = supabaseAdmin
         .from('brands')
         .select('id')
         .ilike('brand_name', brandToFind)
-        .limit(1)
-        .maybeSingle()
+      if (payload.company_name) {
+        bQuery = bQuery.ilike('company_name', payload.company_name)
+      }
+      const { data: existingBrand } = await bQuery.limit(1).maybeSingle()
 
       if (existingBrand) {
         brandId = existingBrand.id
@@ -525,13 +527,6 @@ export async function createTechPackAction(payload: {
 
         if (!brandCreateErr && newBrand) {
           brandId = newBrand.id
-        } else {
-          const { data: anyBrand } = await supabaseAdmin
-            .from('brands')
-            .select('id')
-            .limit(1)
-            .maybeSingle()
-          brandId = anyBrand?.id
         }
       }
     }

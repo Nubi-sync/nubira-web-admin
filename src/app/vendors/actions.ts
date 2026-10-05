@@ -40,16 +40,35 @@ export type VendorRecord = {
 // ----------------------------------------------------------------------
 // GET ALL BRANDS
 // ----------------------------------------------------------------------
-export async function getBrands(): Promise<BrandRecord[]> {
+export async function getBrands(companyName?: string): Promise<BrandRecord[]> {
+  let targetCompany = (companyName || '').trim()
+  if (!targetCompany) {
+    try {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      if (user) {
+        const tenant = await resolveUserTenant(user)
+        targetCompany = (tenant.companyName || '').trim()
+      }
+    } catch (_) {}
+  }
+
+  const normComp = (targetCompany || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
   return CacheManager.fetchOrSet<BrandRecord[]>(
-    'global:brands',
+    `company:${normComp}:brands`,
     async () => {
       try {
         const supabase = supabaseAdmin
-        const { data, error } = await supabase
+        let query = supabase
           .from('brands')
           .select('*')
           .order('brand_name', { ascending: true })
+
+        if (targetCompany) {
+          query = query.ilike('company_name', targetCompany)
+        }
+
+        const { data, error } = await query
 
         if (error || !data) {
           return []
@@ -62,23 +81,42 @@ export async function getBrands(): Promise<BrandRecord[]> {
       }
     },
     300,
-    ['brands']
+    [`company:${normComp}:brands`, 'brands']
   )
 }
 
 // ----------------------------------------------------------------------
 // GET ALL VENDORS
 // ----------------------------------------------------------------------
-export async function getVendors(): Promise<VendorRecord[]> {
+export async function getVendors(companyName?: string): Promise<VendorRecord[]> {
+  let targetCompany = (companyName || '').trim()
+  if (!targetCompany) {
+    try {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      if (user) {
+        const tenant = await resolveUserTenant(user)
+        targetCompany = (tenant.companyName || '').trim()
+      }
+    } catch (_) {}
+  }
+
+  const normComp = (targetCompany || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
   return CacheManager.fetchOrSet<VendorRecord[]>(
-    'global:vendors',
+    `company:${normComp}:vendors`,
     async () => {
       try {
         const supabase = supabaseAdmin
-        const { data, error } = await supabase
+        let query = supabase
           .from('vendors')
           .select('*')
           .order('vendor_name', { ascending: true })
+
+        if (targetCompany) {
+          query = query.or(`tenant_company.ilike.${targetCompany},brand_name.ilike.${targetCompany}`)
+        }
+
+        const { data, error } = await query
 
         if (error || !data) {
           return []
@@ -91,7 +129,7 @@ export async function getVendors(): Promise<VendorRecord[]> {
       }
     },
     300,
-    ['vendors']
+    [`company:${normComp}:vendors`, 'vendors']
   )
 }
 
@@ -100,6 +138,18 @@ export async function getVendors(): Promise<VendorRecord[]> {
 // ----------------------------------------------------------------------
 export async function createVendor(formData: FormData) {
   const supabase = supabaseAdmin
+
+  let tenantCompany = (formData.get('tenant_company') as string)?.trim() || (formData.get('company_name') as string)?.trim() || ''
+  if (!tenantCompany) {
+    try {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      if (user) {
+        const tenant = await resolveUserTenant(user)
+        tenantCompany = (tenant.companyName || '').trim()
+      }
+    } catch (_) {}
+  }
 
   const vendor_name = (formData.get('vendor_name') as string)?.trim()
   const brand_name = (formData.get('brand_name') as string)?.trim().toUpperCase() || ''
@@ -120,7 +170,7 @@ export async function createVendor(formData: FormData) {
   // Generate unique vendor code if not given
   let vendor_code = (formData.get('vendor_code') as string)?.trim().toUpperCase()
   if (!vendor_code) {
-    const prefix = brand_name.slice(0, 2)
+    const prefix = brand_name ? brand_name.slice(0, 2) : 'VN'
     const rand = Math.floor(100 + Math.random() * 900)
     vendor_code = `${prefix}-VND-${rand}`
   }
@@ -128,12 +178,14 @@ export async function createVendor(formData: FormData) {
   // If brand_id not supplied, look up by brand_name
   if (!brand_id && brand_name) {
     try {
-      const { data: bData } = await supabase
+      let bQuery = supabase
         .from('brands')
         .select('id')
         .eq('brand_name', brand_name)
-        .limit(1)
-        .maybeSingle()
+      if (tenantCompany) {
+        bQuery = bQuery.ilike('company_name', tenantCompany)
+      }
+      const { data: bData } = await bQuery.limit(1).maybeSingle()
       if (bData) brand_id = bData.id
     } catch (_) {}
   }
@@ -145,6 +197,7 @@ export async function createVendor(formData: FormData) {
       vendor_name,
       brand_id,
       brand_name,
+      tenant_company: tenantCompany || null,
       vendor_type,
       contact_person,
       phone,
@@ -162,9 +215,13 @@ export async function createVendor(formData: FormData) {
     return { error: error.message }
   }
 
+  const normComp = (tenantCompany || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
   await CacheManager.invalidateTag('vendors')
+  await CacheManager.invalidateTag(`company:${normComp}:vendors`)
+  await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
+  revalidatePath('/buyers-vendors')
   revalidatePath('/production-orders')
   revalidatePath('/stitching-sewing/production-orders')
   revalidatePath('/dispatch')
@@ -176,7 +233,7 @@ export async function createVendor(formData: FormData) {
 // ----------------------------------------------------------------------
 // UPDATE VENDOR
 // ----------------------------------------------------------------------
-export async function updateVendor(vendorId: string, payload: Partial<VendorRecord>) {
+export async function updateVendor(vendorId: string, payload: Partial<VendorRecord> & { tenant_company?: string }) {
   const supabase = supabaseAdmin
 
   const { data, error } = await supabase
@@ -197,6 +254,7 @@ export async function updateVendor(vendorId: string, payload: Partial<VendorReco
   await CacheManager.invalidateTag('vendors')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
+  revalidatePath('/buyers-vendors')
   revalidatePath('/production-orders')
   revalidatePath('/stitching-sewing/production-orders')
   revalidatePath('/dispatch')
@@ -226,6 +284,7 @@ export async function toggleVendorStatus(vendorId: string, currentIsActive: bool
   await CacheManager.invalidateTag('vendors')
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
+  revalidatePath('/buyers-vendors')
   revalidatePath('/stitching-sewing/dashboard')
   return { success: true }
 }
@@ -233,8 +292,20 @@ export async function toggleVendorStatus(vendorId: string, currentIsActive: bool
 // ----------------------------------------------------------------------
 // CREATE BRAND
 // ----------------------------------------------------------------------
-export async function createBrand(brandName: string, brandCode: string, contactPerson?: string, city?: string) {
+export async function createBrand(brandName: string, brandCode: string, contactPerson?: string, city?: string, companyName?: string) {
   const supabase = supabaseAdmin
+
+  let targetCompany = (companyName || '').trim()
+  if (!targetCompany) {
+    try {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      if (user) {
+        const tenant = await resolveUserTenant(user)
+        targetCompany = (tenant.companyName || '').trim()
+      }
+    } catch (_) {}
+  }
 
   const cleanName = brandName.trim().toUpperCase()
   const cleanCode = (brandCode || cleanName.slice(0, 3)).trim().toUpperCase()
@@ -248,6 +319,7 @@ export async function createBrand(brandName: string, brandCode: string, contactP
     .insert({
       brand_code: cleanCode,
       brand_name: cleanName,
+      company_name: targetCompany || null,
       contact_person: contactPerson || 'Buyer Office',
       city: city || 'Kolkata',
       is_active: true
@@ -259,9 +331,13 @@ export async function createBrand(brandName: string, brandCode: string, contactP
     return { error: error.message }
   }
 
+  const normComp = (targetCompany || 'all').toLowerCase().replace(/[^a-z0-9]/g, '_')
   await CacheManager.invalidateTag('brands')
+  await CacheManager.invalidateTag(`company:${normComp}:brands`)
+  await CacheManager.invalidateTag(`company:${normComp}:buyers_vendors_hub:v4`)
   revalidatePath('/vendors')
   revalidatePath('/stitching-sewing/vendors')
+  revalidatePath('/buyers-vendors')
   revalidatePath('/production-orders')
   revalidatePath('/stitching-sewing/production-orders')
   revalidatePath('/stitching-sewing/dashboard')

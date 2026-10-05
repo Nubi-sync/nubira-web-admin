@@ -192,14 +192,16 @@ export async function createBuyerOrderAction(payload: {
   company_name?: string
 }): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
-    // 1. Resolve Brand
+    // 1. Resolve Brand (strictly scoped by company_name)
     let brandId: string | null = null
-    const { data: brand } = await supabaseAdmin
+    let brandQuery = supabaseAdmin
       .from('brands')
       .select('id')
       .ilike('brand_name', payload.brand_name)
-      .limit(1)
-      .maybeSingle()
+    if (payload.company_name) {
+      brandQuery = brandQuery.ilike('company_name', payload.company_name)
+    }
+    const { data: brand } = await brandQuery.limit(1).maybeSingle()
     
     if (brand) {
       brandId = brand.id
@@ -208,28 +210,26 @@ export async function createBuyerOrderAction(payload: {
         .from('brands')
         .insert({
           brand_name: payload.brand_name.trim(),
-          brand_code: payload.brand_name.trim().replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND'
+          brand_code: payload.brand_name.trim().replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase() || 'BRAND',
+          company_name: payload.company_name || null
         })
         .select('id')
         .maybeSingle()
       brandId = newBrand?.id
     }
 
-    if (!brandId) {
-      const { data: anyBrand } = await supabaseAdmin.from('brands').select('id').limit(1).maybeSingle()
-      brandId = anyBrand?.id
-    }
-
     if (!brandId) return { success: false, error: 'No active brand found in database.' }
 
-    // 2. Resolve Tech Pack
+    // 2. Resolve Tech Pack (strictly scoped by company_name)
     let techPackId: string | null = null
-    const { data: tp } = await supabaseAdmin
+    let tpQuery = supabaseAdmin
       .from('design_tech_packs')
       .select('id')
       .ilike('style_number', payload.style_ref)
-      .limit(1)
-      .maybeSingle()
+    if (payload.company_name) {
+      tpQuery = tpQuery.ilike('company_name', payload.company_name)
+    }
+    const { data: tp } = await tpQuery.limit(1).maybeSingle()
 
     if (tp) {
       techPackId = tp.id
@@ -239,6 +239,7 @@ export async function createBuyerOrderAction(payload: {
         .insert({
           style_number: payload.style_ref.trim().toUpperCase(),
           brand_id: brandId,
+          company_name: payload.company_name || null,
           category: 'HOODIE',
           fabric_composition: '100% Cotton',
           target_gsm: 300,
@@ -247,11 +248,6 @@ export async function createBuyerOrderAction(payload: {
         .select('id')
         .maybeSingle()
       techPackId = newTp?.id
-    }
-
-    if (!techPackId) {
-      const { data: anyTp } = await supabaseAdmin.from('design_tech_packs').select('id').limit(1).maybeSingle()
-      techPackId = anyTp?.id
     }
 
     if (!techPackId) return { success: false, error: 'No active tech pack found in database.' }
@@ -731,9 +727,9 @@ export async function fetchActiveBuyersAction(companyName?: string): Promise<any
           }
         } catch {}
 
-        // 2. Fetch live BPO orders to guarantee every buyer with an order is represented with their exact volume & article
+        // 2. Fetch live BPO orders strictly for this tenant
         try {
-          const { data: orders, error: ordErr } = await supabaseAdmin
+          let ordQuery = supabaseAdmin
             .from('merchandising_orders')
             .select(`
               id,
@@ -748,25 +744,16 @@ export async function fetchActiveBuyersAction(companyName?: string): Promise<any
             `)
             .order('created_at', { ascending: false })
 
-          if (!ordErr && orders && orders.length > 0) {
-            let filteredOrders = orders
-            if (companyName && companyName.trim()) {
-              const target = companyName.trim().toLowerCase()
-              filteredOrders = orders.filter((ord: any) => {
-                const oc = (ord.company_name || '').toLowerCase()
-                const bc = (ord.brands?.company_name || '').toLowerCase()
-                const bn = (ord.brands?.brand_name || '').toLowerCase()
-                const tc = (ord.design_tech_packs?.company_name || '').toLowerCase()
-                return oc === target || oc.includes(target) ||
-                       bc === target || bc.includes(target) ||
-                       tc === target || tc.includes(target) ||
-                       bn === target || bn.includes(target)
-              })
-            }
+          if (companyName && companyName.trim()) {
+            ordQuery = ordQuery.ilike('company_name', companyName.trim())
+          }
 
+          const { data: orders, error: ordErr } = await ordQuery
+
+          if (!ordErr && orders && orders.length > 0) {
             const orderBuyersMap = new Map<string, any>()
 
-            filteredOrders.forEach((ord: any) => {
+            orders.forEach((ord: any) => {
               const buyerName = ord.brands?.brand_name || 'Commercial Buyer'
               const buyerKey = buyerName.trim().toUpperCase()
               const qty = Number(ord.total_quantity) || 0
@@ -789,7 +776,7 @@ export async function fetchActiveBuyersAction(companyName?: string): Promise<any
                   linked_article_number: ord.design_tech_packs?.style_number || ord.order_number,
                   linked_article_name: ord.design_tech_packs?.category || 'Garment Contract',
                   embellishment_sequence: ord.design_tech_packs?.embellishment_sequence || 'PRINT_FIRST_THEN_EMBROIDERY',
-                  company_name: ord.company_name || ord.brands?.company_name || companyName,
+                  company_name: ord.company_name || companyName,
                   status: 'LINKED',
                   created_at: ord.created_at
                 })
@@ -825,10 +812,13 @@ export async function fetchActiveBuyersAction(companyName?: string): Promise<any
           }
         } catch {}
 
-        // 3. Fallback to brands table ONLY if un-scoped legacy Nubira
-        if (buyersList.length === 0 && (!companyName || companyName === 'Nubira Creation')) {
+        // 3. Fallback to brands table ONLY if strictly scoped to companyName
+        if (buyersList.length === 0 && companyName && companyName.trim()) {
           try {
-            const { data: brands } = await supabaseAdmin.from('brands').select('*')
+            const { data: brands } = await supabaseAdmin
+              .from('brands')
+              .select('*')
+              .ilike('company_name', companyName.trim())
             if (brands && brands.length > 0) {
               buyersList = brands.map((b: any) => ({
                 id: b.id,
@@ -840,6 +830,7 @@ export async function fetchActiveBuyersAction(companyName?: string): Promise<any
                 price_per_piece: 12.5,
                 total_contract_value: 62500,
                 currency: 'INR',
+                company_name: companyName.trim(),
                 status: 'PENDING_LINK'
               }))
             }

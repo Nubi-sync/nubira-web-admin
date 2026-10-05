@@ -49,8 +49,8 @@ export default async function ProductionOrdersPage() {
       .eq('role', 'LINEMAN')
       .order('username'),
     getProductionOrders(tenant.companyName),
-    getBrands(),
-    getVendors()
+    getBrands(tenant.companyName),
+    getVendors(tenant.companyName)
   ])
 
   const filteredOrders = allOrders || []
