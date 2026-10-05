@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { resolveUserTenant } from '@/lib/tenant-context'
 
 export type BrandRecord = {
   id: string
