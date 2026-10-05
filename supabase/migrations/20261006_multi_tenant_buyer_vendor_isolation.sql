@@ -80,7 +80,22 @@ UPDATE public.merchandising_active_buyers
 
 UPDATE public.brands 
   SET company_name = 'Demo Industries' 
-  WHERE brand_name IN ('Hollypop', 'ollywood', 'FIRST SMILE', 'LAZY BONES', 'CANDY POP', 'CHERRY POP', 'PRIVATE LABEL');
+  WHERE brand_name IN ('Hollypop', 'ollywood');
+
+-- Point Demo Tech Packs to their genuine buyer brands
+UPDATE public.design_tech_packs tp
+  SET brand_id = br.id
+  FROM public.brands br
+  WHERE tp.style_number = 'DEMO-101-03' AND br.brand_name = 'Hollypop';
+
+UPDATE public.design_tech_packs tp
+  SET brand_id = br.id
+  FROM public.brands br
+  WHERE tp.style_number = 'DEMO-102' AND br.brand_name = 'ollywood';
+
+-- Purge legacy unused dummy seed brands from early development
+DELETE FROM public.brands 
+  WHERE brand_name IN ('FIRST SMILE', 'LAZY BONES', 'CANDY POP', 'CHERRY POP', 'PRIVATE LABEL');
 
 -- 5. Proprietary In-House Brands for Nubira Creation
 UPDATE public.brands 
