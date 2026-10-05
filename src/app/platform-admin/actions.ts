@@ -46,35 +46,76 @@ export async function fetchDemoRequestsAction(): Promise<{
   error?: string
 }> {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('platform_demo_requests')
-      .select('*')
-      .order('submitted_at', { ascending: false })
+    const [demoRes, tenantRes] = await Promise.all([
+      supabaseAdmin
+        .from('platform_demo_requests')
+        .select('*')
+        .order('submitted_at', { ascending: false }),
+      supabaseAdmin
+        .from('platform_tenant_factories')
+        .select('phone, admin_email')
+    ])
 
-    if (error) {
-      console.warn('[fetchDemoRequestsAction] Live table not found or error:', error.message)
-      return { data: [], isLiveDatabase: false, error: error.message }
+    if (demoRes.error) {
+      console.warn('[fetchDemoRequestsAction] Live table not found or error:', demoRes.error.message)
+      return { data: [], isLiveDatabase: false, error: demoRes.error.message }
     }
 
-    if (!data || data.length === 0) {
+    const data = demoRes.data || []
+    if (data.length === 0) {
       return { data: [], isLiveDatabase: true }
     }
 
-    const mapped: DemoRequestInquiry[] = data.map((row: any) => ({
-      id: row.id,
-      applicantName: row.applicant_name,
-      companyName: row.company_name,
-      phone: row.phone,
-      email: row.email,
-      preferredPlan: (row.preferred_plan || 'FULL_PLANT_AI') as SubscriptionPlanTier,
-      cityState: row.city_state || 'India',
-      estimatedMachines: row.estimated_machines || 0,
-      submittedAt: row.submitted_at || new Date().toISOString(),
-      status: (row.status || 'NEW_LEAD') as DemoRequestStatus,
-      notes: row.notes || undefined,
-      contactedAt: row.contacted_at || undefined,
-      provisionedTenantId: row.provisioned_tenant_id || undefined
-    }))
+    // Set of active tenant phones (last 10 digits) & emails
+    const tenantPhones = new Set(
+      (tenantRes.data || [])
+        .map((t: any) => (t.phone || '').replace(/\D/g, '').slice(-10))
+        .filter(Boolean)
+    )
+    const tenantEmails = new Set(
+      (tenantRes.data || [])
+        .map((t: any) => (t.admin_email || '').trim().toLowerCase())
+        .filter(Boolean)
+    )
+
+    const staleLeadIdsToDelete: string[] = []
+    const mapped: DemoRequestInquiry[] = []
+
+    for (const row of data) {
+      const p10 = (row.phone || '').replace(/\D/g, '').slice(-10)
+      const eClean = (row.email || '').trim().toLowerCase()
+      const isAlreadyTenant = (p10 && tenantPhones.has(p10)) || (eClean && tenantEmails.has(eClean)) || row.status === 'PROVISIONED_TENANT'
+
+      if (isAlreadyTenant) {
+        staleLeadIdsToDelete.push(row.id)
+      } else {
+        mapped.push({
+          id: row.id,
+          applicantName: row.applicant_name,
+          companyName: row.company_name,
+          phone: row.phone,
+          email: row.email,
+          preferredPlan: (row.preferred_plan || 'FULL_PLANT_AI') as SubscriptionPlanTier,
+          cityState: row.city_state || 'India',
+          estimatedMachines: row.estimated_machines || 0,
+          submittedAt: row.submitted_at || new Date().toISOString(),
+          status: (row.status || 'NEW_LEAD') as DemoRequestStatus,
+          notes: row.notes || undefined,
+          contactedAt: row.contacted_at || undefined,
+          provisionedTenantId: row.provisioned_tenant_id || undefined
+        })
+      }
+    }
+
+    // Background auto-purge stale leads that are already active tenant factories
+    if (staleLeadIdsToDelete.length > 0) {
+      supabaseAdmin
+        .from('platform_demo_requests')
+        .delete()
+        .in('id', staleLeadIdsToDelete)
+        .then(() => {})
+        .catch(() => {})
+    }
 
     return { data: mapped, isLiveDatabase: true }
   } catch (err: any) {
@@ -426,8 +467,111 @@ export async function updateDemoRequestStatusAction(
     revalidatePath('/platform-admin')
     return { success: true }
   } catch (err: any) {
-    console.error('[updateDemoRequestStatusAction] Error:', err)
-    return { success: false, error: err?.message }
+export async function deleteDemoRequestAction(id: string): Promise<{
+  success: boolean
+  error?: string
+}> {
+  try {
+    const { error } = await supabaseAdmin
+      .from('platform_demo_requests')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.warn('[deleteDemoRequestAction] Delete warning:', error.message)
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/platform-admin')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to delete lead inquiry' }
+  }
+}
+
+export async function addManualLeadAction(payload: {
+  applicantName: string
+  companyName: string
+  phone: string
+  email: string
+  cityState?: string
+  preferredPlan?: SubscriptionPlanTier
+  estimatedMachines?: number
+  notes?: string
+}): Promise<{
+  success: boolean
+  leadId?: string
+  error?: string
+}> {
+  try {
+    const cleanPhoneDigits = payload.phone.replace(/\D/g, '')
+    const phoneLast10 = cleanPhoneDigits.slice(-10)
+
+    if (phoneLast10.length < 10) {
+      return { success: false, error: 'Please enter a valid 10-digit phone number.' }
+    }
+
+    const cleanEmail = payload.email.trim().toLowerCase()
+
+    // 1. Strict check: PROHIBITED if phone number exists in platform_tenant_factories
+    const { data: existingTenants } = await supabaseAdmin
+      .from('platform_tenant_factories')
+      .select('id, company_name, phone')
+      .ilike('phone', `%${phoneLast10}%`)
+      .limit(5)
+
+    const tenantMatch = existingTenants?.find(t => (t.phone || '').replace(/\D/g, '').endsWith(phoneLast10))
+    if (tenantMatch) {
+      return {
+        success: false,
+        error: `Prohibited: A factory account for "${tenantMatch.company_name}" with phone (+91 ${phoneLast10}) already exists in Tenant Factories.`
+      }
+    }
+
+    // 2. Strict check: Check if phone number already exists in platform_demo_requests
+    const { data: existingLeads } = await supabaseAdmin
+      .from('platform_demo_requests')
+      .select('id, company_name, phone')
+      .ilike('phone', `%${phoneLast10}%`)
+      .limit(5)
+
+    const leadMatch = existingLeads?.find(l => (l.phone || '').replace(/\D/g, '').endsWith(phoneLast10))
+    if (leadMatch) {
+      return {
+        success: false,
+        error: `A lead inquiry for "${leadMatch.company_name}" with this phone number already exists in your pipeline.`
+      }
+    }
+
+    // 3. Format phone
+    const formattedPhone = `+91 ${phoneLast10.slice(0, 5)} ${phoneLast10.slice(5)}`
+
+    // 4. Insert new manual lead
+    const { data, error } = await supabaseAdmin
+      .from('platform_demo_requests')
+      .insert([{
+        applicant_name: payload.applicantName.trim(),
+        company_name: payload.companyName.trim(),
+        phone: formattedPhone,
+        email: cleanEmail,
+        city_state: payload.cityState?.trim() || 'India',
+        preferred_plan: payload.preferredPlan || 'FULL_PLANT_AI',
+        estimated_machines: payload.estimatedMachines || 0,
+        status: 'NEW_LEAD',
+        notes: payload.notes?.trim() || 'Manually entered lead via Platform Admin Hub',
+        submitted_at: new Date().toISOString()
+      }])
+      .select('id')
+      .single()
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/platform-admin')
+    return { success: true, leadId: data?.id }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to add manual lead' }
   }
 }
 

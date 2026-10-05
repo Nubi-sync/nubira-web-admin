@@ -552,21 +552,15 @@ export async function registerFreeTrialAction(payload: FreeTrialPayload): Promis
       console.warn('[registerFreeTrialAction] Tenant insert notice:', tErr)
     }
 
-    // 7. Insert into platform_demo_requests to show in leads list
+    // 7. Auto-cleanup: remove any prior demo lead for this phone/email since it is now an active tenant factory
     try {
-      await supabaseAdmin.from('platform_demo_requests').insert([{
-        applicant_name: rawName,
-        company_name: companyName,
-        phone: formattedPhone,
-        email: cleanEmail,
-        preferred_plan: 'FULL_PLANT_AI',
-        city_state: 'Surat, Gujarat',
-        status: 'PROVISIONED_TENANT',
-        provisioned_tenant_id: provisionedTenantId,
-        notes: '7-Day Self-Service Free Trial Activated via Try For Free onboarding',
-        submitted_at: new Date().toISOString(),
-        contacted_at: new Date().toISOString()
-      }])
+      const phoneDigits = rawPhone.replace(/\D/g, '').slice(-10)
+      if (phoneDigits) {
+        await supabaseAdmin
+          .from('platform_demo_requests')
+          .delete()
+          .or(`phone.ilike.%${phoneDigits}%,email.ilike.${cleanEmail}`)
+      }
     } catch (_) {}
 
     // 8. Audit Log
