@@ -133,7 +133,7 @@ export async function fetchOwnerDashboardData(
   const targetComp = companyName.trim().toLowerCase()
 
   const normComp = companyName.toLowerCase().replace(/[^a-z0-9]/g, '_')
-  const cacheKey = `company:${normComp}:owner:dashboard:v2`
+  const cacheKey = `company:${normComp}:owner:dashboard:v3`
 
   return CacheManager.fetchOrSet(cacheKey, async () => {
     try {
@@ -152,8 +152,14 @@ export async function fetchOwnerDashboardData(
         `)
         .order('created_at', { ascending: false })
 
-      if (!isLegacy && targetComp) {
-        techPacksQuery = techPacksQuery.ilike('company_name', targetComp)
+      if (targetComp) {
+        if (targetComp.includes('nubira')) {
+          techPacksQuery = techPacksQuery.or(`company_name.ilike.%${targetComp}%,company_name.ilike.%nubira%`)
+        } else {
+          techPacksQuery = techPacksQuery.ilike('company_name', targetComp)
+        }
+      } else {
+        techPacksQuery = techPacksQuery.eq('company_name', '__NO_COMPANY__')
       }
 
       // 2. Fetch Merchandising Orders for THIS Company
@@ -168,8 +174,14 @@ export async function fetchOwnerDashboardData(
         .order('created_at', { ascending: false })
         .limit(200)
 
-      if (!isLegacy && targetComp) {
-        merchOrdersQuery = merchOrdersQuery.ilike('company_name', targetComp)
+      if (targetComp) {
+        if (targetComp.includes('nubira')) {
+          merchOrdersQuery = merchOrdersQuery.or(`company_name.ilike.%${targetComp}%,company_name.ilike.%nubira%`)
+        } else {
+          merchOrdersQuery = merchOrdersQuery.ilike('company_name', targetComp)
+        }
+      } else {
+        merchOrdersQuery = merchOrdersQuery.eq('company_name', '__NO_COMPANY__')
       }
 
       // 3. Fetch Articles (Legacy & Dedicated Articles Table)
@@ -201,8 +213,14 @@ export async function fetchOwnerDashboardData(
         .select('id, fabric_type, total_meters, total_rolls, color, company_name')
         .limit(100)
 
-      if (!isLegacy && targetComp) {
-        fabricQuery = fabricQuery.ilike('company_name', targetComp)
+      if (targetComp) {
+        if (targetComp.includes('nubira')) {
+          fabricQuery = fabricQuery.or(`company_name.ilike.%${targetComp}%,company_name.ilike.%nubira%`)
+        } else {
+          fabricQuery = fabricQuery.ilike('company_name', targetComp)
+        }
+      } else {
+        fabricQuery = fabricQuery.eq('company_name', '__NO_COMPANY__')
       }
 
       // Execute base queries concurrently
@@ -467,7 +485,7 @@ export async function fetchOwnerDashboardData(
             artNo,
             description: art.description || `Style ${artNo}`,
             category: 'Apparel',
-            buyerName: targetComp || 'In-House Brand',
+            buyerName: companyName || 'In-House Brand',
             poNumber: `CH-${artNo}`,
             designStatus: 'APPROVED',
             buyerPoTarget: target,
