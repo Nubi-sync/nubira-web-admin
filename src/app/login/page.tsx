@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { login, sendPasswordResetOtp, verifyRecoveryOtp, setNewPassword } from './actions'
@@ -61,6 +61,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(true)
 
+  // Clear previous session toast markers on visiting login page so fresh logins always re-trigger trial notification
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.clear()
+        localStorage.removeItem('trial_toast_shown')
+      } catch (e) {}
+    }
+  }, [])
+
   // 3-Step Forgot Password Modal States
   const [showForgotModal, setShowForgotModal] = useState(false)
   const [forgotStep, setForgotStep] = useState<1 | 2 | 3>(1) // 1: Email, 2: OTP, 3: New Password
@@ -79,6 +89,12 @@ export default function LoginPage() {
     setError(null)
     const formData = new FormData(e.currentTarget)
     try {
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.clear()
+          localStorage.removeItem('trial_toast_shown')
+        } catch (e) {}
+      }
       const result = await login(formData)
       if (result?.error) {
         setError(result.error)

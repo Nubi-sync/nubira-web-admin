@@ -129,6 +129,7 @@ export function AdminSidebar({
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isRechargingSide, setIsRechargingSide] = useState(false)
   const [subStatus, setSubStatus] = useState<{
     isTrial: boolean
     daysLeft: number
@@ -1106,7 +1107,17 @@ export function AdminSidebar({
 
           {/* Quick Sign Out on Hover */}
           {isHovered && (
-            <form action="/auth/signout" method="POST" className="shrink-0 ml-1.5 animate-in fade-in duration-200">
+            <form
+              action="/auth/signout"
+              method="POST"
+              onSubmit={() => {
+                try {
+                  sessionStorage.clear()
+                  localStorage.removeItem('trial_toast_shown')
+                } catch (e) {}
+              }}
+              className="shrink-0 ml-1.5 animate-in fade-in duration-200"
+            >
               <button 
                 type="submit" 
                 title="Sign Out" 
@@ -1185,13 +1196,22 @@ export function AdminSidebar({
               </p>
               <button
                 type="button"
+                disabled={isRechargingSide}
                 onClick={() => {
+                  setIsRechargingSide(true)
                   if (onMobileClose) onMobileClose()
                   window.location.href = '/profile?highlight=subscription#subscription'
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+                className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-80"
               >
-                <span>Click here to recharge</span>
+                {isRechargingSide ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Click here to recharge</span>
+                )}
               </button>
             </div>
           )}
@@ -1244,7 +1264,17 @@ export function AdminSidebar({
             </div>
           </Link>
 
-          <form action="/auth/signout" method="POST" className="shrink-0">
+          <form
+            action="/auth/signout"
+            method="POST"
+            className="shrink-0"
+            onSubmit={() => {
+              try {
+                sessionStorage.clear()
+                localStorage.removeItem('trial_toast_shown')
+              } catch (e) {}
+            }}
+          >
             <button 
               type="submit" 
               title="Sign Out" 

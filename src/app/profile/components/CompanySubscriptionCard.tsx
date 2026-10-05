@@ -38,6 +38,7 @@ export function CompanySubscriptionCard({
   isExpiredUrlParam = false
 }: CompanySubscriptionCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isOpeningModal, setIsOpeningModal] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
   const activePlanTier = subscriptionTier === 'MODULAR' ? 'MODULAR' : 'FULL_PLANT_AI'
   const [selectedDuration, setSelectedDuration] = useState<number>(1) // months
@@ -206,12 +207,23 @@ export function CompanySubscriptionCard({
               <button
                 id="active-subscription-btn"
                 type="button"
-                onClick={() => setIsModalOpen(true)}
-                className={`relative z-10 min-h-[42px] px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0 ${
+                onClick={() => {
+                  setIsOpeningModal(true)
+                  setIsModalOpen(true)
+                  setTimeout(() => setIsOpeningModal(false), 400)
+                }}
+                className={`relative z-10 min-h-[42px] px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0 flex items-center justify-center gap-2 ${
                   isHighlighted ? 'ring-2 ring-white shadow-lg shadow-blue-600/50' : ''
                 }`}
               >
-                {isTrial ? 'Activate Subscription' : 'Renew Subscription'}
+                {isOpeningModal ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Opening...</span>
+                  </>
+                ) : (
+                  <span>{isTrial ? 'Activate Subscription' : 'Renew Subscription'}</span>
+                )}
               </button>
             </div>
           </div>

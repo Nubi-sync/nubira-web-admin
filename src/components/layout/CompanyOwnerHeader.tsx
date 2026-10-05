@@ -18,7 +18,8 @@ import {
   X,
   ChevronRight,
   Zap,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react'
 import {
   DashboardNavIcon,
@@ -80,6 +81,8 @@ export function CompanyOwnerHeader({
     monthlyRate: 4999
   })
 
+  const [isRechargingTop, setIsRechargingTop] = useState(false)
+  const [isRechargingMobile, setIsRechargingMobile] = useState(false)
   const createRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
@@ -307,31 +310,50 @@ export function CompanyOwnerHeader({
               {/* Desktop / Tablet View */}
               <button
                 type="button"
+                disabled={isRechargingTop}
                 onClick={() => {
+                  setIsRechargingTop(true)
                   window.location.href = '/profile?highlight=subscription#subscription'
                 }}
-                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 hover:border-[#14C8B4] text-[#0B1220] font-bold text-xs shadow-2xs transition-all cursor-pointer group active:scale-95"
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 hover:border-[#14C8B4] text-[#0B1220] font-bold text-xs shadow-2xs transition-all cursor-pointer group active:scale-95 disabled:opacity-80"
                 title="Free Trial Active - Click here to recharge"
               >
-                <span className="font-semibold text-slate-700">
-                  Trial: <strong className="text-[#0B1220]">{subStatus.daysLeft}d left</strong>
-                </span>
-                <span className="h-3 w-px bg-slate-300" />
-                <span className="text-[#1D4ED8] font-bold group-hover:underline">
-                  Click here to recharge
-                </span>
+                {isRechargingTop ? (
+                  <span className="flex items-center gap-1.5 text-[#1D4ED8]">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1D4ED8]" />
+                    <span>Loading...</span>
+                  </span>
+                ) : (
+                  <>
+                    <span className="font-semibold text-slate-700">
+                      Trial: <strong className="text-[#0B1220]">{subStatus.daysLeft}d left</strong>
+                    </span>
+                    <span className="h-3 w-px bg-slate-300" />
+                    <span className="text-[#1D4ED8] font-bold group-hover:underline">
+                      Click here to recharge
+                    </span>
+                  </>
+                )}
               </button>
 
               {/* Mobile Header View */}
               <button
                 type="button"
+                disabled={isRechargingTop}
                 onClick={() => {
+                  setIsRechargingTop(true)
                   window.location.href = '/profile?highlight=subscription#subscription'
                 }}
-                className="sm:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] text-[11px] font-bold shadow-2xs cursor-pointer active:scale-95"
+                className="sm:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] text-[11px] font-bold shadow-2xs cursor-pointer active:scale-95 disabled:opacity-80"
               >
-                <span>{subStatus.daysLeft}d left</span>
-                <span className="text-[#1D4ED8] underline font-bold ml-0.5">Recharge</span>
+                {isRechargingTop ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1D4ED8]" />
+                ) : (
+                  <>
+                    <span>{subStatus.daysLeft}d left</span>
+                    <span className="text-[#1D4ED8] underline font-bold ml-0.5">Recharge</span>
+                  </>
+                )}
               </button>
             </>
           )}
@@ -446,7 +468,16 @@ export function CompanyOwnerHeader({
                 </div>
 
                 <div className="border-t border-slate-100 pt-1">
-                  <form action="/auth/signout" method="post">
+                  <form
+                    action="/auth/signout"
+                    method="post"
+                    onSubmit={() => {
+                      try {
+                        sessionStorage.clear()
+                        localStorage.removeItem('trial_toast_shown')
+                      } catch (e) {}
+                    }}
+                  >
                     <button
                       type="submit"
                       className="w-full text-left flex items-center gap-2.5 px-4 py-2 text-rose-600 hover:bg-rose-50 font-bold transition-colors cursor-pointer"
@@ -621,13 +652,22 @@ export function CompanyOwnerHeader({
                       </p>
                       <button
                         type="button"
+                        disabled={isRechargingMobile}
                         onClick={() => {
+                          setIsRechargingMobile(true)
                           setIsMobileDrawerOpen(false)
                           window.location.href = '/profile?highlight=subscription#subscription'
                         }}
-                        className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+                        className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-80"
                       >
-                        <span>Click here to recharge</span>
+                        {isRechargingMobile ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                            <span>Loading...</span>
+                          </>
+                        ) : (
+                          <span>Click here to recharge</span>
+                        )}
                       </button>
                     </div>
                   )}
@@ -715,7 +755,17 @@ export function CompanyOwnerHeader({
                         </span>
                       )}
                     </Link>
-                    <form action="/auth/signout" method="post" className="pt-1">
+                    <form
+                      action="/auth/signout"
+                      method="post"
+                      className="pt-1"
+                      onSubmit={() => {
+                        try {
+                          sessionStorage.clear()
+                          localStorage.removeItem('trial_toast_shown')
+                        } catch (e) {}
+                      }}
+                    >
                       <button
                         type="submit"
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
