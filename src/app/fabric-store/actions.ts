@@ -87,17 +87,21 @@ export async function fetchFabricStoreHubAction(companyName?: string): Promise<F
 
         if (!targetCompany) {
           return {
-            inventory: [],
-            orders: [],
-            techPacks: [],
-            stats: {
-              totalFabricStockMeters: 0,
-              totalCommittedMeters: 0,
-              totalFreeStockMeters: 0,
-              lowStockCount: 0,
-              activeRollsCount: 0,
-              fabricVarietiesCount: 0
-            }
+            success: true,
+            companyName: '',
+            kpis: {
+              totalClothMeters: 0,
+              totalClothRolls: 0,
+              totalClothAssignedMeters: 0,
+              clothAllocationRate: 0,
+              totalTrimItemsCount: 0,
+              totalTrimUnitsInStore: 0,
+              totalTrimAssignedUnits: 0,
+              trimAllocationRate: 0
+            },
+            fabrics: [],
+            trims: [],
+            activeArticles: []
           }
         }
 
