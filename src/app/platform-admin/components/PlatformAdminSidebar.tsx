@@ -14,7 +14,7 @@ import {
   LogOut,
   X,
   Layers,
-  ChevronRight,
+  Globe,
   Sparkles
 } from 'lucide-react'
 
@@ -41,6 +41,7 @@ const navSections: NavSection[] = [
     section: 'Platform Command',
     items: [
       { label: 'Demo Leads & Inquiries', href: '/platform-admin', icon: Inbox },
+      { label: 'Visitor Telemetry & Geo', href: '/platform-admin/visitors', icon: Globe },
       { label: 'Tenant Factories', href: '/platform-admin/tenants', icon: Building2 },
       { label: 'Access Provisioning', href: '/platform-admin/provisioning', icon: Key },
       { label: 'Subscriptions & Expiry', href: '/platform-admin/payments', icon: CreditCard },
