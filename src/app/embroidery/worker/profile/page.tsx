@@ -63,6 +63,7 @@ export default async function EmbroideryWorkerProfilePage() {
           userId={user.id}
           userRole={tenant.role}
           workerRecord={matchedWorker}
+          companyName={tenant.companyName}
         />
       </div>
     </AdminShell>

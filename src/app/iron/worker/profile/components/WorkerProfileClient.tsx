@@ -17,6 +17,7 @@ interface WorkerProfileClientProps {
   userId?: string
   userRole?: string
   workerRecord?: any
+  companyName?: string
 }
 
 export function WorkerProfileClient({
@@ -25,7 +26,8 @@ export function WorkerProfileClient({
   userPhone,
   userId,
   userRole,
-  workerRecord
+  workerRecord,
+  companyName
 }: WorkerProfileClientProps) {
   const normPhone = (userPhone || workerRecord?.phone_number || '').replace(/\D/g, '').slice(-10)
   const rolesList: string[] = workerRecord?.roles || (workerRecord?.role ? [workerRecord.role] : ['FINISHING_PRESSER'])
@@ -76,7 +78,7 @@ export function WorkerProfileClient({
               </span>
             </div>
             <p className="text-sm text-slate-600 mt-1 font-mono">
-              Floor ID: {workerRecord?.id || userId ? `OP-${(workerRecord?.id || userId).slice(-6)}` : 'OP-IRON-01'} • Nubira Creation Floor
+              Floor ID: {workerRecord?.id || userId ? `OP-${(workerRecord?.id || userId).slice(-6)}` : 'OP-IRON-01'} • {companyName || workerRecord?.company_name || 'Assigned Factory'} Floor
             </p>
           </div>
         </div>
@@ -111,7 +113,7 @@ export function WorkerProfileClient({
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5">
               <span className="text-slate-500">Factory Tenant</span>
-              <span className="font-bold text-[#0B1220]">Nubira Creation</span>
+              <span className="font-bold text-[#0B1220]">{companyName || workerRecord?.company_name || 'Assigned Factory'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-[#F0FDFA]/60 border border-black/5">
