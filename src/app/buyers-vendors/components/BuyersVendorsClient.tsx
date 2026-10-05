@@ -41,12 +41,14 @@ import {
   BuyersVendorsHubData,
   BuyerItem,
   BuyerArticleHistory,
-  ModuleVendorItem
+  ModuleVendorItem,
+  deleteCustomModuleAction
 } from '../actions'
 import { getBuyerAvatarInitials } from '../utils/buyerUtils'
 import { ArticleContractDetailModal } from './ArticleContractDetailModal'
 import { AssignVendorModal } from './AssignVendorModal'
 import { AddBuyerModal } from './AddBuyerModal'
+import { AddCustomModuleModal } from './AddCustomModuleModal'
 
 const MODULE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Palette,
@@ -115,6 +117,35 @@ export function BuyersVendorsClient({
 
   const [isAddBuyerModalOpen, setIsAddBuyerModalOpen] = useState(false)
   const [selectedBuyerForEdit, setSelectedBuyerForEdit] = useState<BuyerItem | null>(null)
+
+  // Custom Module Modals & Handlers
+  const [isAddCustomModuleOpen, setIsAddCustomModuleOpen] = useState(false)
+  const [deletingModuleRoute, setDeletingModuleRoute] = useState<string | null>(null)
+
+  const handleCustomModuleCreated = (newModule: ModuleVendorItem) => {
+    setModuleVendorsList(prev => [...prev, newModule])
+    showToast(`Custom module "${newModule.moduleName}" created successfully`)
+    router.refresh()
+  }
+
+  const handleDeleteCustomModule = async (moduleRoute: string, moduleName: string) => {
+    if (!confirm(`Are you sure you want to delete the custom module "${moduleName}"?`)) return
+    setDeletingModuleRoute(moduleRoute)
+    try {
+      const res = await deleteCustomModuleAction(moduleRoute)
+      if (res.success) {
+        setModuleVendorsList(prev => prev.filter(m => m.moduleRoute !== moduleRoute))
+        showToast(`Custom module "${moduleName}" removed`)
+        router.refresh()
+      } else {
+        toast.error(res.error || 'Failed to delete custom module')
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Error deleting custom module')
+    } finally {
+      setDeletingModuleRoute(null)
+    }
+  }
 
   // Clean Toast notification
   const showToast = (msg: string) => {
@@ -736,14 +767,22 @@ export function BuyersVendorsClient({
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2.5">
               <Layers className="w-6 h-6 text-[#14C8B4]" />
-              12 Factory Modules — Vendor Assignment
+              Subscribed Modules — Vendor Assignment
             </h2>
             <span className="text-xs sm:text-sm font-mono font-bold px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-              12 Modules
+              {filteredModules.length} Subscribed Modules
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start sm:self-center">
+          <div className="flex items-center gap-2.5 self-start sm:self-center flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsAddCustomModuleOpen(true)}
+              className="min-h-[42px] px-3.5 sm:px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4 text-white" />
+              <span>Add Custom Module</span>
+            </button>
             <button
               type="button"
               onClick={expandAllModules}
@@ -792,11 +831,16 @@ export function BuyersVendorsClient({
                       <IconComponent className="w-6 h-6 text-[#0B1220]" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-base lg:text-lg font-bold text-[#0B1220] truncate flex items-center gap-2">
+                      <div className="text-base lg:text-lg font-bold text-[#0B1220] truncate flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                           {mod.moduleCode}
                         </span>
                         <span className="truncate">{mod.moduleName}</span>
+                        {mod.isCustom && (
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+                            Custom Unit
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs sm:text-sm font-semibold text-slate-500 truncate">
                         {mod.defaultDesignation}
@@ -861,8 +905,13 @@ export function BuyersVendorsClient({
                         <IconComponent className="w-5 h-5 text-[#0B1220]" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-base font-bold text-[#0B1220] truncate">
-                          {mod.moduleName}
+                        <div className="text-base font-bold text-[#0B1220] truncate flex items-center gap-1.5 flex-wrap">
+                          <span>{mod.moduleName}</span>
+                          {mod.isCustom && (
+                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                              Custom
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs font-semibold text-slate-500 truncate">
                           {mod.defaultDesignation}
@@ -917,7 +966,22 @@ export function BuyersVendorsClient({
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                          {mod.isCustom && (
+                            <button
+                              type="button"
+                              disabled={deletingModuleRoute === mod.moduleRoute}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteCustomModule(mod.moduleRoute, mod.moduleName)
+                              }}
+                              className="min-h-[40px] px-3.5 py-2 text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                              title="Delete this custom module"
+                            >
+                              <Trash2 className="w-4 h-4 text-rose-600" />
+                              <span>Delete Module</span>
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={(e) => {
@@ -1035,6 +1099,14 @@ export function BuyersVendorsClient({
           showToast('Buyer master profile saved successfully')
           router.refresh()
         }}
+      />
+
+      {/* 4. Add Custom Module Modal */}
+      <AddCustomModuleModal
+        isOpen={isAddCustomModuleOpen}
+        companyName={companyName}
+        onClose={() => setIsAddCustomModuleOpen(false)}
+        onSuccess={handleCustomModuleCreated}
       />
     </div>
   )
