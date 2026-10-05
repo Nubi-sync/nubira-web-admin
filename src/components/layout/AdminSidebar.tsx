@@ -1224,9 +1224,16 @@ export function AdminSidebar({
                 type="button"
                 disabled={isRechargingSide}
                 onClick={() => {
-                  setIsRechargingSide(true)
                   if (onMobileClose) onMobileClose()
-                  window.location.href = '/profile?highlight=subscription#subscription'
+                  if (typeof window !== 'undefined') {
+                    if (window.location.pathname.startsWith('/profile')) {
+                      window.dispatchEvent(new CustomEvent('blink-active-subscription'))
+                      setIsRechargingSide(false)
+                      return
+                    }
+                    setIsRechargingSide(true)
+                    window.location.href = '/profile?highlight=subscription'
+                  }
                 }}
                 className="w-full py-2 px-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 disabled:opacity-80"
               >

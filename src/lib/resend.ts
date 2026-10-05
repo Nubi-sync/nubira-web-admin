@@ -545,7 +545,7 @@ export async function sendPaymentReminderEmail(params: PaymentReminderEmailParam
                 <tr>
                   <td align="left" style="border-radius: 10px; background-color: #1D4ED8;">
                     <a 
-                      href="https://zigza.in/profile?highlight=subscription#subscription" 
+                      href="https://zigza.in/profile?highlight=subscription" 
                       style="display: inline-block; background-color: #1D4ED8; color: #FFFFFF !important; padding: 14px 30px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none;"
                       target="_blank"
                     >
