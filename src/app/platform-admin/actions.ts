@@ -109,12 +109,12 @@ export async function fetchDemoRequestsAction(): Promise<{
 
     // Background auto-purge stale leads that are already active tenant factories
     if (staleLeadIdsToDelete.length > 0) {
-      supabaseAdmin
-        .from('platform_demo_requests')
-        .delete()
-        .in('id', staleLeadIdsToDelete)
-        .then(() => {})
-        .catch(() => {})
+      try {
+        await supabaseAdmin
+          .from('platform_demo_requests')
+          .delete()
+          .in('id', staleLeadIdsToDelete)
+      } catch (_) {}
     }
 
     return { data: mapped, isLiveDatabase: true }

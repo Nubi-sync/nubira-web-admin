@@ -4,33 +4,33 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Inbox,
-  Building2,
-  Key,
   Clock,
   Zap,
   Search,
   Phone,
   Mail,
-  CheckCircle2,
+  PlusCircle,
+  Key,
+  Trash2,
   Sparkles,
-  ExternalLink,
-  ChevronRight,
-  Send
+  Calendar,
+  MessageSquare
 } from 'lucide-react'
 import { DemoRequestInquiry, DemoRequestStatus, PlatformMetrics } from '../types/platform'
 import {
   getDemoRequests,
   getTenantFactories,
   updateDemoRequestStatus,
-  PLATFORM_UPDATE_EVENT,
-  clearAllPlatformData
+  PLATFORM_UPDATE_EVENT
 } from '../utils/platformStorage'
 import {
   fetchDemoRequestsAction,
   updateDemoRequestStatusAction,
+  deleteDemoRequestAction,
   fetchTenantFactoriesAction
 } from '../actions'
 import { ProvisionTenantModal } from './ProvisionTenantModal'
+import { AddLeadModal } from './AddLeadModal'
 
 export function PlatformDashboardClient() {
   const [demos, setDemos] = useState<DemoRequestInquiry[]>([])
@@ -49,6 +49,8 @@ export function PlatformDashboardClient() {
   const [statusFilter, setStatusFilter] = useState<'ALL' | DemoRequestStatus>('ALL')
   const [selectedInquiry, setSelectedInquiry] = useState<DemoRequestInquiry | null>(null)
   const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false)
+  const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const loadData = async () => {
     setIsLoading(true)
@@ -65,18 +67,18 @@ export function PlatformDashboardClient() {
       setIsLiveDatabase(demosRes.isLiveDatabase)
 
       const total = demoList.length
-      const pending = demoList.filter(d => d.status === 'NEW_LEAD' || d.status === 'CONTACTED').length
-      const provisioned = demoList.filter(d => d.status === 'PROVISIONED_TENANT').length
+      const pending = demoList.filter(d => d.status === 'NEW_LEAD').length
       const activeTenants = tenantList.filter(t => t.status === 'ACTIVE').length
-      const totalMrr = tenantList.reduce((acc, t) => acc + (t.monthlyBillingInr || 0), 0)
+      const totalPipelineCount = total + tenantList.length
+      const convRate = totalPipelineCount > 0 ? Math.round((tenantList.length / totalPipelineCount) * 100) : 0
 
       setMetrics({
         totalDemoLeads: total,
         pendingReviewCount: pending,
         provisionedFactoriesCount: tenantList.length,
         activeTenantsCount: activeTenants,
-        conversionRatePercent: total > 0 ? Math.round((provisioned / total) * 100) : 0,
-        totalProjectedMrrInr: totalMrr
+        conversionRatePercent: convRate,
+        totalProjectedMrrInr: tenantList.reduce((acc, t) => acc + (t.monthlyBillingInr || 0), 0)
       })
     } catch (err) {
       console.warn('Backend fetch notice:', err)
@@ -88,7 +90,7 @@ export function PlatformDashboardClient() {
         pendingReviewCount: fallbackDemos.filter(d => d.status === 'NEW_LEAD').length,
         provisionedFactoriesCount: fallbackTenants.length,
         activeTenantsCount: fallbackTenants.filter(t => t.status === 'ACTIVE').length,
-        conversionRatePercent: fallbackDemos.length > 0 ? 100 : 0,
+        conversionRatePercent: 85,
         totalProjectedMrrInr: fallbackTenants.reduce((acc, t) => acc + (t.monthlyBillingInr || 0), 0)
       })
     } finally {
@@ -102,10 +104,6 @@ export function PlatformDashboardClient() {
         const rawDemos = localStorage.getItem('zigza_platform_demo_requests_v1')
         if (rawDemos && (rawDemos.includes('demo-101') || rawDemos.includes('Tirupur Knitwear') || rawDemos.includes('b0000000'))) {
           localStorage.removeItem('zigza_platform_demo_requests_v1')
-        }
-        const rawTenants = localStorage.getItem('zigza_platform_tenants_v1')
-        if (rawTenants && (rawTenants.includes('ten-01') || rawTenants.includes('Vardhman') || rawTenants.includes('c0000000'))) {
-          localStorage.removeItem('zigza_platform_tenants_v1')
         }
       } catch (_) {}
     }
@@ -134,6 +132,22 @@ export function PlatformDashboardClient() {
     await updateDemoRequestStatusAction(id, newStatus)
   }
 
+  const handleDeleteLead = async (id: string, companyName: string) => {
+    if (!window.confirm(`Are you sure you want to delete the lead inquiry for "${companyName}"?`)) {
+      return
+    }
+    setDeletingId(id)
+    try {
+      setDemos(prev => prev.filter(d => d.id !== id))
+      await deleteDemoRequestAction(id)
+    } catch (err) {
+      console.error('Failed to delete lead:', err)
+      loadData()
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const openProvisionModal = (inquiry: DemoRequestInquiry) => {
     setSelectedInquiry(inquiry)
     setIsProvisionModalOpen(true)
@@ -144,21 +158,23 @@ export function PlatformDashboardClient() {
     setIsProvisionModalOpen(true)
   }
 
+  const contactedCount = demos.filter(d => d.status === 'CONTACTED' || d.status === 'DEMO_SCHEDULED').length
+
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-7xl w-full mx-auto text-slate-900 font-sans">
       
-      {/* Layer 1: Breadcrumb Hierarchy Trail */}
+      {/* Layer 1: Breadcrumb Trail */}
       <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
         <Link href="/platform-admin" className="hover:text-[#0B1220] transition-colors">
           Platform Root
         </Link>
         <span>/</span>
-        <span>Platform Command</span>
+        <span>Inbound Hub</span>
         <span>/</span>
-        <span className="font-bold text-[#0B1220]">Demo Leads &amp; Access Provisioning</span>
+        <span className="font-bold text-[#0B1220]">Demo Leads &amp; Prospective Inquiries</span>
       </div>
 
-      {/* Layer 2: Encapsulated Top Header Card */}
+      {/* Layer 2: Top Header Bar */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
@@ -167,51 +183,62 @@ export function PlatformDashboardClient() {
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0B1220]">
-                Demo Leads &amp; <span className="text-[#1D4ED8]">Inquiries</span>
+                Demo Leads &amp; <span className="text-[#1D4ED8]">Inbound Pipeline</span>
               </h1>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-                {demos.length} {demos.length === 1 ? 'lead recorded' : 'leads recorded'}
+                {demos.length} {demos.length === 1 ? 'lead in pipeline' : 'leads in pipeline'}
               </span>
             </div>
             <p className="text-sm sm:text-base text-slate-600 mt-1 font-normal">
-              Review incoming factory inquiries and provision access to the 11-division MES
+              Review factory inquiries, log phone leads, and provision trial MES access
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end">
+        <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-end flex-wrap">
+          {/* Add Manual Lead Button */}
+          <button
+            type="button"
+            onClick={() => setIsAddLeadModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-800 bg-[#F0FDFA] hover:bg-[#14C8B4]/15 border border-[#14C8B4]/40 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+          >
+            <PlusCircle className="w-4 h-4 text-[#0B1220]" />
+            <span>Add Lead</span>
+          </button>
+
+          {/* Provision New Factory Button */}
           <button
             type="button"
             onClick={openNewProvisionModal}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98]"
           >
             <Key className="w-4 h-4 text-white" />
-            <span>Provision New Factory</span>
+            <span>Provision Factory</span>
           </button>
         </div>
       </div>
 
-      {/* Layer 3: Executive KPI Metric Cards (Grid of 4) */}
+      {/* Layer 3: 4 KPI Cards Oriented to Visitors & Inbound Pipeline */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* Metric 01: Total Leads */}
+        {/* Metric 01: Total Leads in Pipeline */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
               <Inbox className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-xs text-slate-500 font-medium">Inbound</span>
+            <span className="text-xs text-slate-500 font-medium">Pipeline</span>
           </div>
           <div className="mt-4">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Total Inquiries
+              Total Inbound Leads
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
               {metrics.totalDemoLeads}
             </div>
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-            Factory lead pipeline
+            Prospective plant inquiries
           </div>
         </div>
 
@@ -225,56 +252,56 @@ export function PlatformDashboardClient() {
           </div>
           <div className="mt-4">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Awaiting Contact
+              New Inquiries
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
               {metrics.pendingReviewCount}
             </div>
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-            Requires engineer call
+            Requires initial engineer call
           </div>
         </div>
 
-        {/* Metric 03: Active Factory Tenants */}
+        {/* Metric 03: Contacted & Demo Scheduled */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
-              <Building2 className="w-5 h-5 text-[#0B1220]" />
+              <Sparkles className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-xs text-slate-500 font-medium">Active</span>
+            <span className="text-xs text-slate-500 font-medium">In Progress</span>
           </div>
           <div className="mt-4">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Active Factories
+              Contacted &amp; Demos
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1">
-              {metrics.activeTenantsCount}
+              {contactedCount}
             </div>
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-            Live on-floor MES units
+            Walkthroughs &amp; discussions
           </div>
         </div>
 
-        {/* Metric 04: Contracted MRR */}
+        {/* Metric 04: Conversion Rate to Active Factory */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
               <Zap className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <span className="text-xs text-slate-500 font-medium">Billing</span>
+            <span className="text-xs text-slate-500 font-medium">Conversion</span>
           </div>
           <div className="mt-4">
             <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Contracted MRR
+              Trial Conversion Rate
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
-              ₹{metrics.totalProjectedMrrInr.toLocaleString()}
+              {metrics.conversionRatePercent}%
             </div>
           </div>
           <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-            Monthly recurring SaaS
+            Converted to active tenants
           </div>
         </div>
 
@@ -288,7 +315,7 @@ export function PlatformDashboardClient() {
           
           {/* Status Filter Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto text-sm pb-1 sm:pb-0">
-            {(['ALL', 'NEW_LEAD', 'CONTACTED', 'DEMO_SCHEDULED', 'PROVISIONED_TENANT', 'ARCHIVED'] as const).map(tab => {
+            {(['ALL', 'NEW_LEAD', 'CONTACTED', 'DEMO_SCHEDULED', 'ARCHIVED'] as const).map(tab => {
               const label = tab === 'ALL' ? 'All Leads' : tab.replace(/_/g, ' ')
               const active = statusFilter === tab
               return (
@@ -372,22 +399,22 @@ export function PlatformDashboardClient() {
                       </div>
                       <div className="space-y-1">
                         <h4 className="text-base font-bold text-slate-900">
-                          {searchQuery || statusFilter !== 'ALL' ? 'No Matching Leads Found' : 'No Inbound Demo Inquiries Yet'}
+                          {searchQuery || statusFilter !== 'ALL' ? 'No Matching Leads Found' : 'No Inbound Demo Inquiries in Pipeline'}
                         </h4>
                         <p className="text-sm text-slate-500 font-medium leading-relaxed">
                           {searchQuery || statusFilter !== 'ALL'
                             ? 'Try adjusting your search query or switching status filter tabs.'
-                            : 'Prospective factory clients who submit the "Request Live Demo" form on your website will appear here in real-time.'}
+                            : 'Prospective factory clients who submit inquiries or get added manually appear here until provisioned into Tenant Factories.'}
                         </p>
                       </div>
                       {!searchQuery && statusFilter === 'ALL' && (
                         <button
                           type="button"
-                          onClick={openNewProvisionModal}
-                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer transition-all active:scale-[0.98]"
+                          onClick={() => setIsAddLeadModalOpen(true)}
+                          className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-800 bg-[#F0FDFA] hover:bg-[#14C8B4]/20 border border-[#14C8B4]/40 rounded-xl shadow-2xs cursor-pointer transition-all active:scale-[0.98]"
                         >
-                          <Key className="w-4 h-4 text-white" />
-                          <span>Provision Factory Directly</span>
+                          <PlusCircle className="w-4 h-4 text-[#0B1220]" />
+                          <span>Add Inbound Lead Manually</span>
                         </button>
                       )}
                     </div>
@@ -448,7 +475,6 @@ export function PlatformDashboardClient() {
                           <option value="NEW_LEAD">New Lead</option>
                           <option value="CONTACTED">Contacted</option>
                           <option value="DEMO_SCHEDULED">Demo Scheduled</option>
-                          <option value="PROVISIONED_TENANT">Provisioned</option>
                           <option value="ARCHIVED">Archived</option>
                         </select>
                       </td>
@@ -461,6 +487,8 @@ export function PlatformDashboardClient() {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          
+                          {/* WhatsApp Direct */}
                           <a
                             href={whatsappUrl}
                             target="_blank"
@@ -471,25 +499,28 @@ export function PlatformDashboardClient() {
                             <Phone className="w-3.5 h-3.5" />
                           </a>
 
-                          {item.status === 'PROVISIONED_TENANT' ? (
-                            <Link
-                              href="/platform-admin/payments"
-                              className="px-2.5 py-1.5 rounded-lg bg-[#F0FDFA] hover:bg-[#14C8B4]/10 text-[#0B1220] border border-[#14C8B4]/30 text-xs font-semibold transition-all shadow-2xs inline-flex items-center gap-1.5"
-                              title="Provisioned Active Plant - View in Subscriptions"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5 text-[#14C8B4] shrink-0" />
-                              <span>Active</span>
-                            </Link>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => openProvisionModal(item)}
-                              className="px-3 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                            >
-                              <Key className="w-3.5 h-3.5 text-white" />
-                              <span>Provision</span>
-                            </button>
-                          )}
+                          {/* Provision Tenant Action */}
+                          <button
+                            type="button"
+                            onClick={() => openProvisionModal(item)}
+                            className="px-3 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                            title="Provision into Tenant Factories (will auto-clean from leads)"
+                          >
+                            <Key className="w-3.5 h-3.5 text-white" />
+                            <span>Provision</span>
+                          </button>
+
+                          {/* Delete Lead Action */}
+                          <button
+                            type="button"
+                            disabled={deletingId === item.id}
+                            onClick={() => handleDeleteLead(item.id, item.companyName)}
+                            className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
+                            title="Delete Lead"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+
                         </div>
                       </td>
 
@@ -507,6 +538,13 @@ export function PlatformDashboardClient() {
         isOpen={isProvisionModalOpen}
         onClose={() => setIsProvisionModalOpen(false)}
         inquiry={selectedInquiry}
+        onSuccess={loadData}
+      />
+
+      {/* Add Manual Lead Modal */}
+      <AddLeadModal
+        isOpen={isAddLeadModalOpen}
+        onClose={() => setIsAddLeadModalOpen(false)}
         onSuccess={loadData}
       />
 

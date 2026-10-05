@@ -554,7 +554,7 @@ export async function registerFreeTrialAction(payload: FreeTrialPayload): Promis
 
     // 7. Auto-cleanup: remove any prior demo lead for this phone/email since it is now an active tenant factory
     try {
-      const phoneDigits = rawPhone.replace(/\D/g, '').slice(-10)
+      const phoneDigits = formattedPhone.replace(/\D/g, '').slice(-10)
       if (phoneDigits) {
         await supabaseAdmin
           .from('platform_demo_requests')
