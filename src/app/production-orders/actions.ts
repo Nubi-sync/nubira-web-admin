@@ -1801,6 +1801,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
                 vendor_code: code,
                 vendor_name: vName,
                 brand_name: bName,
+                tenant_company: (p as any).company_name || null,
                 vendor_type: 'STITCHING_JOB_WORK',
                 stitching_rate: 20.00,
                 is_active: true
