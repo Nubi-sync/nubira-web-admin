@@ -31,6 +31,7 @@ import {
 } from '../actions'
 import { ProvisionTenantModal } from './ProvisionTenantModal'
 import { AddLeadModal } from './AddLeadModal'
+import { VisitorAnalyticsSection } from './VisitorAnalyticsSection'
 
 export function PlatformDashboardClient() {
   const [demos, setDemos] = useState<DemoRequestInquiry[]>([])
@@ -306,6 +307,9 @@ export function PlatformDashboardClient() {
         </div>
 
       </div>
+
+      {/* Layer 3.5: Visitor Telemetry & IP Geo-Distribution Analytics */}
+      <VisitorAnalyticsSection />
 
       {/* Layer 4 & 5: Unified Toolbar & Primary Data Table Container */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
