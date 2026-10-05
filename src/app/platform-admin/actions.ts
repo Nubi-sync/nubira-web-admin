@@ -1727,10 +1727,10 @@ export async function fetchVisitorTelemetryAction(
     }
 
     // 5. Format Live Session Logs (Latest 50 visits)
-    const sessionLogs: LiveVisitorLog[] = pvRows.slice(0, 50).map((row: any) => {
+    const sessionLogs: LiveVisitorLog[] = pvRows.slice(0, 50).map((row: Record<string, unknown>) => {
       let status: 'lead' | 'exploring' | 'pricing' | 'trial' = 'exploring'
-      const pathLower = (row.page_path || '').toLowerCase()
-      const actionLower = (row.action || '').toLowerCase()
+      const pathLower = String(row.page_path || '').toLowerCase()
+      const actionLower = String(row.action || '').toLowerCase()
 
       if (actionLower.includes('lead') || actionLower.includes('demo') || pathLower.includes('request-demo')) {
         status = 'lead'
@@ -1741,19 +1741,19 @@ export async function fetchVisitorTelemetryAction(
       }
 
       return {
-        id: row.id || `view-${Math.random().toString(36).slice(2, 8)}`,
-        ip: row.ip_address || '127.0.0.1',
-        city: row.city || 'Unknown',
-        state: row.state || 'Unknown',
-        device: `${row.operating_system || 'Desktop'} (${row.browser || 'Browser'})`,
+        id: String(row.id || `view-${Math.random().toString(36).slice(2, 8)}`),
+        ip: String(row.ip_address || '127.0.0.1'),
+        city: String(row.city || 'Unknown'),
+        state: String(row.state || 'Unknown'),
+        device: `${String(row.operating_system || 'Desktop')} (${String(row.browser || 'Browser')})`,
         deviceType: (row.device_type === 'mobile' || row.device_type === 'tablet') ? row.device_type : 'desktop',
-        browser: row.browser || 'Unknown',
-        source: row.referrer || 'Direct Entry',
-        action: row.action || 'Explored Website',
-        path: row.page_path || '/',
-        dwellTime: formatDwellTime(row.dwell_time_seconds || 0),
-        visitedAt: row.visited_at || new Date().toISOString(),
-        timeAgo: formatRelativeTime(row.visited_at || new Date().toISOString()),
+        browser: String(row.browser || 'Unknown'),
+        source: String(row.referrer || 'Direct Entry'),
+        action: String(row.action || 'Explored Website'),
+        path: String(row.page_path || '/'),
+        dwellTime: formatDwellTime(Number(row.dwell_time_seconds) || 0),
+        visitedAt: String(row.visited_at || new Date().toISOString()),
+        timeAgo: formatRelativeTime(String(row.visited_at || new Date().toISOString())),
         status
       }
     })
@@ -1775,8 +1775,9 @@ export async function fetchVisitorTelemetryAction(
       sessionLogs,
       errorMessage: pageViewsRes.error?.message
     }
-  } catch (err: any) {
-    console.error('[fetchVisitorTelemetryAction] Error:', err)
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    console.error('[fetchVisitorTelemetryAction] Error:', errorMsg)
     return {
       isLiveDatabase: false,
       tableExists: false,
@@ -1788,7 +1789,7 @@ export async function fetchVisitorTelemetryAction(
       stateTraffic: [],
       timelineData: [],
       sessionLogs: [],
-      errorMessage: err?.message
+      errorMessage: errorMsg
     }
   }
 }
