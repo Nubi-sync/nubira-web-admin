@@ -3,6 +3,8 @@
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { CacheManager } from '@/lib/cache/cache-manager'
+import { createClient } from '@/utils/supabase/server'
+import { resolveUserTenant } from '@/lib/tenant-context'
 import { categorizeTrim, formatTrimDisplayName, parseBOMFromFabric } from './utils/storeUtils'
 
 export interface FabricAllocationItem {
