@@ -100,8 +100,18 @@ export async function fetchOwnerDashboardData(
   tenantOrCompany?: ResolvedTenantProfile | string
 ): Promise<OwnerDashboardData> {
   const tenant = typeof tenantOrCompany === 'object' && tenantOrCompany !== null ? tenantOrCompany : null
-  const companyName = (tenant ? tenant.companyName : (typeof tenantOrCompany === 'string' ? tenantOrCompany : 'Nubira Creation')) || 'Nubira Creation'
-  const isLegacy = tenant ? isLegacyNubiraTenant(tenant) : companyName.toLowerCase().includes('nubira')
+  let companyName = (tenant ? tenant.companyName : (typeof tenantOrCompany === 'string' ? tenantOrCompany : '')) || ''
+  if (!companyName) {
+    try {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const uTenant = await resolveUserTenant(user)
+        companyName = uTenant.companyName || ''
+      }
+    } catch (_) {}
+  }
+  const isLegacy = tenant ? isLegacyNubiraTenant(tenant) : (companyName ? companyName.toLowerCase().includes('nubira') : false)
   const targetComp = companyName.trim().toLowerCase()
 
   const normComp = companyName.toLowerCase().replace(/[^a-z0-9]/g, '_')

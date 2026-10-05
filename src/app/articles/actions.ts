@@ -100,7 +100,7 @@ export async function createArticle(formData: FormData) {
   
   const { data: { user } } = await supabase.auth.getUser()
   const tenant = user ? await resolveUserTenant(user) : null
-  const companyName = tenant?.companyName || 'Nubira Creation'
+  const companyName = tenant?.companyName?.trim() || ''
 
   const art_no = (formData.get('art_no') as string)?.trim().toUpperCase()
   const description = (formData.get('description') as string)?.trim() || ''

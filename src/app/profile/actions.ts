@@ -149,7 +149,8 @@ export async function requestAccountDeletion(formData: FormData) {
     throw new Error('Unauthorized')
   }
 
-  const companyName = (formData.get('company_name') as string)?.trim() || 'Nubira Creation'
+  const tenant = await resolveUserTenant(user)
+  const companyName = (formData.get('company_name') as string)?.trim() || tenant.companyName || ''
   const adminName = (formData.get('admin_name') as string)?.trim() || 'Admin'
   const email = (formData.get('email') as string)?.trim() || user.email || ''
   const phone = (formData.get('phone') as string)?.trim() || ''

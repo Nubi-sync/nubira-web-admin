@@ -59,7 +59,7 @@ export async function createEmployee(formData: FormData) {
     const supabase = await createClient()
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     const tenant = currentUser ? await resolveUserTenant(currentUser) : null
-    const companyName = tenant?.companyName || 'Nubira Creation'
+    const companyName = tenant?.companyName?.trim() || ''
 
     // 2. Check if username already exists in profiles (case-insensitive)
     const { data: existingProfile } = await supabaseAdmin
