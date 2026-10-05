@@ -237,7 +237,7 @@ async function resolveUserTenantFresh(user: {
       role,
       isSuperAdmin: false,
       isPlatformAdmin: false,
-      companyName: matchedWorker?.company_name || metadata.company_name || metadata.company || 'Nubira Creation',
+      companyName: matchedWorker?.company_name || metadata.company_name || metadata.company || '',
       adminDisplayName: workerName,
       customUsername: `${workerName.toLowerCase().replace(/\s+/g, '_')}_${usernamePostfix}`,
       phone: workerPhone,
@@ -300,7 +300,7 @@ async function resolveUserTenantFresh(user: {
   // 1.6 Design team member check
   if (designMember) {
     const dm = designMember as any
-    const company = dm.company_name || 'Nubira Creation'
+    const company = dm.company_name || metadata.company_name || metadata.company || ''
     return {
       userId: user.id,
       userEmail,

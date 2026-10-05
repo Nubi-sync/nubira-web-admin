@@ -1,8 +1,9 @@
 'use server'
 
 import { supabaseAdmin } from '@/utils/supabase/admin'
+import { createClient } from '@/utils/supabase/server'
 import { CacheManager } from '@/lib/cache/cache-manager'
-import { isLegacyNubiraTenant, ResolvedTenantProfile } from '@/lib/tenant-context'
+import { isLegacyNubiraTenant, resolveUserTenant, ResolvedTenantProfile } from '@/lib/tenant-context'
 
 export interface FactoryPulseKPIs {
   activeStyles: number

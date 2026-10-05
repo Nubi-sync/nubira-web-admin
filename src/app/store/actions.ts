@@ -758,6 +758,8 @@ export async function upsertFabricInventoryEntry(payload: {
   notes?: string | null
   company_name?: string
 }) {
+  try {
+    const supabase = supabaseAdmin
     let company = payload.company_name?.trim()
     if (!company) {
       const authClient = await createClient()
