@@ -252,6 +252,60 @@ export function ZigzaLandingPageClient({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Edge Visitor Telemetry Tracking (Deduplicated Daily Unique Visitor Logging)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const sessionKey = 'zigza_visit_tracked'
+    const alreadyTracked = sessionStorage.getItem(sessionKey)
+
+    const startTime = Date.now()
+    const path = window.location.pathname + (window.location.hash || '')
+    const referrer = document.referrer || 'Direct Entry'
+
+    // Fire initial visit logging
+    fetch('/api/track-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path,
+        referrer,
+        action: 'Browsing Landing Page',
+        dwellTimeSeconds: 0
+      }),
+      keepalive: true
+    }).catch(() => {})
+
+    sessionStorage.setItem(sessionKey, 'true')
+
+    // Track dwell time on page unload
+    const handleBeforeUnload = () => {
+      const dwellSeconds = Math.round((Date.now() - startTime) / 1000)
+      if (dwellSeconds > 2) {
+        try {
+          const payload = JSON.stringify({
+            path,
+            referrer,
+            action: 'Completed Session',
+            dwellTimeSeconds: dwellSeconds
+          })
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon('/api/track-visit', payload)
+          } else {
+            fetch('/api/track-visit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: payload,
+              keepalive: true
+            }).catch(() => {})
+          }
+        } catch (_) {}
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
   // Module carousel scroll handler for dot indicator sync with smooth slide centering
   useEffect(() => {
     const container = moduleCarouselRef.current

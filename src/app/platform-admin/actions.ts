@@ -1515,3 +1515,281 @@ export async function fetchInfrastructureTelemetryAction(): Promise<LiveInfrastr
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+// 10. REAL-TIME WEBSITE VISITOR TELEMETRY & STATE-LEVEL TRACKING
+// -----------------------------------------------------------------------------
+
+export interface StateTrafficData {
+  state: string
+  cities: string[]
+  uniqueVisitors: number
+  percentage: number
+  leadsGenerated: number
+  conversionRate: string
+}
+
+export interface VisitorTimelinePoint {
+  date: string
+  dayFull: string
+  visitors: number
+  leads: number
+}
+
+export interface LiveVisitorLog {
+  id: string
+  ip: string
+  city: string
+  state: string
+  device: string
+  deviceType: 'mobile' | 'desktop' | 'tablet'
+  browser: string
+  source: string
+  action: string
+  path: string
+  dwellTime: string
+  visitedAt: string
+  timeAgo: string
+  status: 'lead' | 'exploring' | 'pricing' | 'trial'
+}
+
+export interface VisitorTelemetryResult {
+  isLiveDatabase: boolean
+  tableExists: boolean
+  totalUniqueVisitors: number
+  totalLeads: number
+  conversionRate: string
+  topState: string
+  topHub: string
+  stateTraffic: StateTrafficData[]
+  timelineData: VisitorTimelinePoint[]
+  sessionLogs: LiveVisitorLog[]
+  errorMessage?: string
+}
+
+function formatRelativeTime(dateStr: string): string {
+  try {
+    const diffMs = Date.now() - new Date(dateStr).getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? '' : 's'} ago`
+    const diffHours = Math.floor(diffMins / 60)
+    if (diffHours < 24) return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`
+    const diffDays = Math.floor(diffHours / 24)
+    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+  } catch (_) {
+    return 'Recently'
+  }
+}
+
+function formatDwellTime(seconds: number): string {
+  if (!seconds || seconds <= 0) return '< 30s'
+  if (seconds < 60) return `${seconds}s`
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`
+}
+
+export async function fetchVisitorTelemetryAction(
+  timeRange: '7D' | '30D' = '7D'
+): Promise<VisitorTelemetryResult> {
+  const daysCount = timeRange === '7D' ? 7 : 30
+  const now = new Date()
+  const startDateObj = new Date(now.getTime() - (daysCount - 1) * 24 * 60 * 60 * 1000)
+  const startDateStr = startDateObj.toISOString().split('T')[0]
+
+  try {
+    const [pageViewsRes, demoRequestsRes] = await Promise.all([
+      supabaseAdmin
+        .from('website_page_views')
+        .select('*')
+        .gte('visit_date', startDateStr)
+        .order('visited_at', { ascending: false }),
+      supabaseAdmin
+        .from('platform_demo_requests')
+        .select('id, applicant_name, company_name, city_state, submitted_at, phone, email')
+        .gte('submitted_at', `${startDateStr}T00:00:00.000Z`)
+    ])
+
+    const tableExists = !pageViewsRes.error
+    const pvRows = pageViewsRes.data || []
+    const demoRows = demoRequestsRes.data || []
+
+    // 1. Calculate Deduplicated Unique Visitors (IP + Device per Day)
+    const overallUniqueKeys = new Set<string>()
+    const stateUniqueKeysMap = new Map<string, Set<string>>()
+    const stateCitiesMap = new Map<string, Set<string>>()
+    const dayUniqueKeysMap = new Map<string, Set<string>>()
+
+    for (const row of pvRows) {
+      const day = row.visit_date || (row.visited_at ? row.visited_at.split('T')[0] : startDateStr)
+      const ip = row.ip_address || '127.0.0.1'
+      const device = row.device_type || 'desktop'
+      const state = (row.state && row.state !== 'Unknown') ? row.state : 'Unknown'
+      const city = row.city && row.city !== 'Unknown' ? row.city : ''
+
+      const dedupKey = `${day}_${ip}_${device}`
+      overallUniqueKeys.add(dedupKey)
+
+      if (!stateUniqueKeysMap.has(state)) {
+        stateUniqueKeysMap.set(state, new Set<string>())
+      }
+      stateUniqueKeysMap.get(state)!.add(dedupKey)
+
+      if (city) {
+        if (!stateCitiesMap.has(state)) {
+          stateCitiesMap.set(state, new Set<string>())
+        }
+        stateCitiesMap.get(state)!.add(city)
+      }
+
+      if (!dayUniqueKeysMap.has(day)) {
+        dayUniqueKeysMap.set(day, new Set<string>())
+      }
+      dayUniqueKeysMap.get(day)!.add(dedupKey)
+    }
+
+    const totalUniqueVisitors = overallUniqueKeys.size
+    const totalLeads = demoRows.length
+
+    // 2. Aggregate Leads by Day and State
+    const dayLeadsMap = new Map<string, number>()
+    const stateLeadsMap = new Map<string, number>()
+
+    for (const lead of demoRows) {
+      if (lead.submitted_at) {
+        const leadDay = lead.submitted_at.split('T')[0]
+        dayLeadsMap.set(leadDay, (dayLeadsMap.get(leadDay) || 0) + 1)
+      }
+
+      const cs = (lead.city_state || '').toLowerCase()
+      for (const [st] of stateUniqueKeysMap.entries()) {
+        if (st !== 'Unknown' && cs.includes(st.toLowerCase())) {
+          stateLeadsMap.set(st, (stateLeadsMap.get(st) || 0) + 1)
+        }
+      }
+    }
+
+    // 3. Build State Traffic Breakdown
+    const stateTraffic: StateTrafficData[] = []
+    for (const [st, keys] of stateUniqueKeysMap.entries()) {
+      const count = keys.size
+      const percentage = totalUniqueVisitors > 0 ? Math.round((count / totalUniqueVisitors) * 100) : 0
+      const leads = stateLeadsMap.get(st) || 0
+      const convRate = count > 0 ? `${((leads / count) * 100).toFixed(1)}%` : '0.0%'
+      const citiesArr = Array.from(stateCitiesMap.get(st) || []).slice(0, 3)
+
+      stateTraffic.push({
+        state: st,
+        cities: citiesArr,
+        uniqueVisitors: count,
+        percentage,
+        leadsGenerated: leads,
+        conversionRate: convRate
+      })
+    }
+
+    // Sort states descending by unique visitors
+    stateTraffic.sort((a, b) => b.uniqueVisitors - a.uniqueVisitors)
+
+    const topState = stateTraffic.length > 0 && stateTraffic[0].uniqueVisitors > 0
+      ? stateTraffic[0].state
+      : 'Awaiting Traffic'
+
+    const topHub = stateTraffic.length > 0 && stateTraffic[0].cities.length > 0
+      ? stateTraffic[0].cities[0]
+      : 'All India'
+
+    // 4. Build Timeline Points (Last 7 or 30 days)
+    const timelineData: VisitorTimelinePoint[] = []
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+    for (let i = daysCount - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+      const dayIso = d.toISOString().split('T')[0]
+      const label = timeRange === '7D'
+        ? dayNames[d.getDay()]
+        : `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })}`
+      const fullLabel = timeRange === '7D'
+        ? `${fullDayNames[d.getDay()]} (${dayIso})`
+        : dayIso
+
+      const dayVisitors = dayUniqueKeysMap.get(dayIso)?.size || 0
+      const dayLeads = dayLeadsMap.get(dayIso) || 0
+
+      timelineData.push({
+        date: label,
+        dayFull: fullLabel,
+        visitors: dayVisitors,
+        leads: dayLeads
+      })
+    }
+
+    // 5. Format Live Session Logs (Latest 50 visits)
+    const sessionLogs: LiveVisitorLog[] = pvRows.slice(0, 50).map((row: any) => {
+      let status: 'lead' | 'exploring' | 'pricing' | 'trial' = 'exploring'
+      const pathLower = (row.page_path || '').toLowerCase()
+      const actionLower = (row.action || '').toLowerCase()
+
+      if (actionLower.includes('lead') || actionLower.includes('demo') || pathLower.includes('request-demo')) {
+        status = 'lead'
+      } else if (pathLower.includes('pricing') || actionLower.includes('pricing')) {
+        status = 'pricing'
+      } else if (pathLower.includes('trial') || pathLower.includes('register') || actionLower.includes('trial')) {
+        status = 'trial'
+      }
+
+      return {
+        id: row.id || `view-${Math.random().toString(36).slice(2, 8)}`,
+        ip: row.ip_address || '127.0.0.1',
+        city: row.city || 'Unknown',
+        state: row.state || 'Unknown',
+        device: `${row.operating_system || 'Desktop'} (${row.browser || 'Browser'})`,
+        deviceType: (row.device_type === 'mobile' || row.device_type === 'tablet') ? row.device_type : 'desktop',
+        browser: row.browser || 'Unknown',
+        source: row.referrer || 'Direct Entry',
+        action: row.action || 'Explored Website',
+        path: row.page_path || '/',
+        dwellTime: formatDwellTime(row.dwell_time_seconds || 0),
+        visitedAt: row.visited_at || new Date().toISOString(),
+        timeAgo: formatRelativeTime(row.visited_at || new Date().toISOString()),
+        status
+      }
+    })
+
+    const overallConversionRate = totalUniqueVisitors > 0
+      ? `${((totalLeads / totalUniqueVisitors) * 100).toFixed(2)}%`
+      : '0.00%'
+
+    return {
+      isLiveDatabase: true,
+      tableExists,
+      totalUniqueVisitors,
+      totalLeads,
+      conversionRate: overallConversionRate,
+      topState,
+      topHub,
+      stateTraffic,
+      timelineData,
+      sessionLogs,
+      errorMessage: pageViewsRes.error?.message
+    }
+  } catch (err: any) {
+    console.error('[fetchVisitorTelemetryAction] Error:', err)
+    return {
+      isLiveDatabase: false,
+      tableExists: false,
+      totalUniqueVisitors: 0,
+      totalLeads: 0,
+      conversionRate: '0.00%',
+      topState: 'Awaiting Traffic',
+      topHub: 'None',
+      stateTraffic: [],
+      timelineData: [],
+      sessionLogs: [],
+      errorMessage: err?.message
+    }
+  }
+}
+

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Globe,
@@ -14,296 +14,140 @@ import {
   Clock,
   Smartphone,
   Monitor,
-  Building2,
-  ArrowUpRight,
-  Filter,
+  Tablet,
   CheckCircle2,
-  Layers,
-  Sparkles
+  Sparkles,
+  AlertCircle,
+  Copy,
+  Check,
+  ChevronDown
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
+import {
+  fetchVisitorTelemetryAction,
+  VisitorTelemetryResult,
+  StateTrafficData,
+  VisitorTimelinePoint,
+  LiveVisitorLog
+} from '../actions'
 
-interface GeoLocationTraffic {
-  city: string
-  state: string
-  region: string
-  flag: string
-  visitorsCount: number
-  percentage: number
-  leadsGenerated: number
-  conversionRate: string
-}
+const SQL_MIGRATION_SNIPPET = `-- Run this in your Supabase SQL Editor:
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-interface TimelineDataPoint {
-  date: string
-  dayFull: string
-  visitors: number
-  formOpens: number
-  leads: number
-}
+CREATE TABLE IF NOT EXISTS public.website_page_views (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip_address TEXT NOT NULL,
+  city TEXT NOT NULL DEFAULT 'Unknown',
+  state TEXT NOT NULL DEFAULT 'Unknown',
+  country TEXT NOT NULL DEFAULT 'India',
+  device_type TEXT NOT NULL DEFAULT 'desktop',
+  browser TEXT NOT NULL DEFAULT 'Unknown',
+  operating_system TEXT NOT NULL DEFAULT 'Unknown',
+  referrer TEXT NOT NULL DEFAULT 'Direct',
+  page_path TEXT NOT NULL DEFAULT '/',
+  action TEXT NOT NULL DEFAULT 'Page Viewed',
+  dwell_time_seconds INTEGER NOT NULL DEFAULT 0,
+  session_id TEXT,
+  visited_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  visit_date DATE NOT NULL DEFAULT CURRENT_DATE
+);
 
-interface LiveSessionLog {
-  id: string
-  ip: string
-  city: string
-  state: string
-  device: string
-  deviceType: 'mobile' | 'desktop'
-  source: string
-  action: string
-  path: string
-  dwellTime: string
-  timeAgo: string
-  status: 'lead' | 'exploring' | 'pricing' | 'trial'
-}
+CREATE INDEX IF NOT EXISTS idx_website_page_views_date ON public.website_page_views(visit_date DESC);
+CREATE INDEX IF NOT EXISTS idx_website_page_views_dedup ON public.website_page_views(ip_address, visit_date, device_type);
+CREATE INDEX IF NOT EXISTS idx_website_page_views_state ON public.website_page_views(state);
+CREATE INDEX IF NOT EXISTS idx_website_page_views_visited_at ON public.website_page_views(visited_at DESC);
 
-const GEO_TRAFFIC_DATA_7D: GeoLocationTraffic[] = [
-  {
-    city: 'Surat',
-    state: 'Gujarat',
-    region: 'Western Textile Belt',
-    flag: '🇮🇳',
-    visitorsCount: 1420,
-    percentage: 38,
-    leadsGenerated: 12,
-    conversionRate: '2.8%'
-  },
-  {
-    city: 'Tirupur',
-    state: 'Tamil Nadu',
-    region: 'South Knitwear Hub',
-    flag: '🇮🇳',
-    visitorsCount: 1045,
-    percentage: 28,
-    leadsGenerated: 9,
-    conversionRate: '3.1%'
-  },
-  {
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    region: 'Denim & Composite Mills',
-    flag: '🇮🇳',
-    visitorsCount: 560,
-    percentage: 15,
-    leadsGenerated: 4,
-    conversionRate: '2.2%'
-  },
-  {
-    city: 'Ludhiana',
-    state: 'Punjab',
-    region: 'North Woolen & Hosiery',
-    flag: '🇮🇳',
-    visitorsCount: 380,
-    percentage: 10,
-    leadsGenerated: 3,
-    conversionRate: '2.4%'
-  },
-  {
-    city: 'Mumbai & NCR',
-    state: 'MH / DL',
-    region: 'Export Houses & Buying HQ',
-    flag: '🇮🇳',
-    visitorsCount: 335,
-    percentage: 9,
-    leadsGenerated: 2,
-    conversionRate: '1.9%'
-  }
-]
+ALTER TABLE public.website_page_views ENABLE ROW LEVEL SECURITY;
 
-const GEO_TRAFFIC_DATA_30D: GeoLocationTraffic[] = [
-  {
-    city: 'Surat',
-    state: 'Gujarat',
-    region: 'Western Textile Belt',
-    flag: '🇮🇳',
-    visitorsCount: 5840,
-    percentage: 39,
-    leadsGenerated: 48,
-    conversionRate: '2.9%'
-  },
-  {
-    city: 'Tirupur',
-    state: 'Tamil Nadu',
-    region: 'South Knitwear Hub',
-    flag: '🇮🇳',
-    visitorsCount: 4120,
-    percentage: 27,
-    leadsGenerated: 38,
-    conversionRate: '3.2%'
-  },
-  {
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    region: 'Denim & Composite Mills',
-    flag: '🇮🇳',
-    visitorsCount: 2280,
-    percentage: 15,
-    leadsGenerated: 18,
-    conversionRate: '2.3%'
-  },
-  {
-    city: 'Ludhiana',
-    state: 'Punjab',
-    region: 'North Woolen & Hosiery',
-    flag: '🇮🇳',
-    visitorsCount: 1510,
-    percentage: 10,
-    leadsGenerated: 12,
-    conversionRate: '2.5%'
-  },
-  {
-    city: 'Mumbai & NCR',
-    state: 'MH / DL',
-    region: 'Export Houses & Buying HQ',
-    flag: '🇮🇳',
-    visitorsCount: 1350,
-    percentage: 9,
-    leadsGenerated: 10,
-    conversionRate: '2.0%'
-  }
-]
+CREATE POLICY "Allow public insert of page views" ON public.website_page_views
+  FOR INSERT TO anon, authenticated, service_role WITH CHECK (true);
 
-const TIMELINE_DATA_7D: TimelineDataPoint[] = [
-  { date: 'Mon', dayFull: 'Monday', visitors: 480, formOpens: 62, leads: 4 },
-  { date: 'Tue', dayFull: 'Tuesday', visitors: 540, formOpens: 78, leads: 6 },
-  { date: 'Wed', dayFull: 'Wednesday', visitors: 610, formOpens: 95, leads: 7 },
-  { date: 'Thu', dayFull: 'Thursday', visitors: 590, formOpens: 84, leads: 5 },
-  { date: 'Fri', dayFull: 'Friday', visitors: 680, formOpens: 110, leads: 9 },
-  { date: 'Sat', dayFull: 'Saturday', visitors: 420, formOpens: 51, leads: 3 },
-  { date: 'Sun', dayFull: 'Sunday', visitors: 390, formOpens: 44, leads: 2 }
-]
-
-const TIMELINE_DATA_30D: TimelineDataPoint[] = [
-  { date: 'Week 1', dayFull: 'Days 1-7', visitors: 3420, formOpens: 440, leads: 28 },
-  { date: 'Week 2', dayFull: 'Days 8-14', visitors: 3790, formOpens: 495, leads: 34 },
-  { date: 'Week 3', dayFull: 'Days 15-21', visitors: 3940, formOpens: 520, leads: 36 },
-  { date: 'Week 4', dayFull: 'Days 22-30', visitors: 3950, formOpens: 535, leads: 28 }
-]
-
-const LIVE_SESSION_LOGS: LiveSessionLog[] = [
-  {
-    id: 'SES-9821',
-    ip: '103.24.12.89',
-    city: 'Surat',
-    state: 'Gujarat',
-    device: 'Android Mobile (Chrome 128)',
-    deviceType: 'mobile',
-    source: 'WhatsApp Campaign Link',
-    action: 'Explored 12-Division MES Matrix',
-    path: '/#features',
-    dwellTime: '4m 18s',
-    timeAgo: '2 mins ago',
-    status: 'exploring'
-  },
-  {
-    id: 'SES-9820',
-    ip: '49.36.178.44',
-    city: 'Tirupur',
-    state: 'Tamil Nadu',
-    device: 'Windows 11 (Edge 126)',
-    deviceType: 'desktop',
-    source: 'Google Organic Search ("garment mes india")',
-    action: 'Submitted Demo Request Form',
-    path: '/#request-demo',
-    dwellTime: '6m 45s',
-    timeAgo: '14 mins ago',
-    status: 'lead'
-  },
-  {
-    id: 'SES-9819',
-    ip: '157.34.88.19',
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    device: 'iPhone 15 Pro (Safari 17)',
-    deviceType: 'mobile',
-    source: 'Direct URL / QR Pamphlet',
-    action: 'Reviewed Enterprise Pricing & Add-ons',
-    path: '/#pricing',
-    dwellTime: '3m 12s',
-    timeAgo: '28 mins ago',
-    status: 'pricing'
-  },
-  {
-    id: 'SES-9818',
-    ip: '122.161.45.10',
-    city: 'Ludhiana',
-    state: 'Punjab',
-    device: 'Windows 10 (Chrome 127)',
-    deviceType: 'desktop',
-    source: 'Industry Referral Link',
-    action: 'Triggered 7-Day Free Trial Flow',
-    path: '/register',
-    dwellTime: '5m 02s',
-    timeAgo: '41 mins ago',
-    status: 'trial'
-  },
-  {
-    id: 'SES-9817',
-    ip: '103.88.232.14',
-    city: 'Surat',
-    state: 'Gujarat',
-    device: 'Android Mobile (Samsung Internet)',
-    deviceType: 'mobile',
-    source: 'WhatsApp Catalog Share',
-    action: 'Inspected Cutting & Sewing Floor Telemetry',
-    path: '/#divisions',
-    dwellTime: '2m 54s',
-    timeAgo: '53 mins ago',
-    status: 'exploring'
-  },
-  {
-    id: 'SES-9816',
-    ip: '182.73.19.62',
-    city: 'Mumbai & NCR',
-    state: 'Maharashtra',
-    device: 'macOS Sonoma (Chrome 128)',
-    deviceType: 'desktop',
-    source: 'LinkedIn Sourcing Post',
-    action: 'Reviewed Multi-Tenant Security & Supabase Specs',
-    path: '/#security',
-    dwellTime: '7m 10s',
-    timeAgo: '1h 12m ago',
-    status: 'exploring'
-  }
-]
+CREATE POLICY "Allow admin full access to website page views" ON public.website_page_views
+  FOR ALL TO authenticated, service_role USING (true) WITH CHECK (true);`
 
 export default function VisitorTelemetryPage() {
   const [timeRange, setTimeRange] = useState<'7D' | '30D'>('7D')
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [cityFilter, setCityFilter] = useState<string>('ALL')
+  const [stateFilter, setStateFilter] = useState<string>('ALL')
+  const [copiedSql, setCopiedSql] = useState(false)
+  const [showSqlModal, setShowSqlModal] = useState(false)
 
-  const activeGeoData = timeRange === '7D' ? GEO_TRAFFIC_DATA_7D : GEO_TRAFFIC_DATA_30D
-  const activeTimelineData = timeRange === '7D' ? TIMELINE_DATA_7D : TIMELINE_DATA_30D
-  
-  const totalVisitors = useMemo(() => {
-    return activeGeoData.reduce((acc, g) => acc + g.visitorsCount, 0)
-  }, [activeGeoData])
+  const [telemetry, setTelemetry] = useState<VisitorTelemetryResult>({
+    isLiveDatabase: true,
+    tableExists: true,
+    totalUniqueVisitors: 0,
+    totalLeads: 0,
+    conversionRate: '0.00%',
+    topState: 'Awaiting Traffic',
+    topHub: 'All India',
+    stateTraffic: [],
+    timelineData: [],
+    sessionLogs: []
+  })
 
-  const totalLeads = useMemo(() => {
-    return activeGeoData.reduce((acc, g) => acc + g.leadsGenerated, 0)
-  }, [activeGeoData])
+  const loadData = async (silent = false) => {
+    if (!silent) setIsLoading(true)
+    try {
+      const res = await fetchVisitorTelemetryAction(timeRange)
+      setTelemetry(res)
+    } catch (err) {
+      console.error('[VisitorTelemetryPage] Fetch error:', err)
+    } finally {
+      setIsLoading(false)
+      setIsRefreshing(false)
+    }
+  }
 
-  const maxTimelineVisitors = Math.max(...activeTimelineData.map(d => d.visitors))
+  useEffect(() => {
+    loadData()
+  }, [timeRange])
 
   const handleRefresh = () => {
     setIsRefreshing(true)
-    setTimeout(() => {
-      setIsRefreshing(false)
-    }, 600)
+    loadData(true)
   }
 
-  const filteredLogs = LIVE_SESSION_LOGS.filter(log => {
-    const matchesSearch =
-      log.ip.includes(searchQuery) ||
-      log.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.source.toLowerCase().includes(searchQuery.toLowerCase())
+  const copySqlToClipboard = () => {
+    navigator.clipboard.writeText(SQL_MIGRATION_SNIPPET)
+    setCopiedSql(true)
+    setTimeout(() => setCopiedSql(false), 2500)
+  }
 
-    const matchesCity = cityFilter === 'ALL' || log.city === cityFilter
-    return matchesSearch && matchesCity
-  })
+  // Filter logs by search and state
+  const filteredLogs = useMemo(() => {
+    return telemetry.sessionLogs.filter(log => {
+      const matchesSearch =
+        log.ip.includes(searchQuery) ||
+        log.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.path.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesState = stateFilter === 'ALL' || log.state === stateFilter
+      return matchesSearch && matchesState
+    })
+  }, [telemetry.sessionLogs, searchQuery, stateFilter])
+
+  // Unique list of states present in current data for the filter dropdown
+  const availableStates = useMemo(() => {
+    const states = new Set<string>()
+    telemetry.stateTraffic.forEach(s => {
+      if (s.state && s.state !== 'Unknown') states.add(s.state)
+    })
+    telemetry.sessionLogs.forEach(l => {
+      if (l.state && l.state !== 'Unknown') states.add(l.state)
+    })
+    return Array.from(states).sort()
+  }, [telemetry.stateTraffic, telemetry.sessionLogs])
+
+  const maxTimelineVisitors = useMemo(() => {
+    const vals = telemetry.timelineData.map(d => d.visitors)
+    const max = Math.max(0, ...vals)
+    return max > 0 ? max : 1
+  }, [telemetry.timelineData])
 
   return (
     <PlatformAdminShell userEmail="admin@zigza.in">
@@ -317,8 +161,32 @@ export default function VisitorTelemetryPage() {
           <span>/</span>
           <span>Platform Command</span>
           <span>/</span>
-          <span className="font-bold text-[#0B1220]">Visitor Telemetry &amp; Geo</span>
+          <span className="font-bold text-[#0B1220]">Visitor Telemetry &amp; State Distribution</span>
         </div>
+
+        {/* Database Notice if table is not created yet */}
+        {!telemetry.tableExists && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 shadow-xs">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-800 mt-0.5">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold">Supabase Telemetry Table Pending</h4>
+                <p className="text-xs text-amber-800/90 mt-0.5">
+                  The <code className="font-mono bg-amber-100/80 px-1.5 py-0.5 rounded text-amber-950 font-bold">website_page_views</code> table is not yet created in your Supabase database. Click to view or copy the 1-click SQL migration.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowSqlModal(true)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-amber-900 bg-white border border-amber-300 hover:bg-amber-100/50 transition-all shadow-xs cursor-pointer shrink-0"
+            >
+              View SQL Migration
+            </button>
+          </div>
+        )}
 
         {/* Layer 2: Encapsulated Top Header Card */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
@@ -329,14 +197,14 @@ export default function VisitorTelemetryPage() {
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0B1220]">
-                  Visitor Telemetry &amp; <span className="text-[#1D4ED8]">Geo Distribution</span>
+                  Visitor Telemetry &amp; <span className="text-[#1D4ED8]">State Distribution</span>
                 </h1>
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-                  Realtime Edge Telemetry
+                  Daily Unique Deduplication
                 </span>
               </div>
               <p className="text-sm sm:text-base text-slate-600 mt-1 font-normal">
-                Geographic visitor origins, industrial apparel clusters, dwell sessions, and lead conversion rates
+                Real-time geographic state traffic, daily unique device deduplication, and inbound lead conversion
               </p>
             </div>
           </div>
@@ -389,40 +257,39 @@ export default function VisitorTelemetryPage() {
               <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
                 <Users className="w-5 h-5 text-[#0B1220]" />
               </div>
-              <span className="text-xs text-slate-500 font-medium">Unique Traffic</span>
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Unique Visitors</span>
             </div>
             <div className="mt-4">
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Total Inbound Visits
+                Daily Unique Visitors
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
-                {totalVisitors.toLocaleString()}
+                {isLoading ? '...' : telemetry.totalUniqueVisitors.toLocaleString()}
               </div>
             </div>
-            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-emerald-600 font-semibold flex items-center">
-              <TrendingUp className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-              <span>+18.4% WoW growth</span>
+            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 flex items-center">
+              <span>Same IP &amp; device counted once per day</span>
             </div>
           </div>
 
-          {/* Card 2: Form Intent Open Rate */}
+          {/* Card 2: Demo Inquiries */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
                 <Sparkles className="w-5 h-5 text-[#0B1220]" />
               </div>
-              <span className="text-xs text-slate-500 font-medium">Demo Intent</span>
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Inbound Leads</span>
             </div>
             <div className="mt-4">
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Live Form Opens
+                Demo Inquiries
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
-                {timeRange === '7D' ? '529' : '2,090'}
+                {isLoading ? '...' : telemetry.totalLeads}
               </div>
             </div>
             <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              14.2% interactive rate
+              Verified plant demo submissions
             </div>
           </div>
 
@@ -432,39 +299,39 @@ export default function VisitorTelemetryPage() {
               <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
                 <Zap className="w-5 h-5 text-[#0B1220]" />
               </div>
-              <span className="text-xs text-slate-500 font-medium">Conversion</span>
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Conversion</span>
             </div>
             <div className="mt-4">
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Inbound Conversion
+                Lead Conversion Rate
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 font-mono">
-                {totalLeads} Leads ({timeRange === '7D' ? '2.68%' : '2.74%'})
+                {isLoading ? '...' : telemetry.conversionRate}
               </div>
             </div>
             <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              Prospective plant inquiries
+              Leads / Unique Inbound Visitors
             </div>
           </div>
 
-          {/* Card 4: Top Industrial Hub */}
+          {/* Card 4: Top State Hub */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
                 <MapPin className="w-5 h-5 text-[#0B1220]" />
               </div>
-              <span className="text-xs text-slate-500 font-medium">Cluster Leader</span>
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">State Leader</span>
             </div>
             <div className="mt-4">
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Top Manufacturing Hub
+                Top Viewing State
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-[#0B1220] mt-1 truncate">
-                Surat &amp; Tirupur
+                {isLoading ? '...' : telemetry.topState}
               </div>
             </div>
-            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500">
-              66% of all garment inquiries
+            <div className="pt-3 border-t border-slate-100 mt-3 text-xs text-slate-500 truncate">
+              {telemetry.topHub && telemetry.topHub !== 'All India' ? `Top City: ${telemetry.topHub}` : 'Live state routing active'}
             </div>
           </div>
 
@@ -473,18 +340,18 @@ export default function VisitorTelemetryPage() {
         {/* Layer 4: Analytics Graphs & Regional Distribution Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           
-          {/* Left: Traffic Timeline & Lead Conversion Trend (7 cols) */}
+          {/* Left: Traffic Timeline (7 cols) */}
           <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Visitor Volume &amp; Form Intent Timeline
+                    Visitor Volume Timeline
                   </div>
                   <div className="text-lg font-bold text-[#0B1220] mt-0.5 flex items-center gap-2">
-                    <span>{totalVisitors.toLocaleString()} Total Sessions</span>
-                    <span className="text-xs text-emerald-600 font-semibold flex items-center">
-                      <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> +18.4%
+                    <span>{telemetry.totalUniqueVisitors.toLocaleString()} Unique Visitors</span>
+                    <span className="text-xs text-slate-400 font-normal">
+                      ({timeRange === '7D' ? 'Last 7 Days' : 'Last 30 Days'})
                     </span>
                   </div>
                 </div>
@@ -493,7 +360,7 @@ export default function VisitorTelemetryPage() {
                 <div className="flex items-center gap-3 text-xs font-medium text-slate-600">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#1D4ED8]" />
-                    <span>Visitors</span>
+                    <span>Unique Visitors</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#14C8B4]" />
@@ -503,9 +370,12 @@ export default function VisitorTelemetryPage() {
               </div>
 
               {/* Visual Bar Chart */}
-              <div className="h-52 w-full flex items-end justify-between gap-3 pt-6 pb-2 border-b border-slate-100">
-                {activeTimelineData.map((item, idx) => {
-                  const heightPct = Math.round((item.visitors / maxTimelineVisitors) * 100)
+              <div className="h-52 w-full flex items-end justify-between gap-2 sm:gap-3 pt-6 pb-2 border-b border-slate-100">
+                {telemetry.timelineData.map((item, idx) => {
+                  const heightPct = telemetry.totalUniqueVisitors > 0
+                    ? Math.max(6, Math.round((item.visitors / maxTimelineVisitors) * 100))
+                    : 4
+
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
                       <div className="w-full flex flex-col items-center justify-end relative h-full">
@@ -514,7 +384,7 @@ export default function VisitorTelemetryPage() {
                         <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[11px] font-semibold py-1.5 px-2.5 rounded-lg shadow-lg pointer-events-none whitespace-nowrap z-10">
                           <div className="font-bold">{item.dayFull}</div>
                           <div className="text-slate-300 font-normal">
-                            {item.visitors.toLocaleString()} visits • {item.leads} leads
+                            {item.visitors.toLocaleString()} unique visits • {item.leads} leads
                           </div>
                         </div>
 
@@ -524,17 +394,21 @@ export default function VisitorTelemetryPage() {
                           style={{ height: `${heightPct}%` }}
                         >
                           <div
-                            className="w-full bg-[#1D4ED8] group-hover:bg-[#1E40AF] transition-colors rounded-t-lg"
+                            className={`w-full transition-colors rounded-t-lg ${
+                              item.visitors > 0 ? 'bg-[#1D4ED8] group-hover:bg-[#1E40AF]' : 'bg-slate-200'
+                            }`}
                             style={{ height: '100%' }}
                           />
-                          <div
-                            className="w-full bg-[#14C8B4] absolute bottom-0 transition-all"
-                            style={{ height: `${Math.min(100, (item.leads / (timeRange === '7D' ? 10 : 40)) * 100)}%` }}
-                          />
+                          {item.leads > 0 && (
+                            <div
+                              className="w-full bg-[#14C8B4] absolute bottom-0 transition-all"
+                              style={{ height: `${Math.min(100, (item.leads / Math.max(1, item.visitors)) * 100)}%` }}
+                            />
+                          )}
                         </div>
 
                       </div>
-                      <span className="text-[11px] font-medium text-slate-500 group-hover:text-slate-900">
+                      <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 group-hover:text-slate-900 truncate">
                         {item.date}
                       </span>
                     </div>
@@ -543,37 +417,39 @@ export default function VisitorTelemetryPage() {
               </div>
             </div>
 
-            {/* Performance Footnote Strip */}
+            {/* Footnote Strip */}
             <div className="grid grid-cols-3 gap-3 pt-4 text-center mt-2">
               <div className="p-2.5 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30">
-                <div className="text-[11px] font-medium text-slate-500">Live Form Opens</div>
+                <div className="text-[11px] font-medium text-slate-500">Total Leads</div>
                 <div className="text-base font-bold text-[#0B1220] mt-0.5">
-                  {timeRange === '7D' ? '529 (14.2%)' : '2,090 (13.8%)'}
+                  {telemetry.totalLeads}
                 </div>
               </div>
               <div className="p-2.5 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30">
-                <div className="text-[11px] font-medium text-slate-500">Avg Dwell Time</div>
-                <div className="text-base font-bold text-[#0B1220] mt-0.5">3m 42s</div>
+                <div className="text-[11px] font-medium text-slate-500">Live Database</div>
+                <div className="text-base font-bold text-[#0B1220] mt-0.5">
+                  {telemetry.tableExists ? 'Connected' : 'Table Pending'}
+                </div>
               </div>
               <div className="p-2.5 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30">
-                <div className="text-[11px] font-medium text-slate-500">Lead Conversion</div>
+                <div className="text-[11px] font-medium text-slate-500">Inbound Conversion</div>
                 <div className="text-base font-bold text-[#1D4ED8] mt-0.5 font-mono">
-                  {timeRange === '7D' ? '2.68%' : '2.74%'}
+                  {telemetry.conversionRate}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right: IP Geo Breakdown (5 cols) */}
+          {/* Right: State-Level IP Geo Breakdown (5 cols) */}
           <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Industrial Apparel Hubs
+                    Indian States &amp; Clusters
                   </div>
                   <div className="text-lg font-bold text-[#0B1220] mt-0.5">
-                    IP Geo-Distribution
+                    State-Wise Unique Visitors
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220]">
@@ -581,60 +457,74 @@ export default function VisitorTelemetryPage() {
                 </div>
               </div>
 
-              {/* Geographic Cluster Bars */}
-              <div className="space-y-4">
-                {activeGeoData.map((geo, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <div className="flex items-center gap-1.5 text-slate-900">
-                        <span>{geo.flag}</span>
-                        <span className="font-bold text-[#0B1220]">{geo.city}</span>
-                        <span className="text-slate-400 font-normal">({geo.state})</span>
+              {/* Geographic State List */}
+              {telemetry.stateTraffic.length === 0 ? (
+                <div className="py-8 px-4 text-center rounded-xl bg-slate-50 border border-slate-100 my-4">
+                  <Globe className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs font-bold text-slate-700">No State Traffic Recorded Yet</p>
+                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto">
+                    When visitors open your website, their state (e.g. Gujarat, Tamil Nadu, Maharashtra) will appear here ranked by unique visitor count.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-[290px] overflow-y-auto pr-1">
+                  {telemetry.stateTraffic.map((geo, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-semibold">
+                        <div className="flex items-center gap-1.5 text-slate-900">
+                          <span className="w-2 h-2 rounded-full bg-[#1D4ED8]" />
+                          <span className="font-bold text-[#0B1220]">{geo.state}</span>
+                          {geo.cities.length > 0 && (
+                            <span className="text-slate-400 font-normal">
+                              ({geo.cities.join(', ')})
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-500 font-mono text-[11px]">
+                            {geo.uniqueVisitors.toLocaleString()} unique
+                          </span>
+                          <span className="font-bold text-[#0B1220] font-mono">{geo.percentage}%</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-500 font-mono text-[11px]">
-                          {geo.visitorsCount.toLocaleString()} visits
+
+                      {/* Progress Bar */}
+                      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden relative">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            idx === 0
+                              ? 'bg-[#1D4ED8]'
+                              : idx === 1
+                              ? 'bg-[#14C8B4]'
+                              : idx === 2
+                              ? 'bg-slate-700'
+                              : 'bg-slate-400'
+                          }`}
+                          style={{ width: `${Math.max(4, geo.percentage)}%` }}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] text-slate-400">
+                        <span>{geo.cities.length > 0 ? `${geo.cities.length} city nodes` : 'State-level origin'}</span>
+                        <span className="text-slate-600 font-medium">
+                          {geo.leadsGenerated} leads • {geo.conversionRate} conv
                         </span>
-                        <span className="font-bold text-[#0B1220] font-mono">{geo.percentage}%</span>
                       </div>
                     </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden relative">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          idx === 0
-                            ? 'bg-[#1D4ED8]'
-                            : idx === 1
-                            ? 'bg-[#14C8B4]'
-                            : idx === 2
-                            ? 'bg-slate-700'
-                            : 'bg-slate-400'
-                        }`}
-                        style={{ width: `${geo.percentage}%` }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] text-slate-400">
-                      <span>{geo.region}</span>
-                      <span className="text-slate-600 font-medium">
-                        {geo.leadsGenerated} leads • {geo.conversionRate} conv
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs text-slate-500">
-              <span>Primary market: <strong className="text-[#0B1220]">Surat + Tirupur (66%)</strong></span>
-              <span className="text-[#1D4ED8] font-bold">100% Inbound Clean</span>
+              <span>Top state: <strong className="text-[#0B1220]">{telemetry.topState}</strong></span>
+              <span className="text-[#1D4ED8] font-bold">100% Real Edge Telemetry</span>
             </div>
           </div>
 
         </div>
 
-        {/* Layer 5: Real-Time Inbound Routing & Edge Telemetry Log */}
+        {/* Layer 5: Real-Time Inbound Routing Log */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           
           {/* Table Header & Filter Bar */}
@@ -647,20 +537,20 @@ export default function VisitorTelemetryPage() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-[#0B1220]">Real-Time Inbound Routing Log</h3>
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-                    {filteredLogs.length} Live Sessions
+                    {filteredLogs.length} Sessions Logged
                   </span>
                 </div>
-                <p className="text-xs text-slate-500">Edge-routed visitor sessions, garment hub identification, and action trails</p>
+                <p className="text-xs text-slate-500">Live incoming visits, resolved state and city, device footprint, and page paths</p>
               </div>
             </div>
 
-            {/* Search & City Filter */}
+            {/* Search & State Filter */}
             <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
               <div className="relative flex-1 sm:w-60">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Filter IP, City, action..."
+                  placeholder="Filter IP, State, Path..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-3.5 py-1.5 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 outline-none transition-all"
@@ -668,16 +558,14 @@ export default function VisitorTelemetryPage() {
               </div>
 
               <select
-                value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
+                value={stateFilter}
+                onChange={(e) => setStateFilter(e.target.value)}
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 cursor-pointer outline-none focus:border-[#0B1220]"
               >
-                <option value="ALL">All Hubs</option>
-                <option value="Surat">Surat</option>
-                <option value="Tirupur">Tirupur</option>
-                <option value="Ahmedabad">Ahmedabad</option>
-                <option value="Ludhiana">Ludhiana</option>
-                <option value="Mumbai & NCR">Mumbai &amp; NCR</option>
+                <option value="ALL">All States</option>
+                {availableStates.map(st => (
+                  <option key={st} value={st}>{st}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -688,18 +576,29 @@ export default function VisitorTelemetryPage() {
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                   <th className="py-3 px-4">Visitor Node (IP)</th>
-                  <th className="py-3 px-4">Garment Hub</th>
-                  <th className="py-3 px-4">Device &amp; Entry Source</th>
-                  <th className="py-3 px-4">Action &amp; Section Visited</th>
+                  <th className="py-3 px-4">State &amp; City</th>
+                  <th className="py-3 px-4">Device &amp; Source</th>
+                  <th className="py-3 px-4">Action &amp; Page</th>
                   <th className="py-3 px-4">Dwell Time</th>
                   <th className="py-3 px-4 text-right">Session Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredLogs.length === 0 ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-500">
-                      No matching visitor sessions found for the given search criteria.
+                      <RefreshCw className="w-5 h-5 animate-spin mx-auto text-slate-400 mb-2" />
+                      Loading live visitor telemetry...
+                    </td>
+                  </tr>
+                ) : filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center text-slate-500">
+                      <Globe className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                      <p className="font-semibold text-slate-700 text-sm">No Live Visitor Sessions Recorded Yet</p>
+                      <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                        Zero visits in this window. Once visitors browse your site, their sessions and state origins will stream here live.
+                      </p>
                     </td>
                   </tr>
                 ) : (
@@ -711,16 +610,18 @@ export default function VisitorTelemetryPage() {
                           <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                           <span>{log.ip}</span>
                         </div>
-                        <span className="text-[10px] text-slate-400 block ml-4">{log.id}</span>
+                        <span className="text-[10px] text-slate-400 block ml-4">{log.id.slice(0, 13)}...</span>
                       </td>
 
-                      {/* Hub & State */}
+                      {/* State & City */}
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-[#0B1220] flex items-center gap-1.5">
                           <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{log.city}</span>
+                          <span>{log.state}</span>
                         </div>
-                        <span className="text-[10px] text-slate-400 block ml-5">{log.state}</span>
+                        <span className="text-[10px] text-slate-400 block ml-5">
+                          {log.city && log.city !== 'Unknown' ? log.city : 'General State Node'}
+                        </span>
                       </td>
 
                       {/* Device & Source */}
@@ -728,6 +629,8 @@ export default function VisitorTelemetryPage() {
                         <div className="flex items-center gap-1.5 text-slate-700 font-medium">
                           {log.deviceType === 'mobile' ? (
                             <Smartphone className="w-3.5 h-3.5 text-slate-400" />
+                          ) : log.deviceType === 'tablet' ? (
+                            <Tablet className="w-3.5 h-3.5 text-slate-400" />
                           ) : (
                             <Monitor className="w-3.5 h-3.5 text-slate-400" />
                           )}
@@ -763,7 +666,7 @@ export default function VisitorTelemetryPage() {
                         ) : log.status === 'trial' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-[#1D4ED8] border border-blue-200 text-xs font-bold">
                             <Zap className="w-3 h-3 text-[#1D4ED8]" />
-                            Trial Started
+                            Trial Flow
                           </span>
                         ) : log.status === 'pricing' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
@@ -771,7 +674,7 @@ export default function VisitorTelemetryPage() {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 text-xs font-semibold">
-                            Active Exploring
+                            Browsing
                           </span>
                         )}
                       </td>
@@ -784,13 +687,71 @@ export default function VisitorTelemetryPage() {
 
           {/* Table Footer */}
           <div className="p-3 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Showing live edge session telemetry</span>
-            <span className="text-[11px] font-mono text-slate-400">Zero 3rd-party tracking scripts • Privacy Compliant</span>
+            <span>Showing live edge session telemetry • Zero mock data</span>
+            <span className="text-[11px] font-mono text-slate-400">Zero 3rd-party scripts • No cookie popups needed</span>
           </div>
 
         </div>
 
       </div>
+
+      {/* SQL Migration Modal */}
+      {showSqlModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-[#1D4ED8]" />
+                <h3 className="font-bold text-[#0B1220] text-base">Supabase SQL Table Definition</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSqlModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600">
+              Run this script once in the <strong>Supabase Dashboard → SQL Editor</strong> to create the <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-[#0B1220]">website_page_views</code> table with RLS and state indexing.
+            </p>
+
+            <div className="relative">
+              <pre className="p-3 bg-slate-900 text-slate-100 rounded-xl text-[11px] font-mono max-h-60 overflow-y-auto leading-relaxed">
+                {SQL_MIGRATION_SNIPPET}
+              </pre>
+              <button
+                type="button"
+                onClick={copySqlToClipboard}
+                className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition-colors cursor-pointer"
+              >
+                {copiedSql ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy SQL</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSqlModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PlatformAdminShell>
   )
 }
