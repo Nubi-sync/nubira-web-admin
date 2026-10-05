@@ -1026,6 +1026,7 @@ export function BuyersVendorsClient({
       <AddBuyerModal
         isOpen={isAddBuyerModalOpen}
         buyer={selectedBuyerForEdit}
+        companyName={companyName}
         onClose={() => {
           setIsAddBuyerModalOpen(false)
           setSelectedBuyerForEdit(null)

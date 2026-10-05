@@ -34,26 +34,41 @@ export async function fetchWashingDashboardDataAction(companyName?: string): Pro
     cacheKey,
     async () => {
       try {
-        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-        const targetComp = (companyName || '').toUpperCase()
+        const target = (companyName || '').trim().toLowerCase()
 
         const [batchesRes, recipesRes, shrinkageRes] = await Promise.all([
           supabaseAdmin
             .from('washing_batches')
-            .select('*, order:merchandising_orders(po_number, style_name, brands:buyer_id(brand_name)), recipe:washing_recipes(recipe_code, wash_type)')
+            .select('*, order:merchandising_orders(po_number, style_name, company_name, brands:buyer_id(brand_name, company_name)), recipe:washing_recipes(recipe_code, wash_type)')
             .order('started_at', { ascending: false })
             .limit(50),
           supabaseAdmin.from('washing_recipes').select('*').order('recipe_code', { ascending: true }),
           supabaseAdmin
             .from('washing_shrinkage_alerts')
-            .select('*, batch:washing_batches(batch_number, order:merchandising_orders(brands:buyer_id(brand_name)))')
+            .select('*, batch:washing_batches(batch_number, order:merchandising_orders(company_name, brands:buyer_id(brand_name, company_name)))')
             .order('created_at', { ascending: false })
             .limit(50)
         ])
 
-        const rawBatches = batchesRes.data || []
+        const rawBatches = (batchesRes.data || []).filter((b: any) => {
+          if (!target) return true
+          const ordComp = (b.order?.company_name || '').trim().toLowerCase()
+          const brandComp = (b.order?.brands?.company_name || '').trim().toLowerCase()
+          if (ordComp) return ordComp === target
+          if (brandComp) return brandComp === target
+          if (b.company_name) return b.company_name.toLowerCase() === target
+          return false
+        })
         const rawRecipes = recipesRes.data || []
-        const rawShrinkage = shrinkageRes.data || []
+        const rawShrinkage = (shrinkageRes.data || []).filter((s: any) => {
+          if (!target) return true
+          const ordComp = (s.batch?.order?.company_name || '').trim().toLowerCase()
+          const brandComp = (s.batch?.order?.brands?.company_name || '').trim().toLowerCase()
+          if (ordComp) return ordComp === target
+          if (brandComp) return brandComp === target
+          if (s.company_name) return s.company_name.toLowerCase() === target
+          return false
+        })
 
         const batches: WashBatch[] = rawBatches.map((b: any) => ({
           id: b.id,

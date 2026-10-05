@@ -30,24 +30,39 @@ export async function fetchReadyGoodsDashboardDataAction(companyName?: string): 
     cacheKey,
     async () => {
       try {
-        const isNonNubira = companyName && companyName.toLowerCase() !== 'nubira creation'
-        const targetComp = (companyName || '').toUpperCase()
+        const target = (companyName || '').trim().toLowerCase()
 
         const [cartonsRes, aqlRes] = await Promise.all([
           supabaseAdmin
             .from('ready_goods_cartons')
-            .select('*, order:merchandising_orders(po_number, brand_buyer, style_name, brands:buyer_id(brand_name)), bundles:ready_goods_carton_bundles(bundle_id, pieces_from_bundle)')
+            .select('*, order:merchandising_orders(po_number, brand_buyer, style_name, company_name, brands:buyer_id(brand_name, company_name)), bundles:ready_goods_carton_bundles(bundle_id, pieces_from_bundle)')
             .order('created_at', { ascending: false })
             .limit(50),
           supabaseAdmin
             .from('ready_goods_aql_audits')
-            .select('*, carton:ready_goods_cartons(carton_barcode, order_id, order:merchandising_orders(brand_buyer, brands:buyer_id(brand_name)))')
+            .select('*, carton:ready_goods_cartons(carton_barcode, order_id, order:merchandising_orders(brand_buyer, company_name, brands:buyer_id(brand_name, company_name)))')
             .order('created_at', { ascending: false })
             .limit(50)
         ])
 
-        const rawCartons = cartonsRes.data || []
-        const rawAql = aqlRes.data || []
+        const rawCartons = (cartonsRes.data || []).filter((c: any) => {
+          if (!target) return true
+          const ordComp = (c.order?.company_name || '').trim().toLowerCase()
+          const brandComp = (c.order?.brands?.company_name || '').trim().toLowerCase()
+          if (ordComp) return ordComp === target
+          if (brandComp) return brandComp === target
+          if (c.company_name) return c.company_name.toLowerCase() === target
+          return false
+        })
+        const rawAql = (aqlRes.data || []).filter((a: any) => {
+          if (!target) return true
+          const ordComp = (a.carton?.order?.company_name || '').trim().toLowerCase()
+          const brandComp = (a.carton?.order?.brands?.company_name || '').trim().toLowerCase()
+          if (ordComp) return ordComp === target
+          if (brandComp) return brandComp === target
+          if (a.company_name) return a.company_name.toLowerCase() === target
+          return false
+        })
 
         const cartons: ReadyGoodsCarton[] = rawCartons.map((c: any) => {
           const gross = Number(c.gross_weight_kg) || 12.5
