@@ -414,8 +414,8 @@ export async function fetchOwnerDashboardData(
         }
       })
 
-      // 8. Division Heartbeat (REAL COUNTS ONLY)
-      const divisionHeartbeat: DivisionHeartbeatItem[] = [
+      // 8. Division Heartbeat (REAL COUNTS ONLY — FILTERED BY TENANT/ACCOUNT ELIGIBILITY)
+      const allDivisionHeartbeat: DivisionHeartbeatItem[] = [
         {
           id: 'cutting',
           name: 'Cutting Floor',
@@ -514,6 +514,14 @@ export async function fetchOwnerDashboardData(
         }
       ]
 
+      const tenantAllowedDivisions = typeof tenantOrCompany === 'object' && Array.isArray(tenantOrCompany.allowedDivisions)
+        ? tenantOrCompany.allowedDivisions
+        : undefined
+
+      const divisionHeartbeat = tenantAllowedDivisions && tenantAllowedDivisions.length > 0
+        ? allDivisionHeartbeat.filter(div => isDivisionEligible(div, tenantAllowedDivisions))
+        : allDivisionHeartbeat
+
       return {
         companyName,
         pulse,
@@ -529,6 +537,24 @@ export async function fetchOwnerDashboardData(
       }
     } catch (err: any) {
       console.error('Error fetching Owner Dashboard data:', err)
+      const fallbackDivisions: DivisionHeartbeatItem[] = [
+        { id: 'cutting', name: 'Cutting Floor', route: '/cutting', status: 'IDLE', metric: '0 lay sheets', iconName: 'Scissors' },
+        { id: 'stitching', name: 'Stitching Lines', route: '/stitching-sewing/dashboard', status: 'IDLE', metric: '0 pcs stitched', iconName: 'Layers' },
+        { id: 'qc', name: '3-Stage QC', route: '/stitching-sewing/qc', status: 'IDLE', metric: '0 audits', iconName: 'ShieldCheck' },
+        { id: 'iron', name: 'Iron & Finishing', route: '/iron-finishing', status: 'IDLE', metric: '0 pcs pressed', iconName: 'Flame' },
+        { id: 'ready-goods', name: 'Ready Goods & Cartons', route: '/ready-goods', status: 'IDLE', metric: '0 cartons packed', iconName: 'Box' },
+        { id: 'store', name: 'Fabric & Trims Godown', route: '/store', status: 'IDLE', metric: '0 pcs stock', iconName: 'Warehouse' },
+        { id: 'dispatch', name: 'Dispatch & Logistics', route: '/dispatch', status: 'IDLE', metric: '0 challans sent', iconName: 'Truck' },
+        { id: 'design', name: 'Design Studio', route: '/all-designs', status: 'IDLE', metric: '0 styles active', iconName: 'Palette' },
+        { id: 'merchandising', name: 'Merchandising & POs', route: '/buyers-vendors', status: 'IDLE', metric: '0 buyer POs', iconName: 'FileCheck' },
+        { id: 'printing', name: 'Panel Printing', route: '/printing', status: 'IDLE', metric: '0 strike-offs', iconName: 'Sparkles' },
+        { id: 'embroidery', name: 'Embroidery Line', route: '/embroidery', status: 'IDLE', metric: '0 machines', iconName: 'Cpu' },
+        { id: 'washing', name: 'Washing Unit', route: '/washing', status: 'IDLE', metric: '0 batches', iconName: 'Droplets' }
+      ]
+      const fallbackAllowedDivisions = typeof tenantOrCompany === 'object' && Array.isArray(tenantOrCompany.allowedDivisions)
+        ? tenantOrCompany.allowedDivisions
+        : undefined
+
       return {
         companyName: typeof tenantOrCompany === 'string' ? tenantOrCompany : (tenantOrCompany?.companyName || 'Apparel Factory'),
         pulse: {
@@ -560,22 +586,52 @@ export async function fetchOwnerDashboardData(
         buyerOrders: [],
         fabricStock: [],
         articlesCatalog: [],
-        divisionHeartbeat: [
-          { id: 'cutting', name: 'Cutting Floor', route: '/cutting', status: 'IDLE', metric: '0 lay sheets', iconName: 'Scissors' },
-          { id: 'stitching', name: 'Stitching Lines', route: '/stitching-sewing/dashboard', status: 'IDLE', metric: '0 pcs stitched', iconName: 'Layers' },
-          { id: 'qc', name: '3-Stage QC', route: '/stitching-sewing/qc', status: 'IDLE', metric: '0 audits', iconName: 'ShieldCheck' },
-          { id: 'iron', name: 'Iron & Finishing', route: '/iron-finishing', status: 'IDLE', metric: '0 pcs pressed', iconName: 'Flame' },
-          { id: 'ready-goods', name: 'Ready Goods & Cartons', route: '/ready-goods', status: 'IDLE', metric: '0 cartons packed', iconName: 'Box' },
-          { id: 'store', name: 'Fabric & Trims Godown', route: '/store', status: 'IDLE', metric: '0 pcs stock', iconName: 'Warehouse' },
-          { id: 'dispatch', name: 'Dispatch & Logistics', route: '/dispatch', status: 'IDLE', metric: '0 challans sent', iconName: 'Truck' },
-          { id: 'design', name: 'Design Studio', route: '/all-designs', status: 'IDLE', metric: '0 styles active', iconName: 'Palette' },
-          { id: 'merchandising', name: 'Merchandising & POs', route: '/buyers-vendors', status: 'IDLE', metric: '0 buyer POs', iconName: 'FileCheck' },
-          { id: 'printing', name: 'Panel Printing', route: '/printing', status: 'IDLE', metric: '0 strike-offs', iconName: 'Sparkles' },
-          { id: 'embroidery', name: 'Embroidery Line', route: '/embroidery', status: 'IDLE', metric: '0 machines', iconName: 'Cpu' },
-          { id: 'washing', name: 'Washing Unit', route: '/washing', status: 'IDLE', metric: '0 batches', iconName: 'Droplets' }
-        ],
+        divisionHeartbeat: fallbackAllowedDivisions && fallbackAllowedDivisions.length > 0
+          ? fallbackDivisions.filter(div => isDivisionEligible(div, fallbackAllowedDivisions))
+          : fallbackDivisions,
         lastUpdated: 'Just now'
       }
     }
   })
+}
+
+function isDivisionEligible(div: DivisionHeartbeatItem, allowedDivisions?: string[]): boolean {
+  if (!allowedDivisions || allowedDivisions.length === 0) return true
+  if (allowedDivisions.includes('/modules') || allowedDivisions.includes('/platform-admin')) return true
+
+  const matches = (prefix: string) =>
+    allowedDivisions.some(ad => {
+      const cleanAd = ad.replace(/\/+$/, '')
+      const cleanPrefix = prefix.replace(/\/+$/, '')
+      return cleanAd === cleanPrefix || cleanAd.startsWith(`${cleanPrefix}/`) || cleanPrefix.startsWith(`${cleanAd}/`)
+    })
+
+  switch (div.id) {
+    case 'cutting':
+      return matches('/cutting')
+    case 'stitching':
+      return matches('/stitching-sewing')
+    case 'qc':
+      return matches('/stitching-sewing') || matches('/ready-goods') || matches('/qc')
+    case 'iron':
+      return matches('/iron')
+    case 'ready-goods':
+      return matches('/ready-goods') || matches('/alter')
+    case 'store':
+      return matches('/store') || matches('/fabric-store')
+    case 'dispatch':
+      return matches('/dispatch')
+    case 'design':
+      return matches('/design') || matches('/all-designs')
+    case 'merchandising':
+      return matches('/merchandising') || matches('/buyers-vendors') || matches('/vendors')
+    case 'printing':
+      return matches('/printing')
+    case 'embroidery':
+      return matches('/embroidery')
+    case 'washing':
+      return matches('/washing')
+    default:
+      return matches(div.route)
+  }
 }

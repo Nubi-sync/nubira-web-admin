@@ -716,7 +716,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Division Heartbeat (12 Operational Departments)
+              Division Heartbeat ({data.divisionHeartbeat.length} Operational Department{data.divisionHeartbeat.length === 1 ? '' : 's'})
             </h3>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
               Verified active department status and direct navigation
@@ -726,7 +726,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             href="/modules"
             className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
           >
-            <span>All 12 Modules</span>
+            <span>All {data.divisionHeartbeat.length} Modules</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
