@@ -465,8 +465,12 @@ export async function updateDemoRequestStatusAction(
     }
 
     revalidatePath('/platform-admin')
-    return { success: true }
   } catch (err: any) {
+    console.error('[updateDemoRequestStatusAction] Error:', err)
+    return { success: false, error: err?.message }
+  }
+}
+
 export async function deleteDemoRequestAction(id: string): Promise<{
   success: boolean
   error?: string
@@ -748,19 +752,22 @@ export async function provisionTenantFactoryAction(
       console.warn('[provisionTenantFactoryAction] Insert tenant warning:', tenantErr.message)
     }
 
-    // Step D: Update linked demo inquiry status to PROVISIONED_TENANT
-    if (payload.demoRequestId) {
-      try {
+    // Step D: Auto-delete lead from platform_demo_requests upon provisioning
+    try {
+      const phoneDigits = payload.adminPhone.replace(/\D/g, '').slice(-10)
+      if (payload.demoRequestId) {
         await supabaseAdmin
           .from('platform_demo_requests')
-          .update({
-            status: 'PROVISIONED_TENANT',
-            provisioned_tenant_id: tenantData?.id || null,
-            contacted_at: new Date().toISOString()
-          })
+          .delete()
           .eq('id', payload.demoRequestId)
-      } catch (_) {}
-    }
+      }
+      if (phoneDigits) {
+        await supabaseAdmin
+          .from('platform_demo_requests')
+          .delete()
+          .ilike('phone', `%${phoneDigits}%`)
+      }
+    } catch (_) {}
 
     // Step E: Create immutable audit log entry
     try {
