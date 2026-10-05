@@ -465,6 +465,7 @@ export async function updateDemoRequestStatusAction(
     }
 
     revalidatePath('/platform-admin')
+    return { success: true }
   } catch (err: any) {
     console.error('[updateDemoRequestStatusAction] Error:', err)
     return { success: false, error: err?.message }
@@ -754,7 +755,7 @@ export async function provisionTenantFactoryAction(
 
     // Step D: Auto-delete lead from platform_demo_requests upon provisioning
     try {
-      const phoneDigits = payload.adminPhone.replace(/\D/g, '').slice(-10)
+      const phoneDigits = payload.phone.replace(/\D/g, '').slice(-10)
       if (payload.demoRequestId) {
         await supabaseAdmin
           .from('platform_demo_requests')
