@@ -17,7 +17,8 @@ import {
   RefreshCw,
   ExternalLink,
   ChevronRight,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Store
 } from 'lucide-react'
 import { CentralStoreBespokeIcon, MaterialFlowBespokeIcon } from '@/components/icons/CustomStoreIcons'
 import {
@@ -304,12 +305,12 @@ export function CentralStoreHubClient({
       {/* Layer 2: Encapsulated Top Header Card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-black/10 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <CentralStoreBespokeIcon className="w-6 h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Store className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Central <span className="text-[#1D4ED8]">Store Hub</span>
               </h1>
               <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
@@ -342,7 +343,7 @@ export function CentralStoreHubClient({
               setFormError(null)
               setIsAddFabricOpen(true)
             }}
-            className="inline-flex items-center justify-center gap-2 min-h-[42px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98] shrink-0"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 cursor-pointer active:scale-[0.98] shrink-0"
           >
             <Plus className="w-4 h-4 text-white stroke-[2.5]" />
             <span>Add Cloth Stock</span>
@@ -354,9 +355,9 @@ export function CentralStoreHubClient({
               setFormError(null)
               setIsIssueModalOpen(true)
             }}
-            className="inline-flex items-center justify-center gap-1.5 min-h-[42px] px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 transition-all shadow-2xs cursor-pointer shrink-0"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 transition-all shadow-2xs cursor-pointer shrink-0"
           >
-            <ArrowRight className="w-4 h-4 text-slate-500" />
+            <ArrowRight className="w-4 h-4 text-[#0B1220]" />
             <span>Issue Challan</span>
           </button>
         </div>
@@ -521,8 +522,8 @@ export function CentralStoreHubClient({
                 onClick={() => setActiveTab(tab.key as TabType)}
                 className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   activeTab === tab.key
-                    ? 'bg-[#14C8B4] text-[#0B1220] shadow-2xs font-bold'
-                    : 'text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                    : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
                 }`}
               >
                 {tab.label}

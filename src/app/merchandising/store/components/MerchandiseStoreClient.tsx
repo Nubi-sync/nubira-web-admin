@@ -13,7 +13,8 @@ import {
   Box,
   Scale,
   Scissors,
-  Bookmark
+  Bookmark,
+  Briefcase
 } from 'lucide-react'
 import { CentralStoreBespokeIcon, MaterialFlowBespokeIcon } from '@/components/icons/CustomStoreIcons'
 import {
@@ -210,7 +211,7 @@ export function MerchandiseStoreClient({
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-            <CentralStoreBespokeIcon className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
+            <Briefcase className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -364,8 +365,8 @@ export function MerchandiseStoreClient({
               onClick={() => setActiveTab('MATRIX')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'MATRIX'
-                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
               }`}
             >
               Fabric Stock Matrix ({fabrics.length})
@@ -376,8 +377,8 @@ export function MerchandiseStoreClient({
               onClick={() => setActiveTab('DISPATCHES')}
               className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'DISPATCHES'
-                  ? 'bg-[#0B1220] text-white shadow-2xs font-bold'
-                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-black/5'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'text-slate-600 bg-slate-50 border border-slate-100 hover:bg-[#F0FDFA]/60'
               }`}
             >
               Cutting Dispatches ({issues.length})
