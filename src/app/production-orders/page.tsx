@@ -81,8 +81,8 @@ export default async function ProductionOrdersPage() {
         
         {/* 1. Breadcrumb */}
         <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-          <Link href="/modules" className="hover:text-[#0B1220] transition-colors">
-            Workspace Hub
+          <Link href={userRole === 'PRODUCTION_MANAGER' ? '/stitching-sewing/production-orders' : '/modules'} className="hover:text-[#0B1220] transition-colors">
+            {userRole === 'PRODUCTION_MANAGER' ? 'Production Operations' : 'Workspace Hub'}
           </Link>
           <span>/</span>
           <span>Production</span>

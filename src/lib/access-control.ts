@@ -229,6 +229,11 @@ export function getDefaultLandingRoute(
     return '/modules'
   }
 
+  // Production Manager lands directly on Production Chart
+  if (normRole === 'PRODUCTION_MANAGER' || normRole === 'PROD_MANAGER' || normRole === 'PRODUCTION_SUPERVISOR' || normEmail.startsWith('pm@') || normEmail.includes('@pm.')) {
+    return '/stitching-sewing/production-orders'
+  }
+
   // Creative Designer always lands on designer workspace
   if (normRole === 'DESIGNER' || normEmail.includes('@designer.') || normEmail.endsWith('@designer.nubira.local')) {
     return '/design/designer'

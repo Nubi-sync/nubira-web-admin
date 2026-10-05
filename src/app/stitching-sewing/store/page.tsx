@@ -444,15 +444,15 @@ export default async function StitchingStoreDashboardPage() {
         {/* Breadcrumb Bar */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <Link href="/modules" className="hover:underline hover:text-slate-900 transition-colors">
-              Workspace Hub
+            <Link href={tenant.role === 'PRODUCTION_MANAGER' ? '/stitching-sewing/production-orders' : '/modules'} className="hover:underline hover:text-slate-900 transition-colors">
+              {tenant.role === 'PRODUCTION_MANAGER' ? 'Production Operations' : 'Workspace Hub'}
             </Link>
             <span className="text-slate-300">/</span>
-            <Link href="/stitching-sewing/dashboard" className="hover:underline hover:text-slate-900 transition-colors">
-              Sewing Operations
+            <Link href={tenant.role === 'PRODUCTION_MANAGER' ? '/stitching-sewing/production-orders' : '/stitching-sewing/dashboard'} className="hover:underline hover:text-slate-900 transition-colors">
+              {tenant.role === 'PRODUCTION_MANAGER' ? 'Production Chart' : 'Sewing Operations'}
             </Link>
             <span className="text-slate-300">/</span>
-            <span className="font-extrabold text-[#3A3564]">
+            <span className="font-extrabold text-[#0B1220]">
               Store Dashboard
             </span>
             <span className="text-slate-300">•</span>

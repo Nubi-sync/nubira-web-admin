@@ -164,6 +164,14 @@ function AdminShellContent({
     userEmail?.toLowerCase() === 'store'
   )
 
+  const isProductionManager = (
+    userRole?.toUpperCase() === 'PRODUCTION_MANAGER' ||
+    userRole?.toUpperCase() === 'PROD_MANAGER' ||
+    userRole?.toUpperCase() === 'PRODUCTION_SUPERVISOR' ||
+    userEmail?.toLowerCase().includes('@pm.') ||
+    userEmail?.toLowerCase().startsWith('pm@')
+  )
+
   const isAdmin = (
     userEmail?.toLowerCase() === 'admin@zigza.in' ||
     userEmail?.toLowerCase() === 'team.anga9@gmail.com' ||
@@ -174,11 +182,13 @@ function AdminShellContent({
     userRole?.toUpperCase() === 'ADMINISTRATOR'
   )
 
-  const homeHref = isAdmin 
-    ? '/modules' 
-    : (isStoreUser 
-        ? '/stitching-sewing/inventory' 
-        : (pathname?.startsWith('/stitching-sewing') ? '/stitching-sewing/dashboard' : (pathname?.startsWith('/store') ? '/store' : '/stitching-sewing/dashboard')))
+  const homeHref = isProductionManager
+    ? '/stitching-sewing/production-orders'
+    : (isAdmin 
+        ? '/modules' 
+        : (isStoreUser 
+            ? '/stitching-sewing/inventory' 
+            : (pathname?.startsWith('/stitching-sewing') ? '/stitching-sewing/dashboard' : (pathname?.startsWith('/store') ? '/store' : '/stitching-sewing/dashboard'))))
 
   // Close mobile menu on route change
   useEffect(() => {

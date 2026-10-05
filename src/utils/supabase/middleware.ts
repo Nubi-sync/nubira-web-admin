@@ -6,6 +6,32 @@ import { CacheManager } from '@/lib/cache/cache-manager'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
+  // 0. Path Normalization: Auto-heal space-encoded or legacy URL paths (e.g., /stitching sewing/dashboard -> /stitching-sewing/dashboard)
+  const decodedPathname = decodeURIComponent(pathname)
+  if (
+    decodedPathname.includes('stitching sewing') ||
+    pathname.includes('stitching%20sewing') ||
+    pathname === '/stitching' ||
+    pathname === '/sewing' ||
+    decodedPathname.includes('ready goods') ||
+    pathname.includes('ready%20goods')
+  ) {
+    let cleanPath = decodedPathname
+      .replace(/stitching\s+sewing/gi, 'stitching-sewing')
+      .replace(/ready\s+goods/gi, 'ready-goods')
+      .replace(/buyers\s+vendors/gi, 'buyers-vendors')
+      .replace(/fabric\s+store/gi, 'fabric-store')
+      .replace(/all\s+designs/gi, 'all-designs')
+
+    if (cleanPath === '/stitching' || cleanPath === '/sewing') {
+      cleanPath = '/stitching-sewing/dashboard'
+    }
+
+    const url = request.nextUrl.clone()
+    url.pathname = cleanPath
+    return NextResponse.redirect(url, 301)
+  }
+
   // Enforce Rate Limiting on direct API Login & Auth POST requests (exempting internal Next.js Server Actions & sign-out)
   const isServerAction = request.headers.has('next-action')
   if (

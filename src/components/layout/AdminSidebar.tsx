@@ -228,6 +228,14 @@ export function AdminSidebar({
     userEmail?.toLowerCase().endsWith('@iron.nubira.local')
   )
 
+  const isProductionManager = (
+    userRole?.toUpperCase() === 'PRODUCTION_MANAGER' ||
+    userRole?.toUpperCase() === 'PROD_MANAGER' ||
+    userRole?.toUpperCase() === 'PRODUCTION_SUPERVISOR' ||
+    userEmail?.toLowerCase().includes('@pm.') ||
+    userEmail?.toLowerCase().startsWith('pm@')
+  )
+
   const isStitchingWorker = (
     userRole?.toUpperCase() === 'STITCHING_WORKER' ||
     userRole?.toUpperCase() === 'TAILOR' ||
@@ -238,28 +246,46 @@ export function AdminSidebar({
 
   const roleLabel = isAdmin 
     ? 'Super Admin' 
-    : (isDesignerUser
-        ? 'Creative Designer'
-        : (isCuttingWorker
-            ? 'Cutting Floor Operator'
-            : (isPrintingWorker
-                ? 'Printing Floor Operator'
-                : (isEmbroideryWorker
-                    ? 'Embroidery Machine Operator'
-                    : (isWashingWorker
-                        ? 'Washing Floor Operator'
-                        : (isIronWorker
-                            ? 'Steam Iron Presser'
-                            : (isStitchingWorker
-                                ? 'Tailor / Sewing Operator'
-                                : (userRole && userRole.toUpperCase() !== 'ADMIN'
-                                    ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                                    : (isStoreUser ? 'Store Supervisor' : 'Department Head')))))))))
+    : (isProductionManager
+        ? 'Production Manager'
+        : (isDesignerUser
+            ? 'Creative Designer'
+            : (isCuttingWorker
+                ? 'Cutting Floor Operator'
+                : (isPrintingWorker
+                    ? 'Printing Floor Operator'
+                    : (isEmbroideryWorker
+                        ? 'Embroidery Machine Operator'
+                        : (isWashingWorker
+                            ? 'Washing Floor Operator'
+                            : (isIronWorker
+                                ? 'Steam Iron Presser'
+                                : (isStitchingWorker
+                                    ? 'Tailor / Sewing Operator'
+                                    : (userRole && userRole.toUpperCase() !== 'ADMIN'
+                                        ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                        : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))))))))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []
 
-  if (isDesignerUser) {
+  if (isProductionManager) {
+    activeNavSections = [
+      {
+        section: 'Production Operations',
+        items: [
+          { label: 'Production Chart', href: '/stitching-sewing/production-orders', icon: Layers },
+          { label: 'Store Dashboard', href: '/stitching-sewing/store', icon: Store },
+        ],
+      },
+      {
+        section: 'Account',
+        items: [
+          { label: 'Profile', href: '/stitching-sewing/profile', icon: User },
+        ],
+      },
+    ]
+  } else if (isDesignerUser) {
     activeNavSections = [
       {
         section: 'Designer Studio',

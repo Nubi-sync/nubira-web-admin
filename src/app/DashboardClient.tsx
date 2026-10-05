@@ -803,7 +803,7 @@ export default function DashboardClient({
     const alterationRate = totalChecked > 0 ? ((totalQCRejected / totalChecked) * 100) : 0
 
     return {
-      totalStocks: stage1_unallottedStocks,
+      totalStocks: totalOrderPipeline,
       unallottedStocks: stage1_unallottedStocks,
       totalOrderPipeline,
       goodsInLine: stage2_goodsInLine,
@@ -1500,10 +1500,10 @@ export default function DashboardClient({
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
-                Unallotted
+                UNALLOTTED
               </span>
               <span className="text-[10px] font-mono text-slate-400 font-medium">
-                {metrics.totalOrderPipeline.toLocaleString()} total
+                {metrics.totalStocks.toLocaleString()} total
               </span>
             </div>
           </div>

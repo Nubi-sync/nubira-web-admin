@@ -68,6 +68,7 @@ import {
 import { getDetailedItemBreakdown } from '@/utils/multiSizeParser'
 import { ArticleConsumptionLedger } from './ArticleConsumptionLedger'
 import { InventoryClient, InventoryTabKey } from '@/app/inventory/components/InventoryClient'
+import { createClient } from '@/utils/supabase/client'
 
 // Types
 export type Article = {
@@ -302,6 +303,65 @@ export function StoreDashboardClient({
       router.refresh()
     })
   }
+
+  // Real-time Supabase Subscription & Background Auto-Sync Engine
+  useEffect(() => {
+    const supabase = createClient()
+    let debounceTimer: NodeJS.Timeout | null = null
+    let hasPendingUpdates = false
+
+    const triggerRefresh = () => {
+      if (document.hidden) {
+        hasPendingUpdates = true
+        return
+      }
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        startTransition(() => {
+          router.refresh()
+        })
+      }, 500)
+    }
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && hasPendingUpdates) {
+        hasPendingUpdates = false
+        startTransition(() => {
+          router.refresh()
+        })
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Periodic heartbeat poll every 8s to guarantee auto-sync across desktop and mobile
+    const pollInterval = setInterval(() => {
+      if (!document.hidden) {
+        startTransition(() => {
+          router.refresh()
+        })
+      }
+    }, 8000)
+
+    const channel = supabase
+      .channel('realtime-store-dashboard')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotments' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'challans' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_transactions' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'accessories' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'truck_inwards' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_variants' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'allotment_materials' }, triggerRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'worker_assignments' }, triggerRefresh)
+      .subscribe()
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      clearInterval(pollInterval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      supabase.removeChannel(channel)
+    }
+  }, [router])
 
   // Helper to Clean Article Description
   const getCleanDescription = (desc?: string | null) => {
@@ -1003,19 +1063,21 @@ export function StoreDashboardClient({
                 1. Total Store Stocks
               </span>
               <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                Cutting & Inward Target
+                Pending Allotment Balance
               </p>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100/80">
             <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 leading-none">
-              {storeMetrics.totalStocks.toLocaleString()}
+              {storeMetrics.unallottedStocks.toLocaleString()}
             </h3>
             <div className="mt-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider shadow-2xs">
-                Total Pipeline
+                UNALLOTTED
               </span>
-              <span className="text-[10px] font-mono text-slate-400 font-medium">pcs</span>
+              <span className="text-[10px] font-mono text-slate-400 font-medium">
+                {storeMetrics.totalStocks.toLocaleString()} total
+              </span>
             </div>
           </div>
         </div>
