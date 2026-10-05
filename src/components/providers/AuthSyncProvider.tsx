@@ -7,6 +7,27 @@ import { createClient } from '@/utils/supabase/client'
 const AUTH_CHANNEL_NAME = 'zigza_auth_sync'
 const STORAGE_SYNC_KEY = 'zigza_auth_event'
 
+const PUBLIC_PREFIXES = [
+  '/',
+  '/login',
+  '/register',
+  '/try-free',
+  '/terms',
+  '/privacy',
+  '/security',
+  '/reset-password',
+  '/auth',
+  '/not-found',
+]
+
+function isPublicRoute(pathname: string | null): boolean {
+  if (!pathname || pathname === '/') return true
+  return PUBLIC_PREFIXES.some((prefix) => {
+    if (prefix === '/') return pathname === '/'
+    return pathname === prefix || pathname.startsWith(`${prefix}/`)
+  })
+}
+
 export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -15,7 +36,7 @@ export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient()
-    const isPublicPage = pathname === '/login' || pathname.startsWith('/login') || pathname === '/'
+    const isPublicPage = isPublicRoute(pathname)
 
     // 1. Setup BroadcastChannel for Instant Cross-Tab Sync
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
@@ -31,7 +52,7 @@ export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
               window.location.href = '/login'
             }
           } else if (event.data.type === 'LOGIN') {
-            if (isPublicPage) {
+            if (isPublicPage && pathname === '/login') {
               router.refresh()
             }
           }
@@ -49,7 +70,7 @@ export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
           if (data.type === 'LOGOUT' && !isPublicPage && !isHandlingLogoutRef.current) {
             isHandlingLogoutRef.current = true
             window.location.href = '/login'
-          } else if (data.type === 'LOGIN' && isPublicPage) {
+          } else if (data.type === 'LOGIN' && isPublicPage && pathname === '/login') {
             router.refresh()
           }
         } catch (_) {}
@@ -81,9 +102,10 @@ export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    // 3. Proactive Sliding Session Token Refresh (Every 4 minutes)
-    // Refreshes token if it's within 10 minutes of expiry to guarantee zero session drops during shifts
+    // 3. Proactive Sliding Session Token Refresh (Every 4 minutes for authenticated sessions)
     const checkAndRefreshToken = async () => {
+      if (isPublicPage) return
+
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) {
@@ -109,11 +131,14 @@ export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    const refreshInterval = setInterval(checkAndRefreshToken, 4 * 60 * 1000)
+    let refreshInterval: NodeJS.Timeout | null = null
+    if (!isPublicPage) {
+      refreshInterval = setInterval(checkAndRefreshToken, 4 * 60 * 1000)
+    }
 
     // 4. Visibility Change Listener: Verify auth state when user returns to an inactive tab
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
+      if (!document.hidden && !isPublicPage) {
         checkAndRefreshToken()
       }
     }
@@ -121,7 +146,7 @@ export function AuthSyncProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       subscription.unsubscribe()
-      clearInterval(refreshInterval)
+      if (refreshInterval) clearInterval(refreshInterval)
       window.removeEventListener('storage', handleStorageChange)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       try {
