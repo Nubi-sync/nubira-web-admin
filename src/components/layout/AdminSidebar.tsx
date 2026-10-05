@@ -53,9 +53,11 @@ import {
   PackageCheck,
   AlertTriangle,
   Settings,
-  Bell
+  Bell,
+  Zap
 } from 'lucide-react'
 import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
+import { getTenantSubscriptionStatusAction } from '@/app/profile/actions'
 
 type NavItem = {
   label: string
@@ -127,6 +129,31 @@ export function AdminSidebar({
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const [unreadCount, setUnreadCount] = useState(0)
+  const [subStatus, setSubStatus] = useState<{
+    isTrial: boolean
+    daysLeft: number
+  }>({
+    isTrial: false,
+    daysLeft: 7
+  })
+
+  // Fetch tenant subscription status
+  useEffect(() => {
+    let isMounted = true
+    getTenantSubscriptionStatusAction()
+      .then((res) => {
+        if (!isMounted) return
+        setSubStatus({
+          isTrial: res.isTrial,
+          daysLeft: res.daysLeft
+        })
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [companyName])
 
   // Listen to floor notifications update for real-time badge
   useEffect(() => {
@@ -1141,6 +1168,35 @@ export function AdminSidebar({
               )}
             </div>
           </div>
+
+          {/* Mobile Side Nav Trial & Recharge Card (Visible ONLY if in Free Trial) */}
+          {subStatus.isTrial && (
+            <div className="mx-3.5 mt-3 p-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-xs">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
+                  <Clock className="w-3.5 h-3.5 text-amber-600" />
+                  7-Day Demo Trial
+                </span>
+                <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 border border-amber-300">
+                  {subStatus.daysLeft} Days Left
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-900 leading-snug mb-2">
+                Your trial workspace will expire soon. Recharge now to keep all modules active.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onMobileClose) onMobileClose()
+                  window.dispatchEvent(new CustomEvent('open-recharge-modal'))
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>Click here to recharge</span>
+              </button>
+            </div>
+          )}
 
           {/* Navigation */}
           <nav className="p-3.5 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">

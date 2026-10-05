@@ -90,6 +90,37 @@ function AdminShellContent({
   const { isTvMode } = useTvMode()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [subStatus, setSubStatus] = useState<{
+    isTrial: boolean
+    daysLeft: number
+    companyName: string
+    monthlyRate: number
+  }>({
+    isTrial: false,
+    daysLeft: 7,
+    companyName: companyName || '',
+    monthlyRate: 4999
+  })
+
+  // Fetch tenant subscription status
+  useEffect(() => {
+    let isMounted = true
+    getTenantSubscriptionStatusAction()
+      .then((res) => {
+        if (!isMounted) return
+        setSubStatus({
+          isTrial: res.isTrial,
+          daysLeft: res.daysLeft,
+          companyName: res.companyName || companyName || '',
+          monthlyRate: res.monthlyBillingInr
+        })
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [companyName])
 
   const isAiPage = pathname === '/zigza-ai' || pathname?.includes('/zigza-ai')
   
@@ -206,7 +237,12 @@ function AdminShellContent({
 
         {/* 3. Mobile Top Bar — visible <lg on inside-module pages, hidden on Workspace Hub & TV mode & AI page */}
         {!isTvMode && !isWorkspaceHubPage && !isAiPage && (
-          <MobileTopBar onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} logoHref={homeHref} />
+          <MobileTopBar 
+            onMenuToggle={() => setIsMobileMenuOpen(prev => !prev)} 
+            logoHref={homeHref} 
+            isTrial={subStatus.isTrial}
+            daysLeft={subStatus.daysLeft}
+          />
         )}
 
         <div className={`flex-1 min-h-0 flex flex-col h-full ${isTvMode ? 'w-full max-w-none' : ''}`}>
@@ -215,6 +251,13 @@ function AdminShellContent({
 
         {/* AI Copilot Chatbot Widget (Only for Admins) */}
         {!isTvMode && !isStoreUser && <AiCopilotWidget />}
+
+        {/* Global In-App Recharge Modal */}
+        <RechargeModal
+          companyName={subStatus.companyName || companyName || 'Apparel Factory'}
+          daysLeft={subStatus.daysLeft}
+          monthlyRate={subStatus.monthlyRate}
+        />
       </main>
     </div>
   )
