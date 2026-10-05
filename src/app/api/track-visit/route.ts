@@ -11,6 +11,14 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT
 
 const supabaseAdmin = createAdminClient(supabaseUrl, serviceRoleKey)
 
+interface TrackVisitBody {
+  path?: string
+  referrer?: string
+  action?: string
+  dwellTimeSeconds?: number | string
+  sessionId?: string
+}
+
 export async function POST(req: NextRequest) {
   try {
     const headers = req.headers
@@ -18,18 +26,18 @@ export async function POST(req: NextRequest) {
     const userAgent = headers.get('user-agent') || ''
     const { deviceType, browser, os } = parseUserAgent(userAgent)
 
-    let body: any = {}
+    let body: TrackVisitBody = {}
     try {
-      body = await req.json()
-    } catch (_) {
-      // Body may be empty on beacon
+      body = (await req.json()) as TrackVisitBody
+    } catch {
+      // Body may be empty on beacon ping
     }
 
     const pagePath = (body.path || '/').slice(0, 255)
     const rawReferrer = body.referrer || headers.get('referer') || 'Direct'
     const referrer = rawReferrer.slice(0, 500)
     const action = (body.action || 'Page Viewed').slice(0, 100)
-    const dwellTimeSeconds = Math.max(0, parseInt(body.dwellTimeSeconds || 0, 10))
+    const dwellTimeSeconds = Math.max(0, parseInt(String(body.dwellTimeSeconds || 0), 10))
     const sessionId = (body.sessionId || '').slice(0, 100)
 
     // Resolve IP geolocation
@@ -101,8 +109,9 @@ export async function POST(req: NextRequest) {
         city: geo.city,
         country: geo.country
       })
-    } catch (dbErr: any) {
-      console.warn('[track-visit] DB error:', dbErr?.message)
+    } catch (dbErr: unknown) {
+      const msg = dbErr instanceof Error ? dbErr.message : String(dbErr)
+      console.warn('[track-visit] DB notice:', msg)
       return NextResponse.json({
         success: true,
         isNewToday: true,
@@ -111,9 +120,10 @@ export async function POST(req: NextRequest) {
         country: geo.country
       })
     }
-  } catch (err: any) {
-    console.error('[track-visit] Fatal error:', err)
-    return NextResponse.json({ success: false, error: err?.message }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[track-visit] Fatal error:', msg)
+    return NextResponse.json({ success: false, error: msg }, { status: 500 })
   }
 }
 

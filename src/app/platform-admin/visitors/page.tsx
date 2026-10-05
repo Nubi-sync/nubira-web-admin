@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Globe,
   MapPin,
-  TrendingUp,
   Users,
   Zap,
   Activity,
@@ -19,16 +18,12 @@ import {
   Sparkles,
   AlertCircle,
   Copy,
-  Check,
-  ChevronDown
+  Check
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
 import {
   fetchVisitorTelemetryAction,
-  VisitorTelemetryResult,
-  StateTrafficData,
-  VisitorTimelinePoint,
-  LiveVisitorLog
+  VisitorTelemetryResult
 } from '../actions'
 
 const SQL_MIGRATION_SNIPPET = `-- Run this in your Supabase SQL Editor:
@@ -87,7 +82,7 @@ export default function VisitorTelemetryPage() {
     sessionLogs: []
   })
 
-  const loadData = async (silent = false) => {
+  const loadData = useCallback(async (silent = false) => {
     if (!silent) setIsLoading(true)
     try {
       const res = await fetchVisitorTelemetryAction(timeRange)
@@ -98,10 +93,33 @@ export default function VisitorTelemetryPage() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
+  }, [timeRange])
+
+  const changeTimeRange = (newRange: '7D' | '30D') => {
+    if (newRange === timeRange) return
+    setIsLoading(true)
+    setTimeRange(newRange)
   }
 
   useEffect(() => {
-    loadData()
+    let isMounted = true
+    fetchVisitorTelemetryAction(timeRange)
+      .then(res => {
+        if (isMounted) setTelemetry(res)
+      })
+      .catch(err => {
+        console.error('[VisitorTelemetryPage] Effect error:', err)
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false)
+          setIsRefreshing(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [timeRange])
 
   const handleRefresh = () => {
@@ -214,7 +232,7 @@ export default function VisitorTelemetryPage() {
             <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
               <button
                 type="button"
-                onClick={() => setTimeRange('7D')}
+                onClick={() => changeTimeRange('7D')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   timeRange === '7D'
                     ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
@@ -225,7 +243,7 @@ export default function VisitorTelemetryPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setTimeRange('30D')}
+                onClick={() => changeTimeRange('30D')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   timeRange === '30D'
                     ? 'bg-white text-[#0B1220] shadow-2xs font-bold'
