@@ -481,7 +481,8 @@ export function CreateOrderModal({
         unit_fob_price: newOrder.unit_fob_price,
         currency: newOrder.currency,
         ex_factory_date: newOrder.ex_factory_date,
-        color_matrix: newOrder.color_matrix
+        color_matrix: newOrder.color_matrix,
+        company_name: companyName || (selectedTechPack as any)?.company_name
       })
 
       if (res.success) {
@@ -509,6 +510,7 @@ export function CreateOrderModal({
         linked_article_number: newOrder.style_ref,
         linked_article_name: newOrder.style_name,
         linked_at: new Date().toISOString(),
+        company_name: companyName || (selectedTechPack as any)?.company_name,
         created_at: new Date().toISOString()
       }
       saveActiveBuyer(buyerContract)

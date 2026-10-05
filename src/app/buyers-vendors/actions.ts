@@ -165,13 +165,13 @@ export async function fetchBuyersVendorsHubAction(companyNameOverride?: string):
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    let companyName = companyNameOverride || 'Nubira Creation'
+    let companyName = (companyNameOverride || '').trim()
     let userRole = 'SUPERADMIN'
     let isRootSuperAdmin = false
 
     if (user) {
       const tenant = await resolveUserTenant(user)
-      companyName = tenant.companyName || companyName
+      companyName = (tenant.companyName || companyName).trim()
       userRole = tenant.role.toUpperCase()
       isRootSuperAdmin = tenant.isSuperAdmin || user.email === 'admin@zigza.in' || user.email === 'team.anga9@gmail.com'
     }

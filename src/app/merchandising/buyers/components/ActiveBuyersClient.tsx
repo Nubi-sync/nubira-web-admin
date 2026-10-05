@@ -87,15 +87,15 @@ export function ActiveBuyersClient({
     window.addEventListener(MERCHANDISING_UPDATE_EVENT, reloadData)
     window.addEventListener('zigza_tech_packs_updated', reloadData)
 
-    // One-time safety migration: sync any legacy localStorage buyers to Supabase
+    // One-time safety migration: sync any legacy localStorage buyers to Supabase (only if companyName is known)
     const local = getActiveBuyers()
-    if (local && local.length > 0) {
+    if (local && local.length > 0 && companyName) {
       local.forEach(async (lb: any) => {
         if (!initialBuyers.some(ib => ib.id === lb.id || (ib.buyer_name && ib.buyer_name.toLowerCase() === (lb.buyer_name || '').toLowerCase()))) {
           try {
             await saveActiveBuyerAction({
               ...lb,
-              company_name: companyName || 'Demo Industries'
+              company_name: companyName
             })
           } catch {}
         }
