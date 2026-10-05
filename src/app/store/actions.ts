@@ -42,7 +42,7 @@ export async function createTruckInwardGrn(payload: CreateTruckInwardPayload) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     const tenant = user ? await resolveUserTenant(user) : null
-    const companyName = tenant?.companyName || 'Nubira Creation'
+    const companyName = tenant?.companyName?.trim() || ''
     const currentUserName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Store Supervisor'
     const currentUserId = user?.id
 
@@ -758,9 +758,13 @@ export async function upsertFabricInventoryEntry(payload: {
   notes?: string | null
   company_name?: string
 }) {
-  try {
-    const supabase = supabaseAdmin
-    const company = payload.company_name?.trim() || 'NUBIRA CREATION'
+    let company = payload.company_name?.trim()
+    if (!company) {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      const tenant = user ? await resolveUserTenant(user) : null
+      company = (tenant?.companyName || '').trim()
+    }
 
     if (!payload.fabric_type?.trim() || !payload.color?.trim()) {
       return { error: 'Fabric type and color are required.' }
@@ -867,7 +871,13 @@ export async function createMaterialIssueChallan(payload: {
 }) {
   try {
     const supabase = supabaseAdmin
-    const company = payload.company_name?.trim() || 'NUBIRA CREATION'
+    let company = payload.company_name?.trim()
+    if (!company) {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      const tenant = user ? await resolveUserTenant(user) : null
+      company = (tenant?.companyName || '').trim()
+    }
 
     if (!payload.from_division || !payload.to_division || Number(payload.quantity) <= 0) {
       return { error: 'Source, destination, and quantity are required.' }
@@ -926,7 +936,13 @@ export async function acknowledgeMaterialReceipt(payload: {
 }) {
   try {
     const supabase = supabaseAdmin
-    const company = payload.company_name?.trim() || 'NUBIRA CREATION'
+    let company = payload.company_name?.trim()
+    if (!company) {
+      const authClient = await createClient()
+      const { data: { user } } = await authClient.auth.getUser()
+      const tenant = user ? await resolveUserTenant(user) : null
+      company = (tenant?.companyName || '').trim()
+    }
 
     if (!payload.issue_id || !payload.division_code || Number(payload.received_quantity) <= 0) {
       return { error: 'Issue reference, division, and received quantity are required.' }

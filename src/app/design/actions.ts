@@ -497,6 +497,18 @@ export async function createTechPackAction(payload: {
   target_cut_date?: string
 }): Promise<{ success: boolean; data?: TechPack; error?: string }> {
   try {
+    let targetCompany = (payload.company_name || '').trim()
+    if (!targetCompany) {
+      try {
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
+        if (user) {
+          const tenant = await resolveUserTenant(user)
+          targetCompany = (tenant.companyName || '').trim()
+        }
+      } catch (_) {}
+    }
+
     let brandId = payload.brand_id
     const isUUID = brandId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(brandId)
     
@@ -507,8 +519,8 @@ export async function createTechPackAction(payload: {
         .from('brands')
         .select('id')
         .ilike('brand_name', brandToFind)
-      if (payload.company_name) {
-        bQuery = bQuery.ilike('company_name', payload.company_name)
+      if (targetCompany) {
+        bQuery = bQuery.ilike('company_name', targetCompany)
       }
       const { data: existingBrand } = await bQuery.limit(1).maybeSingle()
 
@@ -521,7 +533,7 @@ export async function createTechPackAction(payload: {
           .insert({
             brand_name: brandToFind,
             brand_code: `${fallbackCode}-${Math.floor(100 + Math.random() * 900)}`,
-            company_name: payload.company_name || 'Nubira Creation',
+            company_name: targetCompany || null,
             status: 'ACTIVE'
           })
           .select('id')
@@ -569,7 +581,7 @@ export async function createTechPackAction(payload: {
         created_by_ph: payload.created_by_ph || null,
         approved_by_sa: true,
         sa_verdict: 'APPROVED',
-        company_name: payload.company_name || 'Nubira Creation',
+        company_name: targetCompany || null,
         status: payload.status || 'APPROVED_BULK',
         version: 1
       })

@@ -599,7 +599,7 @@ export async function createChallan(payload: CreateChallanPayload) {
   try {
     const { data: { user } } = await supabase.auth.getUser()
     const tenant = user ? await resolveUserTenant(user) : null
-    const companyName = tenant?.companyName || brand || 'Nubira Creation'
+    const companyName = tenant?.companyName || brand || ''
 
     const cleanChallanNo = challan_no.trim().toUpperCase()
 
@@ -956,7 +956,7 @@ export async function updateChallan(payload: UpdateChallanPayload) {
 
     const { data: { user } } = await supabase.auth.getUser()
     const tenant = user ? await resolveUserTenant(user) : null
-    const companyName = tenant?.companyName || currentChallan?.company_name || brand || 'Nubira Creation'
+    const companyName = tenant?.companyName || currentChallan?.company_name || brand || ''
 
     // 3. Process and sync articles in master catalog
     const processedLines = []
