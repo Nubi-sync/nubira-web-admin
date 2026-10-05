@@ -64,7 +64,7 @@ export default async function DesignModulePage() {
           initialBriefs={initialBriefs}
           initialTechPacks={initialTechPacks}
           teamMembers={teamMembers}
-          companyName={tenant.companyName || 'Nubira Creation'}
+          companyName={tenant.companyName}
           currentUserId={user.id}
           userRole={tenant.role}
         />

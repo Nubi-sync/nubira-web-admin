@@ -21,12 +21,12 @@ export default async function DesignTeamPage() {
   // Centrally resolve tenant identity
   const tenant = await resolveUserTenant(user)
   const companyFilter = tenant.companyName
-  const companyName = tenant.companyName || 'Nubira Creation'
+  const companyName = tenant.companyName
 
   const initialMembers = await fetchDesignTeamMembersAction(companyFilter)
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto select-none">
         <TeamManagementClient
           initialMembers={initialMembers}

@@ -29,13 +29,13 @@ export default async function TechPacksPage() {
   ])
 
   return (
-    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role}>
+    <AdminShell userEmail={tenant.userEmail} userRole={tenant.role} companyName={tenant.companyName}>
       <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto select-none">
         <TechPackCatalogClient 
           initialTechPacks={initialTechPacks} 
           availableBrands={brands} 
           availableArticles={availableArticles} 
-          companyName={tenant.companyName || 'Nubira Creation'}
+          companyName={tenant.companyName}
         />
       </div>
     </AdminShell>
