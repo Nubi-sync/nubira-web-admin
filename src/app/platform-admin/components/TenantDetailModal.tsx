@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Building2,
@@ -37,7 +37,9 @@ import {
   AlertTriangle,
   ShieldAlert,
   RefreshCw,
-  Trash2
+  Trash2,
+  MapPin,
+  MessageSquare
 } from 'lucide-react'
 import { TenantFactory, AccessType } from '../types/platform'
 import { ENTERPRISE_DIVISIONS_CATALOG } from '../data/initialPlatformData'
@@ -79,7 +81,13 @@ const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>
   '/dispatch': Truck,
 }
 
-export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenantUpdated, onTenantDeleted }: TenantDetailModalProps) {
+export function TenantDetailModal({
+  isOpen,
+  onClose,
+  tenant: propTenant,
+  onTenantUpdated,
+  onTenantDeleted
+}: TenantDetailModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [tenantState, setTenantState] = useState<TenantFactory | null>(propTenant)
   const [isEditingDivisions, setIsEditingDivisions] = useState(false)
@@ -277,6 +285,8 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
     : null
 
   const allowedRoutes = Array.isArray(tenant.allowedDivisions) ? tenant.allowedDivisions : []
+  const cleanPhoneDigits = (tenant.phone || '').replace(/\D/g, '')
+  const whatsappUrl = `https://wa.me/91${cleanPhoneDigits.slice(-10)}?text=${encodeURIComponent(`Hi ${tenant.adminName}, reaching out regarding your Zigza MES workspace for ${tenant.companyName}.`)}`
 
   return (
     <div 
@@ -284,23 +294,24 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden transition-all text-[#0B1220]"
+        className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden transition-all text-[#0B1220]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 1. Modal Top Banner & Header */}
-        <div className="bg-[#F0FDFA] border-b border-slate-200/80 p-5 sm:p-6 flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-xs text-[#0B1220]">
+        {/* 1. Modal Top Header (Responsive & Clean) */}
+        <div className="bg-[#F0FDFA] border-b border-slate-200/80 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-[#14C8B4]/40 flex items-center justify-center shrink-0 shadow-xs text-[#0B1220]">
               <Building2 className="w-6 h-6 text-[#0B1220]" />
             </div>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+            
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-black text-[#0B1220] tracking-tight">
                   {tenant.companyName}
                 </h2>
                 
                 {/* Status Badge */}
-                <span className={`text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-xs ${
+                <span className={`text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-2xs ${
                   isSuspended
                     ? 'bg-rose-50 text-rose-800 border-rose-200'
                     : tenant.status === 'ACTIVE'
@@ -311,21 +322,39 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 </span>
 
                 {/* Access Model Badge */}
-                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
+                <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
                   {isTrial ? '7-Day Demo Trial' : 'Full Enterprise Access'}
                 </span>
 
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 shadow-xs">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 shadow-2xs">
                   {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'Full Plant AI (12 Div)' : tenant.subscriptionTier.replace(/_/g, ' ')}
                 </span>
               </div>
+
+              {/* Subtitle / Metadata row */}
               <div className="flex items-center gap-2 text-xs text-slate-500 mt-1.5 flex-wrap">
-                <span>Slug: <strong className="text-[#0B1220] font-mono font-bold">{tenant.plantSlug}</strong></span>
-                <span>•</span>
-                <span className="flex items-center gap-1 font-medium text-slate-600">
-                  <Globe className="w-3.5 h-3.5 text-slate-400" />
-                  {tenant.cityState}
+                <span className="flex items-center gap-1 font-mono">
+                  <span>Slug:</span>
+                  <strong className="text-[#0B1220] font-bold">{tenant.plantSlug}</strong>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(tenant.plantSlug, 'slug')}
+                    className="p-0.5 text-slate-400 hover:text-slate-700 cursor-pointer ml-0.5"
+                    title="Copy slug"
+                  >
+                    {copiedField === 'slug' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                  </button>
                 </span>
+
+                {tenant.cityState && (
+                  <>
+                    <span className="text-slate-300">•</span>
+                    <span className="flex items-center gap-1 font-medium text-slate-600">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                      {tenant.cityState}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -333,14 +362,14 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-all cursor-pointer"
+            className="self-end sm:self-center w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-black/5 transition-all cursor-pointer shrink-0"
             aria-label="Close dialog"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 2. Modal Body Scrollable Content */}
+        {/* 2. Modal Body (Scrollable & Responsive) */}
         <div className="overflow-y-auto p-5 sm:p-6 space-y-6">
 
           {/* Alert / Notice Banner if reminder was sent */}
@@ -370,7 +399,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
           {/* Suspended Alert Banner */}
           {isSuspended && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between gap-3 text-xs text-rose-900 shadow-xs">
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-900 shadow-xs">
               <div className="flex items-center gap-2.5">
                 <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
                 <div>
@@ -383,68 +412,74 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               <button
                 type="button"
                 onClick={() => setShowReactivateModal(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 shadow-xs cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 shadow-xs cursor-pointer self-start sm:self-auto"
               >
                 Reactivate Workspace
               </button>
             </div>
           )}
 
-          {/* Section A: Plan, Billing & License Expiry Cards */}
+          {/* Section A: Subscription & Billing Overview */}
           <div>
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
               <CreditCard className="w-4 h-4 text-[#0B1220]" />
-              <span>Subscription & Billing Overview</span>
+              <span>Subscription &amp; Billing Overview</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               {/* Card 1: Subscription Tier & Access Model */}
-              <div className="bg-slate-50/70 p-4.5 rounded-2xl border border-slate-200/80">
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                  Access Model & Tier
-                </span>
-                <span className="text-base font-extrabold text-[#0B1220] mt-1 block">
-                  {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'FULL PLANT AI' : tenant.subscriptionTier.replace(/_/g, ' ')}
-                </span>
-                <span className="text-xs text-slate-600 mt-0.5 block font-mono font-semibold">
+              <div className="bg-slate-50/80 p-4.5 rounded-2xl border border-slate-200/80 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                    Access Model &amp; Tier
+                  </span>
+                  <span className="text-base font-extrabold text-[#0B1220] mt-1 block">
+                    {tenant.subscriptionTier === 'FULL_PLANT_AI' ? 'FULL PLANT AI' : tenant.subscriptionTier.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <span className="text-xs text-slate-600 mt-2 block font-mono font-bold">
                   ₹{tenant.monthlyBillingInr.toLocaleString()} / month
                 </span>
               </div>
 
               {/* Card 2: Activation / Provisioned Date */}
-              <div className="bg-slate-50/70 p-4.5 rounded-2xl border border-slate-200/80">
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                  Provisioned Date
-                </span>
-                <span className="text-base font-extrabold text-[#0B1220] mt-1 block font-mono">
-                  {provisionDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </span>
-                <span className="text-xs text-slate-500 mt-0.5 block font-medium">
+              <div className="bg-slate-50/80 p-4.5 rounded-2xl border border-slate-200/80 flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                    Provisioned Date
+                  </span>
+                  <span className="text-base font-extrabold text-[#0B1220] mt-1 block font-mono">
+                    {provisionDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+                <span className="text-xs text-slate-500 mt-2 block font-medium">
                   Initial workspace setup
                 </span>
               </div>
 
               {/* Card 3: License Expiry / Contract Status */}
-              <div className={`p-4.5 rounded-2xl border ${
+              <div className={`p-4.5 rounded-2xl border flex flex-col justify-between ${
                 isSuspended
                   ? 'bg-rose-50/70 border-rose-200'
                   : isTrial
                   ? 'bg-amber-50/80 border-amber-300 ring-2 ring-amber-400/20 shadow-xs'
                   : 'bg-[#F0FDFA] border-[#14C8B4]/30'
               }`}>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
-                  {isSuspended ? 'Access Status' : isTrial ? 'Trial Expiry Date' : 'Contract Status'}
-                </span>
-                <span className={`text-base font-extrabold mt-1 block font-mono ${
-                  isSuspended ? 'text-rose-700' : isTrial ? 'text-amber-900' : 'text-[#0B1220]'
-                }`}>
-                  {isSuspended
-                    ? 'Access Suspended'
-                    : isTrial && expiryDate
-                    ? expiryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-                    : 'Active Enterprise'}
-                </span>
-                <span className={`text-xs mt-0.5 block font-medium ${
+                <div>
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                    {isSuspended ? 'Access Status' : isTrial ? 'Trial Expiry Date' : 'Contract Status'}
+                  </span>
+                  <span className={`text-base font-extrabold mt-1 block font-mono ${
+                    isSuspended ? 'text-rose-700' : isTrial ? 'text-amber-900' : 'text-[#0B1220]'
+                  }`}>
+                    {isSuspended
+                      ? 'Access Suspended'
+                      : isTrial && expiryDate
+                      ? expiryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                      : 'Active Enterprise'}
+                  </span>
+                </div>
+                <span className={`text-xs mt-2 block font-medium ${
                   isSuspended ? 'text-rose-600' : isTrial ? 'text-amber-800 font-bold' : 'text-emerald-700'
                 }`}>
                   {isSuspended
@@ -458,7 +493,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
 
             {/* Last payment reminder tracker */}
             {tenant.lastPaymentReminderAt && (
-              <div className="mt-3 px-4 py-2.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 text-xs text-slate-600 flex items-center justify-between">
+              <div className="mt-3 px-4 py-2.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 text-xs text-slate-600 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span>Last Payment Reminder Email:</span>
                 <span className="font-mono font-semibold text-[#0B1220]">
                   {new Date(tenant.lastPaymentReminderAt).toLocaleString()} (via noreply@zigza.in)
@@ -467,69 +502,82 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             )}
           </div>
 
-          {/* Section B: Super Admin Contact & Credentials */}
+          {/* Section B: Super Administrator Credentials */}
           <div>
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
               <span>Super Administrator Credentials</span>
             </h3>
 
-            <div className="bg-slate-50/70 p-4.5 rounded-2xl border border-slate-200/80 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Admin Name */}
-                <div>
-                  <span className="text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">
-                    Admin Name
-                  </span>
-                  <div className="text-sm font-bold text-[#0B1220] flex items-center gap-2 mt-1">
-                    <User className="w-4 h-4 text-slate-400" />
-                    <span>{tenant.adminName}</span>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              
+              {/* Admin Name */}
+              <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-400 font-bold tracking-wider block">
+                  Admin Name
+                </span>
+                <div className="text-sm font-bold text-[#0B1220] flex items-center gap-2">
+                  <User className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="truncate">{tenant.adminName}</span>
                 </div>
+              </div>
 
-                {/* Admin Email */}
-                <div>
-                  <span className="text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">
-                    Login Email
-                  </span>
-                  <div className="text-sm font-bold text-[#0B1220] flex items-center justify-between gap-1.5 mt-1">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span className="truncate font-mono text-xs">{tenant.adminEmail}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(tenant.adminEmail, 'email')}
-                      className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
-                      title="Copy email"
+              {/* Admin Email */}
+              <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-400 font-bold tracking-wider block">
+                  Login Email
+                </span>
+                <div className="text-xs font-bold text-[#0B1220] font-mono flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="truncate" title={tenant.adminEmail}>{tenant.adminEmail}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(tenant.adminEmail, 'email')}
+                    className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer shrink-0"
+                    title="Copy email"
+                  >
+                    {copiedField === 'email' ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Admin Phone */}
+              <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase text-slate-400 font-bold tracking-wider block">
+                  Phone Contact
+                </span>
+                <div className="text-xs font-bold text-[#0B1220] font-mono flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="truncate">{tenant.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-bold text-emerald-700 hover:underline"
+                      title="Chat on WhatsApp"
                     >
-                      {copiedField === 'email' ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Admin Phone */}
-                <div>
-                  <span className="text-[11px] font-mono uppercase text-slate-500 font-bold tracking-wider block">
-                    Phone Contact
-                  </span>
-                  <div className="text-sm font-bold text-[#0B1220] flex items-center gap-2 mt-1 font-mono text-xs">
-                    <Phone className="w-4 h-4 text-slate-400" />
-                    <span>{tenant.phone}</span>
+                      WhatsApp
+                    </a>
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
 
-          {/* Section C: Allocated Manufacturing Divisions */}
+          {/* Section C: Allocated Manufacturing Divisions (Wide Responsive Layout) */}
           <div>
-            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                   <Layers className="w-4 h-4 text-[#0B1220]" />
                   <span>Allocated Manufacturing Divisions</span>
@@ -541,8 +589,8 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
+              <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
                   {isEditingDivisions ? selectedDivisions.length : allowedRoutes.length} of {ENTERPRISE_DIVISIONS_CATALOG.length} divisions active
                 </span>
 
@@ -550,7 +598,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   <button
                     type="button"
                     onClick={() => setIsEditingDivisions(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0B1220] bg-white border border-slate-200 hover:bg-[#F0FDFA] rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-[#0B1220] bg-white border border-slate-200 hover:bg-[#F0FDFA] rounded-xl shadow-2xs transition-all cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit Modules</span>
@@ -560,7 +608,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                     <button
                       type="button"
                       onClick={selectAll}
-                      className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg cursor-pointer shadow-2xs"
                     >
                       Select All
                     </button>
@@ -570,7 +618,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                         setSelectedDivisions(Array.isArray(tenant?.allowedDivisions) ? tenant.allowedDivisions : [])
                         setIsEditingDivisions(false)
                       }}
-                      className="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg cursor-pointer shadow-2xs"
                     >
                       Cancel
                     </button>
@@ -578,17 +626,18 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                       type="button"
                       disabled={isSaving}
                       onClick={handleSaveDivisions}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
                     >
                       {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                      <span>Save Changes</span>
+                      <span>Save</span>
                     </button>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+            {/* Responsive Division Cards (Fit on Mobile, Tablet & Desktop without awkward truncated names) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {ENTERPRISE_DIVISIONS_CATALOG.map((div) => {
                 const isAssigned = isEditingDivisions
                   ? selectedDivisions.includes(div.route)
@@ -607,11 +656,11 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                       isEditingDivisions ? 'cursor-pointer select-none hover:border-[#0B1220]/50' : ''
                     } ${
                       isAssigned
-                        ? 'bg-white border-slate-200 shadow-xs' + (isEditingDivisions ? ' ring-2 ring-[#0B1220]/20 border-[#0B1220]' : '')
+                        ? 'bg-white border-slate-200/90 shadow-2xs' + (isEditingDivisions ? ' ring-2 ring-[#0B1220]/20 border-[#0B1220]' : '')
                         : 'bg-slate-50/50 border-dashed border-slate-200 opacity-60'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                         isAssigned
                           ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30'
@@ -619,8 +668,8 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                       }`}>
                         <DivIcon className="w-4 h-4" />
                       </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-[#0B1220] truncate">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-[#0B1220] truncate" title={div.name}>
                           {div.name}
                         </div>
                         <div className="text-[11px] font-mono text-slate-400 truncate">
@@ -638,11 +687,11 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                         )}
                       </div>
                     ) : isAssigned ? (
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
                         Active
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-400 shrink-0 font-medium">
+                      <span className="text-[11px] text-slate-400 shrink-0 font-medium">
                         Locked
                       </span>
                     )}
@@ -652,52 +701,15 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             </div>
           </div>
 
-          {/* Section D: System Telemetry & Metadata */}
-          <div>
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#0B1220]" />
-              <span>Platform Registry & Telemetry</span>
-            </h3>
-
-            <div className="bg-[#F0FDFA] p-4 rounded-2xl border border-[#14C8B4]/30 text-xs font-mono space-y-2">
-              <div className="flex items-center justify-between text-slate-600">
-                <span>Tenant Registry ID:</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-[#0B1220]">{tenant.id}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(tenant.id, 'id')}
-                    className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
-                    title="Copy ID"
-                  >
-                    {copiedField === 'id' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-slate-600">
-                <span>Last Activity Sync:</span>
-                <span className="font-bold text-[#0B1220]">
-                  {tenant.lastActiveAt ? new Date(tenant.lastActiveAt).toLocaleString() : 'Live'}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between text-slate-600">
-                <span>Operating Gateway URL:</span>
-                <span className="font-bold text-[#1D4ED8]">https://app.zigza.in/modules</span>
-              </div>
-            </div>
-          </div>
-
         </div>
 
-        {/* 3. Modal Footer Actions */}
-        <div className="bg-slate-50/80 border-t border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* 3. Modal Footer (Organized, Mobile & Desktop Responsive) */}
+        <div className="bg-slate-50/90 border-t border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => handleCopy(`Factory: ${tenant.companyName}\nAdmin: ${tenant.adminEmail}\nAccess Model: ${isTrial ? '7-Day Demo Trial' : 'Full Access'}\nPlan: ${tenant.subscriptionTier}\nStatus: ${tenant.status}`, 'summary')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
+              onClick={() => handleCopy(`Factory: ${tenant.companyName}\nAdmin: ${tenant.adminEmail}\nPhone: ${tenant.phone}\nAccess Model: ${isTrial ? '7-Day Demo Trial' : 'Full Access'}\nPlan: ${tenant.subscriptionTier}\nStatus: ${tenant.status}`, 'summary')}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs w-full sm:w-auto"
             >
               {copiedField === 'summary' ? (
                 <>
@@ -713,17 +725,17 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             </button>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap justify-end">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             {/* Send Payment Reminder Button */}
             <button
               type="button"
               disabled={isSendingReminder}
               onClick={handleSendPaymentReminder}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-white border border-[#0B1220]/30 hover:bg-[#F0FDFA] transition-all cursor-pointer shadow-xs disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-white border border-slate-300 hover:bg-[#F0FDFA] transition-all cursor-pointer shadow-2xs disabled:opacity-50 flex-1 sm:flex-none"
               title="Dispatches official payment reminder from noreply@zigza.in"
             >
               {isSendingReminder ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              <span>Send Payment Reminder</span>
+              <span>Send Reminder</span>
             </button>
 
             {/* Revoke Access Button (When Active) */}
@@ -731,7 +743,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               <button
                 type="button"
                 onClick={() => setShowRevokeConfirm(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer shadow-2xs flex-1 sm:flex-none"
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
                 <span>Revoke Access</span>
@@ -741,10 +753,10 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
               <button
                 type="button"
                 onClick={() => setShowReactivateModal(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all cursor-pointer shadow-2xs flex-1 sm:flex-none"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Reactivate Workspace</span>
+                <span>Reactivate</span>
               </button>
             )}
 
@@ -752,17 +764,18 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300 transition-all cursor-pointer shadow-2xs active:scale-95 flex-1 sm:flex-none"
               title={`Permanently delete ${tenant.companyName} from the tenant directory`}
             >
               <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-              <span>Delete Company</span>
+              <span>Delete</span>
             </button>
 
+            {/* Close Details Button */}
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98]"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] transition-all cursor-pointer shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] w-full sm:w-auto"
             >
               Close Details
             </button>
@@ -778,11 +791,11 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   <Trash2 className="w-6 h-6 text-rose-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
+                  <h4 className="text-lg font-bold text-slate-900">
                     Delete Factory Company Record?
                   </h4>
                   <p className="text-xs text-rose-600 font-semibold mt-0.5">
-                    Permanent & Irreversible Workspace Removal
+                    Permanent &amp; Irreversible Workspace Removal
                   </p>
                 </div>
               </div>
@@ -792,7 +805,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                   You are about to permanently delete <strong>{tenant.companyName}</strong> (Plant Slug: <span className="font-mono font-bold text-rose-900">{tenant.plantSlug}</span>, Admin: <span className="font-mono">{tenant.adminEmail}</span>).
                 </p>
                 <ul className="list-disc pl-4 space-y-1 text-rose-900/90 text-[11px]">
-                  <li>All tenant provisioning records & allotted division mappings will be deleted immediately.</li>
+                  <li>All tenant provisioning records &amp; allotted division mappings will be deleted immediately.</li>
                   <li>Super Admin access for this company will be terminated.</li>
                   <li>This company will be removed from the active Tenant Factories directory.</li>
                 </ul>
@@ -876,7 +889,7 @@ export function TenantDetailModal({ isOpen, onClose, tenant: propTenant, onTenan
                 </div>
                 <div>
                   <h4 className="text-base font-bold text-slate-900">Reactivate Factory Workspace</h4>
-                  <p className="text-xs text-slate-500">Restore client portal & division access</p>
+                  <p className="text-xs text-slate-500">Restore client portal &amp; division access</p>
                 </div>
               </div>
 
