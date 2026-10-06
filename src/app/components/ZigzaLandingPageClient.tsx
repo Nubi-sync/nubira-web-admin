@@ -391,23 +391,23 @@ export function ZigzaLandingPageClient({
   const [phoneDuplicate, setPhoneDuplicate] = useState<{ inUse: boolean; message?: string } | null>(null)
   const [emailDuplicate, setEmailDuplicate] = useState<{ inUse: boolean; message?: string } | null>(null)
 
-  // ── Hero 3-Second Crossfade Carousel Slides ──
+  // ── Hero 3-Second Crossfade Carousel Slides (Lightning-Fast Supabase Storage CDN) ──
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0)
   const heroSlides = [
     {
-      src: '/testimage new 1.jpeg',
-      fallback: '/hero_slide_1.jpg',
-      alt: 'Garment factory manager monitoring production output on industrial dashboard',
+      src: 'https://nnhzqvdmkarpwtkzjnra.supabase.co/storage/v1/object/public/landing-assets/hero/hero_craftswoman_sewing.webp',
+      fallback: '/images/hero/hero_craftswoman_sewing.webp',
+      alt: 'Skilled apparel craftswoman operating industrial sewing workstation on garment line',
     },
     {
-      src: '/hero_slide_2.jpg',
-      fallback: '/hero_textile_workplace.jpg',
-      alt: 'Skilled apparel craftswomen working diligently at computerized sewing stations',
+      src: 'https://nnhzqvdmkarpwtkzjnra.supabase.co/storage/v1/object/public/landing-assets/hero/hero_apparel_production_line.webp',
+      fallback: '/images/hero/hero_apparel_production_line.webp',
+      alt: 'High-speed garment factory assembly line with active operators and computerized stations',
     },
     {
-      src: '/testimage new 2.jpeg',
-      fallback: '/hero_slide_3.jpg',
-      alt: 'Apparel quality supervisor using digital tablet on the garment assembly floor',
+      src: 'https://nnhzqvdmkarpwtkzjnra.supabase.co/storage/v1/object/public/landing-assets/hero/hero_quality_supervisor_floor.webp',
+      fallback: '/images/hero/hero_quality_supervisor_floor.webp',
+      alt: 'Apparel quality supervisor conducting live digital inspection on the assembly floor',
     },
   ]
 
@@ -617,6 +617,18 @@ export function ZigzaLandingPageClient({
       })
     } catch (_) {}
   }
+
+  // ── Pre-cache all hero slide images and motif in memory for instant crossfade ──
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      heroSlides.forEach(slide => {
+        const img = new Image()
+        img.src = slide.src
+      })
+      const motif = new Image()
+      motif.src = 'https://nnhzqvdmkarpwtkzjnra.supabase.co/storage/v1/object/public/landing-assets/hero/indian_textile_motif.webp'
+    }
+  }, [])
 
   // ── Auto-advance hero slides every 3 seconds with smooth cross-fade ──
   useEffect(() => {
@@ -1029,6 +1041,9 @@ export function ZigzaLandingPageClient({
               <img
                 src={slide.src}
                 alt={slide.alt}
+                loading={idx === 0 ? "eager" : "lazy"}
+                fetchPriority={idx === 0 ? "high" : "auto"}
+                decoding="async"
                 onError={(e) => {
                   if (slide.fallback && e.currentTarget.src !== slide.fallback) {
                     e.currentTarget.src = slide.fallback
@@ -1066,8 +1081,15 @@ export function ZigzaLandingPageClient({
         {/* Subtle Indian Textile Heritage Line Art Motif Watermark (Starts flush from Desktop Left) */}
         <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[480px] xl:w-[560px] pointer-events-none select-none z-0 overflow-hidden mix-blend-multiply opacity-[0.16]">
           <img
-            src="/indian_textile_motif.jpg"
+            src="https://nnhzqvdmkarpwtkzjnra.supabase.co/storage/v1/object/public/landing-assets/hero/indian_textile_motif.webp"
             alt=""
+            loading="eager"
+            decoding="async"
+            onError={(e) => {
+              if (e.currentTarget.src !== '/images/hero/indian_textile_motif.webp') {
+                e.currentTarget.src = '/images/hero/indian_textile_motif.webp'
+              }
+            }}
             className="w-full h-full object-cover object-left"
           />
           {/* Gentle edge gradient fades allowing pattern to be clearly visible while blending seamlessly */}
