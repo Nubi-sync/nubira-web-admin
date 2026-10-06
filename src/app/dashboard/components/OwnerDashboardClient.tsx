@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Scissors,
@@ -17,6 +17,8 @@ import {
   Droplets,
   ArrowRight,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   RefreshCw,
   Shirt,
   LayoutDashboard,
@@ -63,6 +65,20 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
   const [selectedArticleId, setSelectedArticleId] = useState<string>('ALL')
   const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // Pagination States (Desktop: 2 per row x 5 rows = 10; Mobile: 1 per row x 5 rows = 5)
+  const [articlesPage, setArticlesPage] = useState<number>(1)
+  const [ordersPage, setOrdersPage] = useState<number>(1)
+  const [isMobile, setIsMobile] = useState<boolean>(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const isSoloMode = selectedArticleId !== 'ALL'
 
@@ -163,6 +179,34 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
     }
     return data.buyerOrders
   }, [isSoloMode, selectedArticle, data.buyerOrders])
+
+  // Articles Pagination (Desktop: 2 cols x 5 rows = 10; Mobile: 1 col x 5 rows = 5)
+  const articlesPerPage = isMobile ? 5 : 10
+  const totalArticlePages = Math.max(1, Math.ceil(data.articlesCatalog.length / articlesPerPage))
+  const paginatedArticles = useMemo(() => {
+    const start = (articlesPage - 1) * articlesPerPage
+    return data.articlesCatalog.slice(start, start + articlesPerPage)
+  }, [data.articlesCatalog, articlesPage, articlesPerPage])
+
+  // Buyer Orders Pagination (Desktop: 2 cols x 5 rows = 10; Mobile: 1 col x 5 rows = 5)
+  const ordersPerPage = isMobile ? 5 : 10
+  const totalOrderPages = Math.max(1, Math.ceil(buyerOrders.length / ordersPerPage))
+  const paginatedOrders = useMemo(() => {
+    const start = (ordersPage - 1) * ordersPerPage
+    return buyerOrders.slice(start, start + ordersPerPage)
+  }, [buyerOrders, ordersPage, ordersPerPage])
+
+  useEffect(() => {
+    if (articlesPage > totalArticlePages) {
+      setArticlesPage(1)
+    }
+  }, [articlesPage, totalArticlePages])
+
+  useEffect(() => {
+    if (ordersPage > totalOrderPages) {
+      setOrdersPage(1)
+    }
+  }, [ordersPage, totalOrderPages])
 
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220] font-[family-name:var(--font-public-sans)]">
@@ -679,56 +723,54 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       )}
 
       {/* ==================================================================== */}
-      {/* 7. SECTION 4: BUYER ORDERS & FABRIC STOCK (2 COLUMNS)                */}
+      {/* 7. SECTION 4: BUYER PURCHASE ORDERS & FULFILLMENT                    */}
       {/* ==================================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        
-        {/* 4A: Buyer Purchase Orders */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                Buyer Purchase Orders &amp; Fulfillment
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {isSoloMode 
-                  ? `Contract fulfillment for ${selectedArticle?.artNo}`
-                  : 'Active contracts sorted by delivery progress'}
-              </p>
-            </div>
-            <Link
-              href="/buyers-vendors"
-              className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
-            >
-              <span>Buyers Hub</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              Buyer Purchase Orders &amp; Fulfillment ({buyerOrders.length} Order{buyerOrders.length === 1 ? '' : 's'})
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              {isSoloMode 
+                ? `Contract fulfillment for ${selectedArticle?.artNo}`
+                : 'Active contracts sorted by delivery progress'}
+            </p>
           </div>
+          <Link
+            href="/buyers-vendors"
+            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
+          >
+            <span>Buyers Hub</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
-          <div className="space-y-3">
-            {buyerOrders.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-100">
-                No active buyer purchase orders found for this company.
-              </div>
-            ) : (
-              buyerOrders.map((bo, idx) => {
+        {buyerOrders.length === 0 ? (
+          <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-100">
+            No active buyer purchase orders found for this company.
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {paginatedOrders.map((bo, idx) => {
                 const barColor = bo.percent >= 70 ? 'bg-emerald-500' : bo.percent >= 35 ? 'bg-amber-500' : 'bg-rose-500'
 
                 return (
-                  <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div key={idx} className="space-y-1.5 p-3.5 rounded-xl bg-slate-50/80 hover:bg-slate-50 border border-slate-200/80 shadow-2xs transition-all flex flex-col justify-between">
                     <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{bo.buyerName}</span>
-                        <span className="text-[10px] font-mono text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-bold text-slate-900 truncate">{bo.buyerName}</span>
+                        <span className="text-[10px] font-mono text-slate-600 bg-white px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
                           {bo.poNumber}
                         </span>
                       </div>
-                      <span className="font-mono font-extrabold text-[#0B1220]">
+                      <span className="font-mono font-extrabold text-[#0B1220] shrink-0 ml-2">
                         {bo.percent}% Fulfilled
                       </span>
                     </div>
 
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden my-1">
                       <div
                         className={`h-full ${barColor} rounded-full transition-all duration-500`}
                         style={{ width: `${bo.percent}%` }}
@@ -741,74 +783,61 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                     </div>
                   </div>
                 )
-              })
-            )}
-          </div>
-        </div>
-
-        {/* 4B: Fabric Stock in Godown */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                Fabric Stock in Godown
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Raw material classification and meter count on floor
-              </p>
+              })}
             </div>
-            <Link
-              href="/fabric-store"
-              className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
-            >
-              <span>Store Ledger</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
 
-          <div className="space-y-3">
-            {data.fabricStock.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-100">
-                No fabric rolls logged in godown for this company.
-              </div>
-            ) : (
-              data.fabricStock.map((fab, idx) => {
-                const maxMeters = Math.max(...data.fabricStock.map(f => f.meters), 1)
-                const pct = Math.round((fab.meters / maxMeters) * 100)
+            {/* Orders Pagination Controls */}
+            {totalOrderPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                <div>
+                  Showing <span className="font-bold text-slate-800">{(ordersPage - 1) * ordersPerPage + 1}</span>–<span className="font-bold text-slate-800">{Math.min(ordersPage * ordersPerPage, buyerOrders.length)}</span> of <span className="font-bold text-slate-800">{buyerOrders.length}</span> Orders
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setOrdersPage(p => Math.max(1, p - 1))}
+                    disabled={ordersPage === 1}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-slate-700 font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
 
-                return (
-                  <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-900 truncate max-w-[240px]">
-                        {fab.fabricType}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-                          {fab.rolls} Rolls
-                        </span>
-                        <span className="font-extrabold text-[#0B1220] font-mono">
-                          {formatNum(fab.meters)} m
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#14C8B4] rounded-full transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-
-                    <div className="text-[10px] text-slate-400 font-medium">
-                      Color: {fab.color}
-                    </div>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalOrderPages }).map((_, i) => {
+                      const pageNum = i + 1
+                      const isActive = pageNum === ordersPage
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => setOrdersPage(pageNum)}
+                          className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            isActive
+                              ? 'bg-[#1D4ED8] text-white shadow-2xs'
+                              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    })}
                   </div>
-                )
-              })
-            )}
-          </div>
-        </div>
 
+                  <button
+                    type="button"
+                    onClick={() => setOrdersPage(p => Math.min(totalOrderPages, p + 1))}
+                    disabled={ordersPage === totalOrderPages}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-slate-700 font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* ==================================================================== */}
@@ -848,60 +877,113 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             <div>Create styles in Design &amp; Tech-Pack Studio or Merchandising to track live floor throughput.</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
-            {data.articlesCatalog.map(art => {
-              const isSelected = selectedArticleId === art.id
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {paginatedArticles.map(art => {
+                const isSelected = selectedArticleId === art.id
 
-              return (
-                <div
-                  key={art.id}
-                  onClick={() => setSelectedArticleId(art.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer select-none flex flex-col justify-between gap-3 ${
-                    isSelected
-                      ? 'bg-blue-50/50 border-[#1D4ED8] ring-2 ring-[#1D4ED8]/20 shadow-xs'
-                      : 'bg-slate-50/70 hover:bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white text-slate-800 border border-slate-200 shadow-2xs">
-                          {art.artNo}
-                        </span>
-                        <span className="text-xs font-bold text-slate-700 truncate">
-                          {art.category}
-                        </span>
-                      </div>
-                      <div className="text-xs text-slate-500 mt-1 truncate">
-                        Buyer: <strong className="text-slate-700">{art.buyerName}</strong>
-                      </div>
-                    </div>
-
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                return (
+                  <div
+                    key={art.id}
+                    onClick={() => setSelectedArticleId(art.id)}
+                    className={`p-4 rounded-xl border transition-all cursor-pointer select-none flex flex-col justify-between gap-3 ${
                       isSelected
-                        ? 'bg-[#1D4ED8] text-white border-[#1D4ED8]'
-                        : 'bg-white text-slate-600 border-slate-200'
-                    }`}>
-                      {isSelected ? 'Active Solo' : 'Select Solo'}
-                    </span>
+                        ? 'bg-blue-50/50 border-[#1D4ED8] ring-2 ring-[#1D4ED8]/20 shadow-xs'
+                        : 'bg-slate-50/70 hover:bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white text-slate-800 border border-slate-200 shadow-2xs">
+                            {art.artNo}
+                          </span>
+                          <span className="text-xs font-bold text-slate-700 truncate">
+                            {art.category}
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1 truncate">
+                          Buyer: <strong className="text-slate-700">{art.buyerName}</strong>
+                        </div>
+                      </div>
+
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                        isSelected
+                          ? 'bg-[#1D4ED8] text-white border-[#1D4ED8]'
+                          : 'bg-white text-slate-600 border-slate-200'
+                      }`}>
+                        {isSelected ? 'Active Solo' : 'Select Solo'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                        <span>Contract: <strong className="font-mono text-slate-800">{formatNum(art.buyerPoTarget)} pcs</strong></span>
+                        <span>Progress: <strong className="text-[#1D4ED8]">{art.overallProgressPct}%</strong></span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#1D4ED8] rounded-full transition-all duration-300"
+                          style={{ width: `${art.overallProgressPct}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Articles Pagination Controls */}
+            {totalArticlePages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                <div>
+                  Showing <span className="font-bold text-slate-800">{(articlesPage - 1) * articlesPerPage + 1}</span>–<span className="font-bold text-slate-800">{Math.min(articlesPage * articlesPerPage, data.articlesCatalog.length)}</span> of <span className="font-bold text-slate-800">{data.articlesCatalog.length}</span> Styles
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setArticlesPage(p => Math.max(1, p - 1))}
+                    disabled={articlesPage === 1}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-slate-700 font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalArticlePages }).map((_, i) => {
+                      const pageNum = i + 1
+                      const isActive = pageNum === articlesPage
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => setArticlesPage(pageNum)}
+                          className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            isActive
+                              ? 'bg-[#1D4ED8] text-white shadow-2xs'
+                              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    })}
                   </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-                      <span>Contract: <strong className="font-mono text-slate-800">{formatNum(art.buyerPoTarget)} pcs</strong></span>
-                      <span>Progress: <strong className="text-[#1D4ED8]">{art.overallProgressPct}%</strong></span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#1D4ED8] rounded-full transition-all duration-300"
-                        style={{ width: `${art.overallProgressPct}%` }}
-                      />
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setArticlesPage(p => Math.min(totalArticlePages, p + 1))}
+                    disabled={articlesPage === totalArticlePages}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-slate-700 font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-              )
-            })}
-          </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

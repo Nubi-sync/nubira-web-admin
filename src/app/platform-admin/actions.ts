@@ -406,14 +406,14 @@ export async function submitCustomerQueryAction(payload: {
     // Record in database as a new inbound query lead
     try {
       await supabaseAdmin.from('platform_demo_requests').insert([{
-        company_name: payload.companyName?.trim() || 'Direct Website Query',
+        company_name: payload.companyName?.trim() || 'Direct Website Inquiry',
         applicant_name: payload.name.trim(),
         email: 'team.anga9@gmail.com',
         phone: formattedPhone,
         preferred_plan: 'MODULAR',
         city_state: 'Website Contact Window',
         status: 'NEW_LEAD',
-        notes: `[WEBSITE QUERY]: ${payload.query.trim()}`,
+        notes: payload.query.trim(),
         submitted_at: new Date().toISOString()
       }])
     } catch (dbErr: any) {

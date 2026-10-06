@@ -31,6 +31,7 @@ import {
 } from '../actions'
 import { ProvisionTenantModal } from './ProvisionTenantModal'
 import { AddLeadModal } from './AddLeadModal'
+import { ViewLeadMessageModal } from './ViewLeadMessageModal'
 
 export function PlatformDashboardClient() {
   const [demos, setDemos] = useState<DemoRequestInquiry[]>([])
@@ -48,6 +49,7 @@ export function PlatformDashboardClient() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | DemoRequestStatus>('ALL')
   const [selectedInquiry, setSelectedInquiry] = useState<DemoRequestInquiry | null>(null)
+  const [viewingMessageInquiry, setViewingMessageInquiry] = useState<DemoRequestInquiry | null>(null)
   const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false)
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)

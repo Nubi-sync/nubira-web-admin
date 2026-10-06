@@ -494,6 +494,15 @@ export function ZigzaLandingPageClient({
 
       if (res.success) {
         setQuerySubmitted(true)
+        saveDemoRequest({
+          applicantName: queryForm.name.trim(),
+          companyName: queryForm.companyName.trim() || 'Direct Website Inquiry',
+          phone: rawDigits.length === 10 ? `+91 ${rawDigits.slice(0, 5)} ${rawDigits.slice(5)}` : queryForm.phone,
+          email: 'team.anga9@gmail.com',
+          preferredPlan: 'MODULAR',
+          cityState: 'Website Contact Window',
+          notes: queryForm.query.trim()
+        })
         toast.success('Your query has been sent directly to our team!')
       } else {
         setQueryError(res.error || 'Failed to send query. Please try again.')
