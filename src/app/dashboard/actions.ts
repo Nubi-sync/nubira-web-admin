@@ -876,40 +876,8 @@ export async function fetchOwnerDashboardData(
         } catch (_) {}
       }
 
-      // Automatically register real session into user_login_activity on dashboard access
-      const effectiveEmail = tenant?.userEmail || (companyName ? `${normComp}@factory.com` : 'owner@factory.com')
-      try {
-        const { data: existingSlot } = await supabaseAdmin
-          .from('user_login_activity')
-          .select('id')
-          .eq('email', effectiveEmail)
-          .eq('login_date', todayDateStr)
-          .eq('hour_slot', currentHour)
-          .maybeSingle()
-
-        if (!existingSlot) {
-          await supabaseAdmin
-            .from('user_login_activity')
-            .insert({
-              user_id: tenant?.userId || null,
-              email: effectiveEmail,
-              role: tenant?.role || 'SUPERADMIN',
-              company_name: companyName || 'Factory',
-              tenant_id: tenant?.tenantId || null,
-              city: detectedCity,
-              state: detectedState,
-              country: 'India',
-              device_type: 'desktop',
-              browser: 'Chrome',
-              operating_system: 'Windows 11',
-              logged_in_at: now.toISOString(),
-              login_date: todayDateStr,
-              hour_slot: currentHour
-            })
-        }
-      } catch (insertErr) {
-        console.error('Failed to log login activity:', insertErr)
-      }
+      // NOTE: Session recording with the user's real IP-detected location happens
+      // client-side via recordLoginLocationAction (this function is cached per company).
 
       // Query strictly real login rows from user_login_activity
       let rawLogins: any[] = []
@@ -1196,5 +1164,82 @@ function isDivisionEligible(div: DivisionHeartbeatItem, allowedDivisions?: strin
       return matches('/washing')
     default:
       return matches(div.route)
+  }
+}
+
+export interface DetectedClientGeo {
+  state: string
+  city: string
+  ip?: string
+  country?: string
+  latitude?: number
+  longitude?: number
+  browser?: string
+  os?: string
+  deviceType?: 'desktop' | 'mobile' | 'tablet'
+}
+
+/**
+ * Records the signed-in user's session using the location detected from THEIR
+ * current IP (not the factory address). One row per user per hour; repeated
+ * detections within the same hour refresh the stored location.
+ */
+export async function recordLoginLocationAction(geo: DetectedClientGeo): Promise<{ success: boolean }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false }
+
+    const tenant = await resolveUserTenant(user)
+    const state = (geo.state || '').trim().slice(0, 80)
+    const city = (geo.city || '').trim().slice(0, 80)
+    if (!state) return { success: false }
+
+    // Use IST for date/hour buckets so the 7-day matrix lines up with Indian working hours
+    const now = new Date()
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false
+    }).formatToParts(now)
+    const get = (t: string) => parts.find(p => p.type === t)?.value || ''
+    const loginDate = `${get('year')}-${get('month')}-${get('day')}`
+    const hourSlot = Number(get('hour')) % 24
+
+    const email = (user.email || tenant.userEmail || '').toLowerCase()
+    const row = {
+      user_id: user.id,
+      email,
+      role: tenant.role || 'MEMBER',
+      company_name: tenant.companyName || null,
+      tenant_id: tenant.tenantId || null,
+      ip_address: geo.ip || null,
+      city: city || null,
+      state,
+      country: geo.country || 'India',
+      device_type: geo.deviceType || 'desktop',
+      browser: geo.browser || null,
+      operating_system: geo.os || null,
+      logged_in_at: now.toISOString(),
+      login_date: loginDate,
+      hour_slot: hourSlot
+    }
+
+    const { data: existing } = await supabaseAdmin
+      .from('user_login_activity')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('login_date', loginDate)
+      .eq('hour_slot', hourSlot)
+      .limit(1)
+      .maybeSingle()
+
+    if (existing?.id) {
+      await supabaseAdmin.from('user_login_activity').update(row).eq('id', existing.id)
+    } else {
+      await supabaseAdmin.from('user_login_activity').insert(row)
+    }
+    return { success: true }
+  } catch (err) {
+    console.error('recordLoginLocationAction failed:', err)
+    return { success: false }
   }
 }

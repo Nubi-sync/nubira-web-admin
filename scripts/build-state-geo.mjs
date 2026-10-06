@@ -10,6 +10,11 @@ const SIZE = 1000 // longest side of the viewBox
 const PAD = 12
 const TOLERANCE = 0.9 // simplification tolerance in viewBox units
 
+// Sources with finer political subdivisions where the district file has only one polygon
+const SOURCE_OVERRIDES = {
+  delhi: { url: 'https://raw.githubusercontent.com/datameet/Municipal_Spatial_Data/master/Delhi/Delhi_Wards.geojson', state: 'Delhi' }
+}
+
 const SLUGS = [
   'andaman-and-nicobar-islands', 'andhra-pradesh', 'arunachal-pradesh', 'assam', 'bihar',
   'chandigarh', 'chhattisgarh', 'delhi', 'dnh-and-dd', 'goa', 'gujarat', 'haryana',
@@ -56,7 +61,8 @@ function polygonsOf(geom) {
 }
 
 async function build(slug) {
-  const res = await fetch(BASE + slug + '.geojson')
+  const override = SOURCE_OVERRIDES[slug]
+  const res = await fetch(override ? override.url : BASE + slug + '.geojson')
   if (!res.ok) throw new Error(`${slug}: HTTP ${res.status}`)
   const gj = await res.json()
 
@@ -82,17 +88,18 @@ async function build(slug) {
       if (pts.length < 3) continue
       d += 'M' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L') + 'Z'
     }
-    if (d) districts.push({ name: f.properties?.district || '', d })
+    if (d) districts.push({ name: f.properties?.district || f.properties?.Ward_Name || '', d })
   }
 
-  const stateName = gj.features[0]?.properties?.st_nm || slug
+  const stateName = override?.state || gj.features[0]?.properties?.st_nm || slug
   const out = { state: stateName, slug, width, height, bounds: { minLon, maxLon, minLat, maxLat }, k, scale, pad: PAD, districts }
   fs.writeFileSync(path.join(OUT_DIR, slug + '.json'), JSON.stringify(out))
   return { slug, stateName, districts: districts.length, kb: Math.round(JSON.stringify(out).length / 1024) }
 }
 
 fs.mkdirSync(OUT_DIR, { recursive: true })
-for (const slug of SLUGS) {
+const only = process.argv.slice(2)
+for (const slug of (only.length ? only : SLUGS)) {
   try {
     const r = await build(slug)
     console.log(`✓ ${r.slug.padEnd(30)} ${String(r.districts).padStart(3)} districts  ${r.kb} KB  (${r.stateName})`)
