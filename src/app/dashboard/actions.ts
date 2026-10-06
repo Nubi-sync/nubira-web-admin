@@ -847,17 +847,22 @@ export async function fetchOwnerDashboardData(
 
       let rawLogins: any[] = []
       try {
-        const { data: logins } = await supabaseAdmin
+        let query = supabaseAdmin
           .from('user_login_activity')
           .select('*')
           .order('logged_in_at', { ascending: false })
           .limit(100)
-        if (logins) rawLogins = logins
+        
+        if (companyName) {
+          query = query.ilike('company_name', `%${companyName}%`)
+        }
+        const { data: logins } = await query
+        if (logins && logins.length > 0) rawLogins = logins
       } catch (_) {}
 
-      // Identify owner's state: if company is Nubira Creation -> West Bengal, Demo -> Gujarat/Maharashtra, or from login record
-      const detectedState = rawLogins[0]?.state || (targetComp.includes('nubira') ? 'West Bengal' : targetComp.includes('demo') ? 'Gujarat' : 'West Bengal')
-      const detectedCity = rawLogins[0]?.city || (detectedState === 'Gujarat' ? 'Surat' : detectedState === 'Maharashtra' ? 'Mumbai' : detectedState === 'Tamil Nadu' ? 'Tirupur' : 'Kolkata')
+      // Resolve owner's state & city from DB activity or fallback to detected metadata
+      const detectedState = rawLogins[0]?.state || 'West Bengal'
+      const detectedCity = rawLogins[0]?.city || (detectedState === 'Gujarat' ? 'Surat' : detectedState === 'Maharashtra' ? 'Mumbai' : detectedState === 'Tamil Nadu' ? 'Tirupur' : detectedState === 'Karnataka' ? 'Bengaluru' : 'Kolkata')
       const detectedIp = rawLogins[0]?.ip_address || '103.211.14.88'
       const detectedBrowser = rawLogins[0]?.browser || 'Chrome'
       const detectedOs = rawLogins[0]?.operating_system || 'Windows 11'
@@ -1069,13 +1074,22 @@ export async function recordUserSessionAction(payload?: {
   ipAddress?: string
   browser?: string
   os?: string
+  companyName?: string
 }) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    const email = user?.email || 'owner@factory.com'
-    const role = user?.user_metadata?.role || 'OWNER'
-    const companyName = user?.user_metadata?.company_name || 'Nubira Creation'
+    let companyName = payload?.companyName || ''
+    let role = 'OWNER'
+    if (user) {
+      try {
+        const uTenant = await resolveUserTenant(user)
+        companyName = companyName || uTenant.companyName || ''
+        role = uTenant.role || 'OWNER'
+      } catch (_) {}
+    }
+    if (!companyName) companyName = 'Factory Operations'
+    const email = user?.email || 'admin@factory.com'
     const currentHour = new Date().getHours()
     const todayStr = new Date().toISOString().split('T')[0]
 
@@ -1084,11 +1098,11 @@ export async function recordUserSessionAction(payload?: {
       email,
       role,
       company_name: companyName,
-      ip_address: payload?.ipAddress || '103.211.14.88',
-      city: payload?.city || 'Kolkata',
+      ip_address: payload?.ipAddress || '127.0.0.1',
+      city: payload?.city || 'Default',
       state: payload?.state || 'West Bengal',
-      browser: payload?.browser || 'Chrome',
-      operating_system: payload?.os || 'Windows 11',
+      browser: payload?.browser || 'Browser',
+      operating_system: payload?.os || 'OS',
       login_date: todayStr,
       hour_slot: currentHour,
       logged_in_at: new Date().toISOString()

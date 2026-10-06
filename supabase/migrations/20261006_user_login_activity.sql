@@ -1,22 +1,22 @@
 -- ============================================================================
 -- Migration: User Login Activity & State-Level Geo Telemetry
--- Tracks 7-day hourly login matrix and isolated state-level geolocation
+-- Fully Tenant-Agnostic: Tracks 7-day hourly login matrix and isolated state-level geolocation
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS public.user_login_activity (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID,
   email TEXT NOT NULL,
-  role TEXT DEFAULT 'OWNER',
-  company_name TEXT DEFAULT 'Nubira Creation',
+  role TEXT DEFAULT 'MEMBER',
+  company_name TEXT,
   tenant_id TEXT,
-  ip_address TEXT DEFAULT '127.0.0.1',
-  city TEXT DEFAULT 'Kolkata',
-  state TEXT DEFAULT 'West Bengal',
+  ip_address TEXT,
+  city TEXT,
+  state TEXT,
   country TEXT DEFAULT 'India',
   device_type TEXT DEFAULT 'desktop',
-  browser TEXT DEFAULT 'Chrome',
-  operating_system TEXT DEFAULT 'Windows',
+  browser TEXT DEFAULT 'Browser',
+  operating_system TEXT DEFAULT 'OS',
   logged_in_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   login_date DATE NOT NULL DEFAULT CURRENT_DATE,
   hour_slot INTEGER NOT NULL DEFAULT EXTRACT(HOUR FROM now())::INTEGER
@@ -30,6 +30,9 @@ CREATE INDEX IF NOT EXISTS idx_user_login_activity_user
 
 CREATE INDEX IF NOT EXISTS idx_user_login_activity_tenant 
   ON public.user_login_activity(company_name, login_date);
+
+CREATE INDEX IF NOT EXISTS idx_user_login_activity_state 
+  ON public.user_login_activity(state);
 
 ALTER TABLE public.user_login_activity ENABLE ROW LEVEL SECURITY;
 
