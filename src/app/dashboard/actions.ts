@@ -91,6 +91,50 @@ export interface ArticleJourneyItem {
   topDefects: DefectItem[]
 }
 
+export interface LoginHourSlot {
+  hour: number
+  label: string
+  count: number
+  isActive: boolean
+  lastActiveAt?: string
+  deviceInfo?: string
+  ipAddress?: string
+  city?: string
+  state?: string
+}
+
+export interface LoginDayActivity {
+  date: string
+  dayName: string
+  formattedDate: string
+  fullDateLabel: string
+  isToday: boolean
+  totalLogins: number
+  hourlySlots: LoginHourSlot[]
+}
+
+export interface OwnerGeoLocation {
+  state: string
+  stateCode: string
+  city: string
+  ipAddress: string
+  isp?: string
+  country: string
+  lastLoginAt: string
+  deviceType: 'desktop' | 'mobile' | 'tablet'
+  browser: string
+  os: string
+  isCurrentlyActive: boolean
+}
+
+export interface OwnerLoginActivityData {
+  days: LoginDayActivity[]
+  currentLocation: OwnerGeoLocation
+  totalSessionsPast7Days: number
+  peakHour: string
+  activeDaysCount: number
+}
+
 export interface DivisionHeartbeatItem {
   id: string
   name: string
@@ -111,6 +155,7 @@ export interface OwnerDashboardData {
   fabricStock: FabricStockItem[]
   articlesCatalog: ArticleJourneyItem[]
   divisionHeartbeat: DivisionHeartbeatItem[]
+  loginActivity: OwnerLoginActivityData
   lastUpdated: string
 }
 
