@@ -1014,8 +1014,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       )}
 
       {/* ==================================================================== */}
-      {/* 10. SECTION 7: DIVISION HEARTBEAT                                    */}
-      {/* ==================================================================== */}
+      <div className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/60">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
