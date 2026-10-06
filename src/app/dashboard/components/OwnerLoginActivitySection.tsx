@@ -2,17 +2,11 @@
 
 import React, { useState } from 'react'
 import {
-  Activity,
-  ShieldCheck,
-  Globe,
   Clock,
-  Laptop,
-  Smartphone,
-  Info,
+  MapPin,
   Calendar,
-  Layers,
-  Sparkles,
-  Wifi
+  CheckCircle2,
+  Info
 } from 'lucide-react'
 import { IndianStateVectorMap } from './IndianStateVectorMap'
 
@@ -72,10 +66,10 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
 
   const { days, currentLocation, totalSessionsPast7Days, peakHour, activeDaysCount } = activityData
 
-  // 24 Hour Labels (Rows)
+  // 24 Hour Labels (Rows) with unique labels across all 24 slots
   const hourLabels = [
     '12-01 AM', '01-02 AM', '02-03 AM', '03-04 AM', '04-05 AM', '05-06 AM',
-    '06-07 AM', '07-08 AM', '08-09 AM', '09-10 AM', '10-11 AM', '11-12 PM',
+    '06-07 AM', '07-08 AM', '08-09 AM', '09-10 AM', '10-11 AM', '11-12 AM',
     '12-01 PM', '01-02 PM', '02-03 PM', '03-04 PM', '04-05 PM', '05-06 PM',
     '06-07 PM', '07-08 PM', '08-09 PM', '09-10 PM', '10-11 PM', '11-12 PM'
   ]
@@ -86,41 +80,41 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Activity className="w-5 h-5 text-[#0B1220]" />
+          <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-800 shrink-0">
+            <Clock className="w-5 h-5 text-cyan-700" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
-                Login Activity &amp; <span className="text-[#1D4ED8]">State Geolocation</span>
+              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
+                Portal Usage &amp; <span className="text-cyan-700">Factory Location</span>
               </h2>
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
                 Past 7 Days
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              24-hour authentication matrix and isolated state telemetry for current executive account.
+              Weekly login hours and factory location.
             </p>
           </div>
         </div>
 
-        {/* Legend */}
+        {/* Simple Legend */}
         <div className="flex items-center gap-4 text-xs text-slate-600 font-medium">
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-[#10B981] ring-1 ring-emerald-400/40 shadow-xs" />
-            <span>Active Session</span>
+            <div className="w-3.5 h-3.5 rounded bg-emerald-500" />
+            <span>Active</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-200" />
+            <div className="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-300" />
             <span>Inactive</span>
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Heatmap (Left / 7 cols) + Particular State Vector Map (Right / 5 cols) */}
+      {/* Main Grid: Heatmap (Left / 7 cols) + State Map (Right / 5 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         
-        {/* LEFT: 24x7 HOURLY LOGIN MATRIX (Matching User's Matrix Style) */}
+        {/* LEFT: 24x7 HOURLY LOGIN MATRIX */}
         <div className="lg:col-span-7 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 overflow-x-auto">
           
           <div className="min-w-[340px]">
@@ -129,13 +123,13 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
               <div className="text-[10px] font-mono font-bold text-slate-400 text-left pl-1">
                 TIME
               </div>
-              {days.map((d, i) => (
+              {days.map((d) => (
                 <div key={d.date} className="flex flex-col items-center">
                   <span className="text-[9px] font-mono text-slate-400 uppercase font-semibold">
                     {d.dayName}
                   </span>
                   <span className={`text-xs font-mono font-black ${
-                    d.isToday ? 'text-[#1D4ED8] bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-200' : 'text-slate-700'
+                    d.isToday ? 'text-cyan-800 bg-cyan-50 px-1.5 py-0.5 rounded-md border border-cyan-200' : 'text-slate-700'
                   }`}>
                     {d.formattedDate}
                   </span>
@@ -146,14 +140,14 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
             {/* 24 Hourly Rows */}
             <div className="space-y-1">
               {hourLabels.map((hourLabel, hourIdx) => (
-                <div key={hourLabel} className="grid grid-cols-8 gap-1.5 items-center">
+                <div key={`hour-row-${hourIdx}`} className="grid grid-cols-8 gap-1.5 items-center">
                   
                   {/* Row Time Label */}
                   <div className="text-[9px] sm:text-[10px] font-mono font-medium text-slate-500 text-left pl-0.5 truncate select-none">
                     {hourLabel}
                   </div>
 
-                  {/* 7 Day Pills */}
+                  {/* 7 Day Slots */}
                   {days.map((day) => {
                     const slot = day.hourlySlots[hourIdx] || {
                       hour: hourIdx,
@@ -164,12 +158,12 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
 
                     return (
                       <div
-                        key={`${day.date}-${hourIdx}`}
+                        key={`slot-${day.date}-${hourIdx}`}
                         onMouseEnter={() => setHoveredSlot({ day, slot })}
                         onMouseLeave={() => setHoveredSlot(null)}
                         className={`h-3.5 sm:h-4 w-full rounded-md transition-all duration-150 cursor-pointer ${
                           slot.isActive
-                            ? 'bg-[#10B981] hover:bg-[#059669] ring-2 ring-emerald-400/50 shadow-2xs scale-[1.03]'
+                            ? 'bg-emerald-500 hover:bg-emerald-600 shadow-2xs scale-[1.02]'
                             : 'bg-slate-200/70 hover:bg-slate-300 border border-slate-200/60'
                         }`}
                         title={`${day.fullDateLabel} (${hourLabel}): ${slot.isActive ? `${slot.count} Active Session(s)` : 'No Logins'}`}
@@ -180,26 +174,26 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
               ))}
             </div>
 
-            {/* Tooltip HUD underneath matrix */}
+            {/* Simple Tooltip Bar */}
             <div className="mt-3 p-2.5 rounded-xl bg-white border border-slate-200 text-xs flex items-center justify-between text-slate-700 shadow-2xs min-h-[42px]">
               {hoveredSlot ? (
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-[#0B1220]">
+                  <span className="font-bold text-slate-900">
                     {hoveredSlot.day.fullDateLabel} ({hoveredSlot.slot.label}):
                   </span>
                   {hoveredSlot.slot.isActive ? (
-                    <span className="text-emerald-700 font-bold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                      {hoveredSlot.slot.count} Verified Session • {hoveredSlot.slot.deviceInfo || 'Desktop'}
+                    <span className="text-emerald-700 font-bold flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Active ({hoveredSlot.slot.count} {hoveredSlot.slot.count === 1 ? 'login' : 'logins'})
                     </span>
                   ) : (
-                    <span className="text-slate-400">No authentication activity</span>
+                    <span className="text-slate-400">No login during this hour</span>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5 text-slate-400 font-medium">
-                  <Info className="w-3.5 h-3.5" />
-                  <span>Hover over any hour pill to inspect session telemetry.</span>
+                  <Info className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Hover over any hour slot to check login time.</span>
                 </div>
               )}
             </div>
@@ -207,43 +201,42 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
           </div>
         </div>
 
-        {/* RIGHT: PARTICULAR STATE VECTOR MAP & TELEMETRY CARD */}
+        {/* RIGHT: STATE VECTOR MAP & STATS */}
         <div className="lg:col-span-5 space-y-4">
           
           {/* Specific Indian State Vector Component */}
           <IndianStateVectorMap
             stateName={currentLocation.state}
             cityName={currentLocation.city}
-            ipAddress={currentLocation.ipAddress}
             className="w-full"
           />
 
-          {/* 3 Live Telemetry Stat Pills */}
+          {/* 2 Simple Stat Cards */}
           <div className="grid grid-cols-2 gap-3">
             
-            {/* Stat 1: Total Sessions 7D */}
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+            {/* Stat 1: Total Logins */}
+            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
               <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
-                7-Day Total Logins
+                Past 7 Days
               </span>
-              <div className="text-lg font-black text-[#0B1220] font-mono mt-0.5">
-                {totalSessionsPast7Days} Sessions
+              <div className="text-lg font-black text-slate-900 font-mono mt-0.5">
+                {totalSessionsPast7Days} Logins
               </div>
               <span className="text-[11px] text-emerald-700 font-medium mt-0.5 block">
-                Across {activeDaysCount} active days
+                Active on {activeDaysCount} {activeDaysCount === 1 ? 'day' : 'days'}
               </span>
             </div>
 
-            {/* Stat 2: Peak Window */}
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+            {/* Stat 2: Peak Time */}
+            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
               <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block tracking-wider">
-                Peak Window
+                Most Active Time
               </span>
-              <div className="text-sm font-black text-[#0B1220] font-mono mt-0.5 truncate">
+              <div className="text-sm font-black text-slate-900 font-mono mt-0.5 truncate">
                 {peakHour || '07:00 PM - 08:00 PM'}
               </div>
               <span className="text-[11px] text-slate-500 font-medium mt-0.5 block truncate">
-                {currentLocation.browser} • {currentLocation.os}
+                Shift usage window
               </span>
             </div>
 

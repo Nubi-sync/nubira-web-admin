@@ -310,7 +310,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                 </span>
               </div>
               <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
-                Displaying isolated manufacturing throughput, QC pass rate, and floor pipeline exclusively for style #{selectedArticle.artNo}.
+                Viewing production output, QC pass rate, and floor progress for style #{selectedArticle.artNo}.
               </p>
             </div>
           </div>

@@ -840,7 +840,7 @@ export async function fetchOwnerDashboardData(
       // 15. LOGIN ACTIVITY (PAST 7 DAYS) & STATE-LEVEL GEOLOCATION
       const hourLabels = [
         '12-01 AM', '01-02 AM', '02-03 AM', '03-04 AM', '04-05 AM', '05-06 AM',
-        '06-07 AM', '07-08 AM', '08-09 AM', '09-10 AM', '10-11 AM', '11-12 PM',
+        '06-07 AM', '07-08 AM', '08-09 AM', '09-10 AM', '10-11 AM', '11-12 AM',
         '12-01 PM', '01-02 PM', '02-03 PM', '03-04 PM', '04-05 PM', '05-06 PM',
         '06-07 PM', '07-08 PM', '08-09 PM', '09-10 PM', '10-11 PM', '11-12 PM'
       ]

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { WifiOff, Wifi, RotateCcw } from 'lucide-react'
 
 export function OfflineBanner() {
   const router = useRouter()
@@ -31,7 +30,7 @@ export function OfflineBanner() {
 
       const timer = setTimeout(() => {
         setJustReconnected(false)
-      }, 3500)
+      }, 3000)
       return () => clearTimeout(timer)
     }
 
@@ -53,19 +52,13 @@ export function OfflineBanner() {
       <aside 
         role="alert" 
         aria-live="assertive" 
-        className="fixed top-0 inset-x-0 z-100 bg-[#FFFBEB] text-[#92400E] border-b border-[#FDE68A] px-4 py-2 text-xs font-semibold shadow-xs flex items-center justify-between"
+        className="fixed top-0 inset-x-0 z-100 bg-cyan-50 text-cyan-900 border-b border-cyan-200 px-4 py-1.5 text-xs font-medium shadow-xs flex items-center justify-center text-center"
       >
-        <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-center gap-2">
+          <span className="font-semibold uppercase tracking-wider text-[11px] text-cyan-800">
+            Network Disconnected:
           </span>
-          <WifiOff className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
-          <span className="font-mono uppercase tracking-wider text-[10.5px] font-bold text-[#B45309]">
-            Network Disconnected
-          </span>
-          <span className="hidden sm:inline text-slate-400">|</span>
-          <span className="font-medium text-[#78350F] truncate">
+          <span className="text-cyan-900 text-[11.5px]">
             Factory internet is offline. Realtime floor sync paused. Changes will sync automatically when reconnected.
           </span>
         </div>
@@ -73,23 +66,20 @@ export function OfflineBanner() {
     )
   }
 
-  // Reconnected State (Temporary 3.5s toast/banner)
+  // Reconnected State (Clean Cyan Notification)
   return (
     <aside 
       role="status" 
       aria-live="polite" 
-      className="fixed top-0 inset-x-0 z-100 bg-[#F0FDF4] text-[#166534] border-b border-[#BBF7D0] px-4 py-2 text-xs font-semibold shadow-xs flex items-center justify-between animate-fade-in"
+      className="fixed top-0 inset-x-0 z-100 bg-cyan-600 text-white px-4 py-1.5 text-xs font-medium shadow-xs flex items-center justify-center text-center transition-opacity duration-300"
     >
-      <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
-        <Wifi className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
-        <span className="font-mono uppercase tracking-wider text-[10.5px] font-bold text-[#15803D]">
-          Online
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-center gap-2">
+        <span className="font-semibold uppercase tracking-wider text-[11px] text-cyan-100">
+          Connected:
         </span>
-        <span className="hidden sm:inline text-slate-300">|</span>
-        <span className="font-medium text-[#14532D]">
-          Factory connection restored. Synchronizing latest floor data...
+        <span className="text-white text-[11.5px]">
+          Factory connection restored. Realtime floor sync active.
         </span>
-        <RotateCcw className="w-3 h-3 text-[#16A34A] animate-spin ml-auto" />
       </div>
     </aside>
   )
