@@ -12,7 +12,7 @@ const cspHeader = `
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' blob: data: https:;
   font-src 'self' data: https://fonts.gstatic.com;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://cloudflareinsights.com ws://localhost:* http://localhost:* ws://127.0.0.1:* http://127.0.0.1:*;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://static.cloudflareinsights.com https://cloudflareinsights.com https://get.geojs.io ws://localhost:* http://localhost:* ws://127.0.0.1:* http://127.0.0.1:*;
   frame-ancestors 'none';
   object-src 'none';
   base-uri 'self';

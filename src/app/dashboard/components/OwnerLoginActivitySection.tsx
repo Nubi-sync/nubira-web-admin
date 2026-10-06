@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   Clock,
   MapPin,
@@ -9,6 +9,32 @@ import {
   Info
 } from 'lucide-react'
 import { IndianStateVectorMap } from './IndianStateVectorMap'
+import { recordLoginLocationAction } from '../actions'
+
+interface LiveGeo {
+  state: string
+  city: string
+  latitude?: number
+  longitude?: number
+}
+
+const GEO_SESSION_KEY = 'zigza:live-geo:v1'
+
+function parseUserAgent(ua: string) {
+  const browser = /Edg\//.test(ua) ? 'Edge'
+    : /OPR\//.test(ua) ? 'Opera'
+    : /Chrome\//.test(ua) ? 'Chrome'
+    : /Firefox\//.test(ua) ? 'Firefox'
+    : /Safari\//.test(ua) ? 'Safari' : 'Browser'
+  const os = /Windows/.test(ua) ? 'Windows'
+    : /Android/.test(ua) ? 'Android'
+    : /iPhone|iPad|iPod/.test(ua) ? 'iOS'
+    : /Mac OS X/.test(ua) ? 'macOS'
+    : /Linux/.test(ua) ? 'Linux' : 'OS'
+  const deviceType: 'desktop' | 'mobile' | 'tablet' = /iPad|Tablet/.test(ua) ? 'tablet'
+    : /Mobi|Android|iPhone/.test(ua) ? 'mobile' : 'desktop'
+  return { browser, os, deviceType }
+}
 
 export interface LoginHourSlot {
   hour: number // 0-23
@@ -64,7 +90,68 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
     slot: LoginHourSlot
   } | null>(null)
 
-  const { days, currentLocation, totalSessionsPast7Days, peakHour, activeDaysCount } = activityData
+  const { days: serverDays, currentLocation, totalSessionsPast7Days, peakHour, activeDaysCount } = activityData
+
+  // Live location of the person viewing the dashboard (from their own IP)
+  const [liveGeo, setLiveGeo] = useState<LiveGeo | null>(null)
+  const [isDetecting, setIsDetecting] = useState(true)
+  const [recordedNow, setRecordedNow] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const finish = (g: LiveGeo | null) => {
+      if (cancelled) return
+      setLiveGeo(g)
+      setIsDetecting(false)
+    }
+
+    try {
+      const cached = sessionStorage.getItem(GEO_SESSION_KEY)
+      if (cached) {
+        const g = JSON.parse(cached) as LiveGeo & { ip?: string; country?: string }
+        finish(g)
+        const ua = parseUserAgent(navigator.userAgent)
+        recordLoginLocationAction({ ...g, ...ua }).then(r => { if (!cancelled && r.success) setRecordedNow(true) })
+        return () => { cancelled = true }
+      }
+    } catch (_) {}
+
+    fetch('https://get.geojs.io/v1/ip/geo.json', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(j => {
+        const g = {
+          state: String(j.region || ''),
+          city: String(j.city || ''),
+          latitude: j.latitude ? Number(j.latitude) : undefined,
+          longitude: j.longitude ? Number(j.longitude) : undefined,
+          ip: String(j.ip || ''),
+          country: String(j.country || '')
+        }
+        if (!g.state) { finish(null); return }
+        try { sessionStorage.setItem(GEO_SESSION_KEY, JSON.stringify(g)) } catch (_) {}
+        finish(g)
+        const ua = parseUserAgent(navigator.userAgent)
+        recordLoginLocationAction({ ...g, ...ua }).then(r => { if (!cancelled && r.success) setRecordedNow(true) })
+      })
+      .catch(() => finish(null))
+
+    return () => { cancelled = true }
+  }, [])
+
+  // Reflect the just-recorded session in today's current hour without waiting for cache refresh
+  const days = useMemo(() => {
+    if (!recordedNow) return serverDays
+    const h = new Date().getHours()
+    return serverDays.map(d => {
+      if (!d.isToday || d.hourlySlots[h]?.isActive) return d
+      const slots = d.hourlySlots.map(s => s.hour === h ? { ...s, isActive: true, count: Math.max(1, s.count) } : s)
+      return { ...d, totalLogins: d.totalLogins + 1, hourlySlots: slots }
+    })
+  }, [serverDays, recordedNow])
+
+  const mapState = liveGeo?.state || (!isDetecting ? currentLocation.state : '')
+  const mapCity = liveGeo?.city || (!isDetecting ? currentLocation.city : '')
 
   // 24 Hour Labels (Rows) with unique labels across all 24 slots
   const hourLabels = [
@@ -86,14 +173,14 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
-                Portal Usage &amp; <span className="text-[#1D4ED8]">Factory Location</span>
+                Portal Usage &amp; <span className="text-[#1D4ED8]">Login Location</span>
               </h2>
               <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
                 Past 7 Days
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Weekly login hours and factory location.
+              Weekly login hours and where you are signed in from right now.
             </p>
           </div>
         </div>
@@ -206,8 +293,11 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
           
           {/* Specific Indian State Vector Component */}
           <IndianStateVectorMap
-            stateName={currentLocation.state}
-            cityName={currentLocation.city}
+            stateName={mapState}
+            cityName={mapCity}
+            latitude={liveGeo?.latitude}
+            longitude={liveGeo?.longitude}
+            isDetecting={isDetecting}
             className="w-full"
           />
 
