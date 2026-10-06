@@ -356,8 +356,7 @@ export function PlatformDashboardClient() {
               <tr className="border-b border-slate-200/80 text-xs font-semibold text-slate-700 uppercase tracking-wider bg-[#F0FDFA]">
                 <th className="py-3.5 px-4">Applicant &amp; Company</th>
                 <th className="py-3.5 px-4">Contact Channels</th>
-                <th className="py-3.5 px-4">Plant Location</th>
-                <th className="py-3.5 px-4">Requested Plan</th>
+                <th className="py-3.5 px-4">Inquiry / Message</th>
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4">Submission Date</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
@@ -376,10 +375,8 @@ export function PlatformDashboardClient() {
                       <div className="h-3 w-24 bg-slate-100 rounded" />
                     </td>
                     <td className="py-4 px-4">
-                      <div className="h-4 w-28 bg-slate-200 rounded" />
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="h-4 w-20 bg-slate-200 rounded" />
+                      <div className="h-4 w-48 bg-slate-200 rounded mb-1.5" />
+                      <div className="h-3 w-24 bg-slate-100 rounded" />
                     </td>
                     <td className="py-4 px-4">
                       <div className="h-5 w-24 bg-slate-200 rounded-md" />
@@ -388,13 +385,13 @@ export function PlatformDashboardClient() {
                       <div className="h-4 w-24 bg-slate-200 rounded" />
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <div className="h-8 w-24 bg-slate-200 rounded-xl ml-auto" />
+                      <div className="h-8 w-20 bg-slate-200 rounded-xl ml-auto" />
                     </td>
                   </tr>
                 ))
               ) : filteredDemos.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center">
+                  <td colSpan={6} className="py-16 text-center">
                     <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-3">
                       <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0B1220] shadow-2xs">
                         <Inbox className="w-6 h-6 text-[#0B1220]" />
@@ -406,7 +403,7 @@ export function PlatformDashboardClient() {
                         <p className="text-sm text-slate-500 font-medium leading-relaxed">
                           {searchQuery || statusFilter !== 'ALL'
                             ? 'Try adjusting your search query or switching status filter tabs.'
-                            : 'Prospective factory clients who submit inquiries or get added manually appear here until provisioned into Tenant Factories.'}
+                            : 'Prospective factory clients who submit inquiries or get added manually appear here.'}
                         </p>
                       </div>
                       {!searchQuery && statusFilter === 'ALL' && (
@@ -424,9 +421,11 @@ export function PlatformDashboardClient() {
                 </tr>
               ) : (
                 filteredDemos.map((item) => {
-                  const whatsappCleanPhone = item.phone.replace(/[^0-9]/g, '')
-                  const whatsappMsg = `Hi ${item.applicantName}, I am reaching out from Zigza MES regarding your live demo request for ${item.companyName}. When would be a good time for a personalized floor walkthrough?`
-                  const whatsappUrl = `https://wa.me/${whatsappCleanPhone}?text=${encodeURIComponent(whatsappMsg)}`
+                  const cleanDigits = (item.phone || '').replace(/\D/g, '')
+                  const whatsappCleanPhone = cleanDigits.slice(-10)
+                  const whatsappMsg = `Hi ${item.applicantName}, I am reaching out from Zigza MES regarding your inquiry for ${item.companyName}. When would be a good time for a discussion?`
+                  const whatsappUrl = `https://wa.me/91${whatsappCleanPhone}?text=${encodeURIComponent(whatsappMsg)}`
+                  const messageText = (item.notes || '').replace(/^\[WEBSITE QUERY\]:\s*/i, '').trim()
 
                   return (
                     <tr key={item.id} className="hover:bg-slate-50 transition-colors">
@@ -441,7 +440,7 @@ export function PlatformDashboardClient() {
                         </div>
                       </td>
 
-                      {/* Contact Info */}
+                      {/* Contact Channels */}
                       <td className="py-3.5 px-4 text-xs font-mono">
                         <div className="flex items-center gap-1.5 text-slate-800 font-medium">
                           <Phone className="w-3.5 h-3.5 text-[#0B1220]" />
@@ -449,27 +448,35 @@ export function PlatformDashboardClient() {
                         </div>
                         <div className="flex items-center gap-1.5 text-slate-500 mt-1">
                           <Mail className="w-3.5 h-3.5 text-slate-400" />
-                          <span className="truncate max-w-[160px]">{item.email}</span>
+                          <span className="truncate max-w-[170px]" title={item.email}>{item.email}</span>
                         </div>
                       </td>
 
-                      {/* City & State */}
-                      <td className="py-3.5 px-4">
-                        <span className="text-slate-700 font-medium text-sm">
-                          {item.cityState || 'India'}
-                        </span>
-                      </td>
-
-                      {/* Preferred Plan */}
-                      <td className="py-3.5 px-4">
-                        <span className="font-semibold text-xs text-[#0B1220] bg-[#F0FDFA] px-2 py-0.5 rounded-md border border-[#14C8B4]/30">
-                          {item.preferredPlan ? item.preferredPlan.replace(/_/g, ' ') : 'FULL PLANT AI'}
-                        </span>
+                      {/* Inquiry / Message */}
+                      <td className="py-3.5 px-4 max-w-[280px]">
+                        {messageText ? (
+                          <div className="space-y-1">
+                            <p className="text-xs text-slate-700 font-medium line-clamp-2 leading-relaxed">
+                              {messageText}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setViewingMessageInquiry(item)}
+                              className="text-[11px] font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline cursor-pointer inline-flex items-center gap-1"
+                            >
+                              <span>View More</span>
+                              <MessageSquare className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">No query message</span>
+                        )}
                       </td>
 
                       {/* Status Dropdown */}
                       <td className="py-3.5 px-4">
                         <select
+                          aria-label="Lead Status"
                           value={item.status}
                           onChange={(e) => handleStatusChange(item.id, e.target.value as DemoRequestStatus)}
                           className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 cursor-pointer outline-none focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10"
@@ -488,8 +495,18 @@ export function PlatformDashboardClient() {
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
                           
+                          {/* View Message Details */}
+                          <button
+                            type="button"
+                            onClick={() => setViewingMessageInquiry(item)}
+                            title="View Full Message"
+                            className="p-2 rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 text-slate-600" />
+                          </button>
+
                           {/* WhatsApp Direct */}
                           <a
                             href={whatsappUrl}
@@ -500,17 +517,6 @@ export function PlatformDashboardClient() {
                           >
                             <Phone className="w-3.5 h-3.5" />
                           </a>
-
-                          {/* Provision Tenant Action */}
-                          <button
-                            type="button"
-                            onClick={() => openProvisionModal(item)}
-                            className="px-3 py-1.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                            title="Provision into Tenant Factories (will auto-clean from leads)"
-                          >
-                            <Key className="w-3.5 h-3.5 text-white" />
-                            <span>Provision</span>
-                          </button>
 
                           {/* Delete Lead Action */}
                           <button
@@ -548,6 +554,14 @@ export function PlatformDashboardClient() {
         isOpen={isAddLeadModalOpen}
         onClose={() => setIsAddLeadModalOpen(false)}
         onSuccess={loadData}
+      />
+
+      {/* View Full Lead Message Modal */}
+      <ViewLeadMessageModal
+        isOpen={Boolean(viewingMessageInquiry)}
+        onClose={() => setViewingMessageInquiry(null)}
+        inquiry={viewingMessageInquiry}
+        onStatusChange={handleStatusChange}
       />
 
     </div>
