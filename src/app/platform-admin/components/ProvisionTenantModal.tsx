@@ -52,7 +52,6 @@ export function ProvisionTenantModal({
   const [adminEmail, setAdminEmail] = useState('')
   const [initialPassword, setInitialPassword] = useState('')
   const [phone, setPhone] = useState('')
-  const [cityState, setCityState] = useState('')
   const [accessType, setAccessType] = useState<AccessType>('DEMO_TRIAL')
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
   const [monthlyBillingInr, setMonthlyBillingInr] = useState(4999)
@@ -76,7 +75,6 @@ export function ProvisionTenantModal({
       setCustomUsername(deriveUsername(inquiry.companyName))
       setAdminEmail(inquiry.email)
       setPhone(inquiry.phone)
-      setCityState(inquiry.cityState || 'India')
       setAccessType('DEMO_TRIAL')
       setSubscriptionTier(inquiry.preferredPlan || 'FULL_PLANT_AI')
       setMonthlyBillingInr(inquiry.preferredPlan === 'MODULAR' ? 1999 : 4999)
@@ -91,7 +89,6 @@ export function ProvisionTenantModal({
       setAdminEmail('')
       setInitialPassword(`@Zigza${Math.floor(1000 + Math.random() * 9000)}!`)
       setPhone('')
-      setCityState('')
       setAccessType('FULL_ACCESS')
       setSubscriptionTier('FULL_PLANT_AI')
       setMonthlyBillingInr(4999)
@@ -154,7 +151,7 @@ export function ProvisionTenantModal({
         adminEmail,
         initialPassword,
         phone,
-        cityState,
+        cityState: '',
         accessType,
         subscriptionTier,
         monthlyBillingInr,
@@ -449,19 +446,6 @@ Allocated Units   : ${selectedDivisions.length} of ${ENTERPRISE_DIVISIONS_CATALO
                     />
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Plant Location (City, State)
-                </label>
-                <input
-                  type="text"
-                  value={cityState}
-                  onChange={(e) => setCityState(e.target.value)}
-                  placeholder="Tirupur, Tamil Nadu"
-                  className="w-full px-3.5 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl text-sm font-medium text-[#0B1220] outline-none shadow-xs transition-all"
-                />
               </div>
 
               {/* Access Tier Model Selection */}

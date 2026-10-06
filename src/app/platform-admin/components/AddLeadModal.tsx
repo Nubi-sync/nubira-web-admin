@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Building2, User, Phone, Mail, MapPin, Cpu, FileText, AlertCircle, Loader2, PlusCircle } from 'lucide-react'
+import { X, Building2, User, Phone, Mail, Cpu, FileText, AlertCircle, Loader2, PlusCircle } from 'lucide-react'
 import { SubscriptionPlanTier } from '../types/platform'
 import { addManualLeadAction } from '../actions'
 
@@ -16,7 +16,6 @@ export function AddLeadModal({ isOpen, onClose, onSuccess }: AddLeadModalProps) 
   const [applicantName, setApplicantName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
-  const [cityState, setCityState] = useState('')
   const [preferredPlan, setPreferredPlan] = useState<SubscriptionPlanTier>('FULL_PLANT_AI')
   const [estimatedMachines, setEstimatedMachines] = useState<number>(25)
   const [notes, setNotes] = useState('')
@@ -55,7 +54,7 @@ export function AddLeadModal({ isOpen, onClose, onSuccess }: AddLeadModalProps) 
         applicantName: applicantName.trim(),
         phone: phone.trim(),
         email: email.trim(),
-        cityState: cityState.trim() || 'India',
+        cityState: '',
         preferredPlan,
         estimatedMachines: Number(estimatedMachines) || 0,
         notes: notes.trim()
@@ -72,7 +71,6 @@ export function AddLeadModal({ isOpen, onClose, onSuccess }: AddLeadModalProps) 
       setApplicantName('')
       setPhone('')
       setEmail('')
-      setCityState('')
       setNotes('')
       onSuccess()
       onClose()
@@ -192,39 +190,20 @@ export function AddLeadModal({ isOpen, onClose, onSuccess }: AddLeadModalProps) 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {/* Location */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Plant Location (City, State)
-              </label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={cityState}
-                  onChange={e => setCityState(e.target.value)}
-                  placeholder="e.g. Surat, Gujarat"
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 focus:border-[#0B1220] text-slate-900 font-medium"
-                />
-              </div>
-            </div>
-
-            {/* Estimated Machines */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Estimated Sewing Machines
-              </label>
-              <div className="relative">
-                <Cpu className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="number"
-                  value={estimatedMachines}
-                  onChange={e => setEstimatedMachines(Number(e.target.value))}
-                  placeholder="25"
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 focus:border-[#0B1220] text-slate-900 font-mono"
-                />
-              </div>
+          {/* Estimated Machines */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Estimated Sewing Machines
+            </label>
+            <div className="relative">
+              <Cpu className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="number"
+                value={estimatedMachines}
+                onChange={e => setEstimatedMachines(Number(e.target.value))}
+                placeholder="25"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 focus:border-[#0B1220] text-slate-900 font-mono"
+              />
             </div>
           </div>
 
