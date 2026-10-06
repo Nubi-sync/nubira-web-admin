@@ -122,7 +122,6 @@ export default function SubscriptionsAndExpiryPage() {
       tenant.adminEmail?.toLowerCase().includes(q) ||
       tenant.adminName?.toLowerCase().includes(q) ||
       tenant.phone?.toLowerCase().includes(q) ||
-      tenant.cityState?.toLowerCase().includes(q) ||
       tenant.plantSlug?.toLowerCase().includes(q)
     )
   })
@@ -448,7 +447,7 @@ export default function SubscriptionsAndExpiryPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
-                  <th className="py-3.5 px-4 sm:px-6">Factory & Location</th>
+                  <th className="py-3.5 px-4 sm:px-6">Factory &amp; Workspace</th>
                   <th className="py-3.5 px-4">Super Admin</th>
                   <th className="py-3.5 px-4">Plan & Model</th>
                   <th className="py-3.5 px-4">Validity & Status</th>
@@ -487,15 +486,12 @@ export default function SubscriptionsAndExpiryPage() {
 
                     return (
                       <tr key={tenant.id} className="hover:bg-slate-50/60 transition-colors">
-                        {/* 1. Factory & Location */}
+                        {/* 1. Factory & Workspace */}
                         <td className="py-4 px-4 sm:px-6">
                           <div className="font-extrabold text-[#0B1220] text-sm">{tenant.companyName}</div>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             <span className="font-mono text-[11px] text-slate-600 bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#14C8B4]/30">
                               {tenant.plantSlug || 'factory-slug'}
-                            </span>
-                            <span className="text-[11px] text-slate-500 flex items-center gap-1">
-                              • {tenant.cityState || 'India'}
                             </span>
                           </div>
                         </td>

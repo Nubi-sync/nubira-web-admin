@@ -247,7 +247,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                 onChange={e => setSelectedArticleId(e.target.value)}
                 className="w-full pl-9 pr-9 py-2 sm:py-2.5 bg-slate-50 hover:bg-white text-xs sm:text-sm font-bold text-slate-800 border border-slate-300 rounded-xl appearance-none shadow-2xs hover:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] outline-none transition-all cursor-pointer truncate"
               >
-                <option value="ALL">✨ All Articles (Factory Aggregate)</option>
+                <option value="ALL">All Articles</option>
                 {data.articlesCatalog.map(art => (
                   <option key={art.id} value={art.id}>
                     {art.artNo} — {art.category || art.description} ({formatNum(art.buyerPoTarget)} pcs)
@@ -283,30 +283,32 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       </div>
 
       {/* ==================================================================== */}
-      {/* 2. SOLO ARTICLE ACTIVE BANNER (ONLY SHOWN IN SOLO MODE)             */}
+      {/* 2. SOLO ARTICLE ACTIVE BANNER (MINIMALIST ZIGZA MES LIGHT THEME)    */}
       {/* ==================================================================== */}
       {isSoloMode && selectedArticle && (
-        <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-blue-900/40 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="bg-[#F0FDFA] border border-[#14C8B4]/40 rounded-2xl p-4 sm:p-5 text-[#0B1220] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center shrink-0">
-              <Shirt className="w-6 h-6 text-[#14C8B4]" />
+            <div className="w-11 h-11 rounded-xl bg-white border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs text-[#0B1220]">
+              <Shirt className="w-5 h-5 text-[#0B1220]" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] sm:text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-[#14C8B4] text-[#0B1220] shadow-xs">
+                <span className="text-[10px] sm:text-[11px] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-[#14C8B4]/40 shadow-2xs">
                   SOLO ARTICLE VIEW
                 </span>
-                <span className="text-base sm:text-lg font-extrabold text-white tracking-tight truncate">
+                <span className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight truncate">
                   {selectedArticle.artNo}
                 </span>
-                <span className="text-xs font-bold text-blue-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
-                  {selectedArticle.category}
-                </span>
-                <span className="text-xs font-medium text-slate-300">
-                  Buyer: <strong className="text-white">{selectedArticle.buyerName}</strong> ({selectedArticle.poNumber})
+                {selectedArticle.category && (
+                  <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                    {selectedArticle.category}
+                  </span>
+                )}
+                <span className="text-xs font-medium text-slate-600">
+                  Buyer: <strong className="text-[#0B1220] font-bold">{selectedArticle.buyerName}</strong> ({selectedArticle.poNumber})
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">
+              <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
                 Displaying isolated manufacturing throughput, QC pass rate, and floor pipeline exclusively for style #{selectedArticle.artNo}.
               </p>
             </div>
@@ -314,17 +316,17 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
           <div className="flex items-center gap-4 shrink-0 self-end md:self-center">
             <div className="text-right hidden sm:block">
-              <div className="text-[10px] text-slate-300 uppercase tracking-wider">Style Target</div>
-              <div className="text-lg font-extrabold text-[#14C8B4] font-mono">
-                {formatNum(selectedArticle.buyerPoTarget)} pcs ({selectedArticle.overallProgressPct}%)
+              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold">Style Target</div>
+              <div className="text-base sm:text-lg font-black text-[#0B1220] font-mono">
+                {formatNum(selectedArticle.buyerPoTarget)} pcs <span className="text-xs font-bold text-[#1D4ED8]">({selectedArticle.overallProgressPct}%)</span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setSelectedArticleId('ALL')}
-              className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/20 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
+              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200/90 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1.5"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5 text-slate-500" />
               <span>Reset to All Articles</span>
             </button>
           </div>

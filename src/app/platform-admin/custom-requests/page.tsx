@@ -85,7 +85,6 @@ export default function CustomEnterpriseRequestsPage() {
       req.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (req.cityState && req.cityState.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (req.notes && req.notes.toLowerCase().includes(searchQuery.toLowerCase()))
 
     const matchesStatus = statusFilter === 'ALL' || req.status === statusFilter
@@ -331,12 +330,6 @@ export default function CustomEnterpriseRequestsPage() {
                         </h2>
                         <div className="flex items-center gap-3 text-xs text-slate-600 mt-1 flex-wrap font-medium">
                           <span>Contact: <strong>{req.applicantName}</strong></span>
-                          {req.cityState && (
-                            <span className="inline-flex items-center gap-1 text-slate-500">
-                              <MapPin className="w-3.5 h-3.5" />
-                              <span>{req.cityState}</span>
-                            </span>
-                          )}
                           {req.estimatedMachines ? (
                             <span className="inline-flex items-center gap-1 text-slate-500">
                               <Cpu className="w-3.5 h-3.5" />
