@@ -27,7 +27,8 @@ import {
   CheckCircle2,
   X,
   SlidersHorizontal,
-  Target
+  Target,
+  ShoppingBag
 } from 'lucide-react'
 import {
   OwnerDashboardData,
@@ -729,20 +730,30 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       {/* 7. SECTION 4: BUYER PURCHASE ORDERS & FULFILLMENT                    */}
       {/* ==================================================================== */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Buyer Purchase Orders &amp; Fulfillment ({buyerOrders.length} Order{buyerOrders.length === 1 ? '' : 's'})
-            </h3>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {isSoloMode 
-                ? `Contract fulfillment for ${selectedArticle?.artNo}`
-                : 'Active contracts sorted by delivery progress'}
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+              <ShoppingBag className="w-5 h-5 text-[#0B1220]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                  Buyer Purchase Orders &amp; <span className="text-[#1D4ED8]">Fulfillment</span>
+                </h2>
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
+                  {buyerOrders.length} {buyerOrders.length === 1 ? 'Order' : 'Orders'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                {isSoloMode 
+                  ? `Contract fulfillment progress for style #${selectedArticle?.artNo}`
+                  : 'Active contracts sorted by delivery progress.'}
+              </p>
+            </div>
           </div>
           <Link
             href="/buyers-vendors"
-            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1 shrink-0 self-end sm:self-center"
           >
             <span>Buyers Hub</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -847,26 +858,31 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       {/* 8. SECTION 5: ARTICLE DIRECTORY & QUICK SELECTOR                     */}
       {/* ==================================================================== */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-[#F0FDFA] text-[#0B1220] rounded-lg border border-black/10">
-                <Shirt className="w-4 h-4" />
-              </span>
-              <h3 className="text-base font-extrabold text-[#0B1220]">
-                Company Articles Directory ({data.articlesCatalog.length} Style{data.articlesCatalog.length === 1 ? '' : 's'})
-              </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+              <Shirt className="w-5 h-5 text-[#0B1220]" />
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Click any article below or use the top dropdown to view its isolated solo dashboard
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                  Company Articles &amp; <span className="text-[#1D4ED8]">Styles Directory</span>
+                </h2>
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
+                  {data.articlesCatalog.length} {data.articlesCatalog.length === 1 ? 'Style' : 'Styles'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Garment styles catalog. Click any article below to inspect floor progress.
+              </p>
+            </div>
           </div>
 
           {isSoloMode && (
             <button
               type="button"
               onClick={() => setSelectedArticleId('ALL')}
-              className="text-xs font-bold text-[#1D4ED8] hover:underline cursor-pointer"
+              className="text-xs font-bold text-[#1D4ED8] hover:underline cursor-pointer shrink-0 self-end sm:self-center"
             >
               Switch Back to All Articles →
             </button>
@@ -1000,19 +1016,28 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       {/* ==================================================================== */}
       {/* 10. SECTION 7: DIVISION HEARTBEAT                                    */}
       {/* ==================================================================== */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Division Heartbeat ({data.divisionHeartbeat.length} Subscribed Operational Unit{data.divisionHeartbeat.length === 1 ? '' : 's'})
-            </h3>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Live status and single-click access to authorized factory floor departments
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/60">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+              <Layers className="w-5 h-5 text-[#0B1220]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                  Division Heartbeat &amp; <span className="text-[#1D4ED8]">Subscribed Units</span>
+                </h2>
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
+                  {data.divisionHeartbeat.length} {data.divisionHeartbeat.length === 1 ? 'Unit' : 'Units'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Live status and single-click access to authorized factory floor departments.
+              </p>
+            </div>
           </div>
           <Link
             href="/modules"
-            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1 shrink-0 self-end sm:self-center"
           >
             <span>All {data.divisionHeartbeat.length} Modules</span>
             <ArrowRight className="w-3.5 h-3.5" />

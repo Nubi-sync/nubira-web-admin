@@ -80,15 +80,15 @@ export function OwnerLoginActivitySection({ activityData }: OwnerLoginActivitySe
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-800 shrink-0">
-            <Clock className="w-5 h-5 text-cyan-700" />
+          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+            <Clock className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-[family-name:var(--font-heading)]">
-                Portal Usage &amp; <span className="text-cyan-700">Factory Location</span>
+              <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
+                Portal Usage &amp; <span className="text-[#1D4ED8]">Factory Location</span>
               </h2>
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
                 Past 7 Days
               </span>
             </div>
