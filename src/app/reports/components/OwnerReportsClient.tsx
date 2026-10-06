@@ -258,11 +258,11 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
     <div className="p-3.5 sm:p-6 md:p-8 space-y-5 max-w-[1536px] w-full mx-auto select-none text-[#0B1220] font-[family-name:var(--font-public-sans)]">
       
       {/* ==================================================================== */}
-      {/* 1. TOP HEADER CARD: MATCHING BUYERS & VENDORS DESIGN SYSTEM          */}
+      {/* 1. TOP HEADER CARD: MATCHING SIGNATURE CYAN DESIGN SYSTEM            */}
       {/* ==================================================================== */}
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
         <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
             <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
@@ -270,7 +270,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Plant <span className="text-[#1D4ED8]">Reports &amp; Analytics</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
                 {data.companyName}
               </span>
             </div>
@@ -284,11 +284,13 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto justify-between lg:justify-end">
           
           {/* Preset Buttons */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 overflow-x-auto">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-bold text-slate-600 overflow-x-auto">
             <button
               onClick={() => setDateFilter('today')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                dateFilter === 'today' ? 'bg-white text-[#0B1220] shadow-xs' : 'hover:text-slate-900'
+                dateFilter === 'today'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
               Today
@@ -296,7 +298,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             <button
               onClick={() => setDateFilter('7days')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                dateFilter === '7days' ? 'bg-white text-[#0B1220] shadow-xs' : 'hover:text-slate-900'
+                dateFilter === '7days'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
               7 Days
@@ -304,7 +308,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             <button
               onClick={() => setDateFilter('30days')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                dateFilter === '30days' ? 'bg-white text-[#0B1220] shadow-xs' : 'hover:text-slate-900'
+                dateFilter === '30days'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
               30 Days
@@ -312,7 +318,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             <button
               onClick={() => setDateFilter('all')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                dateFilter === 'all' ? 'bg-white text-[#0B1220] shadow-xs' : 'hover:text-slate-900'
+                dateFilter === 'all'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
               All Time
@@ -323,19 +331,19 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportExcel}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-white border border-slate-300 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 transition-all shadow-2xs cursor-pointer"
               title="Download full 3-sheet Excel workbook"
             >
-              <Download className="w-3.5 h-3.5 text-[#1D4ED8]" />
+              <Download className="w-3.5 h-3.5 text-[#0B1220]" />
               <span>Export Excel</span>
             </button>
 
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-white border border-slate-300 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 transition-all shadow-2xs cursor-pointer"
               title="Print report or save as PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-slate-700" />
+              <Printer className="w-3.5 h-3.5 text-[#0B1220]" />
               <span className="hidden sm:inline">Print / PDF</span>
             </button>
           </div>
@@ -343,7 +351,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       </div>
 
       {/* ==================================================================== */}
-      {/* 2. TOP EXECUTIVE PULSE KPIS (4 CRISP CARDS)                          */}
+      {/* 2. TOP EXECUTIVE PULSE KPIS (4 CYAN CARDS)                           */}
       {/* ==================================================================== */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
@@ -351,8 +359,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Output</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1D4ED8] flex items-center justify-center border border-blue-200/60">
-              <Package className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+              <Package className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -369,8 +377,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">QC Pass Rate</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60">
-              <ShieldCheck className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -387,8 +395,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Godown Ready</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200/60">
-              <Warehouse className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+              <Warehouse className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -405,8 +413,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dispatched</span>
-            <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-200/60">
-              <Truck className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+              <Truck className="w-4 h-4 text-[#0B1220]" />
             </div>
           </div>
           <div className="mt-3">
@@ -421,23 +429,25 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       </div>
 
       {/* ==================================================================== */}
-      {/* 3. SEGMENTED VIEW SWITCHER (3 TABS)                                  */}
+      {/* 3. SEGMENTED VIEW SWITCHER (CYAN ACTIVE TAB STYLING)                 */}
       {/* ==================================================================== */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80 overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 overflow-x-auto">
         
         {/* Tab 1 Trigger */}
         <button
           onClick={() => setActiveTab('articles')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'articles'
-              ? 'bg-[#0B1220] text-white shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+              : 'text-slate-600 hover:text-[#0B1220] hover:bg-[#F0FDFA]/60 font-semibold border border-transparent'
           }`}
         >
-          <Layers className="w-4 h-4" />
+          <Layers className="w-4 h-4 text-[#0B1220]" />
           <span>Article Lifecycle &amp; Traceability</span>
           <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-            activeTab === 'articles' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+            activeTab === 'articles'
+              ? 'bg-[#0B1220] text-white shadow-2xs'
+              : 'bg-slate-200/80 text-slate-700'
           }`}>
             {data.articlesReport.length}
           </span>
@@ -448,14 +458,16 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           onClick={() => setActiveTab('workers')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'workers'
-              ? 'bg-[#0B1220] text-white shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+              : 'text-slate-600 hover:text-[#0B1220] hover:bg-[#F0FDFA]/60 font-semibold border border-transparent'
           }`}
         >
-          <Users className="w-4 h-4" />
+          <Users className="w-4 h-4 text-[#0B1220]" />
           <span>Worker Piece-Rate Ledger</span>
           <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-            activeTab === 'workers' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+            activeTab === 'workers'
+              ? 'bg-[#0B1220] text-white shadow-2xs'
+              : 'bg-slate-200/80 text-slate-700'
           }`}>
             {data.workerLedger.length}
           </span>
@@ -466,14 +478,16 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           onClick={() => setActiveTab('audit')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'audit'
-              ? 'bg-[#0B1220] text-white shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+              : 'text-slate-600 hover:text-[#0B1220] hover:bg-[#F0FDFA]/60 font-semibold border border-transparent'
           }`}
         >
-          <Briefcase className="w-4 h-4" />
+          <Briefcase className="w-4 h-4 text-[#0B1220]" />
           <span>Plant &amp; Buyer PO Audit</span>
           <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-            activeTab === 'audit' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+            activeTab === 'audit'
+              ? 'bg-[#0B1220] text-white shadow-2xs'
+              : 'bg-slate-200/80 text-slate-700'
           }`}>
             {data.buyerFulfillments.length}
           </span>
@@ -534,8 +548,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             {filteredArticles.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400 mb-3">
-                  <FilterX className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                  <FilterX className="w-6 h-6 text-[#0B1220]" />
                 </div>
                 <h3 className="text-sm font-bold text-[#0B1220]">No articles matched your criteria</h3>
                 <p className="text-xs text-slate-500 mt-1">Try adjusting your search query or stage filters.</p>
@@ -557,13 +571,13 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                         <div className="flex items-start sm:items-center gap-3.5">
                           <button
                             type="button"
-                            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition-all mt-0.5 sm:mt-0"
+                            className="w-8 h-8 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 text-[#0B1220] flex items-center justify-center shrink-0 transition-all shadow-2xs mt-0.5 sm:mt-0"
                             aria-label={isExpanded ? 'Collapse' : 'Expand'}
                           >
                             {isExpanded ? (
-                              <ChevronDown className="w-4 h-4 text-[#1D4ED8]" />
+                              <ChevronDown className="w-4 h-4 text-[#0B1220]" />
                             ) : (
-                              <ChevronRight className="w-4 h-4 text-slate-500" />
+                              <ChevronRight className="w-4 h-4 text-[#0B1220]" />
                             )}
                           </button>
 
@@ -572,7 +586,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                               <span className="text-sm sm:text-base font-extrabold text-[#0B1220] font-mono tracking-tight">
                                 {article.artNo}
                               </span>
-                              <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                              <span className="text-[11px] font-bold text-[#0B1220] bg-[#F0FDFA] border border-black/15 px-2 py-0.5 rounded-md shadow-2xs">
                                 {article.description}
                               </span>
                             </div>
@@ -618,14 +632,14 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                           </div>
 
                           {/* Stage Status Badge */}
-                          <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-xs ${
+                          <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-2xs ${
                             article.stageStatus === 'Dispatched'
                               ? 'bg-purple-50 text-purple-700 border-purple-200'
                               : article.stageStatus === 'In Godown'
                               ? 'bg-amber-50 text-amber-700 border-amber-200'
                               : article.stageStatus === 'QC Passed'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-blue-50 text-[#1D4ED8] border-blue-200'
+                              : 'bg-[#F0FDFA] text-[#0B1220] border-black/15'
                           }`}>
                             {article.stageStatus}
                           </span>
@@ -696,8 +710,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                                       <tr key={op.id} className="hover:bg-slate-50/80">
                                         <td className="p-3">
                                           <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center text-slate-700">
-                                              <DivIcon className="w-3.5 h-3.5" />
+                                            <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                                              <DivIcon className="w-3.5 h-3.5 text-[#0B1220]" />
                                             </div>
                                             <span className="font-bold text-[#0B1220]">{op.division}</span>
                                           </div>
@@ -716,7 +730,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                                           {op.rejectedPcs > 0 ? op.rejectedPcs.toLocaleString() : '-'}
                                         </td>
                                         <td className="p-3 text-center">
-                                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${
                                             op.status === 'COMPLETED' || op.status === 'DONE'
                                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                               : op.status === 'IN_PROGRESS'
@@ -836,8 +850,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
             {filteredWorkerLedger.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400 mb-3">
-                  <Users className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                  <Users className="w-6 h-6 text-[#0B1220]" />
                 </div>
                 <h3 className="text-sm font-bold text-[#0B1220]">No worker piece records found</h3>
                 <p className="text-xs text-slate-500 mt-1">Try resetting search filters or assign floor tasks in modules.</p>
@@ -872,8 +886,10 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                           </div>
                         </td>
                         <td className="p-3.5">
-                          <div className="flex items-center gap-1.5">
-                            <DivIcon className="w-3.5 h-3.5 text-slate-600" />
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                              <DivIcon className="w-3.5 h-3.5 text-[#0B1220]" />
+                            </div>
                             <span className="font-bold text-slate-800">{item.division}</span>
                           </div>
                         </td>
@@ -896,7 +912,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                           {item.rejectedPieces > 0 ? item.rejectedPieces.toLocaleString() : '-'}
                         </td>
                         <td className="p-3.5 text-center">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${
                             item.status === 'COMPLETED' || item.status === 'DONE'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : item.status === 'IN_PROGRESS'
@@ -945,9 +961,10 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                   >
                     <div>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-[#0B1220]">
-                            <DivIcon className="w-4 h-4" />
+                        <div className="flex items-center gap-3">
+                          {/* Signature Cyan Icon Wrapper with Black Border & Icon */}
+                          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                            <DivIcon className="w-4 h-4 text-[#0B1220]" />
                           </div>
                           <div>
                             <h4 className="text-sm font-extrabold text-[#0B1220]">{div.division}</h4>
@@ -955,12 +972,13 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                           </div>
                         </div>
 
+                        {/* Signature Cyan Shortcut Button with Black Outline */}
                         <Link
                           href={div.divisionRoute}
-                          className="w-7 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-all"
+                          className="w-8 h-8 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 text-[#0B1220] flex items-center justify-center transition-all shadow-2xs shrink-0"
                           title="Open Module Workspace"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
+                          <ExternalLink className="w-3.5 h-3.5 text-[#0B1220]" />
                         </Link>
                       </div>
 
@@ -995,8 +1013,8 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
               {data.buyerFulfillments.length === 0 ? (
                 <div className="p-12 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400 mb-3">
-                    <Briefcase className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center mx-auto shadow-2xs mb-3">
+                    <Briefcase className="w-6 h-6 text-[#0B1220]" />
                   </div>
                   <h3 className="text-sm font-bold text-[#0B1220]">No merchandising contracts found</h3>
                   <p className="text-xs text-slate-500 mt-1">Orders created in Merchandising will appear here automatically.</p>
@@ -1059,7 +1077,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                           </div>
                         </td>
                         <td className="p-3.5 text-center">
-                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-xs ${
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs ${
                             b.status === 'Fully Shipped'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : b.status === 'Partially Dispatched'
