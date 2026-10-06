@@ -34,6 +34,7 @@ import {
   ProductionPipelineStage,
   BuyerOrderStatusItem
 } from '../actions'
+import { OwnerLoginActivitySection } from './OwnerLoginActivitySection'
 
 const DIVISION_ICONS: Record<string, React.ElementType> = {
   Scissors,
@@ -990,7 +991,14 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
       </div>
 
       {/* ==================================================================== */}
-      {/* 9. SECTION 6: DIVISION HEARTBEAT                                     */}
+      {/* 9. SECTION 6: LOGIN ACTIVITY (PAST 7 DAYS) & STATE GEOLOCATION       */}
+      {/* ==================================================================== */}
+      {data.loginActivity && (
+        <OwnerLoginActivitySection activityData={data.loginActivity} />
+      )}
+
+      {/* ==================================================================== */}
+      {/* 10. SECTION 7: DIVISION HEARTBEAT                                    */}
       {/* ==================================================================== */}
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
