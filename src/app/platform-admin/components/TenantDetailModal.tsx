@@ -12,7 +12,6 @@ import {
   Check,
   ExternalLink,
   Clock,
-  Globe,
   Mail,
   Phone,
   User,
@@ -38,7 +37,6 @@ import {
   ShieldAlert,
   RefreshCw,
   Trash2,
-  MapPin,
   MessageSquare
 } from 'lucide-react'
 import { TenantFactory, AccessType } from '../types/platform'
@@ -345,16 +343,6 @@ export function TenantDetailModal({
                     {copiedField === 'slug' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </span>
-
-                {tenant.cityState && (
-                  <>
-                    <span className="text-slate-300">•</span>
-                    <span className="flex items-center gap-1 font-medium text-slate-600">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      {tenant.cityState}
-                    </span>
-                  </>
-                )}
               </div>
             </div>
           </div>

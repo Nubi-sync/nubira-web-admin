@@ -10,7 +10,6 @@ import {
   Plus,
   Layers,
   Zap,
-  Globe,
   Eye
 } from 'lucide-react'
 import { PlatformAdminShell } from '../components/PlatformAdminShell'
@@ -62,7 +61,6 @@ export default function TenantFactoriesPage() {
       t.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.plantSlug.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.adminEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.cityState.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.phone.includes(searchQuery)
 
     if (!matchesSearch) return false
@@ -241,7 +239,7 @@ export default function TenantFactoriesPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search factory, slug, email, city..."
+                placeholder="Search factory, slug, email, phone..."
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0B1220]/10 focus:border-[#0B1220] text-slate-900 font-mono transition-all"
               />
             </div>
@@ -252,7 +250,7 @@ export default function TenantFactoriesPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200/80 text-xs font-semibold text-slate-700 uppercase tracking-wider bg-[#F0FDFA]">
-                  <th className="py-3.5 px-4">Factory &amp; Location</th>
+                  <th className="py-3.5 px-4">Factory &amp; Workspace</th>
                   <th className="py-3.5 px-4">Super Admin</th>
                   <th className="py-3.5 px-4">Plan Tier</th>
                   <th className="py-3.5 px-4">Divisions</th>
@@ -323,7 +321,7 @@ export default function TenantFactoriesPage() {
                       onClick={() => setSelectedTenantForView(t)}
                       className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                     >
-                      {/* 1. Factory & Location */}
+                      {/* 1. Factory & Workspace */}
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900 text-sm group-hover:text-[#1D4ED8] transition-colors">
                           {t.companyName}
@@ -331,11 +329,6 @@ export default function TenantFactoriesPage() {
                         <div className="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
                           <span className="bg-[#F0FDFA] px-2 py-0.5 rounded border border-[#14C8B4]/30 text-[#0B1220] font-medium font-mono text-[11px]">
                             {t.plantSlug}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Globe className="w-3.5 h-3.5 text-slate-400" />
-                            {t.cityState}
                           </span>
                         </div>
                       </td>
