@@ -309,13 +309,15 @@ export async function issueBomMaterials(payload: IssueBomMaterialsPayload) {
       existingNotes.store_remarks = item.remarks || null
 
       updatePromises.push(
-        supabase
-          .from('allotment_materials')
-          .update({
-            admin_issued: true,
-            notes: JSON.stringify(existingNotes),
-          })
-          .eq('id', item.id)
+        (async () => {
+          await supabase
+            .from('allotment_materials')
+            .update({
+              admin_issued: true,
+              notes: JSON.stringify(existingNotes),
+            })
+            .eq('id', item.id)
+        })()
       )
 
       const parsedQty = parseInt(String(receivedText).replace(/[^0-9]/g, ''), 10) || 0
@@ -336,7 +338,9 @@ export async function issueBomMaterials(payload: IssueBomMaterialsPayload) {
     await Promise.all([
       ...updatePromises,
       accessoriesToInsert.length > 0
-        ? supabase.from('accessories').insert(accessoriesToInsert)
+        ? (async () => {
+            await supabase.from('accessories').insert(accessoriesToInsert)
+          })()
         : Promise.resolve(),
     ])
 
