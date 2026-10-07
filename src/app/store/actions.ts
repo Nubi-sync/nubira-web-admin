@@ -270,21 +270,33 @@ export async function issueBomMaterials(payload: IssueBomMaterialsPayload) {
     const nowIso = new Date().toISOString()
     const todayStr = nowIso.split('T')[0]
 
-    for (const item of payload.items) {
-      // 1. Fetch existing notes to preserve context
-      let existingNotes: Record<string, any> = {}
-      const { data: matData } = await supabase
-        .from('allotment_materials')
-        .select('notes, required_qty')
-        .eq('id', item.id)
-        .single()
+    const itemIds = payload.items.map(i => i.id).filter(Boolean)
+    if (itemIds.length === 0) {
+      return { success: true }
+    }
 
-      if (matData?.notes) {
+    // 1. Single batch fetch of all existing notes (O(1) instead of N sequential roundtrips)
+    const { data: matsData } = await supabase
+      .from('allotment_materials')
+      .select('id, notes, required_qty')
+      .in('id', itemIds)
+
+    const notesMap = new Map<string, any>()
+    matsData?.forEach(m => {
+      let notes: Record<string, any> = {}
+      if (m.notes) {
         try {
-          existingNotes = typeof matData.notes === 'string' ? JSON.parse(matData.notes) : matData.notes
+          notes = typeof m.notes === 'string' ? JSON.parse(m.notes) : m.notes
         } catch (_) {}
       }
+      notesMap.set(m.id, notes)
+    })
 
+    const accessoriesToInsert: any[] = []
+    const updatePromises: Promise<any>[] = []
+
+    for (const item of payload.items) {
+      const existingNotes = notesMap.get(item.id) || {}
       const receivedText = String(item.received_qty ?? item.required_qty ?? '')
       existingNotes.lineman_name = payload.lineman_name
       existingNotes.received_qty = receivedText
@@ -296,30 +308,37 @@ export async function issueBomMaterials(payload: IssueBomMaterialsPayload) {
       existingNotes.store_verified_by = currentUserName
       existingNotes.store_remarks = item.remarks || null
 
-      await supabase
-        .from('allotment_materials')
-        .update({
-          admin_issued: true,
-          notes: JSON.stringify(existingNotes),
-        })
-        .eq('id', item.id)
+      updatePromises.push(
+        supabase
+          .from('allotment_materials')
+          .update({
+            admin_issued: true,
+            notes: JSON.stringify(existingNotes),
+          })
+          .eq('id', item.id)
+      )
 
-      // 2. Log OUTWARD in accessories table so Godown stock is reduced in real-time
       const parsedQty = parseInt(String(receivedText).replace(/[^0-9]/g, ''), 10) || 0
       if (parsedQty > 0 && item.item_name?.trim()) {
-        try {
-          await supabase.from('accessories').insert({
-            item_name: item.item_name.trim(),
-            action: 'OUT',
-            quantity: parsedQty,
-            unit: item.unit || 'pcs',
-            party_name: `Issued to Lineman ${payload.lineman_name}`,
-            entry_date: todayStr,
-            notes: `BOM Handover for Allotment #${payload.allotment_id} • ${payload.supplier_challan_no ? `Challan #${payload.supplier_challan_no}` : 'Active Batch'}${payload.article_no ? ` • Art #${payload.article_no}` : ''}`,
-          })
-        } catch (_) {}
+        accessoriesToInsert.push({
+          item_name: item.item_name.trim(),
+          action: 'OUT',
+          quantity: parsedQty,
+          unit: item.unit || 'pcs',
+          party_name: `Issued to Lineman ${payload.lineman_name}`,
+          entry_date: todayStr,
+          notes: `BOM Handover for Allotment #${payload.allotment_id} • ${payload.supplier_challan_no ? `Challan #${payload.supplier_challan_no}` : 'Active Batch'}${payload.article_no ? ` • Art #${payload.article_no}` : ''}`,
+        })
       }
     }
+
+    // 2. Parallel execute all updates and single bulk insert for accessories
+    await Promise.all([
+      ...updatePromises,
+      accessoriesToInsert.length > 0
+        ? supabase.from('accessories').insert(accessoriesToInsert)
+        : Promise.resolve(),
+    ])
 
     revalidatePath('/store')
     revalidatePath('/inventory')
