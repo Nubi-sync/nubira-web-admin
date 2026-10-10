@@ -280,6 +280,7 @@ export function CreateAllotmentForm({
       challanId: string
       type: 'COLOR_LINE' | 'FULL_CHALLAN'
       colorName?: string
+      componentName?: string
       challanNo: string
       brand: string
       fabricType: string
@@ -317,7 +318,18 @@ export function CreateAllotmentForm({
       const firstArtCode = (chArticles[0]?.art_no || '').trim().toUpperCase()
       const matchedDbArt = articles.find(a => a.art_no?.trim().toUpperCase() === firstArtCode) || articles[0]
 
-      const colorMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number>; assignedLinemanId?: string }> = {}
+      const distinctPatterns = Array.from(new Set(
+        chArticles.map((a: any) => (a.pattern_no || a.component || '').trim().toUpperCase()).filter((p: string) => p && p !== 'STANDARD')
+      ))
+      const isMultiComponent = distinctPatterns.length > 1
+
+      const colorMap: Record<string, {
+        colorName: string
+        componentName?: string
+        totalPcs: number
+        sizeBreakdown: Record<string, number>
+        assignedLinemanId?: string
+      }> = {}
       const fullChallanColorQtys: Record<string, Record<string, number>> = {}
       const fullChallanSizesSet = new Set<string>()
 
@@ -325,6 +337,7 @@ export function CreateAllotmentForm({
         const patternRaw = (art.color_pattern || art.description || 'Standard').trim()
         const sizeTier = (art.size_range || 'Free Size').trim()
         const totalPcs = Number(art.total_pcs) || 0
+        const compName = (art.pattern_no || art.component || '').trim().toUpperCase()
         const subSizes = expandGarmentSizeTier(sizeTier)
         subSizes.forEach(s => fullChallanSizesSet.add(s))
 
@@ -342,12 +355,21 @@ export function CreateAllotmentForm({
         const perSizePerColor = Math.round(pcsPerColor / (subSizes.length || 1))
 
         matchedColors.forEach(cName => {
-          if (!colorMap[cName]) {
-            colorMap[cName] = { totalPcs: 0, sizeBreakdown: {}, assignedLinemanId: art.assigned_lineman_id }
+          const useComp = isMultiComponent && compName && compName !== 'STANDARD'
+          const groupKey = useComp ? `${cName}__${compName}` : cName
+
+          if (!colorMap[groupKey]) {
+            colorMap[groupKey] = {
+              colorName: cName,
+              componentName: useComp ? compName : undefined,
+              totalPcs: 0,
+              sizeBreakdown: {},
+              assignedLinemanId: art.assigned_lineman_id
+            }
           }
-          colorMap[cName].totalPcs += pcsPerColor
-          colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
-          if (art.assigned_lineman_id) colorMap[cName].assignedLinemanId = art.assigned_lineman_id
+          colorMap[groupKey].totalPcs += pcsPerColor
+          colorMap[groupKey].sizeBreakdown[sizeTier] = (colorMap[groupKey].sizeBreakdown[sizeTier] || 0) + pcsPerColor
+          if (art.assigned_lineman_id) colorMap[groupKey].assignedLinemanId = art.assigned_lineman_id
 
           if (!fullChallanColorQtys[cName]) fullChallanColorQtys[cName] = {}
           subSizes.forEach(s => {
@@ -357,14 +379,17 @@ export function CreateAllotmentForm({
       })
 
       // Add Color line options
-      Object.entries(colorMap).forEach(([cName, data]) => {
+      Object.entries(colorMap).forEach(([groupKey, data]) => {
         if (data.totalPcs > 0) {
+          const cName = data.colorName
+          const compSuffix = data.componentName ? ` [${data.componentName}]` : ''
           const icon = cName.includes('MUSHROOM') ? '🟤' : (cName.includes('BLUE') ? '🔵' : (cName.includes('SCUBA') || cName.includes('GREEN') ? '🟢' : '🟣'))
           opts.push({
-            key: `COLOR_${cName}_${ch.id}`,
+            key: `COLOR_${groupKey}_${ch.id}`,
             challanId: ch.id,
             type: 'COLOR_LINE',
             colorName: cName,
+            componentName: data.componentName,
             challanNo: ch.challan_no,
             brand: ch.brand,
             fabricType: ch.fabric_type,
@@ -374,7 +399,7 @@ export function CreateAllotmentForm({
             assignedLinemanId: data.assignedLinemanId,
             bomDetails: ch.bom_details || [],
             primaryArticleId: matchedDbArt?.id || '',
-            label: `${icon} ${ch.challan_no} (${ch.brand}) • ${cName} LINE — ${data.totalPcs.toLocaleString()} Pcs`
+            label: `${icon} ${ch.challan_no} (${ch.brand}) • ${cName}${compSuffix} LINE — ${data.totalPcs.toLocaleString()} Pcs`
           })
         }
       })
@@ -455,7 +480,8 @@ export function CreateAllotmentForm({
     setSelectedTargetBomDetails(smartOpt.bomDetails || [])
 
     const challanRef = smartOpt.challanNo || ''
-    setProductionOrderNo(smartOpt.colorName ? `${challanRef} (${smartOpt.colorName})` : challanRef)
+    const compLabel = smartOpt.componentName ? ` - ${smartOpt.componentName}` : ''
+    setProductionOrderNo(smartOpt.colorName ? `${challanRef} (${smartOpt.colorName}${compLabel})` : challanRef)
     setClientChallanNo(challanRef)
 
     if (smartOpt.deliveryDate) setDueDate(smartOpt.deliveryDate)
@@ -500,7 +526,7 @@ export function CreateAllotmentForm({
       }
 
       setSelectedTargetSummary({
-        title: `${smartOpt.challanNo} (${smartOpt.brand || 'Factory'}) • ${smartOpt.colorName} LINE`,
+        title: `${smartOpt.challanNo} (${smartOpt.brand || 'Factory'}) • ${smartOpt.colorName}${smartOpt.componentName ? ' [' + smartOpt.componentName + ']' : ''} LINE`,
         subtitle: `${finalSizes.length} Sizes (${finalSizes.join(', ')}) • Continuous Sewing`,
         totalPcs: smartOpt.totalPcs || Object.values(perCellQtys).reduce((a, b) => a + b, 0),
         badgeColor: themeColor,
@@ -631,12 +657,20 @@ export function CreateAllotmentForm({
       const decodedKey = rawDecoded.replace(/\+/g, ' ').trim()
       const normKey = decodedKey.toUpperCase()
 
-      // Extract UUID and Color from targetKey
+      // Extract UUID, Color and Component from targetKey
       const uuidMatch = normKey.match(/([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})/i)
       const targetChallanId = uuidMatch ? uuidMatch[1].toUpperCase() : ''
       let targetColor = ''
+      let targetComponent = ''
       if (normKey.startsWith('COLOR_')) {
-        targetColor = normKey.replace('COLOR_', '').replace(`_${targetChallanId}`, '').trim()
+        const afterColor = normKey.replace('COLOR_', '').replace(`_${targetChallanId}`, '').trim()
+        if (afterColor.includes('__')) {
+          const parts = afterColor.split('__')
+          targetColor = parts[0]
+          targetComponent = parts[1] || ''
+        } else {
+          targetColor = afterColor
+        }
       }
 
       // 1. Direct match in smartChallanOptions
@@ -647,14 +681,19 @@ export function CreateAllotmentForm({
         o.challanId === decodedKey
       )
 
-      // 2. Fuzzy / color + challan ID match
+      // 2. Fuzzy / color + component + challan ID match
       if (!matchedOpt && targetChallanId) {
         matchedOpt = smartChallanOptions.find(o => {
           if (!o.challanId || o.challanId.toUpperCase() !== targetChallanId) return false
           if (normKey.startsWith('FULL_CHALLAN') && o.type === 'FULL_CHALLAN') return true
           if (targetColor && o.colorName) {
             const oCol = o.colorName.toUpperCase()
-            if (oCol === targetColor || oCol.includes(targetColor) || targetColor.includes(oCol)) return true
+            const colMatches = oCol === targetColor || oCol.includes(targetColor) || targetColor.includes(oCol)
+            if (!colMatches) return false
+            if (targetComponent && o.componentName) {
+              return o.componentName.toUpperCase() === targetComponent.toUpperCase()
+            }
+            return true
           }
           return false
         })
@@ -682,30 +721,45 @@ export function CreateAllotmentForm({
           }
 
           const distinctSizes: string[] = []
-          const colorBreakdownMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number> }> = {}
+          const colorBreakdownMap: Record<string, { totalPcs: number; sizeBreakdown: Record<string, number>; componentName?: string }> = {}
 
           rArticles.forEach((art: any) => {
             const cName = (art.color_pattern || art.description || 'Standard').trim().toUpperCase()
             const sz = (art.size_range || 'Free Size').trim()
             const pcs = Number(art.total_pcs) || 0
+            const comp = (art.pattern_no || art.component || '').trim().toUpperCase()
+            const groupK = comp && comp !== 'STANDARD' ? `${cName}__${comp}` : cName
             const sub = expandGarmentSizeTier(sz)
             sub.forEach(s => { if (!distinctSizes.includes(s)) distinctSizes.push(s) })
 
-            if (!colorBreakdownMap[cName]) colorBreakdownMap[cName] = { totalPcs: 0, sizeBreakdown: {} }
-            colorBreakdownMap[cName].totalPcs += pcs
-            colorBreakdownMap[cName].sizeBreakdown[sz] = (colorBreakdownMap[cName].sizeBreakdown[sz] || 0) + pcs
+            if (!colorBreakdownMap[groupK]) {
+              colorBreakdownMap[groupK] = {
+                totalPcs: 0,
+                sizeBreakdown: {},
+                componentName: comp && comp !== 'STANDARD' ? comp : undefined
+              }
+            }
+            colorBreakdownMap[groupK].totalPcs += pcs
+            colorBreakdownMap[groupK].sizeBreakdown[sz] = (colorBreakdownMap[groupK].sizeBreakdown[sz] || 0) + pcs
           })
 
           const matchingColorEntry = targetColor 
-            ? Object.entries(colorBreakdownMap).find(([c]) => c === targetColor || c.includes(targetColor) || targetColor.includes(c))
+            ? Object.entries(colorBreakdownMap).find(([k, d]) => {
+                if (targetComponent && d.componentName) {
+                  return k.includes(targetColor) && d.componentName.toUpperCase() === targetComponent.toUpperCase()
+                }
+                return k === targetColor || k.includes(targetColor) || targetColor.includes(k)
+              })
             : Object.entries(colorBreakdownMap)[0]
 
           if (matchingColorEntry && normKey.startsWith('COLOR_')) {
+            const rawColName = matchingColorEntry[0].split('__')[0]
             matchedOpt = {
               key: `COLOR_${matchingColorEntry[0]}_${rawCh.id}`,
               challanId: rawCh.id,
               type: 'COLOR_LINE',
-              colorName: matchingColorEntry[0],
+              colorName: rawColName,
+              componentName: matchingColorEntry[1].componentName,
               challanNo: rawCh.challan_no || 'CHALLAN',
               brand: rawCh.brand || '',
               fabricType: rawCh.fabric_type || '',
@@ -714,7 +768,7 @@ export function CreateAllotmentForm({
               sizeBreakdown: matchingColorEntry[1].sizeBreakdown,
               assignedLinemanId: urlLinemanId || '',
               bomDetails: rawCh.bom_details || [],
-              label: `${rawCh.challan_no} • ${matchingColorEntry[0]} LINE`
+              label: `${rawCh.challan_no} • ${rawColName}${matchingColorEntry[1].componentName ? ' [' + matchingColorEntry[1].componentName + ']' : ''} LINE`
             }
           } else {
             matchedOpt = {

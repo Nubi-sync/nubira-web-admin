@@ -310,20 +310,43 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
             const parsedNotes = JSON.parse(ch.notes)
             const rawLinesInput = parsedNotes.article_lines || parsedNotes
             if (Array.isArray(rawLinesInput) && rawLinesInput.length > 0) {
-              const consolidatedMap = new Map<string, any>()
+              // Option 1: Garment Industry Standard Component Split
+              // If a pattern represents a multi-piece combo (e.g. 'TOP + PANT'), expand into independent component lines
+              const expandedInputLines: any[] = []
               rawLinesInput.forEach((line: any) => {
+                const pat = (line.pattern_no || line.product || 'Standard').trim()
+                if (pat.includes('+')) {
+                  const parts = pat.split('+').map((p: string) => p.trim()).filter(Boolean)
+                  if (parts.length > 1) {
+                    parts.forEach((p: string) => {
+                      expandedInputLines.push({
+                        ...line,
+                        pattern_no: p,
+                        component: p,
+                        parent_pattern: pat
+                      })
+                    })
+                    return
+                  }
+                }
+                expandedInputLines.push({
+                  ...line,
+                  pattern_no: pat || 'Standard'
+                })
+              })
+
+              const consolidatedMap = new Map<string, any>()
+              expandedInputLines.forEach((line: any) => {
                 const cleanArt = (line.art_no || '').trim().toUpperCase()
                 const cleanSub = (line.sub_art_no || '').trim().toUpperCase()
                 const color = (line.color_pattern || 'Standard').trim().toUpperCase()
                 const size = (line.size_range || 'Free Size').trim().toUpperCase()
-                const key = `${cleanArt}__${cleanSub}__${color}__${size}`
-                const prod = (line.pattern_no || line.product || '').trim()
+                const prod = (line.pattern_no || line.product || 'Standard').trim().toUpperCase()
+                // Distinct key preserves each component (TOP vs PANT) as its own separate line
+                const key = `${cleanArt}__${cleanSub}__${color}__${size}__${prod}`
 
                 if (consolidatedMap.has(key)) {
                   const existing = consolidatedMap.get(key)
-                  if (prod && !existing.pattern_no.toUpperCase().includes(prod.toUpperCase())) {
-                    existing.pattern_no = `${existing.pattern_no} + ${prod}`
-                  }
                   const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
                   const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
                   existing.total_pcs = Math.max(Number(existing.total_pcs) || 0, linePcs)
@@ -332,7 +355,7 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                     existing.stitching_rate = line.stitching_rate
                   }
                 } else {
-                  consolidatedMap.set(key, { ...line, pattern_no: prod || 'Standard' })
+                  consolidatedMap.set(key, { ...line, pattern_no: line.pattern_no || 'Standard' })
                 }
               })
               const rawLines = Array.from(consolidatedMap.values())
@@ -349,7 +372,7 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                 const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
                 const lineRatio = Number(line.pcs_per_set) || 9
 
-                // Match with active floor allotment for this base article style and color
+                // Match with active floor allotment for this base article style, color, and component pattern
                 const matchingAl = chAllotments.find((al: any) => {
                   const art = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
                   const alArtNo = (art.art_no || '').trim().toUpperCase()
@@ -367,6 +390,15 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
                                     (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
 
                   if (!isArtMatch) return false
+
+                  // Component / Pattern check
+                  const linePattern = (line.pattern_no || '').trim().toUpperCase()
+                  const alPattern = (meta.pattern_no || meta.component || (art as any)?.size_rates?._meta?.pattern || '').trim().toUpperCase()
+                  if (alPattern && linePattern && alPattern !== 'STANDARD' && linePattern !== 'STANDARD') {
+                    if (alPattern !== linePattern && !alPattern.includes(linePattern) && !linePattern.includes(alPattern)) {
+                      return false
+                    }
+                  }
 
                   // Check variant color match if variants exist
                   const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
@@ -2659,11 +2691,12 @@ export async function updateChallanLineRate(params: {
   lineIndex?: number
   artNo: string
   sizeRange: string
+  patternNo?: string
   newRate: number
   updateMasterCatalog?: boolean
 }) {
   const supabase = supabaseAdmin
-  const { challanId, lineIndex, artNo, sizeRange, newRate, updateMasterCatalog = true } = params
+  const { challanId, lineIndex, artNo, sizeRange, patternNo, newRate, updateMasterCatalog = true } = params
 
   try {
     if (!challanId) return { error: 'Challan ID is required.' }
@@ -2690,7 +2723,7 @@ export async function updateChallanLineRate(params: {
     const lines: any[] = parsedNotes.article_lines || []
     let updatedCount = 0
 
-    // Match by lineIndex first if available, otherwise by (art_no + size_range)
+    // Match by lineIndex first if available, otherwise by (art_no + size_range + pattern)
     if (typeof lineIndex === 'number' && lines[lineIndex]) {
       lines[lineIndex].stitching_rate = newRate
       updatedCount++
@@ -2698,7 +2731,9 @@ export async function updateChallanLineRate(params: {
       for (const row of lines) {
         const rowArt = (row.art_no || '').trim().toUpperCase()
         const rowSize = (row.size_range || '').trim().toUpperCase()
-        if (rowArt === artNo.trim().toUpperCase() && rowSize === sizeRange.trim().toUpperCase()) {
+        const rowPat = (row.pattern_no || row.component || '').trim().toUpperCase()
+        const matchPat = !patternNo || rowPat === patternNo.trim().toUpperCase() || rowPat.includes(patternNo.trim().toUpperCase())
+        if (rowArt === artNo.trim().toUpperCase() && rowSize === sizeRange.trim().toUpperCase() && matchPat) {
           row.stitching_rate = newRate
           updatedCount++
         }

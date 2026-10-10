@@ -220,6 +220,7 @@ export function ProductionOrdersClient({
     lineIndex: number
     artNo: string
     sizeRange: string
+    patternNo?: string
     currentRate: number
     newRate: string
     updateMaster: boolean
@@ -1144,10 +1145,13 @@ export function ProductionOrdersClient({
     })
   }
 
-  // Helper: Compute Color & Size Matrix for any Challan (Universal Dynamic Grouping)
+  // Helper: Compute Color & Size Matrix for any Challan (Universal Dynamic Grouping with Component Split)
   const computeColorBreakdown = (challan: ChallanGroupedOrder) => {
     const colorMap: Record<string, {
+      key: string
       colorName: string
+      componentName?: string
+      displayName: string
       themeColor: string
       bgLight: string
       borderTheme: string
@@ -1185,10 +1189,17 @@ export function ProductionOrdersClient({
 
     if (!challan.articles || challan.articles.length === 0) return []
 
+    // Detect if challan contains multiple distinct components (e.g. TOP, PANT)
+    const distinctPatterns = Array.from(new Set(
+      challan.articles.map(a => (a.pattern_no || (a as any).component || '').trim().toUpperCase()).filter(p => p && p !== 'STANDARD')
+    ))
+    const isMultiComponent = distinctPatterns.length > 1
+
     challan.articles.forEach(art => {
       const rawColor = (art.color_pattern || art.description || 'STANDARD').trim().toUpperCase()
       const sizeTier = art.size_range || 'Free Size'
       const totalPcs = Number(art.total_pcs) || 0
+      const patternName = (art.pattern_no || (art as any).component || '').trim().toUpperCase()
 
       // If multi-color like '3 COLOUR' or separated by slash/comma/plus/ampersand, split dynamically
       let colorList: string[] = []
@@ -1203,10 +1214,17 @@ export function ProductionOrdersClient({
       const pcsPerColor = colorList.length > 0 ? Math.round(totalPcs / colorList.length) : totalPcs
 
       colorList.forEach(cName => {
-        if (!colorMap[cName]) {
+        const useComp = isMultiComponent && patternName && patternName !== 'STANDARD'
+        const groupKey = useComp ? `${cName}__${patternName}` : cName
+        const displayName = useComp ? `${cName} - ${patternName}` : cName
+
+        if (!colorMap[groupKey]) {
           const th = getTheme(cName)
-          colorMap[cName] = {
+          colorMap[groupKey] = {
+            key: groupKey,
             colorName: cName,
+            componentName: useComp ? patternName : undefined,
+            displayName: displayName,
             themeColor: th.themeColor,
             bgLight: th.bgLight,
             borderTheme: th.borderTheme,
@@ -1214,8 +1232,8 @@ export function ProductionOrdersClient({
             sizeBreakdown: {}
           }
         }
-        colorMap[cName].totalPcs += pcsPerColor
-        colorMap[cName].sizeBreakdown[sizeTier] = (colorMap[cName].sizeBreakdown[sizeTier] || 0) + pcsPerColor
+        colorMap[groupKey].totalPcs += pcsPerColor
+        colorMap[groupKey].sizeBreakdown[sizeTier] = (colorMap[groupKey].sizeBreakdown[sizeTier] || 0) + pcsPerColor
         const assignedColors: string[] = (art as any).assigned_colors || []
         const artCol = (art.color_pattern || '').trim().toUpperCase()
         const cUpper = cName.toUpperCase()
@@ -1226,29 +1244,13 @@ export function ProductionOrdersClient({
               : false)
 
         if (art.assigned_lineman_id && art.assigned_lineman_id !== '' && art.assigned_lineman_name !== 'Unassigned (Floor Order)' && art.assigned_lineman_name !== 'Unassigned') {
-          if (isColorMatch) {
-            colorMap[cName].assignedLinemanId = art.assigned_lineman_id
-            colorMap[cName].assignedLinemanName = art.assigned_lineman_name
+          if (isColorMatch || !artCol || artCol === 'STANDARD') {
+            colorMap[groupKey].assignedLinemanId = art.assigned_lineman_id
+            colorMap[groupKey].assignedLinemanName = art.assigned_lineman_name
           }
         }
       })
     })
-
-    // 2. Direct lookup in Challan's active color allotments
-    const colorAllotments = (challan as any).color_allotments || []
-    if (colorAllotments.length > 0) {
-      Object.values(colorMap).forEach(cg => {
-        const cUpper = cg.colorName.trim().toUpperCase()
-        const match = colorAllotments.find((ca: any) => {
-          const caCol = (ca.color || '').trim().toUpperCase()
-          return caCol === cUpper || cUpper.includes(caCol) || caCol.includes(cUpper)
-        })
-        if (match && match.lineman_id && match.lineman_name && match.lineman_name !== 'Unassigned' && match.lineman_name !== 'Unassigned (Floor Order)') {
-          cg.assignedLinemanId = match.lineman_id
-          cg.assignedLinemanName = match.lineman_name
-        }
-      })
-    }
 
     return Object.values(colorMap).filter(c => c.totalPcs > 0)
   }
@@ -1269,19 +1271,21 @@ export function ProductionOrdersClient({
     router.push(targetUrl)
   }
 
-  // Handle Allot by Color Group (Routes to Target Allotment screen with pre-filled color line)
-  const handleAllotColorLine = (challanId: string, colorName: string) => {
-    const lmId = selectedColorLineman[challanId]?.[colorName] || ''
+  // Handle Allot by Color Group & Component (Routes to Target Allotment screen with pre-filled line)
+  const handleAllotColorLine = (challanId: string, colorName: string, componentName?: string) => {
+    const key = componentName ? `${colorName}__${componentName}` : colorName
+    const lmId = selectedColorLineman[challanId]?.[key] || selectedColorLineman[challanId]?.[colorName] || ''
     if (!lmId) {
       showErrorDialog(
         'Select a Lineman First',
-        `Please select a production lineman for the ${colorName} color line before allotting.`
+        `Please select a production lineman for the ${componentName ? colorName + ' (' + componentName + ')' : colorName} line before allotting.`
       )
       return
     }
     const isStitchingSewing = typeof window !== 'undefined' && window.location.pathname.includes('/stitching-sewing')
     const targetBasePath = isStitchingSewing ? '/stitching-sewing/allotments' : '/allotments'
-    const targetUrl = `${targetBasePath}?target_key=COLOR_${encodeURIComponent(colorName)}_${challanId}&lineman_id=${lmId}`
+    const targetParam = componentName ? `${colorName}__${componentName}` : colorName
+    const targetUrl = `${targetBasePath}?target_key=COLOR_${encodeURIComponent(targetParam)}_${challanId}&lineman_id=${lmId}`
     router.push(targetUrl)
   }
 
@@ -1371,6 +1375,7 @@ export function ProductionOrdersClient({
       lineIndex,
       artNo: line.art_no || '',
       sizeRange: line.size_range || '',
+      patternNo: line.pattern_no || '',
       currentRate: cr,
       newRate: cr > 0 ? cr.toString() : '',
       updateMaster: true
@@ -1394,6 +1399,7 @@ export function ProductionOrdersClient({
         lineIndex: rateEditModal.lineIndex,
         artNo: rateEditModal.artNo,
         sizeRange: rateEditModal.sizeRange,
+        patternNo: rateEditModal.patternNo,
         newRate: rateNum,
         updateMasterCatalog: rateEditModal.updateMaster
       })
@@ -1405,7 +1411,12 @@ export function ProductionOrdersClient({
         setOrders(prev => prev.map(ch => {
           if (ch.id !== rateEditModal.challanId) return ch
           const updatedArticles = (ch.articles || []).map((art, idx) => {
-            if (idx === rateEditModal.lineIndex || ((art.art_no || '').trim().toUpperCase() === rateEditModal.artNo.trim().toUpperCase() && (art.size_range || '').trim().toUpperCase() === rateEditModal.sizeRange.trim().toUpperCase())) {
+            const isMatch = idx === rateEditModal.lineIndex || (
+              (art.art_no || '').trim().toUpperCase() === rateEditModal.artNo.trim().toUpperCase() &&
+              (art.size_range || '').trim().toUpperCase() === rateEditModal.sizeRange.trim().toUpperCase() &&
+              (!rateEditModal.patternNo || (art.pattern_no || '').trim().toUpperCase() === rateEditModal.patternNo.trim().toUpperCase())
+            )
+            if (isMatch) {
               return { ...art, stitching_rate: rateNum }
             }
             return art
@@ -2154,10 +2165,10 @@ export function ProductionOrdersClient({
                                         />
                                         <div>
                                           <span className="font-extrabold text-xs sm:text-sm text-slate-900 tracking-tight block">
-                                            {cg.colorName} LINE
+                                            {cg.displayName || cg.colorName} LINE
                                           </span>
                                           <span className="text-[11px] font-medium text-slate-500">
-                                            Continuous Floor Thread
+                                            {cg.componentName ? `${cg.componentName} Component Floor Thread` : 'Continuous Floor Thread'}
                                           </span>
                                         </div>
                                       </div>
@@ -2213,18 +2224,18 @@ export function ProductionOrdersClient({
                                     )}
 
                                     <CustomSelect
-                                      value={selectedColorLineman[challan.id]?.[cg.colorName] || cg.assignedLinemanId || ''}
+                                      value={selectedColorLineman[challan.id]?.[cg.key || cg.colorName] || cg.assignedLinemanId || ''}
                                       onChange={val => {
                                         setSelectedColorLineman(prev => ({
                                           ...prev,
                                           [challan.id]: {
                                             ...(prev[challan.id] || {}),
-                                            [cg.colorName]: val
+                                            [cg.key || cg.colorName]: val
                                           }
                                         }))
                                       }}
                                       options={[
-                                        { value: '', label: `Assign ${cg.colorName} to Lineman...` },
+                                        { value: '', label: `Assign ${cg.displayName || cg.colorName} to Lineman...` },
                                         ...linemenList.map(lm => ({ value: lm.id, label: lm.username }))
                                       ]}
                                       className="w-full"
@@ -2234,7 +2245,7 @@ export function ProductionOrdersClient({
                                     <button
                                       type="button"
                                       disabled={isPending}
-                                      onClick={() => handleAllotColorLine(challan.id, cg.colorName)}
+                                      onClick={() => handleAllotColorLine(challan.id, cg.colorName, cg.componentName)}
                                       className={`w-full py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 ${
                                         cg.assignedLinemanName
                                           ? 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs'
@@ -2244,8 +2255,8 @@ export function ProductionOrdersClient({
                                       <UserCheck className="w-4 h-4" />
                                       <span>
                                         {cg.assignedLinemanName
-                                          ? `Re-assign ${cg.colorName} Line`
-                                          : `Allot ${cg.colorName} (${cg.totalPcs.toLocaleString()} pcs)`}
+                                          ? `Re-assign ${cg.displayName || cg.colorName} Line`
+                                          : `Allot ${cg.displayName || cg.colorName} (${cg.totalPcs.toLocaleString()} pcs)`}
                                       </span>
                                     </button>
                                   </div>
@@ -2313,7 +2324,30 @@ export function ProductionOrdersClient({
 
                                 {/* Pattern Master */}
                                 <td className="py-3.5 px-4 text-slate-700 font-medium">
-                                  {line.pattern_no || 'Standard'}
+                                  {(() => {
+                                    const pat = (line.pattern_no || '').trim().toUpperCase()
+                                    if (pat === 'TOP') {
+                                      return (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                          TOP
+                                        </span>
+                                      )
+                                    }
+                                    if (pat === 'PANT' || pat === 'BOTTOM') {
+                                      return (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                          {pat}
+                                        </span>
+                                      )
+                                    }
+                                    return (
+                                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs font-mono">
+                                        {line.pattern_no || 'Standard'}
+                                      </span>
+                                    )
+                                  })()}
                                 </td>
 
                                 {/* Color Combination */}
@@ -3654,7 +3688,7 @@ export function ProductionOrdersClient({
                     {rateEditModal.currentRate > 0 ? 'Update Stitching Rate' : 'Add Stitching Rate'}
                   </h3>
                   <p className="text-xs text-slate-500 font-mono">
-                    Challan #{rateEditModal.challanNo} • Style: {rateEditModal.artNo} ({rateEditModal.sizeRange})
+                    Challan #{rateEditModal.challanNo} • Style: {rateEditModal.artNo} {rateEditModal.patternNo ? `[${rateEditModal.patternNo}]` : ''} ({rateEditModal.sizeRange})
                   </p>
                 </div>
               </div>
