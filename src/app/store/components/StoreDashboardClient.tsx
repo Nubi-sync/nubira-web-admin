@@ -572,31 +572,6 @@ export function StoreDashboardClient({
       }
     })
 
-    // Standard baseline trims always tracked
-    const defaultMonitoredItems = [
-      { name: 'Main Brand Neck Tag', unit: 'pcs', minSafety: 500, category: 'TAG' as const },
-      { name: 'Matching Sewing Thread', unit: 'cones', minSafety: 15, category: 'THREAD' as const },
-      { name: 'Washing Care & Size Label', unit: 'pcs', minSafety: 500, category: 'LABEL' as const },
-      { name: 'Master Polybag (Self Adhesive)', unit: 'pcs', minSafety: 1000, category: 'PACKAGING' as const }
-    ]
-
-    defaultMonitoredItems.forEach(d => {
-      if (!itemMap.has(d.name)) {
-        const totalReq = activeAllotments.reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
-        const issuedQty = activeAllotments.filter(al => (al.allotment_materials || []).some(m => m.admin_issued)).reduce((sum, al) => sum + (Number(al.target_qty) || 0), 0)
-        itemMap.set(d.name, {
-          name: d.name,
-          unit: d.unit,
-          inward: Math.round(totalReq * 1.05),
-          issued: issuedQty,
-          balance: 0,
-          minSafety: d.minSafety,
-          category: d.category,
-          status: 'OPTIMAL'
-        })
-      }
-    })
-
     const allItems = Array.from(itemMap.values()).map(it => {
       const balance = Math.max(0, it.inward - it.issued)
       let status: 'OUT_OF_STOCK' | 'LOW_STOCK' | 'OPTIMAL' = 'OPTIMAL'

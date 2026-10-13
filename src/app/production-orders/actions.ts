@@ -149,21 +149,21 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
 
       try {
         // 1. Fetch all challans, allotments, materials & variants concurrently in parallel
-    const [
-      { data: challansList, error: chErr },
-      { data: allotments, error: alErr },
-      { data: materials },
-      { data: variants }
-    ] = await Promise.all([
-      supabase
-        .from('challans')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100),
+        const [
+          { data: challansList, error: chErr },
+          { data: allotments, error: alErr },
+          { data: materials },
+          { data: variants }
+        ] = await Promise.all([
+          supabase
+            .from('challans')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(100),
 
-      supabase
-        .from('allotments')
-        .select(`
+          supabase
+            .from('allotments')
+            .select(`
           id,
           challan_id,
           target_qty,
@@ -174,418 +174,418 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
           profiles:lineman_id ( id, username ),
           articles ( id, art_no, description, size_rates, stitching_rate )
         `)
-        .order('created_at', { ascending: true }),
+            .order('created_at', { ascending: true }),
 
-      supabase
-        .from('allotment_materials')
-        .select('allotment_id, notes, item_name, required_qty'),
+          supabase
+            .from('allotment_materials')
+            .select('allotment_id, notes, item_name, required_qty'),
 
-      supabase
-        .from('allotment_variants')
-        .select('allotment_id, color, size, quantity, completed_qty')
-    ])
+          supabase
+            .from('allotment_variants')
+            .select('allotment_id, color, size, quantity, completed_qty')
+        ])
 
-    const challanGroups: ChallanGroupedOrder[] = []
+        const challanGroups: ChallanGroupedOrder[] = []
 
-    // Map of challan_id -> Article Lines
-    const challanArticlesMap: Record<string, any[]> = {}
+        // Map of challan_id -> Article Lines
+        const challanArticlesMap: Record<string, any[]> = {}
 
-    // Group allotments into their respective challan or legacy bucket
-    if (allotments && allotments.length > 0) {
-      for (const rawAl of allotments) {
-        const al = rawAl as any
-        let meta: any = {}
-        const mat = materials?.find((m: any) => m.allotment_id === al.id)
-        if (mat?.notes) {
-          try { meta = JSON.parse(mat.notes) } catch (_) {}
-        }
-
-        const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
-        const artObj = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
-        const artMeta = artObj?.size_rates?._meta || {}
-
-        const firstVar = alVars[0]
-        const colorPattern = meta.color_pattern || firstVar?.color || meta.body_color || 'Standard'
-        const sizeRange = meta.size_range || firstVar?.size || 'Free Size'
-        const totalPcs = al.target_qty || alVars.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0)
-        const pcsPerSet = meta.pcs_per_set || (alVars[0] ? Math.round(totalPcs / (meta.sets || 1)) : 9) || 9
-        const sets = meta.sets || Math.round(totalPcs / pcsPerSet) || 1
-        const completedQty = alVars.reduce((sum: number, v: any) => sum + (v.completed_qty || 0), 0)
-
-        const linemanObj = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
-        const linemanName = linemanObj?.full_name || linemanObj?.username || 'Unassigned'
-
-        // Real-time automatic line status determination
-        let autoLineStatus = 'PENDING'
-        if (al.status === 'DISPATCHED') {
-          autoLineStatus = 'DISPATCHED'
-        } else if (al.status === 'QC_PASSED' || (completedQty >= totalPcs && totalPcs > 0)) {
-          autoLineStatus = 'QC_PASSED'
-        } else if (al.lineman_id && al.lineman_id !== '') {
-          autoLineStatus = 'IN_PROGRESS'
-        } else {
-          autoLineStatus = 'PENDING'
-        }
-
-        const articleItem = {
-          id: al.id,
-          allotment_id: al.id,
-          art_no: artObj?.art_no || meta.art_no || 'Style',
-          sub_art_no: meta.sub_art_no || '',
-          pattern_no: meta.pattern_no || artMeta.pattern || '',
-          description: artObj?.description || meta.article_description || '',
-          color_pattern: colorPattern,
-          size_range: sizeRange,
-          sets: sets,
-          pcs_per_set: pcsPerSet,
-          total_pcs: totalPcs,
-          completed_qty: completedQty,
-          assigned_lineman_id: al.lineman_id || '',
-          assigned_lineman_name: linemanName,
-          picture_url: meta.sample_photos?.[0] || artMeta.picture_url || '',
-          stitching_rate: artObj?.stitching_rate && Number(artObj.stitching_rate) > 0 ? Number(artObj.stitching_rate) : undefined,
-          status: autoLineStatus,
-          created_at: al.created_at
-        }
-
-        let chId = al.challan_id
-        if (!chId && challansList) {
-          const clientChNo = al.client_challan_no || meta.client_challan_no || al.production_order_no
-          if (clientChNo) {
-            const matchedCh = challansList.find(c => (c.challan_no || '').trim().toUpperCase() === String(clientChNo).trim().toUpperCase())
-            if (matchedCh) chId = matchedCh.id
-          }
-        }
-        if (!chId) chId = 'LEGACY_UNASSIGNED'
-        if (!challanArticlesMap[chId]) challanArticlesMap[chId] = []
-        challanArticlesMap[chId].push(articleItem)
-      }
-    }
-
-    // 4. Construct Challan Group records
-    if (challansList && challansList.length > 0) {
-      for (const ch of challansList) {
-        let articles: any[] = []
-        const chNo = (ch.challan_no || '').trim().toUpperCase()
-        const chArtNos = new Set<string>()
-        if (ch.notes) {
-          try {
-            const pNotes = JSON.parse(ch.notes)
-            const rLines = pNotes.article_lines || pNotes
-            if (Array.isArray(rLines)) {
-              rLines.forEach((l: any) => {
-                if (l.art_no) chArtNos.add(String(l.art_no).trim().toUpperCase())
-                if (l.full_art_code) chArtNos.add(String(l.full_art_code).trim().toUpperCase())
-              })
+        // Group allotments into their respective challan or legacy bucket
+        if (allotments && allotments.length > 0) {
+          for (const rawAl of allotments) {
+            const al = rawAl as any
+            let meta: any = {}
+            const mat = materials?.find((m: any) => m.allotment_id === al.id)
+            if (mat?.notes) {
+              try { meta = JSON.parse(mat.notes) } catch (_) { }
             }
-          } catch (_) {}
-        }
 
-        const chAllotments = (allotments || []).filter((a: any) => {
-          if (a.challan_id === ch.id) return true
-          const mat = materials?.filter((m: any) => m.allotment_id === a.id) || []
-          let meta: any = {}
-          for (const m of mat) {
-            if (m.notes) {
-              try { meta = { ...meta, ...JSON.parse(m.notes) } } catch (_) {}
+            const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
+            const artObj = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
+            const artMeta = artObj?.size_rates?._meta || {}
+
+            const firstVar = alVars[0]
+            const colorPattern = meta.color_pattern || firstVar?.color || meta.body_color || 'Standard'
+            const sizeRange = meta.size_range || firstVar?.size || 'Free Size'
+            const totalPcs = al.target_qty || alVars.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0)
+            const pcsPerSet = meta.pcs_per_set || (alVars[0] ? Math.round(totalPcs / (meta.sets || 1)) : 9) || 9
+            const sets = meta.sets || Math.round(totalPcs / pcsPerSet) || 1
+            const completedQty = alVars.reduce((sum: number, v: any) => sum + (v.completed_qty || 0), 0)
+
+            const linemanObj = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
+            const linemanName = linemanObj?.full_name || linemanObj?.username || 'Unassigned'
+
+            // Real-time automatic line status determination
+            let autoLineStatus = 'PENDING'
+            if (al.status === 'DISPATCHED') {
+              autoLineStatus = 'DISPATCHED'
+            } else if (al.status === 'QC_PASSED' || (completedQty >= totalPcs && totalPcs > 0)) {
+              autoLineStatus = 'QC_PASSED'
+            } else if (al.lineman_id && al.lineman_id !== '') {
+              autoLineStatus = 'IN_PROGRESS'
+            } else {
+              autoLineStatus = 'PENDING'
             }
-          }
-          const alChNo = (meta.client_challan_no || meta.challan_no || a.client_challan_no || (a.challans as any)?.challan_no || a.production_order_no || '').trim().toUpperCase()
-          const normChNo = chNo.replace(/^JOB-?/i, '').trim()
-          const normAlChNo = alChNo.replace(/^JOB-?/i, '').trim()
 
-          if (normChNo && normAlChNo) {
-            if (normChNo === normAlChNo || chNo === alChNo) return true
-            const baseCh = normChNo.split(/[\s(]/)[0].trim()
-            const baseAl = normAlChNo.split(/[\s(]/)[0].trim()
-            if (baseCh && baseAl && baseCh === baseAl) return true
-          }
-
-          return false
-        })
-
-        // 1. If structured article lines exist in challan notes, map them to live floor allotment status
-        if (ch.notes) {
-          try {
-            const parsedNotes = JSON.parse(ch.notes)
-            const rawLinesInput = parsedNotes.article_lines || parsedNotes
-            if (Array.isArray(rawLinesInput) && rawLinesInput.length > 0) {
-              // Option 1: Garment Industry Standard Component Split
-              // If a pattern represents a multi-piece combo (e.g. 'TOP + PANT'), expand into independent component lines
-              const expandedInputLines: any[] = []
-              rawLinesInput.forEach((line: any) => {
-                const pat = (line.pattern_no || line.product || 'Standard').trim()
-                if (pat.includes('+')) {
-                  const parts = pat.split('+').map((p: string) => p.trim()).filter(Boolean)
-                  if (parts.length > 1) {
-                    parts.forEach((p: string) => {
-                      expandedInputLines.push({
-                        ...line,
-                        pattern_no: p,
-                        component: p,
-                        parent_pattern: pat
-                      })
-                    })
-                    return
-                  }
-                }
-                expandedInputLines.push({
-                  ...line,
-                  pattern_no: pat || 'Standard'
-                })
-              })
-
-              const consolidatedMap = new Map<string, any>()
-              expandedInputLines.forEach((line: any) => {
-                const cleanArt = (line.art_no || '').trim().toUpperCase()
-                const cleanSub = (line.sub_art_no || '').trim().toUpperCase()
-                const color = (line.color_pattern || 'Standard').trim().toUpperCase()
-                const size = (line.size_range || 'Free Size').trim().toUpperCase()
-                const prod = (line.pattern_no || line.product || 'Standard').trim().toUpperCase()
-                // Distinct key preserves each component (TOP vs PANT) as its own separate line
-                const key = `${cleanArt}__${cleanSub}__${color}__${size}__${prod}`
-
-                if (consolidatedMap.has(key)) {
-                  const existing = consolidatedMap.get(key)
-                  const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
-                  const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
-                  existing.total_pcs = Math.max(Number(existing.total_pcs) || 0, linePcs)
-                  existing.sets = Math.max(Number(existing.sets) || 0, lineSets)
-                  if (!existing.stitching_rate && line.stitching_rate) {
-                    existing.stitching_rate = line.stitching_rate
-                  }
-                } else {
-                  consolidatedMap.set(key, { ...line, pattern_no: line.pattern_no || 'Standard' })
-                }
-              })
-              const rawLines = Array.from(consolidatedMap.values())
-
-              rawLines.forEach((line: any, idx: number) => {
-                const cleanArtNo = (line.art_no || '').trim().toUpperCase()
-                const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
-                const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
-                const baseArtNo = extractBaseArtNo(cleanArtNo, cleanSubArt)
-                const colorPattern = (line.color_pattern || 'Standard').trim()
-                const sizeRange = (line.size_range || 'Free Size').trim()
-
-                const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
-                const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
-                const lineRatio = Number(line.pcs_per_set) || 9
-
-                // Match with active floor allotment for this base article style, color, and component pattern
-                const matchingAl = chAllotments.find((al: any) => {
-                  const art = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
-                  const alArtNo = (art.art_no || '').trim().toUpperCase()
-                  const mat = materials?.find((m: any) => m.allotment_id === al.id)
-                  let meta: any = {}
-                  if (mat?.notes) {
-                    try { meta = JSON.parse(mat.notes) } catch (_) {}
-                  }
-                  const metaArtNo = (meta.art_no || '').trim().toUpperCase()
-
-                  const isArtMatch = !cleanArtNo || 
-                                    alArtNo === baseArtNo || alArtNo === cleanArtNo || alArtNo === fullArtCode ||
-                                    metaArtNo === baseArtNo || metaArtNo === cleanArtNo || metaArtNo === fullArtCode ||
-                                    (baseArtNo && alArtNo.includes(baseArtNo)) || (cleanArtNo && alArtNo.includes(cleanArtNo)) ||
-                                    (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
-
-                  if (!isArtMatch) return false
-
-                  // Component / Pattern check
-                  const linePattern = (line.pattern_no || '').trim().toUpperCase()
-                  const alPattern = (meta.pattern_no || meta.component || (art as any)?.size_rates?._meta?.pattern || '').trim().toUpperCase()
-                  if (alPattern && linePattern && alPattern !== 'STANDARD' && linePattern !== 'STANDARD') {
-                    if (alPattern !== linePattern && !alPattern.includes(linePattern) && !linePattern.includes(alPattern)) {
-                      return false
-                    }
-                  }
-
-                  // Check variant color match if variants exist
-                  const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
-                  if (alVars.length > 0) {
-                    const hasColor = alVars.some((v: any) => {
-                      const vCol = (v.color || '').trim().toUpperCase()
-                      const cp = colorPattern.toUpperCase()
-                      return vCol === cp || vCol.includes(cp) || cp.includes(vCol) || vCol === 'ALL'
-                    })
-                    return hasColor
-                  }
-
-                  // Fallback: check materials notes color_focus
-                  if (meta.color_focus && meta.color_focus.toUpperCase() !== 'ALL') {
-                    const cf = meta.color_focus.toUpperCase()
-                    const cp = colorPattern.toUpperCase()
-                    return cf === cp || cf.includes(cp) || cp.includes(cf)
-                  }
-                  if (meta.color_pattern && meta.color_pattern.toUpperCase() !== 'ALL') {
-                    const cp1 = meta.color_pattern.toUpperCase()
-                    const cp2 = colorPattern.toUpperCase()
-                    return cp1 === cp2 || cp1.includes(cp2) || cp2.includes(cp1)
-                  }
-
-                  // Check if article number string itself embeds the color (e.g. JOB-744-PINK)
-                  if (colorPattern && colorPattern.toUpperCase() !== 'STANDARD') {
-                    const cp = colorPattern.toUpperCase()
-                    if (alArtNo.includes(cp) || metaArtNo.includes(cp)) return true
-                  }
-
-                  return true
-                })
-
-                let linemanId = ''
-                let linemanName = 'Unassigned (Floor Order)'
-                let lineStatus = 'PENDING'
-                let allotmentId = ''
-                let completedQty = 0
-                let assignedColors: string[] = []
-
-                if (matchingAl) {
-                  allotmentId = matchingAl.id
-                  const linemanObj: any = (Array.isArray(matchingAl.profiles) ? matchingAl.profiles[0] : matchingAl.profiles) || {}
-                  if (matchingAl.lineman_id) {
-                    linemanId = matchingAl.lineman_id
-                    linemanName = linemanObj?.username || linemanObj?.full_name || 'Lineman'
-                    lineStatus = matchingAl.status === 'QC_PASSED' ? 'QC_PASSED' : (matchingAl.status === 'DISPATCHED' ? 'DISPATCHED' : 'IN_PROGRESS')
-                  }
-                  
-                  // Check completed qty and colors from variants
-                  const alVars = variants?.filter((v: any) => v.allotment_id === matchingAl.id) || []
-                  assignedColors = Array.from(new Set(alVars.map((v: any) => (v.color || '').trim().toUpperCase()).filter(Boolean)))
-                  
-                  // Also look for color from materials
-                  if (assignedColors.length === 0) {
-                    const alMats = materials?.filter((m: any) => m.allotment_id === matchingAl.id) || []
-                    alMats.forEach((m: any) => {
-                      const match = (m.item_name || '').match(/\(([^)]+)\)/)
-                      if (match && match[1]) assignedColors.push(match[1].trim().toUpperCase())
-                    })
-                  }
-
-                  const vMatch = alVars.find((v: any) => 
-                    (v.color || '').toUpperCase() === colorPattern.toUpperCase() && 
-                    (v.size || '').toUpperCase() === sizeRange.toUpperCase()
-                  )
-                  if (vMatch) {
-                    completedQty = vMatch.completed_qty || 0
-                  }
-                }
-
-                articles.push({
-                  id: `${ch.id}-line-${idx}`,
-                  allotment_id: allotmentId,
-                  art_no: cleanArtNo,
-                  sub_art_no: cleanSubArt,
-                  pattern_no: line.pattern_no || '',
-                  description: line.description || `${fullArtCode} - ${colorPattern} (${sizeRange})`,
-                  color_pattern: colorPattern,
-                  size_range: sizeRange,
-                  sets: lineSets,
-                  pcs_per_set: lineRatio,
-                  total_pcs: linePcs,
-                  completed_qty: completedQty,
-                  assigned_lineman_id: linemanId,
-                  assigned_lineman_name: linemanName,
-                  assigned_colors: assignedColors,
-                  picture_url: line.picture_url || '',
-                  stitching_rate: line.stitching_rate && Number(line.stitching_rate) > 0 ? Number(line.stitching_rate) : undefined,
-                  status: lineStatus,
-                  created_at: ch.created_at
-                })
-              })
-            }
-          } catch (_) {}
-        }
-
-        // 2. Fallback to legacy allotments bucket if no structured lines were in notes
-        if (articles.length === 0 && challanArticlesMap[ch.id]) {
-          articles = [...challanArticlesMap[ch.id]]
-        }
-
-        const totalSets = articles.reduce((sum, a) => sum + (Number(a.sets) || 0), 0) || ch.total_sets || 0
-        const totalPcs = articles.reduce((sum, a) => sum + (Number(a.total_pcs) || 0), 0) || ch.total_pcs || 0
-
-        let bomItems: ChallanBomItem[] = []
-        if (ch.bom_details) {
-          try {
-            bomItems = Array.isArray(ch.bom_details) ? ch.bom_details : JSON.parse(ch.bom_details)
-          } catch (_) {}
-        }
-
-        // Determine dynamic Challan status based on active floor allotments
-        const totalLines = articles.length
-        const totalAllottedPcs = (chAllotments || []).reduce((sum: number, al: any) => sum + (Number(al.target_qty) || 0), 0)
-        const completedLines = articles.filter(a => a.status === 'QC_PASSED' || a.status === 'COMPLETED').length
-        const dispatchedLines = articles.filter(a => a.status === 'DISPATCHED').length
-
-        let challanStatus = 'PENDING'
-        if (ch.status === 'DISPATCHED' || (dispatchedLines === totalLines && totalLines > 0)) {
-          challanStatus = 'DISPATCHED'
-        } else if (ch.status === 'QC_PASSED' || (completedLines === totalLines && totalLines > 0)) {
-          challanStatus = 'QC_PASSED'
-        } else if (totalAllottedPcs >= totalPcs && totalPcs > 0) {
-          challanStatus = 'IN_PROGRESS'
-        } else if (totalAllottedPcs > 0) {
-          challanStatus = 'PARTIALLY_ALLOTTED'
-        } else {
-          challanStatus = 'PENDING'
-        }
-
-        // Build color-wise allotment mapping directly from live floor allotments
-        const colorAllotments: ChallanColorAllotment[] = []
-        chAllotments.forEach((al: any) => {
-          const linemanObj: any = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
-          const lmId = al.lineman_id || ''
-          const lmName = linemanObj?.username || linemanObj?.full_name || 'Lineman'
-          const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
-          const alMats = materials?.filter((m: any) => m.allotment_id === al.id) || []
-
-          const foundColors = new Set<string>()
-          alVars.forEach((v: any) => {
-            if (v.color && v.color.trim()) foundColors.add(v.color.trim().toUpperCase())
-          })
-          alMats.forEach((m: any) => {
-            if (m.notes) {
-              try {
-                const n = JSON.parse(m.notes)
-                if (n.color_pattern) foundColors.add(String(n.color_pattern).trim().toUpperCase())
-                if (n.color_focus) foundColors.add(String(n.color_focus).trim().toUpperCase())
-              } catch (_) {}
-            }
-          })
-
-          foundColors.forEach(col => {
-            colorAllotments.push({
+            const articleItem = {
+              id: al.id,
               allotment_id: al.id,
-              color: col,
-              lineman_id: lmId,
-              lineman_name: lmName,
-              target_qty: Number(al.target_qty) || 0,
-              status: al.status || 'IN_PROGRESS'
-            })
-          })
-        })
+              art_no: artObj?.art_no || meta.art_no || 'Style',
+              sub_art_no: meta.sub_art_no || '',
+              pattern_no: meta.pattern_no || artMeta.pattern || '',
+              description: artObj?.description || meta.article_description || '',
+              color_pattern: colorPattern,
+              size_range: sizeRange,
+              sets: sets,
+              pcs_per_set: pcsPerSet,
+              total_pcs: totalPcs,
+              completed_qty: completedQty,
+              assigned_lineman_id: al.lineman_id || '',
+              assigned_lineman_name: linemanName,
+              picture_url: meta.sample_photos?.[0] || artMeta.picture_url || '',
+              stitching_rate: artObj?.stitching_rate && Number(artObj.stitching_rate) > 0 ? Number(artObj.stitching_rate) : undefined,
+              status: autoLineStatus,
+              created_at: al.created_at
+            }
 
-        challanGroups.push({
-          id: ch.id,
-          challan_no: ch.challan_no || 'CHALLAN',
-          challan_date: ch.challan_date || new Date(ch.created_at).toISOString().split('T')[0],
-          brand: ch.brand || '',
-          vendor_id: ch.vendor_id || undefined,
-          vendor_name: ch.vendor_name || undefined,
-          delivery_date: ch.delivery_date || '',
-          fabric_type: ch.fabric_type || '',
-          sample_given: !!ch.sample_given,
-          notes: ch.notes || '',
-          total_sets: totalSets,
-          total_pcs: totalPcs,
-          status: challanStatus,
-          bom_details: bomItems,
-          color_allotments: colorAllotments,
-          articles: articles,
-          created_at: ch.created_at
-        })
-      }
-    }
+            let chId = al.challan_id
+            if (!chId && challansList) {
+              const clientChNo = al.client_challan_no || meta.client_challan_no || al.production_order_no
+              if (clientChNo) {
+                const matchedCh = challansList.find(c => (c.challan_no || '').trim().toUpperCase() === String(clientChNo).trim().toUpperCase())
+                if (matchedCh) chId = matchedCh.id
+              }
+            }
+            if (!chId) chId = 'LEGACY_UNASSIGNED'
+            if (!challanArticlesMap[chId]) challanArticlesMap[chId] = []
+            challanArticlesMap[chId].push(articleItem)
+          }
+        }
+
+        // 4. Construct Challan Group records
+        if (challansList && challansList.length > 0) {
+          for (const ch of challansList) {
+            let articles: any[] = []
+            const chNo = (ch.challan_no || '').trim().toUpperCase()
+            const chArtNos = new Set<string>()
+            if (ch.notes) {
+              try {
+                const pNotes = JSON.parse(ch.notes)
+                const rLines = pNotes.article_lines || pNotes
+                if (Array.isArray(rLines)) {
+                  rLines.forEach((l: any) => {
+                    if (l.art_no) chArtNos.add(String(l.art_no).trim().toUpperCase())
+                    if (l.full_art_code) chArtNos.add(String(l.full_art_code).trim().toUpperCase())
+                  })
+                }
+              } catch (_) { }
+            }
+
+            const chAllotments = (allotments || []).filter((a: any) => {
+              if (a.challan_id === ch.id) return true
+              const mat = materials?.filter((m: any) => m.allotment_id === a.id) || []
+              let meta: any = {}
+              for (const m of mat) {
+                if (m.notes) {
+                  try { meta = { ...meta, ...JSON.parse(m.notes) } } catch (_) { }
+                }
+              }
+              const alChNo = (meta.client_challan_no || meta.challan_no || a.client_challan_no || (a.challans as any)?.challan_no || a.production_order_no || '').trim().toUpperCase()
+              const normChNo = chNo.replace(/^JOB-?/i, '').trim()
+              const normAlChNo = alChNo.replace(/^JOB-?/i, '').trim()
+
+              if (normChNo && normAlChNo) {
+                if (normChNo === normAlChNo || chNo === alChNo) return true
+                const baseCh = normChNo.split(/[\s(]/)[0].trim()
+                const baseAl = normAlChNo.split(/[\s(]/)[0].trim()
+                if (baseCh && baseAl && baseCh === baseAl) return true
+              }
+
+              return false
+            })
+
+            // 1. If structured article lines exist in challan notes, map them to live floor allotment status
+            if (ch.notes) {
+              try {
+                const parsedNotes = JSON.parse(ch.notes)
+                const rawLinesInput = parsedNotes.article_lines || parsedNotes
+                if (Array.isArray(rawLinesInput) && rawLinesInput.length > 0) {
+                  // Option 1: Garment Industry Standard Component Split
+                  // If a pattern represents a multi-piece combo (e.g. 'TOP + PANT'), expand into independent component lines
+                  const expandedInputLines: any[] = []
+                  rawLinesInput.forEach((line: any) => {
+                    const pat = (line.pattern_no || line.product || 'Standard').trim()
+                    if (pat.includes('+')) {
+                      const parts = pat.split('+').map((p: string) => p.trim()).filter(Boolean)
+                      if (parts.length > 1) {
+                        parts.forEach((p: string) => {
+                          expandedInputLines.push({
+                            ...line,
+                            pattern_no: p,
+                            component: p,
+                            parent_pattern: pat
+                          })
+                        })
+                        return
+                      }
+                    }
+                    expandedInputLines.push({
+                      ...line,
+                      pattern_no: pat || 'Standard'
+                    })
+                  })
+
+                  const consolidatedMap = new Map<string, any>()
+                  expandedInputLines.forEach((line: any) => {
+                    const cleanArt = (line.art_no || '').trim().toUpperCase()
+                    const cleanSub = (line.sub_art_no || '').trim().toUpperCase()
+                    const color = (line.color_pattern || 'Standard').trim().toUpperCase()
+                    const size = (line.size_range || 'Free Size').trim().toUpperCase()
+                    const prod = (line.pattern_no || line.product || 'Standard').trim().toUpperCase()
+                    // Distinct key preserves each component (TOP vs PANT) as its own separate line
+                    const key = `${cleanArt}__${cleanSub}__${color}__${size}__${prod}`
+
+                    if (consolidatedMap.has(key)) {
+                      const existing = consolidatedMap.get(key)
+                      const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+                      const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+                      existing.total_pcs = Math.max(Number(existing.total_pcs) || 0, linePcs)
+                      existing.sets = Math.max(Number(existing.sets) || 0, lineSets)
+                      if (!existing.stitching_rate && line.stitching_rate) {
+                        existing.stitching_rate = line.stitching_rate
+                      }
+                    } else {
+                      consolidatedMap.set(key, { ...line, pattern_no: line.pattern_no || 'Standard' })
+                    }
+                  })
+                  const rawLines = Array.from(consolidatedMap.values())
+
+                  rawLines.forEach((line: any, idx: number) => {
+                    const cleanArtNo = (line.art_no || '').trim().toUpperCase()
+                    const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
+                    const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
+                    const baseArtNo = extractBaseArtNo(cleanArtNo, cleanSubArt)
+                    const colorPattern = (line.color_pattern || 'Standard').trim()
+                    const sizeRange = (line.size_range || 'Free Size').trim()
+
+                    const linePcs = Number(line.total_pcs) || ((Number(line.sets) || 1) * (Number(line.pcs_per_set) || 9))
+                    const lineSets = Number(line.sets) || Math.round(linePcs / (Number(line.pcs_per_set) || 9))
+                    const lineRatio = Number(line.pcs_per_set) || 9
+
+                    // Match with active floor allotment for this base article style, color, and component pattern
+                    const matchingAl = chAllotments.find((al: any) => {
+                      const art = (Array.isArray(al.articles) ? al.articles[0] : al.articles) || {}
+                      const alArtNo = (art.art_no || '').trim().toUpperCase()
+                      const mat = materials?.find((m: any) => m.allotment_id === al.id)
+                      let meta: any = {}
+                      if (mat?.notes) {
+                        try { meta = JSON.parse(mat.notes) } catch (_) { }
+                      }
+                      const metaArtNo = (meta.art_no || '').trim().toUpperCase()
+
+                      const isArtMatch = !cleanArtNo ||
+                        alArtNo === baseArtNo || alArtNo === cleanArtNo || alArtNo === fullArtCode ||
+                        metaArtNo === baseArtNo || metaArtNo === cleanArtNo || metaArtNo === fullArtCode ||
+                        (baseArtNo && alArtNo.includes(baseArtNo)) || (cleanArtNo && alArtNo.includes(cleanArtNo)) ||
+                        (baseArtNo && metaArtNo.includes(baseArtNo)) || (cleanArtNo && metaArtNo.includes(cleanArtNo))
+
+                      if (!isArtMatch) return false
+
+                      // Component / Pattern check
+                      const linePattern = (line.pattern_no || '').trim().toUpperCase()
+                      const alPattern = (meta.pattern_no || meta.component || (art as any)?.size_rates?._meta?.pattern || '').trim().toUpperCase()
+                      if (alPattern && linePattern && alPattern !== 'STANDARD' && linePattern !== 'STANDARD') {
+                        if (alPattern !== linePattern && !alPattern.includes(linePattern) && !linePattern.includes(alPattern)) {
+                          return false
+                        }
+                      }
+
+                      // Check variant color match if variants exist
+                      const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
+                      if (alVars.length > 0) {
+                        const hasColor = alVars.some((v: any) => {
+                          const vCol = (v.color || '').trim().toUpperCase()
+                          const cp = colorPattern.toUpperCase()
+                          return vCol === cp || vCol.includes(cp) || cp.includes(vCol) || vCol === 'ALL'
+                        })
+                        return hasColor
+                      }
+
+                      // Fallback: check materials notes color_focus
+                      if (meta.color_focus && meta.color_focus.toUpperCase() !== 'ALL') {
+                        const cf = meta.color_focus.toUpperCase()
+                        const cp = colorPattern.toUpperCase()
+                        return cf === cp || cf.includes(cp) || cp.includes(cf)
+                      }
+                      if (meta.color_pattern && meta.color_pattern.toUpperCase() !== 'ALL') {
+                        const cp1 = meta.color_pattern.toUpperCase()
+                        const cp2 = colorPattern.toUpperCase()
+                        return cp1 === cp2 || cp1.includes(cp2) || cp2.includes(cp1)
+                      }
+
+                      // Check if article number string itself embeds the color (e.g. JOB-744-PINK)
+                      if (colorPattern && colorPattern.toUpperCase() !== 'STANDARD') {
+                        const cp = colorPattern.toUpperCase()
+                        if (alArtNo.includes(cp) || metaArtNo.includes(cp)) return true
+                      }
+
+                      return true
+                    })
+
+                    let linemanId = ''
+                    let linemanName = 'Unassigned (Floor Order)'
+                    let lineStatus = 'PENDING'
+                    let allotmentId = ''
+                    let completedQty = 0
+                    let assignedColors: string[] = []
+
+                    if (matchingAl) {
+                      allotmentId = matchingAl.id
+                      const linemanObj: any = (Array.isArray(matchingAl.profiles) ? matchingAl.profiles[0] : matchingAl.profiles) || {}
+                      if (matchingAl.lineman_id) {
+                        linemanId = matchingAl.lineman_id
+                        linemanName = linemanObj?.username || linemanObj?.full_name || 'Lineman'
+                        lineStatus = matchingAl.status === 'QC_PASSED' ? 'QC_PASSED' : (matchingAl.status === 'DISPATCHED' ? 'DISPATCHED' : 'IN_PROGRESS')
+                      }
+
+                      // Check completed qty and colors from variants
+                      const alVars = variants?.filter((v: any) => v.allotment_id === matchingAl.id) || []
+                      assignedColors = Array.from(new Set(alVars.map((v: any) => (v.color || '').trim().toUpperCase()).filter(Boolean)))
+
+                      // Also look for color from materials
+                      if (assignedColors.length === 0) {
+                        const alMats = materials?.filter((m: any) => m.allotment_id === matchingAl.id) || []
+                        alMats.forEach((m: any) => {
+                          const match = (m.item_name || '').match(/\(([^)]+)\)/)
+                          if (match && match[1]) assignedColors.push(match[1].trim().toUpperCase())
+                        })
+                      }
+
+                      const vMatch = alVars.find((v: any) =>
+                        (v.color || '').toUpperCase() === colorPattern.toUpperCase() &&
+                        (v.size || '').toUpperCase() === sizeRange.toUpperCase()
+                      )
+                      if (vMatch) {
+                        completedQty = vMatch.completed_qty || 0
+                      }
+                    }
+
+                    articles.push({
+                      id: `${ch.id}-line-${idx}`,
+                      allotment_id: allotmentId,
+                      art_no: cleanArtNo,
+                      sub_art_no: cleanSubArt,
+                      pattern_no: line.pattern_no || '',
+                      description: line.description || `${fullArtCode} - ${colorPattern} (${sizeRange})`,
+                      color_pattern: colorPattern,
+                      size_range: sizeRange,
+                      sets: lineSets,
+                      pcs_per_set: lineRatio,
+                      total_pcs: linePcs,
+                      completed_qty: completedQty,
+                      assigned_lineman_id: linemanId,
+                      assigned_lineman_name: linemanName,
+                      assigned_colors: assignedColors,
+                      picture_url: line.picture_url || '',
+                      stitching_rate: line.stitching_rate && Number(line.stitching_rate) > 0 ? Number(line.stitching_rate) : undefined,
+                      status: lineStatus,
+                      created_at: ch.created_at
+                    })
+                  })
+                }
+              } catch (_) { }
+            }
+
+            // 2. Fallback to legacy allotments bucket if no structured lines were in notes
+            if (articles.length === 0 && challanArticlesMap[ch.id]) {
+              articles = [...challanArticlesMap[ch.id]]
+            }
+
+            const totalSets = articles.reduce((sum, a) => sum + (Number(a.sets) || 0), 0) || ch.total_sets || 0
+            const totalPcs = articles.reduce((sum, a) => sum + (Number(a.total_pcs) || 0), 0) || ch.total_pcs || 0
+
+            let bomItems: ChallanBomItem[] = []
+            if (ch.bom_details) {
+              try {
+                bomItems = Array.isArray(ch.bom_details) ? ch.bom_details : JSON.parse(ch.bom_details)
+              } catch (_) { }
+            }
+
+            // Determine dynamic Challan status based on active floor allotments
+            const totalLines = articles.length
+            const totalAllottedPcs = (chAllotments || []).reduce((sum: number, al: any) => sum + (Number(al.target_qty) || 0), 0)
+            const completedLines = articles.filter(a => a.status === 'QC_PASSED' || a.status === 'COMPLETED').length
+            const dispatchedLines = articles.filter(a => a.status === 'DISPATCHED').length
+
+            let challanStatus = 'PENDING'
+            if (ch.status === 'DISPATCHED' || (dispatchedLines === totalLines && totalLines > 0)) {
+              challanStatus = 'DISPATCHED'
+            } else if (ch.status === 'QC_PASSED' || (completedLines === totalLines && totalLines > 0)) {
+              challanStatus = 'QC_PASSED'
+            } else if (totalAllottedPcs >= totalPcs && totalPcs > 0) {
+              challanStatus = 'IN_PROGRESS'
+            } else if (totalAllottedPcs > 0) {
+              challanStatus = 'PARTIALLY_ALLOTTED'
+            } else {
+              challanStatus = 'PENDING'
+            }
+
+            // Build color-wise allotment mapping directly from live floor allotments
+            const colorAllotments: ChallanColorAllotment[] = []
+            chAllotments.forEach((al: any) => {
+              const linemanObj: any = (Array.isArray(al.profiles) ? al.profiles[0] : al.profiles) || {}
+              const lmId = al.lineman_id || ''
+              const lmName = linemanObj?.username || linemanObj?.full_name || 'Lineman'
+              const alVars = variants?.filter((v: any) => v.allotment_id === al.id) || []
+              const alMats = materials?.filter((m: any) => m.allotment_id === al.id) || []
+
+              const foundColors = new Set<string>()
+              alVars.forEach((v: any) => {
+                if (v.color && v.color.trim()) foundColors.add(v.color.trim().toUpperCase())
+              })
+              alMats.forEach((m: any) => {
+                if (m.notes) {
+                  try {
+                    const n = JSON.parse(m.notes)
+                    if (n.color_pattern) foundColors.add(String(n.color_pattern).trim().toUpperCase())
+                    if (n.color_focus) foundColors.add(String(n.color_focus).trim().toUpperCase())
+                  } catch (_) { }
+                }
+              })
+
+              foundColors.forEach(col => {
+                colorAllotments.push({
+                  allotment_id: al.id,
+                  color: col,
+                  lineman_id: lmId,
+                  lineman_name: lmName,
+                  target_qty: Number(al.target_qty) || 0,
+                  status: al.status || 'IN_PROGRESS'
+                })
+              })
+            })
+
+            challanGroups.push({
+              id: ch.id,
+              challan_no: ch.challan_no || 'CHALLAN',
+              challan_date: ch.challan_date || new Date(ch.created_at).toISOString().split('T')[0],
+              brand: ch.brand || '',
+              vendor_id: ch.vendor_id || undefined,
+              vendor_name: ch.vendor_name || undefined,
+              delivery_date: ch.delivery_date || '',
+              fabric_type: ch.fabric_type || '',
+              sample_given: !!ch.sample_given,
+              notes: ch.notes || '',
+              total_sets: totalSets,
+              total_pcs: totalPcs,
+              status: challanStatus,
+              bom_details: bomItems,
+              color_allotments: colorAllotments,
+              articles: articles,
+              created_at: ch.created_at
+            })
+          }
+        }
 
         return challanGroups
       } catch (err) {
@@ -1110,7 +1110,7 @@ export async function updateChallan(payload: UpdateChallanPayload) {
       if (existingAllotments && existingAllotments.length > 0) {
         for (const al of existingAllotments) {
           const art = (Array.isArray(al.articles) ? al.articles[0] : al.articles) as any
-          const matchingLines = processedLines.filter(l => 
+          const matchingLines = processedLines.filter(l =>
             (l.art_no || '').trim().toUpperCase() === (art?.art_no || '').trim().toUpperCase() ||
             (l.full_art_code || '').trim().toUpperCase() === (art?.art_no || '').trim().toUpperCase()
           )
@@ -1254,7 +1254,7 @@ export async function allotEntireChallan(challanId: string, linemanId: string) {
         for (const m of mats) {
           let nObj: any = {}
           if (m.notes) {
-            try { nObj = JSON.parse(m.notes) } catch (_) {}
+            try { nObj = JSON.parse(m.notes) } catch (_) { }
           }
           nObj.lineman_id = linemanId
           nObj.lineman_name = linemanName
@@ -1337,7 +1337,7 @@ export async function allotEntireChallan(challanId: string, linemanId: string) {
             }
           }
         }
-      } catch (_) {}
+      } catch (_) { }
     }
 
     await CacheManager.invalidateTag('production_orders')
@@ -1351,9 +1351,6 @@ export async function allotEntireChallan(challanId: string, linemanId: string) {
   }
 }
 
-// ----------------------------------------------------------------------
-// ASSIGN SPECIFIC COLOR GROUP TO A LINEMAN (Color-Wise Split)
-// ----------------------------------------------------------------------
 export async function allotChallanByColor(challanId: string, colorName: string, linemanId: string) {
   const supabase = supabaseAdmin
 
@@ -1371,24 +1368,21 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
 
     const cleanColor = colorName.trim().toUpperCase()
 
-    // Parse planned lines from challan notes
     let plannedLines: any[] = []
     if (challan.notes) {
       try {
         const parsed = JSON.parse(challan.notes)
         plannedLines = parsed.article_lines || parsed
         if (!Array.isArray(plannedLines)) plannedLines = []
-      } catch (_) {}
+      } catch (_) { }
     }
 
-    // Filter lines matching this color
     const matchingLines = plannedLines.filter(line => {
       const lineCol = (line.color_pattern || line.description || '').toUpperCase()
       return lineCol.includes(cleanColor) || lineCol.includes('3 COLOUR') || lineCol.includes('3 COLOR') || cleanColor === 'ALL'
     })
 
     if (matchingLines.length > 0) {
-      // Group by baseArtNo
       const styleGroups: Record<string, {
         baseArtNo: string
         fullArtCode: string
@@ -1425,7 +1419,6 @@ export async function allotChallanByColor(challanId: string, colorName: string, 
       }
 
       for (const group of Object.values(styleGroups)) {
-        // Find or create article in DB
         let artId = ''
         const { data: existingArt } = await supabase
           .from('articles')
@@ -1815,7 +1808,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
           vendorLookupMap.set(v.vendor_name.trim().toUpperCase(), v)
         }
       })
-    } catch (_) {}
+    } catch (_) { }
 
     // Auto-provision any vendor that was uploaded via Excel but does not exist yet
     for (const p of validPayloads) {
@@ -1845,7 +1838,7 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
               vendorLookupMap.set(key, newVnd)
               vendorLookupMap.set(vName.toUpperCase(), newVnd)
             }
-          } catch (_) {}
+          } catch (_) { }
         }
       }
     }
@@ -2042,8 +2035,8 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         const baseArtNo = extractBaseArtNo(cleanArtNo, cleanSubArt)
 
         const artObj = articleCodeToIdMap.get(baseArtNo) ||
-          articleCodeToIdMap.get(line.full_art_code) || 
-          articleCodeToIdMap.get(cleanArtNo) || 
+          articleCodeToIdMap.get(line.full_art_code) ||
+          articleCodeToIdMap.get(cleanArtNo) ||
           articleCodeToIdMap.get(String(line.full_art_code || '').replace(/\s+/g, ''))
         if (!artObj) continue
 
@@ -2295,7 +2288,7 @@ export async function allotFullChallanDirectly(challanId: string, linemanId: str
       try {
         const p = JSON.parse(ch.notes)
         parsedLines = p.article_lines || p
-      } catch (_) {}
+      } catch (_) { }
     }
 
     // 3. Check existing allotments for this challan
@@ -2334,7 +2327,7 @@ export async function allotFullChallanDirectly(challanId: string, linemanId: str
         const cleanArtNo = (line.art_no || '').trim().toUpperCase()
         const cleanSubArt = (line.sub_art_no || '').trim().toUpperCase()
         const fullArtCode = line.full_art_code || (cleanSubArt ? `${cleanArtNo}${cleanSubArt}` : cleanArtNo)
-        
+
         if (!fullArtCode) continue
         if (existingArtIdMap.has(fullArtCode)) continue // already updated above
 
@@ -2508,7 +2501,7 @@ export async function allotColorGroupDirectly(challanId: string, colorName: stri
       try {
         parsedNotesObj = JSON.parse(ch.notes)
         parsedLines = parsedNotesObj.article_lines || (Array.isArray(parsedNotesObj) ? parsedNotesObj : [])
-      } catch (_) {}
+      } catch (_) { }
     }
 
     // Match lines for this color
