@@ -6,24 +6,35 @@ import { CacheManager } from '@/lib/cache/cache-manager'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // 0. Path Normalization: Auto-heal space-encoded or legacy URL paths (e.g., /stitching sewing/dashboard -> /stitching-sewing/dashboard)
+  // 0. Path Normalization: Auto-heal space-encoded, underscore, or legacy URL paths (e.g., /stitching_sewing/dashboard -> /stitching-sewing/dashboard)
   const decodedPathname = decodeURIComponent(pathname)
   if (
     decodedPathname.includes('stitching sewing') ||
+    decodedPathname.includes('stitching_sewing') ||
     pathname.includes('stitching%20sewing') ||
+    pathname.includes('stitching_sewing') ||
     pathname === '/stitching' ||
     pathname === '/sewing' ||
     decodedPathname.includes('ready goods') ||
-    pathname.includes('ready%20goods')
+    decodedPathname.includes('ready_goods') ||
+    pathname.includes('ready%20goods') ||
+    pathname.includes('ready_goods') ||
+    decodedPathname.includes('buyers_vendors') ||
+    decodedPathname.includes('fabric_store') ||
+    decodedPathname.includes('all_designs') ||
+    decodedPathname.includes('supervisor_workers') ||
+    decodedPathname.includes('company_profile')
   ) {
     let cleanPath = decodedPathname
-      .replace(/stitching\s+sewing/gi, 'stitching-sewing')
-      .replace(/ready\s+goods/gi, 'ready-goods')
-      .replace(/buyers\s+vendors/gi, 'buyers-vendors')
-      .replace(/fabric\s+store/gi, 'fabric-store')
-      .replace(/all\s+designs/gi, 'all-designs')
+      .replace(/stitching[_\s]+sewing/gi, 'stitching-sewing')
+      .replace(/ready[_\s]+goods/gi, 'ready-goods')
+      .replace(/buyers[_\s]+vendors/gi, 'buyers-vendors')
+      .replace(/fabric[_\s]+store/gi, 'fabric-store')
+      .replace(/all[_\s]+designs/gi, 'all-designs')
+      .replace(/supervisor[_\s]+workers/gi, 'supervisor-workers')
+      .replace(/company[_\s]+profile/gi, 'company-profile')
 
-    if (cleanPath === '/stitching' || cleanPath === '/sewing') {
+    if (cleanPath === '/stitching' || cleanPath === '/sewing' || cleanPath === '/stitching-sewing') {
       cleanPath = '/stitching-sewing/dashboard'
     }
 

@@ -78,6 +78,51 @@ const nextConfig: NextConfig = {
         destination: '/stitching-sewing/:path*',
         permanent: true,
       },
+      {
+        source: '/stitching_sewing/:path*',
+        destination: '/stitching-sewing/:path*',
+        permanent: true,
+      },
+      {
+        source: '/stitching_sewing',
+        destination: '/stitching-sewing/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/ready_goods/:path*',
+        destination: '/ready-goods/:path*',
+        permanent: true,
+      },
+      {
+        source: '/ready_goods',
+        destination: '/ready-goods',
+        permanent: true,
+      },
+      {
+        source: '/buyers_vendors/:path*',
+        destination: '/buyers-vendors/:path*',
+        permanent: true,
+      },
+      {
+        source: '/fabric_store/:path*',
+        destination: '/fabric-store/:path*',
+        permanent: true,
+      },
+      {
+        source: '/all_designs/:path*',
+        destination: '/all-designs/:path*',
+        permanent: true,
+      },
+      {
+        source: '/supervisor_workers/:path*',
+        destination: '/supervisor-workers/:path*',
+        permanent: true,
+      },
+      {
+        source: '/company_profile/:path*',
+        destination: '/company-profile/:path*',
+        permanent: true,
+      },
     ];
   },
   async headers() {
