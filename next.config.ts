@@ -74,8 +74,8 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/stitching sewing/:path*',
-        destination: '/stitching-sewing/:path*',
+        source: '/stitching%20sewing',
+        destination: '/stitching-sewing/dashboard',
         permanent: true,
       },
       {

@@ -497,6 +497,12 @@ export function ProductionOrdersClient({
           message: `Imported ${data.articleLines.length} article lines from "${file.name}" (Total ${data.total_pcs.toLocaleString()} Pieces).`
         })
         setShowNewChallanModal(true)
+      } else {
+        setImportStatus({
+          type: 'error',
+          message: 'No valid challan data found in the Excel file. Please use the template or check the file structure.'
+        })
+        setShowNewChallanModal(true)
       }
     } catch (err: any) {
       setImportStatus({
@@ -1437,6 +1443,15 @@ export function ProductionOrdersClient({
   return (
     <div className="space-y-6">
 
+      {/* Hidden File Input for Single / Multi-Challan Excel Import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        accept=".xlsx, .xls, .csv"
+        className="hidden"
+      />
+
       {/* ========================================================= */}
       {/* 1. TOP HEADER & ACTION BUTTONS (Standard Admin Card)      */}
       {/* ========================================================= */}
@@ -1471,6 +1486,17 @@ export function ProductionOrdersClient({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+            title="Import from Excel or CSV"
+          >
+            <UploadCloud className="w-4 h-4 text-slate-600" />
+            <span>{isImporting ? 'Importing...' : 'Import Excel'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleOpenNewChallan}
