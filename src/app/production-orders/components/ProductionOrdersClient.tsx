@@ -1532,7 +1532,7 @@ export function ProductionOrdersClient({
       {/* ========================================================= */}
       {/* 2. KPI SUMMARY STRIP (Standard Rounded-2xl Cards)         */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
         {/* Total Challans */}
         <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
@@ -1593,20 +1593,6 @@ export function ProductionOrdersClient({
               View Ledger →
             </span>
           </div>
-        </div>
-
-        {/* Total Sets */}
-        <div className="bg-white p-4.5 sm:p-5 rounded-2xl border border-black/10 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-              Total Sets
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 flex items-center justify-center shrink-0 shadow-2xs">
-              <Layers className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono mt-2">{summary.totalSets.toLocaleString()}</p>
-          <span className="text-xs sm:text-[13px] text-slate-500 font-medium mt-1">Bundle Units</span>
         </div>
 
         {/* Total Pieces */}
@@ -1950,10 +1936,10 @@ export function ProductionOrdersClient({
 
                   {/* Right Side: Totals, Status, Action Buttons & Far-Right Chevron Arrow */}
                   <div className="flex items-center gap-3 flex-wrap lg:flex-nowrap shrink-0 self-end lg:self-center">
-                    {/* Sets & Pcs Summary */}
+                    {/* Total Pcs Summary */}
                     <div className="text-right px-3.5 py-2 bg-[#F0FDFA] border border-black/10 rounded-xl shadow-2xs">
                       <div className="text-xs sm:text-sm font-bold text-slate-900 font-mono">
-                        <span className="font-extrabold text-[#0B1220]">{challan.total_sets.toLocaleString()}</span> Sets <span className="text-slate-300">|</span> <span className="text-slate-900 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
+                        <span className="text-slate-900 font-extrabold">{challan.total_pcs.toLocaleString()} Pcs</span>
                       </div>
                       {(() => {
                         const pricedLines = (challan.articles || []).filter(a => a.stitching_rate && Number(a.stitching_rate) > 0)
@@ -2364,7 +2350,6 @@ export function ProductionOrdersClient({
                               <th className="py-3.5 px-4 min-w-[170px]">Color / Combination</th>
                               <th className="py-3.5 px-4 w-28">Size Tier</th>
                               <th className="py-3.5 px-4 w-28 text-right">Rate / Pc</th>
-                              <th className="py-3.5 px-4 w-24 text-right">Sets</th>
                               <th className="py-3.5 px-4 w-28 text-right">Total Pcs</th>
                               <th className="py-3.5 px-4 w-28 text-right">Amount (₹)</th>
                               <th className="py-3.5 px-4 w-48">Assigned Line</th>
@@ -2459,11 +2444,6 @@ export function ProductionOrdersClient({
                                       <span>Add Rate</span>
                                     </button>
                                   )}
-                                </td>
-
-                                {/* Sets */}
-                                <td className="py-3.5 px-4 text-right font-bold text-slate-900 font-mono text-sm">
-                                  {line.sets}
                                 </td>
 
                                 {/* Total Pcs */}
