@@ -262,12 +262,17 @@ export function ProductionOrdersClient({
     let dispatched = 0
 
     orders.forEach(ch => {
+      // Check if partially allotted: any challan with status PARTIALLY_ALLOTTED or with unassigned article lines
+      const isPartiallyAllotted = ch.status === 'PARTIALLY_ALLOTTED' || (
+        ch.status === 'IN_PROGRESS' && (ch.articles || []).some(a => !a.assigned_lineman_id || a.assigned_lineman_name === 'Unassigned' || a.assigned_lineman_name?.startsWith('Unassigned'))
+      )
+
       if (ch.status === 'DISPATCHED') dispatched++
       else if (ch.status === 'QC_PASSED') qcPassed++
-      else if (ch.status === 'IN_PROGRESS') inProgress++
-      else if (ch.status === 'PARTIALLY_ALLOTTED') {
+      else if (isPartiallyAllotted) {
         pending++ // Still has pending lines to allot! Moves to inProgress only when 100% allotted
-      } else pending++
+      } else if (ch.status === 'IN_PROGRESS') inProgress++
+      else pending++
     })
 
     return {
@@ -530,6 +535,15 @@ export function ProductionOrdersClient({
       sample_given: ch.sample_given,
       notes: ch.notes.trim(),
       article_lines: ch.articleLines.map(l => {
+        const rawLm = ((l.lineman_name || l.assigned_lineman_name || '') as string).trim().toLowerCase()
+        const matchedLm = rawLm ? linemenList.find(lm => {
+          const u = (lm.username || '').trim().toLowerCase()
+          const fn = ((lm as any).full_name || '').trim().toLowerCase()
+          const normRaw = rawLm.replace(/[\s_-]+/g, ' ')
+          const normU = u.replace(/[\s_-]+/g, ' ')
+          return u === rawLm || fn === rawLm || normU === normRaw || normU.includes(normRaw) || normRaw.includes(normU)
+        }) : null
+
         const targetArt = String(l.art_no || '').trim().toUpperCase()
         const targetSize = String(l.size_range || '').trim()
         const matchedArt = targetArt ? articlesList.find(a => a.art_no?.toUpperCase() === targetArt) : null
@@ -540,6 +554,8 @@ export function ProductionOrdersClient({
 
         return {
           ...l,
+          assigned_lineman_id: matchedLm ? matchedLm.id : (l.assigned_lineman_id || ''),
+          assigned_lineman_name: matchedLm ? matchedLm.username : (l.lineman_name || 'Unassigned'),
           stitching_rate: rate,
           sets: Number(l.sets) || 1,
           pcs_per_set: Number(l.pcs_per_set) || 9,
@@ -945,10 +961,13 @@ export function ProductionOrdersClient({
       // When actively searching, search globally across all statuses (both Allotted and Pending/Unallotted)
       let matchStatus = true
       if (!isSearching) {
+        const isPartiallyAllotted = ch.status === 'PARTIALLY_ALLOTTED' || (
+          ch.status === 'IN_PROGRESS' && (ch.articles || []).some(a => !a.assigned_lineman_id || a.assigned_lineman_name === 'Unassigned' || a.assigned_lineman_name?.startsWith('Unassigned'))
+        )
         if (selectedStatus === 'PENDING') {
-          matchStatus = ch.status === 'PENDING' || ch.status === 'PARTIALLY_ALLOTTED'
+          matchStatus = ch.status === 'PENDING' || isPartiallyAllotted
         } else if (selectedStatus === 'IN_PROGRESS') {
-          matchStatus = ch.status === 'IN_PROGRESS'
+          matchStatus = ch.status === 'IN_PROGRESS' && !isPartiallyAllotted
         } else if (selectedStatus === 'ACTIVE') {
           matchStatus = ch.status !== 'DISPATCHED'
         } else if (selectedStatus !== 'ALL') {
@@ -1956,46 +1975,68 @@ export function ProductionOrdersClient({
                       })()}
                     </div>
 
-                    {/* Assigned Lineman Badge (if allotted) */}
+                    {/* Assigned Lineman Badge (if allotted or partially allotted) */}
                     {(() => {
-                      const firstAssigned = challan.articles?.find(a => a.assigned_lineman_name && a.assigned_lineman_name !== 'Unassigned (Floor Order)')?.assigned_lineman_name
-                      if (!firstAssigned || challan.status !== 'IN_PROGRESS') return null
+                      const assignedLines = (challan.articles || []).filter(a => a.assigned_lineman_name && !a.assigned_lineman_name.startsWith('Unassigned') && a.assigned_lineman_name !== 'Unassigned')
+                      if (assignedLines.length === 0) return null
+                      const uniqueLinemen = Array.from(new Set(assignedLines.map(a => a.assigned_lineman_name).filter(Boolean)))
+                      const displayLinemen = uniqueLinemen.join(', ')
                       return (
                         <div className="px-3 py-1.5 bg-white border border-[#0B1220]/30 rounded-xl text-xs font-bold text-[#0B1220] flex items-center gap-1.5 shadow-2xs font-mono">
                           <UserCheck className="w-3.5 h-3.5 text-[#0B1220]" />
-                          <span>Lineman: <strong className="text-slate-900 font-extrabold">{firstAssigned}</strong></span>
+                          <span>Lineman: <strong className="text-slate-900 font-extrabold">{displayLinemen}</strong></span>
                         </div>
                       )
                     })()}
 
                     {/* Dynamic Real-Time Live Status Badge */}
                     <div>
-                      {challan.status === 'QC_PASSED' ? (
-                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5 shadow-2xs font-mono">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <span>Ready (QC Passed)</span>
-                        </span>
-                      ) : challan.status === 'DISPATCHED' ? (
-                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-900 text-white border border-slate-800 flex items-center gap-1.5 shadow-2xs font-mono">
-                          <Truck className="w-4 h-4 text-white" />
-                          <span>Dispatched</span>
-                        </span>
-                      ) : challan.status === 'IN_PROGRESS' ? (
-                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center gap-1.5 shadow-2xs font-mono animate-pulse">
-                          <Zap className="w-4 h-4 text-[#0B1220]" />
-                          <span>In Production</span>
-                        </span>
-                      ) : challan.status === 'PARTIALLY_ALLOTTED' ? (
-                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1.5 shadow-2xs font-mono">
-                          <Clock className="w-4 h-4 text-amber-600" />
-                          <span>Partially Allotted (Lines Pending)</span>
-                        </span>
-                      ) : (
-                        <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5 shadow-2xs font-mono">
-                          <Clock className="w-4 h-4 text-amber-600" />
-                          <span>Pending Allotment</span>
-                        </span>
-                      )}
+                      {(() => {
+                        const totalLines = (challan.articles || []).length
+                        const unassignedLines = (challan.articles || []).filter(a => !a.assigned_lineman_id || !a.assigned_lineman_name || a.assigned_lineman_name === 'Unassigned' || a.assigned_lineman_name.startsWith('Unassigned')).length
+                        const isPartiallyAllotted = challan.status === 'PARTIALLY_ALLOTTED' || (
+                          challan.status === 'IN_PROGRESS' && unassignedLines > 0 && unassignedLines < totalLines
+                        )
+
+                        if (challan.status === 'DISPATCHED') {
+                          return (
+                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-900 text-white border border-slate-800 flex items-center gap-1.5 shadow-2xs font-mono">
+                              <Truck className="w-4 h-4 text-white" />
+                              <span>Dispatched</span>
+                            </span>
+                          )
+                        }
+                        if (challan.status === 'QC_PASSED') {
+                          return (
+                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5 shadow-2xs font-mono">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              <span>Ready (QC Passed)</span>
+                            </span>
+                          )
+                        }
+                        if (isPartiallyAllotted) {
+                          return (
+                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1.5 shadow-2xs font-mono">
+                              <Clock className="w-4 h-4 text-amber-600" />
+                              <span>Partially Allotted ({unassignedLines} Line{unassignedLines > 1 ? 's' : ''} Pending)</span>
+                            </span>
+                          )
+                        }
+                        if (challan.status === 'IN_PROGRESS') {
+                          return (
+                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center gap-1.5 shadow-2xs font-mono animate-pulse">
+                              <Zap className="w-4 h-4 text-[#0B1220]" />
+                              <span>In Production</span>
+                            </span>
+                          )
+                        }
+                        return (
+                          <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5 shadow-2xs font-mono">
+                            <Clock className="w-4 h-4 text-amber-600" />
+                            <span>Pending Allotment</span>
+                          </span>
+                        )
+                      })()}
                     </div>
 
                     {/* Action Buttons */}

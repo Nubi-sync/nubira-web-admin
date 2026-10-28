@@ -121,6 +121,7 @@ export interface ParsedSingleArticleLine {
   total_pcs: number | string
   assigned_lineman_id: string
   lineman_name?: string
+  assigned_lineman_name?: string
   qc_name?: string
   mending_name?: string
   vendor_name?: string
@@ -368,7 +369,8 @@ const COLUMN_SYNONYMS = {
   lineman: [
     'lineman', 'supervisor', 'lineno', 'line', 'stitchingmaster', 'linesupervisor',
     'operator', 'sewingsupervisor', 'lineman_name', 'linemanname', 'assignedlineman',
-    'worker', 'workername', 'tailor', 'artisan', 'assignedto', 'assignee', 'master'
+    'worker', 'workername', 'tailor', 'artisan', 'assignedto', 'assignee', 'master',
+    'karigar', 'karigarname', 'tailorname', 'stitching_lineman', 'stitcher'
   ],
   qc: [
     'qc', 'qcchecker', 'qcsupervisor', 'inspector', 'checkername', 'qcassigned',
@@ -519,6 +521,9 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
     let deliveryDate = ''
     let sampleGiven = false
     let notes = ''
+    let chLineman = ''
+    let chQc = ''
+    let chMending = ''
 
     const articleLines: ParsedSingleArticleLine[] = []
     const bomItems: ParsedSingleBomItem[] = []
@@ -530,6 +535,22 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
 
     let chTotalPcs = 0
     let chTotalSets = 0
+
+    // Pre-scan group to detect challan-level lineman/QC/Mending (supports merged cells or header-level names)
+    for (const rMap of group.rawRows) {
+      if (!chLineman) {
+        const lm = String(getNormalizedField(rMap, COLUMN_SYNONYMS.lineman)).trim()
+        if (lm) chLineman = lm
+      }
+      if (!chQc) {
+        const qc = String(getNormalizedField(rMap, COLUMN_SYNONYMS.qc)).trim()
+        if (qc) chQc = qc
+      }
+      if (!chMending) {
+        const mend = String(getNormalizedField(rMap, COLUMN_SYNONYMS.mending)).trim()
+        if (mend) chMending = mend
+      }
+    }
 
     for (const rowMap of group.rawRows) {
       if (!brand) brand = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.brand)).trim()
@@ -556,10 +577,18 @@ export async function parseMultiChallanExcelFile(file: File): Promise<ParsedMult
         }
       }
 
-      // Personnel fields
-      const linemanName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.lineman)).trim()
-      const qcName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.qc)).trim()
-      const mendingName = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.mending)).trim()
+      // Personnel fields (inherit challan-level lineman if individual row cell is empty/merged)
+      const rowLm = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.lineman)).trim()
+      const rowQc = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.qc)).trim()
+      const rowMending = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.mending)).trim()
+
+      if (rowLm) chLineman = rowLm
+      if (rowQc) chQc = rowQc
+      if (rowMending) chMending = rowMending
+
+      const linemanName = rowLm || chLineman
+      const qcName = rowQc || chQc
+      const mendingName = rowMending || chMending
       const stageStatus = String(getNormalizedField(rowMap, COLUMN_SYNONYMS.stage)).trim().toUpperCase()
 
       // Article Line Fields

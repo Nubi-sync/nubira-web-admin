@@ -513,6 +513,9 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
 
             // Determine dynamic Challan status based on active floor allotments
             const totalLines = articles.length
+            const assignedLines = articles.filter(a => a.assigned_lineman_id && a.assigned_lineman_name && !a.assigned_lineman_name.startsWith('Unassigned') && a.assigned_lineman_name !== 'Unassigned').length
+            const hasUnassignedLine = assignedLines < totalLines && totalLines > 0
+            const hasAssignedLine = assignedLines > 0
             const totalAllottedPcs = (chAllotments || []).reduce((sum: number, al: any) => sum + (Number(al.target_qty) || 0), 0)
             const completedLines = articles.filter(a => a.status === 'QC_PASSED' || a.status === 'COMPLETED').length
             const dispatchedLines = articles.filter(a => a.status === 'DISPATCHED').length
@@ -522,9 +525,11 @@ export async function getProductionOrders(companyName?: string): Promise<Challan
               challanStatus = 'DISPATCHED'
             } else if (ch.status === 'QC_PASSED' || (completedLines === totalLines && totalLines > 0)) {
               challanStatus = 'QC_PASSED'
-            } else if (totalAllottedPcs >= totalPcs && totalPcs > 0) {
+            } else if (hasUnassignedLine && hasAssignedLine) {
+              challanStatus = 'PARTIALLY_ALLOTTED'
+            } else if (!hasUnassignedLine && hasAssignedLine && totalAllottedPcs >= totalPcs && totalPcs > 0) {
               challanStatus = 'IN_PROGRESS'
-            } else if (totalAllottedPcs > 0) {
+            } else if (ch.status === 'PARTIALLY_ALLOTTED' || hasAssignedLine || (totalAllottedPcs > 0 && totalAllottedPcs < totalPcs)) {
               challanStatus = 'PARTIALLY_ALLOTTED'
             } else {
               challanStatus = 'PENDING'
@@ -1782,11 +1787,40 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
     ])
 
     const profileLookupMap = new Map<string, { id: string; username: string; role: string }>()
+    const profileById = new Map<string, { id: string; username: string; role: string }>()
     profilesRes.data?.forEach((p: any) => {
-      if (p.username) profileLookupMap.set(p.username.trim().toLowerCase(), p)
+      if (p.id) profileById.set(p.id, p)
+      if (p.username) {
+        const u = p.username.trim().toLowerCase()
+        profileLookupMap.set(u, p)
+        profileLookupMap.set(u.replace(/\s+/g, ''), p)
+      }
     })
     if (profileLookupMap.get('nawaz saddam')) {
-      profileLookupMap.set('naawaz saddam', profileLookupMap.get('nawaz saddam')!)
+      const ns = profileLookupMap.get('nawaz saddam')!
+      profileLookupMap.set('naawaz saddam', ns)
+      profileLookupMap.set('nawaz', ns)
+      profileLookupMap.set('saddam', ns)
+    }
+
+    const matchProfile = (rawName?: string, hintId?: string) => {
+      if (hintId && profileById.has(hintId)) {
+        return profileById.get(hintId)!
+      }
+      if (!rawName) return null
+      const clean = rawName.trim().toLowerCase().replace(/\s+/g, ' ')
+      if (!clean) return null
+      if (profileLookupMap.has(clean)) return profileLookupMap.get(clean)!
+      const noSpaces = clean.replace(/\s+/g, '')
+      if (profileLookupMap.has(noSpaces)) return profileLookupMap.get(noSpaces)!
+
+      // Substring / word matching across registered profiles
+      for (const [key, prof] of profileLookupMap.entries()) {
+        if (key.length >= 3 && (key.includes(clean) || clean.includes(key))) {
+          return prof
+        }
+      }
+      return null
     }
 
     const articleCodeToIdMap = new Map<string, { id: string; art_no: string; description: string }>()
@@ -1879,16 +1913,16 @@ export async function createBulkChallans(payloads: CreateChallanPayload[]): Prom
         const lineRatio = Number(line.pcs_per_set) || 9
 
         // Auto-match personnel
-        const lmRaw = ((line as any).lineman_name || '').trim().toLowerCase()
-        const matchedLm = lmRaw ? profileLookupMap.get(lmRaw) : null
-        const resolvedLinemanId = line.assigned_lineman_id || matchedLm?.id || ''
+        const lmRaw = ((line as any).lineman_name || '').trim()
+        const matchedLm = matchProfile(lmRaw, line.assigned_lineman_id)
+        const resolvedLinemanId = matchedLm?.id || line.assigned_lineman_id || ''
         const resolvedLinemanName = matchedLm?.username || (line as any).lineman_name || ''
 
-        const qcRaw = ((line as any).qc_name || '').trim().toLowerCase()
-        const matchedQc = qcRaw ? profileLookupMap.get(qcRaw) : null
+        const qcRaw = ((line as any).qc_name || '').trim()
+        const matchedQc = matchProfile(qcRaw)
 
-        const mendingRaw = ((line as any).mending_name || '').trim().toLowerCase()
-        const matchedMending = mendingRaw ? profileLookupMap.get(mendingRaw) : null
+        const mendingRaw = ((line as any).mending_name || '').trim()
+        const matchedMending = matchProfile(mendingRaw)
 
         const rawStage = ((line as any).stage_status || line.status || '').toUpperCase()
         const isQcPassed = rawStage === 'QC_PASSED' || rawStage === 'COMPLETED' || rawStage === 'DONE'
