@@ -244,8 +244,19 @@ export function AdminSidebar({
     userEmail?.toLowerCase().endsWith('@stitching.nubira.local')
   )
 
-  const roleLabel = isAdmin 
-    ? 'Super Admin' 
+  const isSuperAdminRole = (
+    userRole?.toUpperCase() === 'SUPERADMIN' ||
+    userRole?.toUpperCase() === 'SUPER ADMIN' ||
+    userRole?.toUpperCase() === 'PLATFORM_SUPERADMIN' ||
+    userRole === 'Owner' ||
+    userEmail?.toLowerCase() === 'admin@zigza.in' ||
+    userEmail?.toLowerCase() === 'aj@nubiracreation.com'
+  )
+
+  const roleLabel = isSuperAdminRole 
+    ? 'Owner' 
+    : (isAdmin
+        ? 'Manager' 
     : (isProductionManager
         ? 'Production Manager'
         : (isDesignerUser

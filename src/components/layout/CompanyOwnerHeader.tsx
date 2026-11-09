@@ -55,7 +55,7 @@ interface NavTabItem {
 
 export function CompanyOwnerHeader({
   userEmail = 'admin@zigza.in',
-  userRole = 'Super Admin',
+  userRole = 'Owner',
   companyName,
   allowedTabs
 }: CompanyOwnerHeaderProps) {
@@ -184,6 +184,11 @@ export function CompanyOwnerHeader({
     ? companyName.trim()
     : 'Apparel Factory'
 
+  const roleUpper = (userRole || '').toUpperCase()
+  const isOwner = roleUpper === 'SUPERADMIN' || roleUpper === 'SUPER ADMIN' || roleUpper === 'PLATFORM_SUPERADMIN' || userRole === 'Enterprise Master' || userRole === 'Owner' || userEmail === 'admin@zigza.in' || userEmail === 'aj@nubiracreation.com'
+  const isManager = roleUpper === 'ADMIN' || userRole === 'Plant Administrator' || roleUpper === 'MANAGER'
+  const displayRole = isOwner ? 'Owner' : (isManager ? 'Manager' : userRole)
+
   // Exact 9 Tabs with Bespoke Domain-Accurate Icons:
   // 1. Dashboard -> DashboardNavIcon
   // 2. All Modules -> AllModulesNavIcon
@@ -290,12 +295,12 @@ export function CompanyOwnerHeader({
             <img
               src="/new icon.png"
               alt=""
-              className="h-7 sm:h-8 md:h-10 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
+              className="h-7.5 sm:h-8.5 md:h-10 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
             />
             <img
               src="/zigza new logo.png"
               alt="Zigza"
-              className="h-5.5 sm:h-6.5 md:h-7.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
+              className="h-6 sm:h-7 md:h-7.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
             />
           </Link>
 
@@ -466,7 +471,7 @@ export function CompanyOwnerHeader({
                   <p className="font-bold text-[#0B1220] text-sm truncate">{resolvedCompany}</p>
                   <p className="text-[11px] text-slate-500 truncate font-mono mt-0.5">{userEmail}</p>
                   <span className="inline-block mt-2 text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-                    {userRole}
+                    {displayRole}
                   </span>
                 </div>
 
@@ -632,8 +637,8 @@ export function CompanyOwnerHeader({
                       onClick={() => setIsMobileDrawerOpen(false)}
                       className="flex items-center gap-2"
                     >
-                      <img src="/new icon.png" alt="" className="h-7 w-auto object-contain" />
-                      <img src="/zigza new logo.png" alt="Zigza" className="h-5.5 w-auto object-contain" />
+                      <img src="/new icon.png" alt="" className="h-7.5 w-auto object-contain" />
+                      <img src="/zigza new logo.png" alt="Zigza" className="h-6 w-auto object-contain" />
                     </Link>
                     <button
                       type="button"
@@ -652,7 +657,7 @@ export function CompanyOwnerHeader({
                       <p className="text-xs font-black text-slate-900 truncate">{resolvedCompany}</p>
                     </div>
                     <span className="shrink-0 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#14C8B4]/15 text-[#0B1220] border border-[#14C8B4]/30">
-                      {userRole}
+                      {displayRole}
                     </span>
                   </div>
 

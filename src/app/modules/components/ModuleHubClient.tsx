@@ -248,36 +248,77 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* 1. Page Header Card */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-4 transition-all">
-        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
-            <LayoutGrid className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      {/* 1. Page Header Card (Mobile View: sm:hidden - Minimalist 3 Elements) */}
+      <div className="sm:hidden bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+        {/* 1. Prominent Welcome Title (Bigger font size) */}
+        <h1 className="text-xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
+          {resolvedCompany ? (
+            <>Welcome, <span className="text-[#1D4ED8]">{resolvedCompany}</span></>
+          ) : (
+            <>Enterprise <span className="text-[#1D4ED8]">Hub</span></>
+          )}
+        </h1>
+
+        {/* 2. Mobile Search Bar */}
+        <div className="relative flex items-center">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search modules..."
+            className="min-h-[40px] w-full pl-9 pr-8 py-2 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-xs font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/20 rounded-xl transition-all outline-none"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* 3. Operating Units Count (Below Search Bar) */}
+        <div className="flex items-center gap-1.5 pt-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+          <span className="text-[11px] font-mono font-bold text-slate-500 tracking-wide">
+            {searchQuery
+              ? `${filteredModules.length} of ${visibleModules.length} Operating Units`
+              : `${visibleModules.length} Operating Units Active`}
+          </span>
+        </div>
+      </div>
+
+      {/* 1. Page Header Card (Desktop View: hidden sm:flex - 100% UNCHANGED) */}
+      <div className="hidden sm:flex bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all">
+        <div className="flex items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <LayoutGrid className="w-6 h-6 text-[#0B1220]" />
           </div>
           <div>
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 {resolvedCompany ? (
                   <>Welcome, <span className="text-[#1D4ED8]">{resolvedCompany}</span></>
                 ) : (
                   <>Enterprise <span className="text-[#1D4ED8]">Workspace</span> Hub</>
                 )}
               </h1>
-              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {visibleModules.length} Operating Units
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-              <span className="hidden sm:inline">{headingSubtitle}</span>
-              <span className="sm:hidden text-[11.5px] text-slate-500">
-                Tap any department to access floor operations
-              </span>
+            <p className="text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+              {headingSubtitle}
             </p>
           </div>
         </div>
 
         {/* Right Search Option */}
-        <div className="w-full sm:w-80 md:w-96 relative shrink-0">
+        <div className="w-80 md:w-96 relative shrink-0">
           <div className="relative flex items-center">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <input
@@ -285,7 +326,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search modules & divisions..."
-              className="min-h-[38px] sm:min-h-[42px] w-full pl-9 pr-8 py-1.5 sm:py-2.5 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-xs sm:text-sm font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/20 rounded-xl transition-all outline-none"
+              className="min-h-[42px] w-full pl-9 pr-8 py-2.5 bg-[#F8FAFC] hover:bg-slate-100/80 focus:bg-white text-sm font-medium text-[#0B1220] placeholder:text-slate-400 border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/20 rounded-xl transition-all outline-none"
             />
             {searchQuery && (
               <button

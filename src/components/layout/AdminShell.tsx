@@ -41,12 +41,12 @@ function MobileTopBar({
           <img 
             src="/new icon.png" 
             alt="" 
-            className="h-6.5 w-auto object-contain shrink-0"
+            className="h-7.5 w-auto object-contain shrink-0"
           />
           <img 
             src="/zigza new logo.png" 
             alt="Zigza" 
-            className="h-5 w-auto object-contain shrink-0"
+            className="h-6 w-auto object-contain shrink-0"
           />
         </Link>
       </div>
