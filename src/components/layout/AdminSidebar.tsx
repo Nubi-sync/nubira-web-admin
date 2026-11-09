@@ -275,7 +275,7 @@ export function AdminSidebar({
                                     ? 'Tailor / Sewing Operator'
                                     : (userRole && userRole.toUpperCase() !== 'ADMIN'
                                         ? userRole.split('/')[0].trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                                        : (isStoreUser ? 'Store Supervisor' : 'Department Head'))))))))))
+                                        : (isStoreUser ? 'Store Supervisor' : 'Department Head')))))))))))
 
   // Module-specific unique side navigation
   let activeNavSections: NavSection[] = []

@@ -568,7 +568,7 @@ export function SADesignApprovalsClient({
             <EmptyState
               icon={ShieldCheck}
               title="No designs found in this category"
-              description="When Supervisors approve designer submissions, each individual design and colorway appears here for Super Admin executive review."
+              description="When Supervisors approve designer submissions, each individual design and colorway appears here for Owner executive review."
             />
           </div>
         ) : (
@@ -917,7 +917,7 @@ export function SADesignApprovalsClient({
               {/* SA Decision Notes */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#0B1220] font-mono mb-1.5">
-                  Super Admin Decision Notes:
+                  Owner Decision Notes:
                 </label>
                 <textarea
                   rows={2}
