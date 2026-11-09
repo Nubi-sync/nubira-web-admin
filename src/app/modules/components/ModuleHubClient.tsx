@@ -18,7 +18,8 @@ import {
   LayoutGrid,
   Loader2,
   Search,
-  X
+  X,
+  ChevronRight
 } from 'lucide-react'
 
 interface ModuleHubClientProps {
@@ -38,6 +39,9 @@ interface ModuleCardData {
   icon: React.ComponentType<{ className?: string }>
   href: string
   features: string[]
+  mobileNumber: string
+  mobileTitle: string
+  mobileSubtitle: string
 }
 
 const MODULES: ModuleCardData[] = [
@@ -50,6 +54,9 @@ const MODULES: ModuleCardData[] = [
     icon: Palette,
     href: '/design',
     features: ['Tech Packs & Style Specs', 'Sample Approvals & Colors'],
+    mobileNumber: '01',
+    mobileTitle: 'Design Studio',
+    mobileSubtitle: 'Tech packs, specs & sample approvals',
   },
   {
     id: 'merchandising',
@@ -60,6 +67,9 @@ const MODULES: ModuleCardData[] = [
     icon: Briefcase,
     href: '/merchandising',
     features: ['Buyer Purchase Orders', 'Fabric & Trim Costing'],
+    mobileNumber: '02',
+    mobileTitle: 'Merchandising',
+    mobileSubtitle: 'Buyer POs, style costing & delivery',
   },
   {
     id: 'cutting',
@@ -70,6 +80,9 @@ const MODULES: ModuleCardData[] = [
     icon: Scissors,
     href: '/cutting',
     features: ['Lay Planning & Roll Usage', 'Bundle Tags & Cut Challans'],
+    mobileNumber: '03',
+    mobileTitle: 'Cutting Floor',
+    mobileSubtitle: 'Fabric lays, cut lots & bundle tags',
   },
   {
     id: 'printing',
@@ -80,6 +93,9 @@ const MODULES: ModuleCardData[] = [
     icon: Printer,
     href: '/printing',
     features: ['Sample Strike-Off Approvals', 'Print Production & Quality'],
+    mobileNumber: '04',
+    mobileTitle: 'Printing',
+    mobileSubtitle: 'Screen & digital print runs',
   },
   {
     id: 'embroidery',
@@ -90,6 +106,9 @@ const MODULES: ModuleCardData[] = [
     icon: Sparkles,
     href: '/embroidery',
     features: ['Punch Files & Stitch Count', 'Machine Production Logs'],
+    mobileNumber: '05',
+    mobileTitle: 'Embroidery',
+    mobileSubtitle: 'Machine status & stitch counts',
   },
   {
     id: 'stitching-sewing',
@@ -100,6 +119,9 @@ const MODULES: ModuleCardData[] = [
     icon: Layers,
     href: '/stitching-sewing/dashboard',
     features: ['Sewing Lines & Bundle Issue', 'Hourly Output & End-Line QC'],
+    mobileNumber: '06',
+    mobileTitle: 'Sewing Floor',
+    mobileSubtitle: 'Lines, tailor bundles & hourly targets',
   },
   {
     id: 'washing',
@@ -110,6 +132,9 @@ const MODULES: ModuleCardData[] = [
     icon: Waves,
     href: '/washing',
     features: ['Wash Batches & Recipes', 'Lot Inward & Outward Status'],
+    mobileNumber: '07',
+    mobileTitle: 'Washing',
+    mobileSubtitle: 'Wash recipes & batch timings',
   },
   {
     id: 'iron',
@@ -120,6 +145,9 @@ const MODULES: ModuleCardData[] = [
     icon: Flame,
     href: '/iron',
     features: ['Table Pressing Counts', 'Finishing & Press Inspection'],
+    mobileNumber: '08',
+    mobileTitle: 'Iron & Press',
+    mobileSubtitle: 'Steam press tables & finishing',
   },
   {
     id: 'ready-goods',
@@ -130,6 +158,9 @@ const MODULES: ModuleCardData[] = [
     icon: Boxes,
     href: '/ready-goods',
     features: ['Final Inspection & Alterations', 'Polybag & Carton Packing'],
+    mobileNumber: '09',
+    mobileTitle: 'Quality & Packing',
+    mobileSubtitle: 'Final QC, mending & carton packing',
   },
   {
     id: 'store',
@@ -140,6 +171,9 @@ const MODULES: ModuleCardData[] = [
     icon: Store,
     href: '/store',
     features: ['Fabric Rolls & Trims Stock', 'Material Issues & Challans'],
+    mobileNumber: '10',
+    mobileTitle: 'Central Store',
+    mobileSubtitle: 'Fabric rolls, trims & material issues',
   },
   {
     id: 'dispatch',
@@ -150,6 +184,9 @@ const MODULES: ModuleCardData[] = [
     icon: Truck,
     href: '/dispatch',
     features: ['Delivery Challans & Invoices', 'Carton Count & Gate Passes'],
+    mobileNumber: '11',
+    mobileTitle: 'Dispatch & Gate',
+    mobileSubtitle: 'Gate passes, challans & truck dispatch',
   },
 ]
 
@@ -181,6 +218,9 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
       m.subtitle.toLowerCase().includes(q) ||
       m.badge.toLowerCase().includes(q) ||
       m.statusText.toLowerCase().includes(q) ||
+      m.mobileTitle.toLowerCase().includes(q) ||
+      m.mobileSubtitle.toLowerCase().includes(q) ||
+      m.mobileNumber.toLowerCase().includes(q) ||
       m.features.some(f => f.toLowerCase().includes(q))
     ))
   }, [visibleModules, searchQuery])
@@ -227,8 +267,11 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 {visibleModules.length} Operating Units
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden sm:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               {headingSubtitle}
+            </p>
+            <p className="sm:hidden text-[11.5px] text-slate-500 mt-0.5 font-medium font-[family-name:var(--font-public-sans)]">
+              Tap any department to access floor operations
             </p>
           </div>
         </div>
@@ -279,100 +322,171 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredModules.map((mod) => {
-            const Icon = mod.icon
-            const isLaunching = launchingId === mod.id
-            const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)
+        <>
+          {/* ======================================================== */}
+          {/* A. MOBILE VIEW (sm:hidden): Clean, Numbered, Eye-Relaxed */}
+          {/* ======================================================== */}
+          <div className="sm:hidden flex flex-col gap-2.5">
+            {filteredModules.map((mod) => {
+              const Icon = mod.icon
+              const isLaunching = launchingId === mod.id
+              const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)
 
-            return (
-              <Link
-                key={mod.id}
-                href={mod.href}
-                onClick={(e) => handleCardClick(e, mod)}
-                aria-disabled={isOtherLaunching}
-                className={`group relative flex flex-col justify-between p-4.5 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
-                  isLaunching
-                    ? 'border-2 border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md bg-[#F0FDFA]/40 -translate-y-0.5'
-                    : isOtherLaunching
-                      ? 'border-slate-200 opacity-50 pointer-events-none'
-                      : 'border-slate-200/80 hover:border-[#0B1220]/40 hover:shadow-md hover:-translate-y-1'
-                }`}
-              >
-                {/* Top animated progress bar when launching */}
-                {isLaunching && (
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0B1220] overflow-hidden rounded-t-2xl sm:rounded-t-3xl z-20">
-                    <div className="w-full h-full bg-[#0B1220] animate-pulse" />
+              return (
+                <Link
+                  key={`mobile-${mod.id}`}
+                  href={mod.href}
+                  onClick={(e) => handleCardClick(e, mod)}
+                  aria-disabled={isOtherLaunching}
+                  className={`group relative flex items-center justify-between p-3.5 rounded-2xl bg-white border shadow-xs transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+                    isLaunching
+                      ? 'border-[#0B1220] ring-2 ring-[#0B1220]/20 bg-[#F0FDFA]/40'
+                      : isOtherLaunching
+                        ? 'border-slate-200 opacity-50 pointer-events-none'
+                        : 'border-slate-200/90 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Clean Icon */}
+                    <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shadow-xs shrink-0">
+                      {isLaunching ? (
+                        <Loader2 className="w-5 h-5 text-[#0B1220] stroke-[2] animate-spin" />
+                      ) : (
+                        <Icon className="w-5 h-5 text-[#0B1220] stroke-[1.75]" />
+                      )}
+                    </div>
+
+                    {/* Direct Name with Number + 1-Line Clean Subtitle */}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10.5px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-200/80 px-1.5 py-0.5 rounded leading-none shrink-0">
+                          {mod.mobileNumber}
+                        </span>
+                        <h2 className="text-sm font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] truncate">
+                          {mod.mobileTitle}
+                        </h2>
+                      </div>
+                      <p className="text-[11.5px] font-medium text-slate-500 font-[family-name:var(--font-public-sans)] truncate mt-0.5">
+                        {mod.mobileSubtitle}
+                      </p>
+                    </div>
                   </div>
-                )}
 
-                {/* Top Section */}
-                <div>
-                  {/* Row 1: Bare Outline Icon + Category Tag */}
-                  <div className="flex items-start justify-between gap-3 mb-3">
+                  {/* Right Status / Arrow */}
+                  <div className="shrink-0 pl-2">
                     {isLaunching ? (
-                      <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 text-[#0B1220] stroke-[2] animate-spin" />
+                      <span className="text-[10px] font-mono font-bold text-[#1D4ED8] bg-blue-50 px-2 py-1 rounded-md">
+                        OPENING...
+                      </span>
                     ) : (
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
-                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220] stroke-[1.75]" />
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 group-hover:text-[#1D4ED8] group-hover:border-[#1D4ED8]/30 transition-colors">
+                        <ChevronRight className="w-4 h-4" />
                       </div>
                     )}
-
-                    {/* Single Top-Right Category Tag */}
-                    <span
-                      className={`text-[9.5px] sm:text-[11px] font-mono font-bold px-2 py-0.5 sm:px-2.5 rounded-lg uppercase tracking-wider transition-colors ${
-                        isLaunching
-                          ? 'bg-[#0B1220] text-white'
-                          : 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs'
-                      }`}
-                    >
-                      {isLaunching ? 'OPENING...' : mod.badge}
-                    </span>
                   </div>
+                </Link>
+              )
+            })}
+          </div>
 
-                  {/* Card Title */}
-                  <h2
-                    className={`text-base sm:text-xl font-bold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
-                      isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#0B1220]'
-                    }`}
-                  >
-                    {mod.title}
-                  </h2>
+          {/* ======================================================== */}
+          {/* B. DESKTOP VIEW (hidden sm:grid): 100% UNCHANGED CONTENT */}
+          {/* ======================================================== */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredModules.map((mod) => {
+              const Icon = mod.icon
+              const isLaunching = launchingId === mod.id
+              const isOtherLaunching = Boolean(launchingId && launchingId !== mod.id)
 
-                  {/* Card Description */}
-                  <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
-                    {mod.subtitle}
-                  </p>
-
-                  {/* 2 Feature Bullets */}
-                  <div className="mt-3 flex flex-col gap-1.5 sm:gap-2">
-                    {mod.features.slice(0, 2).map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700">
-                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#0B1220]/60 shrink-0" />
-                        <span className="truncate">{feat}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Bottom Section: Solid Filled Launch Button */}
-                <div className="mt-4 sm:mt-5 flex items-center justify-end">
-                  {isLaunching ? (
-                    <div className="min-h-[38px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20">
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Opening...</span>
-                    </div>
-                  ) : (
-                    <div className="min-h-[38px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 group-hover:bg-[#1E40AF] hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer text-center">
-                      <span>Launch</span>
-                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white transition-transform group-hover:translate-x-1" />
+              return (
+                <Link
+                  key={mod.id}
+                  href={mod.href}
+                  onClick={(e) => handleCardClick(e, mod)}
+                  aria-disabled={isOtherLaunching}
+                  className={`group relative flex flex-col justify-between p-4.5 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl bg-white border shadow-xs transition-all duration-200 cursor-pointer ${
+                    isLaunching
+                      ? 'border-2 border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md bg-[#F0FDFA]/40 -translate-y-0.5'
+                      : isOtherLaunching
+                        ? 'border-slate-200 opacity-50 pointer-events-none'
+                        : 'border-slate-200/80 hover:border-[#0B1220]/40 hover:shadow-md hover:-translate-y-1'
+                  }`}
+                >
+                  {/* Top animated progress bar when launching */}
+                  {isLaunching && (
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0B1220] overflow-hidden rounded-t-2xl sm:rounded-t-3xl z-20">
+                      <div className="w-full h-full bg-[#0B1220] animate-pulse" />
                     </div>
                   )}
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+
+                  {/* Top Section */}
+                  <div>
+                    {/* Row 1: Bare Outline Icon + Category Tag */}
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      {isLaunching ? (
+                        <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 text-[#0B1220] stroke-[2] animate-spin" />
+                      ) : (
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] transition-transform duration-200 group-hover:scale-105 shadow-xs">
+                          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220] stroke-[1.75]" />
+                        </div>
+                      )}
+
+                      {/* Single Top-Right Category Tag */}
+                      <span
+                        className={`text-[9.5px] sm:text-[11px] font-mono font-bold px-2 py-0.5 sm:px-2.5 rounded-lg uppercase tracking-wider transition-colors ${
+                          isLaunching
+                            ? 'bg-[#0B1220] text-white'
+                            : 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs'
+                        }`}
+                      >
+                        {isLaunching ? 'OPENING...' : mod.badge}
+                      </span>
+                    </div>
+
+                    {/* Card Title */}
+                    <h2
+                      className={`text-base sm:text-xl font-bold tracking-tight transition-colors font-[family-name:var(--font-heading)] ${
+                        isLaunching ? 'text-[#0B1220]' : 'text-[#0B1220] group-hover:text-[#0B1220]'
+                      }`}
+                    >
+                      {mod.title}
+                    </h2>
+
+                    {/* Card Description */}
+                    <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)]">
+                      {mod.subtitle}
+                    </p>
+
+                    {/* 2 Feature Bullets */}
+                    <div className="mt-3 flex flex-col gap-1.5 sm:gap-2">
+                      {mod.features.slice(0, 2).map((feat, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700">
+                          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#0B1220]/60 shrink-0" />
+                          <span className="truncate">{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bottom Section: Solid Filled Launch Button */}
+                  <div className="mt-4 sm:mt-5 flex items-center justify-end">
+                    {isLaunching ? (
+                      <div className="min-h-[38px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20">
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Opening...</span>
+                      </div>
+                    ) : (
+                      <div className="min-h-[38px] sm:min-h-[42px] w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 group-hover:bg-[#1E40AF] hover:shadow-md hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer text-center">
+                        <span>Launch</span>
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white transition-transform group-hover:translate-x-1" />
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </>
       )}
 
     </div>
