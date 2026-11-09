@@ -267,11 +267,11 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                 {visibleModules.length} Operating Units
               </span>
             </div>
-            <p className="hidden sm:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-              {headingSubtitle}
-            </p>
-            <p className="sm:hidden text-[11.5px] text-slate-500 mt-0.5 font-medium font-[family-name:var(--font-public-sans)]">
-              Tap any department to access floor operations
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+              <span className="hidden sm:inline">{headingSubtitle}</span>
+              <span className="sm:hidden text-[11.5px] text-slate-500">
+                Tap any department to access floor operations
+              </span>
             </p>
           </div>
         </div>
