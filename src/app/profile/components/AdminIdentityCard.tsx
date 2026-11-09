@@ -11,7 +11,7 @@ interface AdminIdentityCardProps {
 
 export function AdminIdentityCard({
   userEmail,
-  adminDisplayName = 'Enterprise SuperAdmin',
+  adminDisplayName = 'Enterprise Owner',
   adminPhone = '',
   createdAt,
 }: AdminIdentityCardProps) {
@@ -35,11 +35,11 @@ export function AdminIdentityCard({
               </h2>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#0B1220]" />
-                SUPER ADMIN
+                OWNER
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-              Primary factory administrator credentials and master root account holder
+              Primary factory owner credentials and master account holder
             </p>
           </div>
         </div>

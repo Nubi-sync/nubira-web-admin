@@ -1191,18 +1191,18 @@ export function AdminSidebar({
               <img 
                 src="/new icon.png" 
                 alt="" 
-                className="h-7 w-auto object-contain shrink-0"
+                className="h-7.5 w-auto object-contain shrink-0"
               />
               <img 
                 src="/zigza new logo.png" 
                 alt="Zigza" 
-                className="h-5.5 w-auto object-contain shrink-0"
+                className="h-6 w-auto object-contain shrink-0"
               />
             </Link>
 
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15">
-                {isStoreUser ? 'STORE MES' : 'ERP MES'}
+                {isStoreUser ? 'STORE' : 'HUB'}
               </span>
               {onMobileClose && (
                 <button

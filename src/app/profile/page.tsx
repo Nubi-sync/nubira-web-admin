@@ -106,11 +106,11 @@ export default async function CompanyProfilePage(props: {
                   {tenant.companyName}
                 </span>
                 <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] shadow-xs tracking-wider">
-                  {tenant.isSuperAdmin ? 'Enterprise Master' : (userRole || 'Plant Administrator')}
+                  {tenant.isSuperAdmin ? 'Owner' : (userRole === 'ADMIN' ? 'Manager' : (userRole || 'Manager'))}
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-                Factory organization identity, master admin credentials, and live multi-division subscription entitlement.
+                Factory organization identity, master owner credentials, and live multi-division subscription entitlement.
               </p>
             </div>
           </div>
