@@ -29,7 +29,10 @@ import {
   PackageCheck,
   CheckCircle2,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft,
+  ChevronUp,
+  History
 } from 'lucide-react'
 import { TvViewButton } from '@/components/ui/TvViewButton'
 import { MasterAiKpis } from '../actions'
@@ -461,6 +464,7 @@ export function MasterZigzaAiHubClient({
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string>('')
   const [isHistoryDrawerOpen, setIsHistoryDrawerOpen] = useState(false)
+  const [historyPage, setHistoryPage] = useState(1)
   const [inputPrompt, setInputPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
@@ -609,6 +613,10 @@ export function MasterZigzaAiHubClient({
       persistSessions(remaining)
       if (currentSessionId === id) {
         setCurrentSessionId(remaining[0].id)
+      }
+      const maxPage = Math.max(1, Math.ceil(remaining.length / 5))
+      if (historyPage > maxPage) {
+        setHistoryPage(maxPage)
       }
     }
   }
