@@ -43,9 +43,9 @@ function MobileTopBar({
         </div>
       </div>
 
-      {/* Right: Trial Recharge CTA (If Trial) OR ERP MES Badge */}
+      {/* Right: Trial Recharge CTA (If Trial) */}
       <div className="flex items-center gap-2">
-        {isTrial ? (
+        {isTrial && (
           <button
             type="button"
             onClick={() => {
@@ -63,10 +63,6 @@ function MobileTopBar({
             <span>{daysLeft}d left</span>
             <span className="text-[#1D4ED8] underline font-bold ml-0.5">Recharge</span>
           </button>
-        ) : (
-          <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-xs">
-            ERP MES
-          </span>
         )}
       </div>
     </header>
