@@ -1403,9 +1403,11 @@ export function ZigzaAiClient({
                 <h1 className="text-sm sm:text-lg md:text-xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] truncate">
                   {isMasterHub ? 'Zigza AI • Master Copilot' : meta.title}
                 </h1>
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 sm:px-2 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs shrink-0">
-                  {isMasterHub ? 'OWNER AI' : meta.badge}
-                </span>
+                {!isMasterHub && meta.badge && (
+                  <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 sm:px-2 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs shrink-0">
+                    {meta.badge}
+                  </span>
+                )}
               </div>
               <p className="text-[11px] sm:text-xs text-slate-500 truncate font-medium hidden sm:block">
                 {isMasterHub 
@@ -1445,7 +1447,9 @@ export function ZigzaAiClient({
             >
               <PanelLeft className="w-4 h-4 hidden lg:block" />
               <PanelRight className="w-4 h-4 lg:hidden" />
-              <span className="text-xs sm:text-sm font-bold whitespace-nowrap">History</span>
+              <span className="text-xs sm:text-sm font-bold whitespace-nowrap">
+                {isHistoryOpen ? 'Collapse' : 'History'}
+              </span>
             </button>
           </div>
         </header>
