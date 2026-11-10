@@ -92,7 +92,7 @@ const PORTAL_METADATA: Record<PortalType, {
   'modules': {
     title: 'Zigza AI • Master Enterprise Hub',
     subtitle: 'Cross-division executive intelligence and multi-plant operations',
-    badge: 'SUPER ADMIN AI',
+    badge: 'OWNER AI',
     heroTitle: 'Executive multi-plant intelligence & factory oversight',
     heroDescription: 'Ask for holistic updates across all 11 operating divisions, fabric store stock, floor output, QC rates, and master dispatches.',
     queries: [
@@ -1380,16 +1380,16 @@ export function ZigzaAiClient({
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
               <Bot className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#0B1220]" />
             </div>
-            <div className="min-w-0 hidden sm:block">
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] whitespace-nowrap">
-                  {isMasterHub ? 'Zigza AI • Master Enterprise Copilot' : meta.title}
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h1 className="text-sm sm:text-lg md:text-xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] truncate">
+                  {isMasterHub ? 'Zigza AI • Master Copilot' : meta.title}
                 </h1>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
-                  {isMasterHub ? 'SUPER ADMIN AI' : meta.badge}
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 sm:px-2 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs shrink-0">
+                  {isMasterHub ? 'OWNER AI' : meta.badge}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 truncate font-medium">
+              <p className="text-[11px] sm:text-xs text-slate-500 truncate font-medium hidden sm:block">
                 {isMasterHub 
                   ? `Cross-division factory intelligence and multi-plant operations • ${companyName || 'Apparel Factory'}`
                   : meta.subtitle}

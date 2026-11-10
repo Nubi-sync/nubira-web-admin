@@ -22,7 +22,7 @@ export function TvViewButton({ className = '', size = 'md' }: TvViewButtonProps)
       type="button"
       onClick={toggleTvMode}
       title={isTvMode ? 'Exit TV Mode (Esc)' : 'Switch to Fullscreen Floor TV View'}
-      className={`inline-flex items-center gap-2 rounded-xl font-bold transition-all shadow-2xs cursor-pointer group select-none ${
+      className={`hidden sm:inline-flex items-center gap-2 rounded-xl font-bold transition-all shadow-2xs cursor-pointer group select-none ${
         isTvMode
           ? 'bg-[#1D4ED8] text-white hover:bg-[#1E40AF] border border-transparent shadow-sm shadow-blue-500/20'
           : 'bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800'

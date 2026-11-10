@@ -85,7 +85,7 @@ const PORTAL_METADATA: Record<PortalType, {
   'modules': {
     title: 'Master Enterprise Copilot',
     subtitle: 'Cross-division executive intelligence and multi-plant operations',
-    badge: 'SUPER ADMIN AI',
+    badge: 'OWNER AI',
     heroTitle: 'Executive multi-plant intelligence & factory oversight',
     heroDescription: 'Ask for holistic updates across all 11 operating divisions, fabric store stock, floor output, QC rates, and master dispatches.',
     queries: [
@@ -684,9 +684,15 @@ export function MasterZigzaAiHubClient({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to fetch response')
 
-      const cleanContent = (data.response || '')
+      let cleanContent = (data.response || '')
         .replace(/Zigza AI Copilot/gi, 'Zigza AI')
         .replace(/copilot/gi, 'AI')
+
+      if (cleanContent.includes('response:default_api:')) {
+        cleanContent = cleanContent
+          .replace(/response:default_api:[a-zA-Z0-9_]+\s*/g, '')
+          .trim()
+      }
 
       const botMessage: Message = {
         id: 'bot_' + Date.now(),
@@ -853,35 +859,35 @@ export function MasterZigzaAiHubClient({
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-4 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
       
-      {/* 1. Top Header Banner */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-4 transition-all">
-        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
-            <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      {/* 1. Top Header Banner - Clean & Decluttered */}
+      <div className="bg-white p-3.5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-row justify-between items-center gap-3 sm:gap-4 transition-all">
+        <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <Bot className="w-4.5 h-4.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <h1 className="text-base sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
                 Zigza AI • <span className="text-[#1D4ED8]">Master Copilot</span>
               </h1>
-              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
-                SUPER ADMIN AI • {companyName}
+              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider shrink-0">
+                OWNER AI • {companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden sm:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Executive cross-division intelligence across all 11 manufacturing divisions and central warehouse.
             </p>
           </div>
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 self-start sm:self-center">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <TvViewButton size="md" />
           {/* Mobile history toggle button */}
           <button
             type="button"
             onClick={() => setIsHistoryDrawerOpen(!isHistoryDrawerOpen)}
-            className="lg:hidden min-h-[38px] px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            className="lg:hidden min-h-[34px] sm:min-h-[38px] px-2.5 sm:px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
           >
             <MessageSquare className="w-3.5 h-3.5 text-[#0B1220]" />
             <span>History ({sessions.length})</span>
@@ -890,7 +896,7 @@ export function MasterZigzaAiHubClient({
       </div>
 
       {/* 2. Window-Type Studio with Side Nav of Conversation History (No 4 Boxes) */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row h-[calc(100dvh-200px)] min-h-[520px] lg:h-[750px] xl:h-[800px] transition-all">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row h-[calc(100dvh-175px)] sm:h-[calc(100dvh-200px)] min-h-[480px] lg:h-[750px] xl:h-[800px] transition-all">
         
         {/* ======================================================== */}
         {/* LEFT SIDE NAV: CONVERSATION HISTORY (Window Side Nav)    */}
@@ -972,7 +978,7 @@ export function MasterZigzaAiHubClient({
               <span>Clear History</span>
             </button>
             <span className="text-[10px] font-mono text-slate-400">
-              Super Admin AI
+              Owner AI
             </span>
           </div>
         </aside>
