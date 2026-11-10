@@ -995,9 +995,15 @@ export function ZigzaAiClient({
         throw new Error(data.error || 'Failed to fetch response')
       }
 
-      const cleanContent = (data.response || '')
+      let cleanContent = (data.response || '')
         .replace(/Zigza AI Copilot/gi, 'Zigza AI')
         .replace(/copilot/gi, 'AI')
+
+      if (cleanContent.includes('response:default_api:')) {
+        cleanContent = cleanContent
+          .replace(/response:default_api:[a-zA-Z0-9_]+\s*/g, '')
+          .trim()
+      }
 
       const botMessage: Message = {
         id: 'bot_' + Date.now(),

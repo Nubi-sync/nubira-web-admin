@@ -688,10 +688,22 @@ export function MasterZigzaAiHubClient({
         .replace(/Zigza AI Copilot/gi, 'Zigza AI')
         .replace(/copilot/gi, 'AI')
 
-      if (cleanContent.includes('response:default_api:')) {
-        cleanContent = cleanContent
-          .replace(/response:default_api:[a-zA-Z0-9_]+\s*/g, '')
-          .trim()
+      if (cleanContent.includes('response:default_api:') || (cleanContent.trim().startsWith('{') && cleanContent.trim().endsWith('}'))) {
+        try {
+          const jsonMatch = cleanContent.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0])
+            const buyerNames = Array.isArray(parsed.buyerNames) ? parsed.buyerNames : []
+            cleanContent = `Here is the current buyer and vendor status across divisions:
+• **Registered Buyers**: **${parsed.totalRegisteredBuyers ?? buyerNames.length} brands** ${buyerNames.length > 0 ? `(${buyerNames.join(', ')})` : ''}
+• **Total Contracted Pieces**: **${(parsed.totalContractedPieces ?? 0).toLocaleString()} pieces** across **${parsed.activeOrdersCount ?? 0} orders**
+• **Vendor Module Assignments**: **${parsed.assignedVendorModules ?? '0 of 12 divisions assigned'}**`
+          } else {
+            cleanContent = cleanContent.replace(/response:default_api:[a-zA-Z0-9_:]*\s*/g, '').trim()
+          }
+        } catch (_) {
+          cleanContent = cleanContent.replace(/response:default_api:[a-zA-Z0-9_:]*\s*/g, '').trim()
+        }
       }
 
       const botMessage: Message = {

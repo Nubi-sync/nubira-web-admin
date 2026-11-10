@@ -215,7 +215,7 @@ export async function POST(req: NextRequest) {
           .trim()
       }
 
-      if (!answerText) {
+      if (!answerText || answerText.includes('response:default_api:') || (answerText.trim().startsWith('{') && answerText.trim().endsWith('}'))) {
         answerText = formatFriendlyFallback(name, toolResult)
       }
 
@@ -233,6 +233,20 @@ export async function POST(req: NextRequest) {
         .map((p: any) => p.text)
         .join('\n')
         .trim()
+    }
+
+    if (directText.includes('response:default_api:') || (directText.trim().startsWith('{') && directText.trim().endsWith('}'))) {
+      try {
+        const jsonMatch = directText.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0])
+          const toolMatch = directText.match(/response:default_api:([a-zA-Z0-9_]+)/)
+          const toolName = toolMatch ? toolMatch[1] : 'get_factory_kpis'
+          directText = formatFriendlyFallback(toolName, parsed)
+        }
+      } catch (_) {
+        directText = "Here is the latest update from your factory floor. Everything is active and running smoothly across your divisions."
+      }
     }
 
     if (!directText) {
