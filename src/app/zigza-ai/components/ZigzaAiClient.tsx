@@ -92,45 +92,33 @@ const PORTAL_METADATA: Record<PortalType, {
   'modules': {
     title: 'Zigza AI • Master Enterprise Hub',
     subtitle: 'Cross-division executive intelligence and multi-plant operations',
-    badge: 'OWNER AI',
-    heroTitle: 'Executive multi-plant intelligence & factory oversight',
-    heroDescription: 'Ask for holistic updates across all 11 operating divisions, fabric store stock, floor output, QC rates, and master dispatches.',
+    badge: '',
+    heroTitle: 'What would you like to check in your factory?',
+    heroDescription: 'Ask anything about today\'s production, fabric rolls in godown, buyer orders, and quality inspection.',
     queries: [
       {
-        icon: LayoutGrid,
-        title: 'Enterprise Health Check',
-        description: 'Audit live operations across all 11 manufacturing divisions.',
-        prompt: 'Give me an overall factory health check across all operational divisions including total running orders, ready stock, and dispatches.'
+        icon: Layers,
+        title: 'Today\'s Floor Production',
+        description: 'Stitched piece count, line speed, and today\'s target.',
+        prompt: 'What is today\'s total production output across all sewing lines, and how are we tracking against target?'
       },
       {
         icon: Store,
-        title: 'Fabric & Trims in Store',
-        description: 'Audit cloth meters and trims left in godown store and allocated styles.',
-        prompt: 'How much fabric cloth and required trims are left in store, and what articles are they assigned to?'
+        title: 'Fabric Rolls & Godown Stock',
+        description: 'Cloth meters available, roll counts, and pending mill arrivals.',
+        prompt: 'Show current fabric store balance, available rolls in godown, and pending mill deliveries.'
       },
       {
         icon: Briefcase,
-        title: 'Buyers & Active Contracts',
-        description: 'Review registered buyers, contracted pieces, and vendor modules.',
-        prompt: 'Show our registered buyers, active style contracts, and vendor module assignments.'
-      },
-      {
-        icon: Warehouse,
-        title: 'Master Finished Stock',
-        description: 'Audit finished garment inventory ready in central godown.',
-        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
-      },
-      {
-        icon: Layers,
-        title: 'Floor Production Logs',
-        description: 'Review today\'s sewing logs, pieces stitched, and lineman throughput.',
-        prompt: 'Show today\'s sewing production logs, total pieces stitched, and lineman breakdown.'
+        title: 'Running Orders & Ship Dates',
+        description: 'Active buyer orders, completion status, and delivery deadlines.',
+        prompt: 'List all active buyer purchase orders, quantities stitched so far, and upcoming delivery deadlines.'
       },
       {
         icon: CheckCircle2,
-        title: 'Plant QC & Defect Rates',
-        description: 'Inspect passed pieces vs rejections and defect rates.',
-        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+        title: 'Alterations & Quality Rejections',
+        description: 'First-time pass rate, repair queue, and defect issues.',
+        prompt: 'What is our quality pass rate today? Show alteration pieces in mending and common defect types.'
       }
     ]
   },
@@ -1495,10 +1483,12 @@ export function ZigzaAiClient({
               
               {/* Hero Greeting - Spacious & Beautiful */}
               <div className="space-y-2 sm:space-y-3 text-center max-w-xl mx-auto px-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
-                  <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
-                  <span>{meta.badge}</span>
-                </div>
+                {meta.badge && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] sm:text-xs font-mono font-bold shadow-2xs">
+                    <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
+                    <span>{meta.badge}</span>
+                  </div>
+                )}
                 <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#0B1220] tracking-tight leading-snug">
                   {meta.heroTitle}
                 </h2>

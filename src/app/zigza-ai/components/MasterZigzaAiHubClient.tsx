@@ -1189,10 +1189,12 @@ export function MasterZigzaAiHubClient({
             {(!currentSession || displayMessages.length === 0) && (
               <div className="py-6 space-y-5 animate-in fade-in duration-200">
                 <div className="space-y-1.5 text-center max-w-xl mx-auto">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] font-mono font-bold shadow-2xs">
-                    <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
-                    <span>{meta.badge}</span>
-                  </div>
+                  {meta.badge && (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 text-[10px] font-mono font-bold shadow-2xs">
+                      <Bot className="w-3.5 h-3.5 text-[#0B1220]" />
+                      <span>{meta.badge}</span>
+                    </div>
+                  )}
                   <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1220] tracking-tight leading-snug font-[family-name:var(--font-heading)]">
                     {meta.heroTitle}
                   </h3>
@@ -1202,7 +1204,7 @@ export function MasterZigzaAiHubClient({
                 </div>
 
                 {/* Grid of Query Prompt Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 max-w-2xl mx-auto">
                   {meta.queries.map((card, idx) => {
                     const CardIcon = card.icon
                     return (
