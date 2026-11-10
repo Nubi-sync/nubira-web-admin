@@ -1178,9 +1178,9 @@ export function AdminSidebar({
         onClick={onMobileClose}
       />
 
-      {/* Drawer Panel */}
+      {/* Drawer Panel with Satisfying Smooth Spring Curve */}
       <aside 
-        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-out ${
+        className={`lg:hidden fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] bg-white flex flex-col justify-between shadow-[12px_0_40px_-5px_rgba(0,0,0,0.25)] rounded-r-3xl overflow-hidden transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

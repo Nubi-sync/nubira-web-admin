@@ -11,6 +11,7 @@ import { TvTopBar } from './TvTopBar'
 import { AiCopilotWidget } from '../chat/AiCopilotWidget'
 import { getTenantSubscriptionStatusAction } from '@/app/profile/actions'
 import { RechargeModal } from '@/components/subscription/RechargeModal'
+import { LiveDateTimeHeader } from '@/components/common/LiveDateTimeHeader'
 
 function MobileTopBar({ 
   onMenuToggle, 
@@ -36,19 +37,10 @@ function MobileTopBar({
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Brand Logo */}
-        <Link href={logoHref} className="flex items-center gap-2">
-          <img 
-            src="/new icon.png" 
-            alt="" 
-            className="h-7.5 w-auto object-contain shrink-0"
-          />
-          <img 
-            src="/zigza new logo.png" 
-            alt="Zigza" 
-            className="h-6 w-auto object-contain shrink-0"
-          />
-        </Link>
+        {/* Mobile Top Bar: Option B Minimalist Live Day, Date & Time */}
+        <div className="flex items-center min-w-0 pl-1">
+          <LiveDateTimeHeader />
+        </div>
       </div>
 
       {/* Right: Trial Recharge CTA (If Trial) OR ERP MES Badge */}

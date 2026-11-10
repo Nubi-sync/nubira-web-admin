@@ -281,10 +281,13 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
           )}
         </div>
 
-        {/* 3. Operating Units Count (Below Search Bar) */}
-        <div className="flex items-center gap-1.5 pt-0.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-          <span className="text-[11px] font-mono font-bold text-slate-500 tracking-wide">
+        {/* 3. Operating Units Count (Below Search Bar - Moved down with subtle blinking live indicator) */}
+        <div className="flex items-center gap-2 pt-2.5 pb-0.5">
+          <span className="relative flex h-2 w-2 items-center justify-center shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" style={{ animationDuration: '2.2s' }} />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]" />
+          </span>
+          <span className="text-[11.5px] font-mono font-bold text-slate-500 tracking-wide">
             {searchQuery
               ? `${filteredModules.length} of ${visibleModules.length} Operating Units`
               : `${visibleModules.length} Operating Units Active`}
@@ -365,9 +368,9 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
       ) : (
         <>
           {/* ======================================================== */}
-          {/* A. MOBILE VIEW (sm:hidden): Clean, Numbered, Eye-Relaxed */}
+          {/* A. MOBILE VIEW (sm:hidden): Prominent, Solid, Highlighted */}
           {/* ======================================================== */}
-          <div className="sm:hidden flex flex-col gap-2.5">
+          <div className="sm:hidden flex flex-col gap-3.5">
             {filteredModules.map((mod) => {
               const Icon = mod.icon
               const isLaunching = launchingId === mod.id
@@ -379,7 +382,7 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                   href={mod.href}
                   onClick={(e) => handleCardClick(e, mod)}
                   aria-disabled={isOtherLaunching}
-                  className={`group relative flex items-center justify-between p-3.5 rounded-2xl bg-white border shadow-xs transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+                  className={`group relative flex items-center justify-between p-4.5 rounded-2xl bg-white border shadow-xs hover:shadow-sm transition-all duration-150 active:scale-[0.985] cursor-pointer ${
                     isLaunching
                       ? 'border-[#0B1220] ring-2 ring-[#0B1220]/20 bg-[#F0FDFA]/40'
                       : isOtherLaunching
@@ -387,27 +390,27 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                         : 'border-slate-200/90 hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    {/* Clean Icon */}
-                    <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shadow-xs shrink-0">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    {/* Serious & Prominent Icon Box */}
+                    <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                       {isLaunching ? (
-                        <Loader2 className="w-5 h-5 text-[#0B1220] stroke-[2] animate-spin" />
+                        <Loader2 className="w-5.5 h-5.5 text-[#0B1220] stroke-[2] animate-spin" />
                       ) : (
-                        <Icon className="w-5 h-5 text-[#0B1220] stroke-[1.75]" />
+                        <Icon className="w-6 h-6 text-[#0B1220] stroke-[1.75]" />
                       )}
                     </div>
 
-                    {/* Direct Name with Number + 1-Line Clean Subtitle */}
+                    {/* Direct Name with Number + Clean Subtitle */}
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10.5px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-200/80 px-1.5 py-0.5 rounded leading-none shrink-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono font-bold text-slate-600 bg-slate-100 border border-slate-200/90 px-2 py-0.5 rounded-md leading-none shrink-0">
                           {mod.mobileNumber}
                         </span>
-                        <h2 className="text-sm font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] truncate">
+                        <h2 className="text-[15.5px] font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] truncate">
                           {mod.mobileTitle}
                         </h2>
                       </div>
-                      <p className="text-[11.5px] font-medium text-slate-500 font-[family-name:var(--font-public-sans)] truncate mt-0.5">
+                      <p className="text-[12px] font-medium text-slate-500 font-[family-name:var(--font-public-sans)] truncate mt-1 leading-snug">
                         {mod.mobileSubtitle}
                       </p>
                     </div>
@@ -420,8 +423,8 @@ export function ModuleHubClient({ userEmail, userName, userRole, companyName, al
                         OPENING...
                       </span>
                     ) : (
-                      <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 group-hover:text-[#1D4ED8] group-hover:border-[#1D4ED8]/30 transition-colors">
-                        <ChevronRight className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-400 group-hover:text-[#1D4ED8] group-hover:border-[#1D4ED8]/30 transition-colors">
+                        <ChevronRight className="w-4.5 h-4.5" />
                       </div>
                     )}
                   </div>

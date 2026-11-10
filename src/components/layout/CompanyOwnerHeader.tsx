@@ -36,6 +36,7 @@ import { toast } from 'sonner'
 import { getUnreadNotificationCount, FLOOR_NOTIFICATIONS_UPDATE_EVENT } from '@/utils/floorNotificationsStorage'
 import { getTenantSubscriptionStatusAction } from '@/app/profile/actions'
 import { RechargeModal } from '@/components/subscription/RechargeModal'
+import { LiveDateTimeHeader } from '@/components/common/LiveDateTimeHeader'
 
 interface CompanyOwnerHeaderProps {
   userEmail?: string
@@ -291,16 +292,22 @@ export function CompanyOwnerHeader({
             <Menu className="w-5 h-5 text-[#0B1220]" />
           </button>
 
-          <Link href="/modules" className="flex items-center gap-2 sm:gap-2.5 md:gap-3 shrink-0 group">
+          {/* Mobile Top Bar: Option B Minimalist Live Day, Date & Time (sm:hidden) */}
+          <div className="sm:hidden flex items-center min-w-0 pl-1">
+            <LiveDateTimeHeader />
+          </div>
+
+          {/* Desktop Top Bar: 100% UNTOUCHED Original Brand Logo (hidden sm:flex) */}
+          <Link href="/modules" className="hidden sm:flex items-center gap-2.5 md:gap-3 shrink-0 group">
             <img
               src="/new icon.png"
               alt=""
-              className="h-7.5 sm:h-8.5 md:h-10 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
+              className="h-8.5 md:h-10 w-auto object-contain transition-transform duration-150 group-hover:scale-105 shrink-0"
             />
             <img
               src="/zigza new logo.png"
               alt="Zigza"
-              className="h-6 sm:h-7 md:h-7.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
+              className="h-7 md:h-7.5 w-auto object-contain transition-transform duration-150 group-hover:scale-[1.02] shrink-0"
             />
           </Link>
 
@@ -619,19 +626,28 @@ export function CompanyOwnerHeader({
               </div>
             </nav>
 
-            {/* Mobile Left Navigation Drawer */}
-            {isMobileDrawerOpen && (
-              <div className="fixed inset-0 z-50 md:hidden">
-                {/* Backdrop */}
-                <div 
-                  className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-                  onClick={() => setIsMobileDrawerOpen(false)}
-                />
+            {/* Mobile Left Navigation Drawer with Silky Smooth Spring Curve Transition */}
+            <div 
+              className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ${
+                isMobileDrawerOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible'
+              }`}
+            >
+              {/* Backdrop */}
+              <div 
+                className={`fixed inset-0 bg-slate-900/50 backdrop-blur-[2.5px] transition-opacity duration-300 ease-out ${
+                  isMobileDrawerOpen ? 'opacity-100' : 'opacity-0'
+                }`}
+                onClick={() => setIsMobileDrawerOpen(false)}
+              />
 
-                {/* Sliding Left Side Drawer */}
-                <aside className="fixed inset-y-0 left-0 w-[84vw] max-w-[320px] bg-white shadow-2xl flex flex-col z-50 animate-in slide-in-from-left duration-200 border-r border-slate-200">
-                  {/* Drawer Header */}
-                  <div className="p-4 border-b border-slate-100 bg-[#F8FAFC] flex items-center justify-between">
+              {/* Sliding Left Side Drawer */}
+              <aside 
+                className={`fixed inset-y-0 left-0 w-[84vw] max-w-[320px] bg-white shadow-[12px_0_40px_-5px_rgba(0,0,0,0.25)] rounded-r-3xl flex flex-col z-50 border-r border-slate-200 overflow-hidden transform transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+              >
+                {/* Drawer Header */}
+                <div className="p-4 border-b border-slate-100 bg-[#F8FAFC] flex items-center justify-between">
                     <Link 
                       href="/modules" 
                       onClick={() => setIsMobileDrawerOpen(false)}
@@ -809,7 +825,6 @@ export function CompanyOwnerHeader({
                   </div>
                 </aside>
               </div>
-            )}
           </>
         )
       })()}
