@@ -915,7 +915,7 @@ export function MasterZigzaAiHubClient({
           </div>
           <div className="min-w-0">
             <h1 className="text-xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
-              Zigza AI • <span className="text-[#1D4ED8]">Master Copilot</span>
+              Zigza <span className="text-[#1D4ED8]">AI</span> • <span className="text-[#1D4ED8]">Master Copilot</span>
             </h1>
             <p className="text-xs text-slate-600 mt-0.5 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Executive cross-division intelligence across all 11 manufacturing divisions and central warehouse.
@@ -1056,7 +1056,7 @@ export function MasterZigzaAiHubClient({
                 <Bot className="w-4 h-4 text-[#0B1220]" />
               </div>
               <h2 className="text-sm sm:text-base font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
-                Zigza AI
+                Zigza <span className="text-[#1D4ED8]">AI</span>
               </h2>
             </div>
 
