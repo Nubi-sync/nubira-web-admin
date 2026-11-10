@@ -1474,7 +1474,7 @@ export function ZigzaAiClient({
         {/* Message Stream Area - contained scroll so the top bar and mobile viewport NEVER scroll off-screen */}
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto flex flex-col min-h-0"
+          className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 md:px-8 py-3 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl w-full mx-auto flex flex-col min-h-0 max-w-full"
         >
           
           {/* EMPTY STATE: Welcome & Prewritten Query Cards */}
@@ -1543,17 +1543,17 @@ export function ZigzaAiClient({
                 </div>
               )}
 
-              <div className={`space-y-1 max-w-[92%] sm:max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`space-y-1 max-w-[92%] sm:max-w-[85%] min-w-0 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 
                 {/* Bubble Container: User (High-Contrast White on Obsidian Navy) vs Model (Spacious Card) */}
                 {msg.role === 'user' ? (
-                  <div className="px-4 py-2.5 sm:px-5 sm:py-3.5 rounded-2xl rounded-tr-xs bg-[#0B1220] text-white shadow-md select-text">
-                    <p className="text-white text-xs sm:text-sm md:text-base font-semibold whitespace-pre-wrap leading-relaxed">
+                  <div className="px-4 py-2.5 sm:px-5 sm:py-3.5 rounded-2xl rounded-tr-xs bg-[#0B1220] text-white shadow-md select-text max-w-full break-words [overflow-wrap:anywhere]">
+                    <p className="text-white text-xs sm:text-sm md:text-base font-semibold whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
                       {msg.content}
                     </p>
                   </div>
                 ) : (
-                  <div className="p-4 sm:p-5 md:p-6 rounded-2xl rounded-tl-xs bg-white border border-slate-200/90 text-slate-900 shadow-xs leading-relaxed">
+                  <div className="p-4 sm:p-5 md:p-6 rounded-2xl rounded-tl-xs bg-white border border-slate-200/90 text-slate-900 shadow-xs leading-relaxed max-w-full overflow-hidden break-words [overflow-wrap:anywhere]">
                     {renderAiContent(msg.content)}
                   </div>
                 )}

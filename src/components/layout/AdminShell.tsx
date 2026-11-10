@@ -209,7 +209,7 @@ function AdminShellContent({
   }, [isMobileMenuOpen])
 
   return (
-    <div className={`min-h-screen w-full flex flex-col ${!isWorkspaceHubPage ? 'lg:flex-row' : ''} bg-[#F8FAFC] text-[#0B1220] font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
+    <div className={`${isAiPage ? 'h-dvh max-h-dvh overflow-hidden' : 'min-h-screen'} w-full flex flex-col ${!isWorkspaceHubPage ? 'lg:flex-row' : ''} bg-[#F8FAFC] text-[#0B1220] font-[family-name:var(--font-public-sans)] ${isTvMode ? 'tv-mode-active' : ''}`}>
       {/* Sidebar — ONLY rendered when NOT in TV mode and NOT on Workspace Hub pages */}
       {!isTvMode && !isWorkspaceHubPage && (
         <AdminSidebar 

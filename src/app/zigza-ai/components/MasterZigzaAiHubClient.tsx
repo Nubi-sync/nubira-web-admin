@@ -791,11 +791,11 @@ export function MasterZigzaAiHubClient({
     function flushList() {
       if (currentList.length > 0) {
         blocks.push(
-          <ul key={'ul_' + blocks.length} className="my-2.5 space-y-2 pl-0.5 sm:pl-1">
+          <ul key={'ul_' + blocks.length} className="my-2.5 space-y-2 pl-0.5 sm:pl-1 max-w-full">
             {currentList.map((item, iIdx) => (
-              <li key={iIdx} className="flex items-start gap-2.5 text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800">
+              <li key={iIdx} className="flex items-start gap-2.5 text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800 max-w-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0B1220] shrink-0 mt-2 shadow-2xs" />
-                <span className="flex-1" dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
+                <span className="flex-1 min-w-0 max-w-full break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
               </li>
             ))}
           </ul>
@@ -809,6 +809,17 @@ export function MasterZigzaAiHubClient({
       const trimmed = line.trim()
       if (!trimmed) {
         flushList()
+        continue
+      }
+
+      // Format raw tool/API call payloads into a scrollable, wrapped code container
+      if (trimmed.startsWith('response:default_api:') || trimmed.startsWith('response:') || trimmed.startsWith('{"') || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+        flushList()
+        blocks.push(
+          <div key={'raw_' + idx} className="my-2 p-2.5 rounded-xl bg-slate-100/90 border border-slate-200 text-[11px] font-mono text-slate-700 max-w-full overflow-x-auto whitespace-pre-wrap break-all [overflow-wrap:anywhere]">
+            {trimmed}
+          </div>
+        )
         continue
       }
 
@@ -827,7 +838,7 @@ export function MasterZigzaAiHubClient({
           const headers = rows[0]
           const bodyRows = rows.slice(1)
           blocks.push(
-            <div key={'tbl_' + idx} className="my-3 overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
+            <div key={'tbl_' + idx} className="my-3 overflow-x-auto max-w-full rounded-xl border border-slate-200 shadow-2xs">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="bg-[#F0FDFA] text-[#0B1220] font-bold border-b border-slate-200">
                   <tr>
@@ -855,7 +866,7 @@ export function MasterZigzaAiHubClient({
       if (trimmed.startsWith('### ')) {
         flushList()
         blocks.push(
-          <h4 key={idx} className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0B1220] font-mono mt-3 mb-1.5 pb-1 border-b border-slate-100">
+          <h4 key={idx} className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0B1220] font-mono mt-3 mb-1.5 pb-1 border-b border-slate-100 break-words [overflow-wrap:anywhere]">
             {trimmed.replace('### ', '')}
           </h4>
         )
@@ -864,7 +875,7 @@ export function MasterZigzaAiHubClient({
       if (trimmed.startsWith('## ') || trimmed.startsWith('# ')) {
         flushList()
         blocks.push(
-          <h3 key={idx} className="text-sm sm:text-base font-extrabold text-[#0B1220] mt-4 mb-2 pb-1 border-b border-slate-200">
+          <h3 key={idx} className="text-sm sm:text-base font-extrabold text-[#0B1220] mt-4 mb-2 pb-1 border-b border-slate-200 break-words [overflow-wrap:anywhere]">
             {trimmed.replace(/^#+ /, '')}
           </h3>
         )
@@ -877,7 +888,7 @@ export function MasterZigzaAiHubClient({
 
       flushList()
       blocks.push(
-        <p key={idx} className="text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800 my-1.5" dangerouslySetInnerHTML={{ __html: formatInline(trimmed) }} />
+        <p key={idx} className="text-xs sm:text-sm md:text-[15px] leading-relaxed text-slate-800 my-1.5 max-w-full break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: formatInline(trimmed) }} />
       )
     }
 
@@ -894,7 +905,7 @@ export function MasterZigzaAiHubClient({
   const paginatedSessions = sessions.slice((historyPage - 1) * ITEMS_PER_PAGE, historyPage * ITEMS_PER_PAGE)
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col w-full max-w-[1536px] mx-auto select-none text-[#0B1220] p-2 sm:p-4 lg:p-6 space-y-3 lg:space-y-4">
+    <div className="flex-1 min-h-0 flex flex-col w-full max-w-[1536px] mx-auto select-none text-[#0B1220] p-1.5 sm:p-4 lg:p-6 space-y-0 lg:space-y-4 overflow-hidden">
       
       {/* 1. Top Header Banner - Desktop only */}
       <div className="hidden lg:flex bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex-row justify-between items-center gap-3 sm:gap-4 transition-all shrink-0">
@@ -1036,26 +1047,28 @@ export function MasterZigzaAiHubClient({
         {/* ======================================================== */}
         {/* MAIN CONVERSATION STUDIO (Mobile & Desktop)               */}
         {/* ======================================================== */}
-        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-white">
           
           {/* Box Top Header: Zigza AI + Beside it History / Collapse Button (No tags) */}
           <div className="bg-white px-3.5 py-2.5 sm:px-5 sm:py-3 border-b border-slate-200/80 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 min-w-0">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 <Bot className="w-4 h-4 text-[#0B1220]" />
               </div>
-              <h2 className="text-sm sm:text-base font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+              <h2 className="text-sm sm:text-base font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
                 Zigza AI
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
-              <TvViewButton size="sm" />
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="hidden lg:flex">
+                <TvViewButton size="sm" />
+              </div>
 
               <button
                 type="button"
                 onClick={createNewSession}
-                className="p-1.5 sm:px-2.5 sm:py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95"
+                className="p-1.5 sm:px-2.5 sm:py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95 shrink-0"
                 title="New Chat"
               >
                 <Plus className="w-3.5 h-3.5 text-[#0B1220]" />
@@ -1183,7 +1196,7 @@ export function MasterZigzaAiHubClient({
           {/* Main Conversation Body */}
           <div 
             ref={messagesContainerRef}
-            className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-4"
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-3 sm:py-4 space-y-4 max-w-full"
           >
             {/* EMPTY STATE: Hero Greetings & Quick Query Cards */}
             {(!currentSession || displayMessages.length === 0) && (
@@ -1238,27 +1251,27 @@ export function MasterZigzaAiHubClient({
 
             {/* ACTIVE CONVERSATION: Message Stream */}
             {currentSession && displayMessages.length > 0 && (
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 max-w-full overflow-hidden">
                 {displayMessages.map(msg => (
                   <div
                     key={msg.id}
-                    className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex gap-2 sm:gap-3 w-full max-w-full overflow-hidden ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {msg.role === 'model' && (
-                      <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 mt-1 shadow-2xs">
-                        <Bot className="w-4 h-4 text-[#0B1220]" />
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                        <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
                       </div>
                     )}
 
-                    <div className={`space-y-1 max-w-[90%] sm:max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div className={`space-y-1 max-w-[85%] sm:max-w-[78%] min-w-0 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                       {msg.role === 'user' ? (
-                        <div className="px-4 py-2.5 rounded-2xl rounded-tr-xs bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] shadow-2xs select-text">
-                          <p className="text-[#0B1220] text-xs sm:text-sm font-bold whitespace-pre-wrap leading-relaxed">
+                        <div className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl rounded-tr-xs bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] shadow-2xs select-text max-w-full break-words [overflow-wrap:anywhere]">
+                          <p className="text-[#0B1220] text-xs sm:text-sm font-bold whitespace-pre-wrap leading-relaxed break-words [overflow-wrap:anywhere]">
                             {msg.content}
                           </p>
                         </div>
                       ) : (
-                        <div className="p-4 sm:p-5 rounded-2xl rounded-tl-xs bg-slate-50/70 border border-slate-200 text-slate-900 shadow-2xs leading-relaxed">
+                        <div className="p-3.5 sm:p-5 rounded-2xl rounded-tl-xs bg-slate-50/70 border border-slate-200 text-slate-900 shadow-2xs leading-relaxed max-w-full overflow-hidden break-words [overflow-wrap:anywhere]">
                           {renderAiContent(msg.content)}
                         </div>
                       )}
@@ -1288,7 +1301,7 @@ export function MasterZigzaAiHubClient({
                     </div>
 
                     {msg.role === 'user' && (
-                      <div className="w-8 h-8 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] flex items-center justify-center shrink-0 mt-1 shadow-2xs font-extrabold text-xs">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/40 text-[#0B1220] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs font-extrabold text-[11px] sm:text-xs">
                         {userEmail.slice(0, 2).toUpperCase()}
                       </div>
                     )}
@@ -1314,13 +1327,13 @@ export function MasterZigzaAiHubClient({
           </div>
 
           {/* Pinned Bottom Input Form Bar */}
-          <div className="p-3 sm:p-4 border-t border-slate-200/80 bg-white shrink-0">
+          <div className="p-2 sm:p-3.5 border-t border-slate-200/80 bg-white shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault()
                 handleSendMessage()
               }}
-              className="relative flex items-center rounded-2xl border border-slate-300 bg-slate-50/70 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/15 transition-all px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-2xs"
+              className="relative flex items-center rounded-2xl border border-slate-300 bg-slate-50/70 focus-within:bg-white focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/15 transition-all px-3 py-1.5 sm:px-4 sm:py-2.5 shadow-2xs"
             >
               <input
                 ref={inputRef}
@@ -1335,10 +1348,10 @@ export function MasterZigzaAiHubClient({
               <button
                 type="submit"
                 disabled={!inputPrompt.trim() || isLoading}
-                className="w-9 h-9 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white disabled:opacity-35 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex items-center justify-center shrink-0 ml-2 active:scale-95"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white disabled:opacity-35 transition-all cursor-pointer shadow-sm shadow-blue-500/20 flex items-center justify-center shrink-0 ml-1.5 active:scale-95"
                 aria-label="Send query"
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
             </form>
           </div>
