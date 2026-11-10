@@ -250,7 +250,7 @@ function AdminShellContent({
           />
         )}
 
-        <div className={`flex-1 min-h-0 flex flex-col h-full ${isTvMode ? 'w-full max-w-none' : ''}`}>
+        <div className={`flex-1 min-h-0 flex flex-col ${isTvMode ? 'w-full max-w-none' : ''}`}>
           {children}
         </div>
 

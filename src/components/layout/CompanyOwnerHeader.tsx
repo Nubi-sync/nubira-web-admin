@@ -276,7 +276,7 @@ export function CompanyOwnerHeader({
   ]
 
   return (
-    <div className="w-full select-none z-30 sticky top-0 font-[family-name:var(--font-public-sans)] bg-white shadow-xs">
+    <div className="w-full select-none z-30 sticky top-0 font-[family-name:var(--font-public-sans)] bg-white shadow-xs shrink-0">
       {/* 1. TOP BRAND NAVBAR */}
       <header className="w-full bg-white text-[#0B1220] px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 flex items-center justify-between border-b border-slate-200/80 gap-2">
         {/* Left Section: Hamburger (Mobile) + Brand Logo + Company Name */}
