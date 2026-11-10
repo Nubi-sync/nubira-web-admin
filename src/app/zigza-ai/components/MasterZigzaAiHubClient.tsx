@@ -88,45 +88,33 @@ const PORTAL_METADATA: Record<PortalType, {
   'modules': {
     title: 'Master Enterprise Copilot',
     subtitle: 'Cross-division executive intelligence and multi-plant operations',
-    badge: 'OWNER AI',
-    heroTitle: 'Executive multi-plant intelligence & factory oversight',
-    heroDescription: 'Ask for holistic updates across all 11 operating divisions, fabric store stock, floor output, QC rates, and master dispatches.',
+    badge: '',
+    heroTitle: 'What would you like to check in your factory?',
+    heroDescription: 'Ask anything about today\'s production, fabric rolls in godown, buyer orders, and quality inspection.',
     queries: [
       {
-        icon: LayoutGrid,
-        title: 'Enterprise Health Check',
-        description: 'Audit live operations across all 11 manufacturing divisions.',
-        prompt: 'Give me an overall factory health check across all operational divisions including total running orders, ready stock, and dispatches.'
+        icon: Layers,
+        title: 'Today\'s Floor Production',
+        description: 'Stitched piece count, line speed, and today\'s target.',
+        prompt: 'What is today\'s total production output across all sewing lines, and how are we tracking against target?'
       },
       {
         icon: Store,
-        title: 'Fabric & Trims in Store',
-        description: 'Audit cloth meters and trims left in godown store and allocated styles.',
-        prompt: 'How much fabric cloth and required trims are left in store, and what articles are they assigned to?'
+        title: 'Fabric Rolls & Godown Stock',
+        description: 'Cloth meters available, roll counts, and pending mill arrivals.',
+        prompt: 'Show current fabric store balance, available rolls in godown, and pending mill deliveries.'
       },
       {
         icon: Briefcase,
-        title: 'Buyers & Active Contracts',
-        description: 'Review registered buyers, contracted pieces, and vendor modules.',
-        prompt: 'Show our registered buyers, active style contracts, and vendor module assignments.'
-      },
-      {
-        icon: Boxes,
-        title: 'Master Finished Stock',
-        description: 'Audit finished garment inventory ready in central godown.',
-        prompt: 'How many ready pieces are in Godown right now? Show me the breakdown across articles.'
-      },
-      {
-        icon: Layers,
-        title: 'Floor Production Logs',
-        description: 'Review today\'s sewing logs, pieces stitched, and lineman throughput.',
-        prompt: 'Show today\'s sewing production logs, total pieces stitched, and lineman breakdown.'
+        title: 'Running Orders & Ship Dates',
+        description: 'Active buyer orders, completion status, and delivery deadlines.',
+        prompt: 'List all active buyer purchase orders, quantities stitched so far, and upcoming delivery deadlines.'
       },
       {
         icon: CheckCircle2,
-        title: 'Plant QC & Defect Rates',
-        description: 'Inspect passed pieces vs rejections and defect rates.',
-        prompt: 'What are our recent QC inspection results? Show passed vs rejected piece counts and defect types.'
+        title: 'Alterations & Quality Rejections',
+        description: 'First-time pass rate, repair queue, and defect issues.',
+        prompt: 'What is our quality pass rate today? Show alteration pieces in mending and common defect types.'
       }
     ]
   },
@@ -511,6 +499,19 @@ export function MasterZigzaAiHubClient({
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data.sessions)) {
+            // Auto-push local history to cloud if cloud is empty but local storage has sessions
+            if (data.sessions.length === 0 && initialLocalSessions.length > 0) {
+              fetch('/api/chat/history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: userEmail,
+                  portal: selectedDivision,
+                  sessions: initialLocalSessions
+                })
+              }).catch(() => {})
+            }
+
             setSessions(prev => {
               const baseList = prev.length > 0 ? prev : initialLocalSessions
               const map = new Map<string, ChatSession>()
@@ -529,6 +530,18 @@ export function MasterZigzaAiHubClient({
                   const found = finalList.find(s => s.id === curr && s.messages?.length > 0)
                   return found ? curr : finalList[0].id
                 })
+                // Auto-sync merged history back to cloud if local had sessions not in cloud
+                if (finalList.length > data.sessions.length) {
+                  fetch('/api/chat/history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email: userEmail,
+                      portal: selectedDivision,
+                      sessions: finalList
+                    })
+                  }).catch(() => {})
+                }
                 return finalList
               }
               const fresh: ChatSession = {
@@ -881,10 +894,10 @@ export function MasterZigzaAiHubClient({
   const paginatedSessions = sessions.slice((historyPage - 1) * ITEMS_PER_PAGE, historyPage * ITEMS_PER_PAGE)
 
   return (
-    <div className="p-3.5 sm:p-6 md:p-8 space-y-3.5 sm:space-y-4 max-w-[1536px] w-full mx-auto select-none text-[#0B1220]">
+    <div className="flex-1 min-h-0 flex flex-col w-full max-w-[1536px] mx-auto select-none text-[#0B1220] p-2 sm:p-4 lg:p-6 space-y-3 lg:space-y-4">
       
       {/* 1. Top Header Banner - Desktop only */}
-      <div className="hidden lg:flex bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex-row justify-between items-center gap-3 sm:gap-4 transition-all">
+      <div className="hidden lg:flex bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex-row justify-between items-center gap-3 sm:gap-4 transition-all shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
             <Bot className="w-5 h-5 text-[#0B1220]" />
@@ -906,7 +919,7 @@ export function MasterZigzaAiHubClient({
       </div>
 
       {/* 2. Window-Type Studio with Clean Top Bar Header (Zigza AI + Beside it History / Collapse) */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row h-[calc(100dvh-175px)] sm:h-[calc(100dvh-200px)] min-h-[480px] lg:h-[750px] xl:h-[800px] transition-all">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row flex-1 min-h-0 w-full transition-all">
         
         {/* ======================================================== */}
         {/* LEFT SIDE NAV: CONVERSATION HISTORY (Desktop Side Nav)   */}

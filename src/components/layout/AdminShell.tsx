@@ -223,7 +223,7 @@ function AdminShellContent({
 
       {/* Main Content Area */}
       <main className={`flex-1 min-w-0 flex flex-col transition-all relative ${!isTvMode && !isWorkspaceHubPage ? 'lg:pl-[72px]' : ''} ${
-        isAiPage && !isWorkspaceHubPage
+        isAiPage
           ? 'h-dvh overflow-hidden' 
           : 'min-h-screen overflow-y-auto'
       }`}>
@@ -254,8 +254,8 @@ function AdminShellContent({
           {children}
         </div>
 
-        {/* AI Copilot Chatbot Widget (Only for Admins) */}
-        {!isTvMode && !isStoreUser && <AiCopilotWidget />}
+        {/* AI Copilot Chatbot Widget (Only for Admins, hidden on AI studio page) */}
+        {!isTvMode && !isStoreUser && !isAiPage && <AiCopilotWidget />}
 
         {/* Global In-App Recharge Modal */}
         <RechargeModal
