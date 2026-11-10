@@ -293,7 +293,7 @@ export function CompanyOwnerHeader({
           </button>
 
           {/* Mobile Top Bar: Option B Minimalist Live Day, Date & Time (sm:hidden) */}
-          <div className="sm:hidden flex items-center min-w-0 pl-1">
+          <div className="sm:hidden flex items-center flex-1 min-w-0 pl-1.5">
             <LiveDateTimeHeader />
           </div>
 

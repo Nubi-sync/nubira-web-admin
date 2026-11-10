@@ -38,7 +38,7 @@ function MobileTopBar({
         </button>
 
         {/* Mobile Top Bar: Option B Minimalist Live Day, Date & Time */}
-        <div className="flex items-center min-w-0 pl-1">
+        <div className="flex items-center flex-1 min-w-0 pl-1.5">
           <LiveDateTimeHeader />
         </div>
       </div>

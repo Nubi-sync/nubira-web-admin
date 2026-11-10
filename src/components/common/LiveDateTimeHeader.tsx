@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react'
 
 export function LiveDateTimeHeader({ className = '' }: { className?: string }) {
-  const [formatted, setFormatted] = useState<string>('')
+  const [data, setData] = useState<{ date: string; time: string } | null>(null)
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date()
-      // e.g. "Tue, 10 Nov • 12:48 PM"
+      // e.g. "Tue, 10 Nov" and "1:00 PM"
       const dayName = now.toLocaleDateString('en-US', { weekday: 'short' })
       const dayNum = now.getDate()
       const month = now.toLocaleDateString('en-US', { month: 'short' })
@@ -17,8 +17,10 @@ export function LiveDateTimeHeader({ className = '' }: { className?: string }) {
         minute: '2-digit',
         hour12: true
       })
-      const nextStr = `${dayName}, ${dayNum} ${month} • ${timeStr}`
-      setFormatted((prev) => (prev !== nextStr ? nextStr : prev))
+      setData({
+        date: `${dayName}, ${dayNum} ${month}`,
+        time: timeStr
+      })
     }
 
     updateTime()
@@ -27,17 +29,19 @@ export function LiveDateTimeHeader({ className = '' }: { className?: string }) {
     return () => clearInterval(interval)
   }, [])
 
-  if (!formatted) {
+  if (!data) {
     return (
-      <span className={`inline-flex items-center text-xs font-semibold text-slate-700 tracking-tight ${className}`}>
+      <span className={`inline-flex items-center text-sm font-bold text-slate-700 tracking-tight ${className}`}>
         &nbsp;
       </span>
     )
   }
 
   return (
-    <span className={`inline-flex items-center text-xs font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-public-sans)] ${className}`}>
-      {formatted}
-    </span>
+    <div className={`inline-flex items-center gap-2 sm:gap-2.5 text-[14px] sm:text-[14.5px] font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] select-none whitespace-nowrap ${className}`}>
+      <span>{data.date}</span>
+      <span className="w-1 h-1 rounded-full bg-slate-400/80 shrink-0" />
+      <span className="font-mono text-[13px] sm:text-[13.5px] font-bold text-slate-700">{data.time}</span>
+    </div>
   )
 }
