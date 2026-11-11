@@ -94,13 +94,13 @@ export function AccountDeletionDangerZone({
                 <h2 className="text-lg sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                   Danger Zone: <span className="text-rose-600">Account Decommission</span>
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] md:font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
                   IRREVERSIBLE
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed font-[family-name:var(--font-public-sans)] font-medium">
                 Need to decommission or close this company account? Submit an official deletion request.
-                Our administration desk at <strong className="text-slate-900 font-mono">support@zigza.in</strong> will
+                Our administration desk at <strong className="text-slate-900 font-[family-name:var(--font-heading)] md:font-mono">support@zigza.in</strong> will
                 verify your company credentials and securely archive all production records.
               </p>
             </div>
@@ -140,7 +140,7 @@ export function AccountDeletionDangerZone({
                     Request Account Deletion
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Target Mail: <span className="font-mono text-slate-900 font-bold">support@zigza.in</span>
+                    Target Mail: <span className="font-[family-name:var(--font-heading)] md:font-mono text-slate-900 font-bold">support@zigza.in</span>
                   </p>
                 </div>
               </div>
@@ -166,13 +166,13 @@ export function AccountDeletionDangerZone({
                   </h4>
                   <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
                     Your request has been logged and dispatched to{' '}
-                    <strong className="text-slate-900 font-mono">support@zigza.in</strong>.
+                    <strong className="text-slate-900 font-[family-name:var(--font-heading)] md:font-mono">support@zigza.in</strong>.
                     Our core team will verify your credentials and execute the account deletion.
                   </p>
                 </div>
 
                 {/* Request Payload Summary Card */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2 font-mono">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2 font-[family-name:var(--font-sans)] tabular-nums md:font-mono">
                   <div className="flex justify-between border-b border-slate-200 pb-1.5 text-slate-600">
                     <span>Company:</span>
                     <span className="font-bold text-slate-900">{companyName}</span>
@@ -225,7 +225,7 @@ export function AccountDeletionDangerZone({
                   </div>
                   <p className="text-amber-900/90 text-xs">
                     Submitting this form dispatches a formal decommission request to{' '}
-                    <strong className="font-mono text-slate-900">support@zigza.in</strong>.
+                    <strong className="font-[family-name:var(--font-heading)] md:font-mono text-slate-900">support@zigza.in</strong>.
                     All supervisors, factory lots, challans, and stock logs under this company will be securely archived.
                   </p>
                 </div>
@@ -233,7 +233,7 @@ export function AccountDeletionDangerZone({
                 {/* Read-only verification fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
                   <div className="space-y-0.5">
-                    <span className="text-xs uppercase font-bold text-slate-500 font-mono flex items-center gap-1">
+                    <span className="text-xs uppercase font-bold text-slate-500 font-[family-name:var(--font-sans)] md:font-mono flex items-center gap-1">
                       <Building className="w-3.5 h-3.5" /> Company
                     </span>
                     <span className="font-bold text-slate-900 block truncate">
@@ -242,7 +242,7 @@ export function AccountDeletionDangerZone({
                   </div>
 
                   <div className="space-y-0.5">
-                    <span className="text-xs uppercase font-bold text-slate-500 font-mono flex items-center gap-1">
+                    <span className="text-xs uppercase font-bold text-slate-500 font-[family-name:var(--font-sans)] md:font-mono flex items-center gap-1">
                       <User className="w-3.5 h-3.5" /> Admin
                     </span>
                     <span className="font-bold text-slate-900 block truncate">
@@ -251,10 +251,10 @@ export function AccountDeletionDangerZone({
                   </div>
 
                   <div className="col-span-full space-y-0.5 border-t border-slate-200/60 pt-2">
-                    <span className="text-xs uppercase font-bold text-slate-500 font-mono flex items-center gap-1">
+                    <span className="text-xs uppercase font-bold text-slate-500 font-[family-name:var(--font-sans)] md:font-mono flex items-center gap-1">
                       <Mail className="w-3.5 h-3.5" /> Registered Email
                     </span>
-                    <span className="font-bold text-slate-900 block truncate font-mono">
+                    <span className="font-bold text-slate-900 block truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                       {userEmail}
                     </span>
                   </div>
@@ -262,7 +262,7 @@ export function AccountDeletionDangerZone({
 
                 {/* Contact Phone input for verification */}
                 <div>
-                  <label className="block text-xs font-bold font-mono uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <label className="block text-xs font-bold font-[family-name:var(--font-sans)] md:font-mono uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-slate-400" />
                     <span>Contact Phone Number *</span>
                   </label>
@@ -271,7 +271,7 @@ export function AccountDeletionDangerZone({
                     required
                     value={phoneInput}
                     onChange={(e) => setPhoneInput(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-[family-name:var(--font-heading)] tabular-nums md:font-mono"
                     placeholder="+91 98765 43210"
                   />
                   <p className="text-xs text-slate-500 mt-1">
@@ -281,7 +281,7 @@ export function AccountDeletionDangerZone({
 
                 {/* Reason input */}
                 <div>
-                  <label className="block text-xs font-bold font-mono uppercase tracking-wider text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold font-[family-name:var(--font-sans)] md:font-mono uppercase tracking-wider text-slate-700 mb-1.5">
                     Reason for Deletion (Optional)
                   </label>
                   <textarea
@@ -296,13 +296,13 @@ export function AccountDeletionDangerZone({
                 {/* Confirmation type check */}
                 <div>
                   <label className="block text-xs font-bold text-rose-900 mb-1.5">
-                    Type <span className="font-mono font-black text-rose-600">DELETE</span> to confirm:
+                    Type <span className="font-[family-name:var(--font-heading)] md:font-mono font-black text-rose-600">DELETE</span> to confirm:
                   </label>
                   <input
                     type="text"
                     value={confirmText}
                     onChange={(e) => setConfirmText(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-mono font-bold tracking-widest border border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all bg-rose-50/20"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-base sm:text-sm font-[family-name:var(--font-heading)] md:font-mono font-bold tracking-widest border border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all bg-rose-50/20"
                     placeholder="DELETE"
                   />
                 </div>

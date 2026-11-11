@@ -53,7 +53,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
   return (
     <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-6">
       {/* 1. Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
+      <div className="hidden md:flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500">
         <Link href="/store" className="hover:text-[#0B1220] transition-colors flex items-center gap-1.5">
           <Warehouse className="w-3.5 h-3.5" />
           Store Dashboard
@@ -73,12 +73,12 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
                 Store Supervisor Profile
               </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] md:font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Shift Active
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Store & Godown Department • Raw Material Inventory & Floor Handover
             </p>
           </div>
@@ -110,7 +110,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 capitalize font-[family-name:var(--font-heading)]">
                       {username}
                     </h2>
-                    <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 uppercase">
+                    <span className="text-xs sm:text-sm font-[family-name:var(--font-heading)] md:font-mono font-bold px-3 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 uppercase">
                       {roleName}
                     </span>
                   </div>
@@ -126,23 +126,23 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
                 <User className="w-5 h-5 text-[#0B1220] shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Username / Staff ID</div>
-                  <div className="text-base sm:text-lg font-bold text-slate-900 truncate font-mono mt-0.5">{username}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-[family-name:var(--font-sans)] md:font-mono">Username / Staff ID</div>
+                  <div className="text-base sm:text-lg font-bold text-slate-900 truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-0.5">{username}</div>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
                 <Mail className="w-5 h-5 text-[#0B1220] shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Login Credential</div>
-                  <div className="text-base sm:text-lg font-semibold text-slate-900 truncate font-mono mt-0.5">{displayEmail}</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-[family-name:var(--font-sans)] md:font-mono">Login Credential</div>
+                  <div className="text-base sm:text-lg font-semibold text-slate-900 truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-0.5">{displayEmail}</div>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
                 <Building2 className="w-5 h-5 text-[#0B1220] shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Assigned Facility</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-[family-name:var(--font-sans)] md:font-mono">Assigned Facility</div>
                   <div className="text-base sm:text-lg font-semibold text-slate-900 truncate mt-0.5">{companyName || 'Apparel Manufacturing Facility'}</div>
                 </div>
               </div>
@@ -150,7 +150,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start gap-3.5">
                 <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div className="min-w-0">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Account Standing</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 font-[family-name:var(--font-sans)] md:font-mono">Account Standing</div>
                   <div className="text-base sm:text-lg font-bold text-emerald-700 flex items-center gap-2 mt-0.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                     Authorized Floor Staff
@@ -163,7 +163,7 @@ export function StaffProfileView({ user, profile, companyName }: StaffProfileVie
           {/* Bottom metadata banner */}
           <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-slate-500">
             <span>Staff Account Active Since: <strong className="text-slate-800">{memberSince}</strong></span>
-            <span className="font-mono text-slate-400">UID: {user.id.substring(0, 8)}...</span>
+            <span className="font-[family-name:var(--font-sans)] tabular-nums md:font-mono text-slate-400">UID: {user.id.substring(0, 8)}...</span>
           </div>
         </div>
 

@@ -25,7 +25,7 @@ export function AdminIdentityCard({
       {/* Header with Avatar & Role */}
       <div className="flex items-center justify-between gap-4 pb-5 border-b border-slate-100">
         <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#0B1220] text-white text-sm sm:text-base font-black font-mono tracking-wider">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#0B1220] text-white text-sm sm:text-base font-black font-[family-name:var(--font-heading)] md:font-mono tracking-wider">
             {initials}
           </div>
           <div>
@@ -33,12 +33,12 @@ export function AdminIdentityCard({
               <h2 className="text-lg sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                 {adminDisplayName}
               </h2>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#0B1220]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] md:font-mono font-bold bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0F766E] md:text-[#0B1220]" />
                 OWNER
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Primary factory owner credentials and master account holder
             </p>
           </div>
@@ -53,10 +53,10 @@ export function AdminIdentityCard({
             <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+            <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
               Primary Login Email
             </span>
-            <span className="text-base sm:text-lg font-extrabold text-[#0B1220] mt-0.5 block truncate font-mono" title={userEmail}>
+            <span className="text-base sm:text-lg md:text-lg font-extrabold text-[#0B1220] mt-0.5 block truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono" title={userEmail}>
               {userEmail}
             </span>
             <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -71,10 +71,10 @@ export function AdminIdentityCard({
             <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+            <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
               Direct Mobile Number
             </span>
-            <span className="text-base sm:text-lg font-extrabold text-[#0B1220] mt-0.5 block font-mono">
+            <span className="text-base sm:text-lg md:text-lg font-extrabold text-[#0B1220] mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
               {adminPhone || 'Not configured'}
             </span>
             <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -89,10 +89,10 @@ export function AdminIdentityCard({
             <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+            <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
               Account Established
             </span>
-            <span className="text-base sm:text-lg font-extrabold text-[#0B1220] mt-0.5 block font-mono">
+            <span className="text-base sm:text-lg md:text-lg font-extrabold text-[#0B1220] mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
               {memberSince}
             </span>
             <span className="text-xs text-slate-500 mt-0.5 block font-medium">
