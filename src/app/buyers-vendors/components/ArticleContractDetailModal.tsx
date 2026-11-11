@@ -143,21 +143,21 @@ export function ArticleContractDetailModal({
         <div className="p-4 sm:p-6 bg-[#F8FAFC] border-b border-slate-200/80 flex items-start justify-between gap-4 shrink-0">
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
+              <span className="text-xs font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs">
                 {article.artNo}
               </span>
               <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
                 {buyerName}
               </span>
-              <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+              <span className={`text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold px-2 py-0.5 rounded ${
                 article.sourceType === 'MERCHANDISING_PO' 
                   ? 'bg-purple-50 text-purple-700 border border-purple-200'
                   : 'bg-slate-100 text-slate-700 border border-slate-200'
               }`}>
                 {article.sourceType === 'MERCHANDISING_PO' ? 'Merchandising PO' : 'Floor Challan'}
               </span>
-              <span className="text-xs font-mono font-bold text-slate-700">
+              <span className="text-xs font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-700">
                 PO #{article.challanNo}
               </span>
             </div>
@@ -246,7 +246,7 @@ export function ArticleContractDetailModal({
               {/* Tech Pack Header Information */}
               <div className="bg-[#F8FAFC] p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500">
                     Master Technical Specification
                   </span>
                   <h3 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)] mt-0.5">
@@ -258,8 +258,8 @@ export function ArticleContractDetailModal({
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <span className="text-[11px] font-mono font-bold uppercase text-slate-400 block">Routing Flow</span>
-                  <span className="inline-block mt-1 px-3 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] font-mono font-bold text-xs border border-black/15 shadow-2xs">
+                  <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-400 block">Routing Flow</span>
+                  <span className="inline-block mt-1 px-3 py-1 rounded-md bg-[#F0FDFA] text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-xs border border-black/15 shadow-2xs">
                     {formatEmbellishmentSequence(techPack.embellishmentSequence)}
                   </span>
                 </div>
@@ -268,7 +268,7 @@ export function ArticleContractDetailModal({
               {/* CAD Drawings Previews */}
               {(techPack.cadFrontUrl || techPack.cadBackUrl) ? (
                 <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <h4 className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-[#0B1220]" />
                     <span>CAD Visuals &amp; Technical Drawings</span>
                   </h4>
@@ -281,7 +281,7 @@ export function ArticleContractDetailModal({
                           alt="Front CAD Design" 
                           className="h-36 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-slate-100" 
                         />
-                        <span className="text-[11px] font-mono font-bold text-slate-700 mt-2 uppercase">Front CAD Sketch</span>
+                        <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold text-slate-700 mt-2 uppercase">Front CAD Sketch</span>
                       </div>
                     )}
                     {techPack.cadBackUrl && (
@@ -291,7 +291,7 @@ export function ArticleContractDetailModal({
                           alt="Back CAD Design" 
                           className="h-36 w-auto max-w-full object-contain rounded-lg shadow-2xs bg-white p-1 border border-slate-100" 
                         />
-                        <span className="text-[11px] font-mono font-bold text-slate-700 mt-2 uppercase">Back CAD Sketch</span>
+                        <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold text-slate-700 mt-2 uppercase">Back CAD Sketch</span>
                       </div>
                     )}
                   </div>
@@ -307,11 +307,11 @@ export function ArticleContractDetailModal({
               {/* Bill of Materials (BOM) & Trims Table */}
               <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <h4 className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <Package className="w-4 h-4 text-[#0B1220]" />
                     <span>Bill of Materials (BOM) &amp; Trims</span>
                   </h4>
-                  <span className="text-[11px] font-mono font-bold bg-[#F0FDFA] text-[#0B1220] px-2 py-0.5 rounded border border-black/15">
+                  <span className="text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold bg-[#F0FDFA] text-[#0B1220] px-2 py-0.5 rounded border border-black/15">
                     {techPack.bomMaterials.length} {techPack.bomMaterials.length === 1 ? 'Item' : 'Items'}
                   </span>
                 </div>
@@ -319,7 +319,7 @@ export function ArticleContractDetailModal({
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs min-w-[480px]">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50 text-[10.5px] font-mono font-bold uppercase text-slate-600">
+                      <tr className="border-b border-slate-200 bg-slate-50 text-[10.5px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-600">
                         <th className="py-2.5 px-3">Component Type</th>
                         <th className="py-2.5 px-3">Item Description</th>
                         <th className="py-2.5 px-3">Consumption</th>
@@ -332,8 +332,8 @@ export function ArticleContractDetailModal({
                           <tr key={idx} className="hover:bg-slate-50">
                             <td className="py-2.5 px-3 font-semibold text-slate-900">{mat.component_type || 'Material'}</td>
                             <td className="py-2.5 px-3">{mat.item_name || '-'}</td>
-                            <td className="py-2.5 px-3 font-mono font-bold text-[#0B1220]">{mat.consumption || '-'}</td>
-                            <td className="py-2.5 px-3 font-mono text-slate-500">{mat.placement || '-'}</td>
+                            <td className="py-2.5 px-3 font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-[#0B1220]">{mat.consumption || '-'}</td>
+                            <td className="py-2.5 px-3 font-[family-name:var(--font-sans)] md:font-mono text-slate-500">{mat.placement || '-'}</td>
                           </tr>
                         ))
                       ) : (
@@ -350,7 +350,7 @@ export function ArticleContractDetailModal({
 
               {/* Technical / Construction Notes */}
               <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-200/80 space-y-1.5">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                <span className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block">
                   Construction &amp; Seam Notes
                 </span>
                 <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
@@ -371,10 +371,10 @@ export function ArticleContractDetailModal({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 {/* Total Ordered Volume */}
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                  <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block">
                     Total Ordered Volume
                   </span>
-                  <div className="text-2xl font-black font-mono text-slate-900 mt-1">
+                  <div className="text-2xl font-black font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-slate-900 mt-1">
                     {assigned.toLocaleString('en-IN')} <span className="text-sm font-semibold text-slate-500">Pcs</span>
                   </div>
                   <p className="text-[11px] text-slate-500 font-medium mt-0.5">
@@ -384,10 +384,10 @@ export function ArticleContractDetailModal({
 
                 {/* Unit Price & Total Value */}
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                  <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block">
                     Unit FOB &amp; Contract Value
                   </span>
-                  <div className="text-2xl font-black font-mono text-slate-900 mt-1">
+                  <div className="text-2xl font-black font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-slate-900 mt-1">
                     {currencySymbol}{contract.fobPrice.toFixed(2)}
                   </div>
                   <p className="text-[11px] text-slate-500 font-medium mt-0.5">
@@ -397,10 +397,10 @@ export function ArticleContractDetailModal({
 
                 {/* Target Delivery Date */}
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 block">
+                  <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block">
                     Target Ex-Factory Date
                   </span>
-                  <div className="text-lg font-bold font-mono text-[#0B1220] mt-1.5 flex items-center gap-1.5">
+                  <div className="text-lg font-bold font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-[#0B1220] mt-1.5 flex items-center gap-1.5">
                     <Calendar className="w-4 h-4" />
                     <span>{contract.deliveryDate}</span>
                   </div>
@@ -412,7 +412,7 @@ export function ArticleContractDetailModal({
 
               {/* Colorway & Size Matrix Table */}
               <div className="bg-white p-4.5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
-                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <h4 className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                   <Palette className="w-4 h-4 text-[#0B1220]" />
                   <span>Colorway &amp; Size Breakdown Matrix</span>
                 </h4>
@@ -421,7 +421,7 @@ export function ArticleContractDetailModal({
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50 text-[10.5px] font-mono font-bold uppercase text-slate-600">
+                        <tr className="border-b border-slate-200 bg-slate-50 text-[10.5px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-600">
                           <th className="py-2 px-3">Colorway</th>
                           {DEFAULT_SIZES.map(s => (
                             <th key={s} className="py-2 px-3 text-center">{s}</th>
@@ -429,7 +429,7 @@ export function ArticleContractDetailModal({
                           <th className="py-2 px-3 text-right">Total Pcs</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-black/5 text-slate-800 font-mono">
+                      <tbody className="divide-y divide-black/5 text-slate-800 font-[family-name:var(--font-sans)] tabular-nums md:font-mono">
                         {contract.colorMatrix.map((row, idx) => (
                           <tr key={idx} className="hover:bg-slate-50">
                             <td className="py-2.5 px-3 font-bold text-slate-900 font-sans">{row.color}</td>
@@ -445,7 +445,7 @@ export function ArticleContractDetailModal({
                         ))}
                       </tbody>
                       <tfoot>
-                        <tr className="border-t-2 border-slate-200 bg-slate-50 font-bold text-slate-900 font-mono">
+                        <tr className="border-t-2 border-slate-200 bg-slate-50 font-bold text-slate-900 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                           <td className="py-2.5 px-3 uppercase text-[11px]">Total Breakdown</td>
                           {DEFAULT_SIZES.map(s => {
                             const colTotal = contract.colorMatrix.reduce((sum, r) => sum + (r.sizes?.[s] || 0), 0)
@@ -478,7 +478,7 @@ export function ArticleContractDetailModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
                   <div className="flex justify-between py-1 border-b border-slate-200/60">
                     <span className="text-slate-500">Contract / PO Number:</span>
-                    <span className="font-bold font-mono text-[#0B1220]">{article.challanNo}</span>
+                    <span className="font-bold font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-[#0B1220]">{article.challanNo}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-slate-200/60">
                     <span className="text-slate-500">Contract Date:</span>
@@ -528,7 +528,7 @@ export function ArticleContractDetailModal({
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs sm:text-sm font-semibold text-slate-500">
-                      Total Booked: <strong className="text-slate-900 font-mono">{assigned.toLocaleString('en-IN')} pcs</strong>
+                      Total Booked: <strong className="text-slate-900 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{assigned.toLocaleString('en-IN')} pcs</strong>
                     </span>
                   </div>
                 </div>
@@ -546,12 +546,12 @@ export function ArticleContractDetailModal({
                           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
                             {stg.label}
                           </span>
-                          <span className="text-xs font-extrabold font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
+                          <span className="text-xs font-extrabold font-[family-name:var(--font-heading)] tabular-nums md:font-mono px-2 py-0.5 rounded-full shadow-2xs text-[#0B1220] bg-[#F0FDFA] border border-[#14C8B4]/40">
                             {stgPercent}%
                           </span>
                         </div>
                         <div className="mt-2 flex items-baseline justify-between">
-                          <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] text-slate-900 font-mono">
+                          <p className="text-lg sm:text-xl font-bold font-[family-name:var(--font-heading)] tabular-nums text-slate-900 md:font-mono">
                             {stg.count.toLocaleString('en-IN')}
                           </p>
                         </div>
@@ -574,7 +574,7 @@ export function ArticleContractDetailModal({
                     <PackageCheck className="w-4 h-4 text-[#14C8B4]" />
                     Contract Outward Gate Delivery Status
                   </span>
-                  <span className="font-mono font-bold text-slate-700">
+                  <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-700">
                     {delivered.toLocaleString('en-IN')} / {assigned.toLocaleString('en-IN')} Pcs ({percent}%)
                   </span>
                 </div>
@@ -596,15 +596,15 @@ export function ArticleContractDetailModal({
                 <div className="grid grid-cols-3 gap-2 pt-1 text-center">
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
                     <div className="text-[11px] text-slate-500 font-medium">Contracted Qty</div>
-                    <div className="text-sm sm:text-base font-bold text-[#0B1220] font-mono">{assigned.toLocaleString('en-IN')} pcs</div>
+                    <div className="text-sm sm:text-base font-bold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{assigned.toLocaleString('en-IN')} pcs</div>
                   </div>
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
                     <div className="text-[11px] text-emerald-600 font-medium">Dispatched &amp; Delivered</div>
-                    <div className="text-sm sm:text-base font-bold text-emerald-700 font-mono">{delivered.toLocaleString('en-IN')} pcs</div>
+                    <div className="text-sm sm:text-base font-bold text-emerald-700 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{delivered.toLocaleString('en-IN')} pcs</div>
                   </div>
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
                     <div className="text-[11px] text-slate-500 font-medium">In Factory WIP</div>
-                    <div className="text-sm sm:text-base font-bold text-amber-700 font-mono">{remaining.toLocaleString('en-IN')} pcs</div>
+                    <div className="text-sm sm:text-base font-bold text-amber-700 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{remaining.toLocaleString('en-IN')} pcs</div>
                   </div>
                 </div>
 

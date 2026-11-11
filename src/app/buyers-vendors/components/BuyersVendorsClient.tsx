@@ -49,6 +49,7 @@ import { ArticleContractDetailModal } from './ArticleContractDetailModal'
 import { AssignVendorModal } from './AssignVendorModal'
 import { AddBuyerModal } from './AddBuyerModal'
 import { AddCustomModuleModal } from './AddCustomModuleModal'
+import { DashboardSectionHeader } from '../../dashboard/components/DashboardSectionHeader'
 
 const MODULE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Palette,
@@ -307,11 +308,11 @@ export function BuyersVendorsClient({
               <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Buyers &amp; <span className="text-[#1D4ED8]">Vendors Hub</span>
               </h1>
-              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Buyer contract history, article delivery tracking (5 per page), and 12 factory module vendor assignments.
             </p>
           </div>
@@ -348,7 +349,7 @@ export function BuyersVendorsClient({
         <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Total Buyers</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono leading-none pt-0.5">
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono leading-none pt-0.5">
               {kpis.totalBuyers}
             </div>
           </div>
@@ -361,7 +362,7 @@ export function BuyersVendorsClient({
         <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Articles Contracted</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono leading-none pt-0.5">
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono leading-none pt-0.5">
               {kpis.totalArticles}
             </div>
           </div>
@@ -374,7 +375,7 @@ export function BuyersVendorsClient({
         <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Pieces Delivered</span>
-            <div className="text-base sm:text-2xl font-extrabold text-[#0B1220] font-mono truncate leading-none pt-0.5">
+            <div className="text-base sm:text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono truncate leading-none pt-0.5">
               <span className="text-emerald-700">{kpis.totalDeliveredPieces.toLocaleString()}</span> / {kpis.totalAssignedPieces.toLocaleString()}
             </div>
           </div>
@@ -387,7 +388,7 @@ export function BuyersVendorsClient({
         <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-2.5 sm:gap-3">
           <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">Vendor Modules</span>
-            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-mono leading-none pt-0.5">
+            <div className="text-lg sm:text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono leading-none pt-0.5">
               {kpis.assignedModulesCount} / 12
             </div>
           </div>
@@ -401,8 +402,45 @@ export function BuyersVendorsClient({
       {/* SECTION 1: BUYERS & CONTRACT HISTORY (Row Format with 5 Pagination) */}
       {/* =================================================================== */}
       <div className="space-y-4 pt-2">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Mobile Dashboard-style Section Header (< md) */}
+        <div className="md:hidden space-y-3">
+          <DashboardSectionHeader
+            icon={Building2}
+            title="Buyers &"
+            accent="Contract History"
+            badge={`${filteredBuyers.length} ${filteredBuyers.length === 1 ? 'Buyer' : 'Buyers'}`}
+          />
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedBuyerForEdit(null)
+                setIsAddBuyerModalOpen(true)
+              }}
+              className="min-h-[38px] px-3.5 py-1.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5 text-white" />
+              <span>Add Buyer</span>
+            </button>
+            <button
+              type="button"
+              onClick={expandAllBuyers}
+              className="min-h-[38px] px-3 py-1.5 bg-white text-slate-800 border border-slate-300 rounded-xl text-xs font-bold cursor-pointer shadow-2xs"
+            >
+              Expand All
+            </button>
+            <button
+              type="button"
+              onClick={collapseAllBuyers}
+              className="min-h-[38px] px-3 py-1.5 bg-white text-slate-800 border border-slate-300 rounded-xl text-xs font-bold cursor-pointer shadow-2xs"
+            >
+              Collapse All
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Section Header (>= md untouched) */}
+        <div className="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2.5">
               <Building2 className="w-6 h-6 text-[#1D4ED8]" />
@@ -546,21 +584,21 @@ export function BuyersVendorsClient({
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0 font-bold font-mono text-xs tracking-wide">
+                        <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/30 flex items-center justify-center text-[#0F766E] shadow-2xs shrink-0 font-extrabold font-[family-name:var(--font-heading)] tabular-nums text-xs tracking-wide">
                           {getBuyerAvatarInitials(buyer.brandName)}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-base font-bold text-[#0B1220] truncate">
+                          <div className="text-base font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] truncate">
                             {buyer.brandName}
                           </div>
-                          <div className="text-xs font-semibold text-slate-500">
+                          <div className="text-xs font-semibold text-slate-500 tabular-nums">
                             {buyer.totalContractsCount} {buyer.totalContractsCount === 1 ? 'Contract' : 'Contracts'} • {buyer.totalArticlesCount} Articles
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                        <span className="text-xs font-[family-name:var(--font-heading)] tabular-nums font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                           {buyer.deliveryPercentage}%
                         </span>
                         <div className={`p-1.5 rounded-lg text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
@@ -580,10 +618,10 @@ export function BuyersVendorsClient({
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-3 flex-wrap">
                           <div className="flex items-center gap-2.5">
-                            <h3 className="text-sm sm:text-base font-bold text-[#0B1220] flex items-center gap-2">
+                            <h3 className="text-sm sm:text-base font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2">
                               <Scissors className="w-4 h-4 text-[#14C8B4]" />
                               Contracted Articles Roster
-                              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">
+                              <span className="text-xs font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">
                                 {articles.length} Total
                               </span>
                             </h3>
@@ -650,15 +688,15 @@ export function BuyersVendorsClient({
                                 >
                                   {/* Left: Article No, PO Number, Total Booked Pcs, Status - Single Clean Straight Line */}
                                   <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-wrap">
-                                    <span className="text-xs sm:text-sm font-mono font-bold px-2.5 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs shrink-0">
+                                    <span className="text-xs sm:text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold px-2.5 py-1 rounded-lg bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs shrink-0">
                                       {art.artNo}
                                     </span>
 
-                                    <span className="text-xs sm:text-sm font-mono font-bold text-slate-700 shrink-0">
+                                    <span className="text-xs sm:text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-700 shrink-0">
                                       {art.sourceType === 'MERCHANDISING_PO' ? 'PO' : 'CH'} #{art.challanNo}
                                     </span>
 
-                                    <span className="inline-flex items-center text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 shrink-0">
+                                    <span className="inline-flex items-center text-xs font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 shrink-0">
                                       {assigned.toLocaleString('en-IN')} pcs
                                     </span>
 
@@ -762,8 +800,42 @@ export function BuyersVendorsClient({
       {/* SECTION 2: 12 MODULES VENDOR ASSIGNMENT HUB                         */}
       {/* =================================================================== */}
       <div className="space-y-4 pt-6 border-t border-slate-200">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Mobile Dashboard-style Section Header (< md) */}
+        <div className="md:hidden space-y-3">
+          <DashboardSectionHeader
+            icon={Layers}
+            title="Vendor"
+            accent="Assignments"
+            badge={`${filteredModules.length} Modules`}
+          />
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsAddCustomModuleOpen(true)}
+              className="min-h-[38px] px-3.5 py-1.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5 text-white" />
+              <span>Add Custom Module</span>
+            </button>
+            <button
+              type="button"
+              onClick={expandAllModules}
+              className="min-h-[38px] px-3 py-1.5 bg-white text-slate-800 border border-slate-300 rounded-xl text-xs font-bold cursor-pointer shadow-2xs"
+            >
+              Expand All
+            </button>
+            <button
+              type="button"
+              onClick={collapseAllModules}
+              className="min-h-[38px] px-3 py-1.5 bg-white text-slate-800 border border-slate-300 rounded-xl text-xs font-bold cursor-pointer shadow-2xs"
+            >
+              Collapse All
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Section Header (>= md untouched) */}
+        <div className="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)] flex items-center gap-2.5">
               <Layers className="w-6 h-6 text-[#14C8B4]" />
@@ -905,10 +977,10 @@ export function BuyersVendorsClient({
                         <IconComponent className="w-5 h-5 text-[#0B1220]" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-base font-bold text-[#0B1220] truncate flex items-center gap-1.5 flex-wrap">
+                        <div className="text-base font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] truncate flex items-center gap-1.5 flex-wrap">
                           <span>{mod.moduleName}</span>
                           {mod.isCustom && (
-                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                            <span className="text-[10px] font-[family-name:var(--font-heading)] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                               Custom
                             </span>
                           )}
@@ -944,7 +1016,7 @@ export function BuyersVendorsClient({
                       </span>
                     </div>
                     {vendor && (
-                      <span className="font-mono font-bold text-slate-700 shrink-0">
+                      <span className="font-[family-name:var(--font-heading)] tabular-nums font-bold text-slate-700 shrink-0">
                         +91 {vendor.phone}
                       </span>
                     )}
@@ -1019,7 +1091,7 @@ export function BuyersVendorsClient({
 
                           <div className="bg-[#F8FAFC] p-4 rounded-xl border border-slate-200/80 space-y-1">
                             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone / Mobile</span>
-                            <div className="text-sm sm:text-base font-bold text-[#0B1220] font-mono">
+                            <div className="text-sm sm:text-base font-bold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                               +91 {vendor.phone}
                             </div>
                             <a
