@@ -320,7 +320,7 @@ export function DepartmentHeadsClient({
                 {divisions.length} Departments
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Factory leadership hierarchy, department heads, and floor worker roster for {companyName}.
             </p>
           </div>
@@ -450,7 +450,7 @@ export function DepartmentHeadsClient({
                     </span>
                   </div>
                   <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-                    No Production Manager appointed yet. Owner can delegate factory-wide oversight.
+                    No Production Manager appointed yet.<span className="hidden md:inline"> Owner can delegate factory-wide oversight.</span>
                   </p>
                 </>
               )}
@@ -733,7 +733,227 @@ export function DepartmentHeadsClient({
 
                 {/* EXPANDED CONTENT UNDER ROW */}
                 {isExpanded && (
-                  <div className="border-t border-slate-200/80 bg-white/80 md:bg-[#F8FAFC]/70 p-3 md:p-6 space-y-3.5 md:space-y-5 animate-in slide-in-from-top-1 duration-150">
+                  <>
+                    {/* Mobile Compact Drawer (< md): Single-surface hairline lists matching mobile app ergonomics */}
+                    <div className="block md:hidden border-t border-slate-200/80 bg-white divide-y divide-slate-100 animate-in slide-in-from-top-1 duration-150 font-[family-name:var(--font-public-sans)]">
+                      {/* SECTION A: Department In-charge */}
+                      <div className="px-3.5 py-3 space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-[13px] font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
+                            Department In-Charge <span className="text-[#1D4ED8] tabular-nums">({totalHeadsCount})</span>
+                          </h4>
+                          {canAppointHeads && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleOpenAppointHead(div.route, head || undefined)
+                              }}
+                              className="inline-flex items-center gap-1 text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] py-1 px-2 -mr-1 rounded-lg active:bg-[#EFF6FF] transition-colors cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>{head ? 'Edit Head' : 'Assign Head'}</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {totalHeadsCount > 0 ? (
+                          <div className="bg-[#F8FAFC] border border-slate-200/70 rounded-xl divide-y divide-slate-200/70 overflow-hidden">
+                            {allHeadsForDiv.map((h) => (
+                              <div key={h.id} className="px-3 py-2.5 space-y-1.5">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <div className="text-[14px] font-bold font-[family-name:var(--font-heading)] text-[#0B1220] truncate">
+                                      {h.displayName}
+                                    </div>
+                                    <div className="text-[11.5px] font-semibold text-slate-600 mt-0.5 leading-snug">
+                                      {h.designation}
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
+                                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer shrink-0 ${
+                                      h.isActive
+                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                                    }`}
+                                  >
+                                    • {h.isActive ? 'Active' : 'Inactive'}
+                                  </button>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-0.5">
+                                  <div className="min-w-0 space-y-0.5">
+                                    <a href={`tel:+91${h.phone}`} className="inline-flex items-center gap-1.5 text-[12.5px] font-bold font-[family-name:var(--font-heading)] tabular-nums text-[#0B1220] hover:underline">
+                                      <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                      +91 {h.phone}
+                                    </a>
+                                    {h.phone2 && (
+                                      <a href={`tel:+91${h.phone2}`} className="flex items-center gap-1.5 text-[11.5px] font-semibold font-[family-name:var(--font-heading)] tabular-nums text-slate-500 hover:underline">
+                                        <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                                        +91 {h.phone2}
+                                      </a>
+                                    )}
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    {isOwner && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setPasswordModal({
+                                          isOpen: true,
+                                          userId: h.id,
+                                          userName: h.displayName,
+                                          username: h.username,
+                                          phone: h.phone
+                                        })}
+                                        className="w-[34px] h-[34px] rounded-lg border border-slate-200 bg-white text-[#1D4ED8] hover:bg-[#EFF6FF] transition-colors cursor-pointer flex items-center justify-center active:scale-[0.96]"
+                                        title="Reset Password"
+                                        aria-label={`Reset password for ${h.displayName}`}
+                                      >
+                                        <KeyRound className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                    {canAppointHeads && (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenAppointHead(div.route, h)}
+                                          className="w-[34px] h-[34px] rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center active:scale-[0.96]"
+                                          title="Edit Details"
+                                          aria-label={`Edit details for ${h.displayName}`}
+                                        >
+                                          <Edit2 className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => setDeleteConfirm({
+                                            isOpen: true,
+                                            id: h.id,
+                                            name: h.displayName,
+                                            type: 'DEPARTMENT_HEAD'
+                                          })}
+                                          className="w-[34px] h-[34px] rounded-lg border border-rose-200 bg-white text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center active:scale-[0.96]"
+                                          title="Remove Head"
+                                          aria-label={`Remove ${h.displayName}`}
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="bg-[#F8FAFC] rounded-xl px-3 py-2.5 border border-dashed border-slate-200 text-center">
+                            <p className="text-xs font-medium text-slate-500">
+                              No department head assigned for {div.name}.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* SECTION B: Shop Floor Workers Roster */}
+                      <div className="px-3.5 py-3 space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-[13px] font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
+                            Floor Workers Roster <span className="text-[#1D4ED8] tabular-nums">({divWorkers.length})</span>
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAddWorker(div.route)}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] py-1 px-2 -mr-1 rounded-lg active:bg-[#EFF6FF] transition-colors cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add Worker</span>
+                          </button>
+                        </div>
+
+                        {divWorkers.length > 0 ? (
+                          <div className="bg-[#F8FAFC] border border-slate-200/70 rounded-xl divide-y divide-slate-200/70 overflow-hidden">
+                            {divWorkers.map(w => (
+                              <div key={w.id} className="px-3 py-2.5 space-y-1.5">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <div className="text-[14px] font-bold font-[family-name:var(--font-heading)] text-[#0B1220] truncate">
+                                      {w.name}
+                                    </div>
+                                    <div className="text-[11.5px] font-semibold text-slate-600 mt-0.5 leading-snug">
+                                      <span>{w.role}</span>
+                                      <span className="text-slate-300 mx-1.5">•</span>
+                                      <span className="text-slate-700 font-bold">{w.shift}</span>
+                                    </div>
+                                  </div>
+                                  {w.status !== 'ACTIVE' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleStatus(w.id, 'WORKER', false, div.route)}
+                                      className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer shrink-0 bg-rose-50 text-rose-700 border-rose-200"
+                                    >
+                                      • Inactive
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-0.5">
+                                  <a href={`tel:+91${w.phone}`} className="inline-flex items-center gap-1.5 text-[12.5px] font-bold font-[family-name:var(--font-heading)] tabular-nums text-[#0B1220] hover:underline">
+                                    <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                    +91 {w.phone}
+                                  </a>
+
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    {isOwner && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setPasswordModal({
+                                          isOpen: true,
+                                          userId: w.id,
+                                          userName: w.name,
+                                          username: w.phone,
+                                          phone: w.phone
+                                        })}
+                                        className="w-[34px] h-[34px] rounded-lg border border-slate-200 bg-white text-[#1D4ED8] hover:bg-[#EFF6FF] transition-colors cursor-pointer flex items-center justify-center active:scale-[0.96]"
+                                        title="Reset Password"
+                                        aria-label={`Reset password for ${w.name}`}
+                                      >
+                                        <KeyRound className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => setDeleteConfirm({
+                                        isOpen: true,
+                                        id: w.id,
+                                        name: w.name,
+                                        type: 'WORKER',
+                                        divisionRoute: div.route
+                                      })}
+                                      className="w-[34px] h-[34px] rounded-lg border border-rose-200 bg-white text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center active:scale-[0.96]"
+                                      title="Remove Worker"
+                                      aria-label={`Remove ${w.name}`}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="bg-[#F8FAFC] rounded-xl px-3 py-2.5 border border-dashed border-slate-200 text-center">
+                            <p className="text-xs font-medium text-slate-500">
+                              No shop floor workers registered yet.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Desktop Expanded View (>= md: unchanged) */}
+                    <div className="hidden md:block border-t border-slate-200/80 bg-[#F8FAFC]/70 p-6 space-y-5 animate-in slide-in-from-top-1 duration-150">
                     
                     {/* SECTION A: Department In-charge Details */}
                     <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-200/80 shadow-2xs space-y-3.5 md:space-y-4">
@@ -1145,6 +1365,7 @@ export function DepartmentHeadsClient({
                     </div>
 
                   </div>
+                  </>
                 )}
 
               </div>
