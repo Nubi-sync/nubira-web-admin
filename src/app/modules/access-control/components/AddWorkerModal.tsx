@@ -104,43 +104,51 @@ export function AddWorkerModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none">
-      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 select-none font-[family-name:var(--font-public-sans)]">
+      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
         
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#F8FAFC]">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
-              Register <span className="text-[#1D4ED8]">Shop Floor Worker</span>
-            </h3>
+        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0F766E] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
+              <UserPlus className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] leading-tight">
+                Register <span className="text-[#1D4ED8]">Shop Floor Worker</span>
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5 truncate">
+                Create mobile login access for your floor operator
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {error && (
-            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium">
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm font-semibold">
               {error}
             </div>
           )}
 
           {/* Department Selection */}
           <div>
-            <label className="block text-sm font-bold text-slate-800 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600 mb-1.5">
               Assigned Department <span className="text-rose-500">*</span>
             </label>
             <select
               required
               value={divisionRoute}
               onChange={(e) => setDivisionRoute(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-bold text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all cursor-pointer"
+              className="w-full px-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-bold text-[#0B1220] border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/15 rounded-xl outline-none transition-all cursor-pointer"
             >
               {purchasedCatalog.map(div => (
                 <option key={div.route} value={div.route}>
@@ -152,7 +160,7 @@ export function AddWorkerModal({
 
           {/* Worker Name */}
           <div>
-            <label className="block text-sm font-bold text-slate-800 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600 mb-1.5">
               Worker Name <span className="text-rose-500">*</span>
             </label>
             <div className="relative flex items-center">
@@ -163,18 +171,18 @@ export function AddWorkerModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter worker name"
-                className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/15 rounded-xl outline-none transition-all"
               />
             </div>
           </div>
 
           {/* Mobile Phone with Pre-filled +91 */}
           <div>
-            <label className="block text-sm font-bold text-slate-800 mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600 mb-1.5">
               Mobile Number <span className="text-rose-500">*</span>
             </label>
-            <div className="flex rounded-xl border border-slate-200 focus-within:border-[#0B1220] focus-within:ring-2 focus-within:ring-[#0B1220]/10 overflow-hidden bg-[#F8FAFC] transition-all">
-              <div className="px-3.5 py-3 bg-slate-100/90 border-r border-slate-200/80 text-sm font-mono font-bold text-slate-700 flex items-center select-none">
+            <div className="flex rounded-xl border border-slate-200 focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#1D4ED8]/15 overflow-hidden bg-[#F8FAFC] focus-within:bg-white transition-all">
+              <div className="px-3.5 py-3 bg-slate-100/80 border-r border-slate-200/80 text-sm font-bold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums flex items-center select-none">
                 +91
               </div>
               <input
@@ -184,16 +192,16 @@ export function AddWorkerModal({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                 placeholder="Enter 10-digit number"
-                className="w-full px-3.5 py-3 bg-transparent text-sm sm:text-base font-mono font-medium text-[#0B1220] outline-none"
+                className="w-full px-3.5 py-3 bg-transparent text-sm sm:text-base font-medium text-[#0B1220] tabular-nums outline-none"
               />
             </div>
-            <p className="text-xs text-slate-500 mt-1">Used for mobile number login.</p>
+            <p className="text-xs text-slate-500 mt-1 font-medium">Used for mobile number login.</p>
           </div>
 
           {/* Password (min 6 chars) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600 mb-1.5">
                 Password <span className="text-rose-500">*</span>
               </label>
               <div className="relative flex items-center">
@@ -205,7 +213,7 @@ export function AddWorkerModal({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters"
-                  className="w-full pl-10 pr-10 py-3 bg-[#F8FAFC] focus:bg-white text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                  className="w-full pl-10 pr-10 py-3 bg-[#F8FAFC] focus:bg-white text-sm font-medium text-[#0B1220] border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/15 rounded-xl outline-none transition-all"
                 />
                 <button
                   type="button"
@@ -219,18 +227,18 @@ export function AddWorkerModal({
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-bold text-slate-800">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600">
                   Retype Password <span className="text-rose-500">*</span>
                 </label>
                 {confirmPassword && (
-                  <span className="flex items-center gap-1 text-xs font-semibold">
+                  <span className="flex items-center gap-1 text-[11px] font-semibold">
                     {isPasswordMatch ? (
                       <span className="text-emerald-600 flex items-center gap-1">
-                        <Check className="w-3.5 h-3.5" /> Passwords match
+                        <Check className="w-3.5 h-3.5" /> Match
                       </span>
                     ) : (
-                      <span className="text-rose-500">Passwords do not match</span>
+                      <span className="text-rose-500">Mismatch</span>
                     )}
                   </span>
                 )}
@@ -249,7 +257,7 @@ export function AddWorkerModal({
                       ? 'border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/10'
                       : confirmPassword && !isPasswordMatch
                       ? 'border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
-                      : 'border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10'
+                      : 'border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/15'
                   }`}
                 />
                 <div className="absolute right-3 flex items-center gap-1">
@@ -274,7 +282,7 @@ export function AddWorkerModal({
           {/* Designation & Shift */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600 mb-1.5">
                 Designation / Role
               </label>
               <div className="relative flex items-center">
@@ -284,13 +292,13 @@ export function AddWorkerModal({
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="Enter worker role / designation"
-                  className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/15 rounded-xl outline-none transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600 mb-1.5">
                 Work Shift
               </label>
               <div className="relative flex items-center">
@@ -298,7 +306,7 @@ export function AddWorkerModal({
                 <select
                   value={shift}
                   onChange={(e) => setShift(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#0B1220] focus:ring-2 focus:ring-[#0B1220]/10 rounded-xl outline-none transition-all cursor-pointer"
+                  className="w-full pl-10 pr-4 py-3 bg-[#F8FAFC] focus:bg-white text-sm sm:text-base font-medium text-[#0B1220] border border-slate-200 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/15 rounded-xl outline-none transition-all cursor-pointer"
                 >
                   <option value="General">General (9AM - 6PM)</option>
                   <option value="Morning">Morning Shift</option>
@@ -309,18 +317,18 @@ export function AddWorkerModal({
             </div>
           </div>
 
-          <div className="pt-3 flex items-center gap-2.5">
+          <div className="pt-2 flex items-center gap-2.5">
             <button
               type="button"
               onClick={onClose}
-              className="py-3 px-5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-all shadow-2xs cursor-pointer"
+              className="min-h-[46px] py-3 px-5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-all shadow-2xs cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
+              className="flex-1 min-h-[46px] py-3 px-5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>

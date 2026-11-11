@@ -187,6 +187,7 @@ export function ResetPasswordModal({
             </div>
           </form>
         )}
+        </div>
       </div>
     </div>
   )
