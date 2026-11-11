@@ -74,64 +74,66 @@ export function ResetPasswordModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-black/10 relative">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shadow-2xs">
-            <KeyRound className="w-5 h-5 stroke-[2.2] text-[#0B1220]" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 font-[family-name:var(--font-public-sans)]">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden relative animate-in zoom-in-95 duration-200">
+        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center shrink-0">
+              <KeyRound className="w-5 h-5 stroke-[2.2] text-[#0F766E]" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] leading-tight">
+                Reset <span className="text-[#1D4ED8]">Staff Password</span>
+              </h3>
+              <p className="text-xs text-slate-500 font-medium truncate tabular-nums mt-0.5">
+                {headName} {phone ? `(+91 ${phone})` : username ? `(${username})` : ''}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 font-[family-name:var(--font-heading)]">
-              Reset Staff Password
-            </h3>
-            <p className="text-xs text-slate-500 font-mono">
-              {headName} {phone ? `(+91 ${phone})` : username ? `(${username})` : ''}
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
+        <div className="p-5 sm:p-6">
         {success ? (
-          <div className="py-6 text-center space-y-2">
+          <div className="py-5 text-center space-y-2">
             <div className="w-12 h-12 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30 flex items-center justify-center mx-auto shadow-2xs">
               <Check className="w-6 h-6 stroke-[2.5] text-emerald-600" />
             </div>
-            <p className="text-sm font-bold text-slate-900">Password Updated Successfully!</p>
-            <p className="text-xs text-slate-500 font-mono">New credentials are now active.</p>
+            <p className="text-sm font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">Password Updated Successfully!</p>
+            <p className="text-xs text-slate-500 font-medium">New credentials are now active.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                  New Password *
+                <label className="text-[11px] font-bold uppercase tracking-[0.06em] text-slate-600">
+                  New Password <span className="text-rose-500">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={generateRandomPassword}
-                  className="text-[11px] text-[#1D4ED8] hover:underline font-bold cursor-pointer"
+                  className="text-xs text-[#1D4ED8] hover:underline font-bold cursor-pointer"
                 >
                   Generate Strong
                 </button>
               </div>
-              <div className="relative flex items-center rounded-xl border border-slate-300 focus-within:ring-2 focus-within:ring-[#0B1220] focus-within:border-[#0B1220] overflow-hidden bg-white shadow-2xs">
+              <div className="relative flex items-center rounded-xl border border-slate-200 focus-within:border-[#1D4ED8] focus-within:ring-2 focus-within:ring-[#1D4ED8]/15 overflow-hidden bg-[#F8FAFC] focus-within:bg-white transition-all">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full pl-4 pr-20 py-3 text-base font-mono font-bold text-[#0B1220] placeholder-slate-400 focus:outline-none"
+                  className="w-full pl-4 pr-20 py-3 bg-transparent text-sm sm:text-base font-bold text-[#0B1220] placeholder-slate-400 tabular-nums focus:outline-none"
                 />
-                <div className="absolute right-0 top-0 bottom-0 flex items-center bg-white">
+                <div className="absolute right-0 top-0 bottom-0 flex items-center bg-transparent">
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -160,7 +162,7 @@ export function ResetPasswordModal({
               </div>
             )}
 
-            <div className="pt-3 flex items-center justify-end gap-2.5">
+            <div className="pt-2 flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={onClose}

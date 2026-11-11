@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, User, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff, Check } from 'lucide-react'
+import { X, User, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff, Check, Crown } from 'lucide-react'
 import { appointProductionManagerAction, checkPhoneNumberAvailabilityAction, ProductionManagerItem } from '../actions'
 
 interface AppointProductionManagerModalProps {

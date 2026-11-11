@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckSquare, Square, Eye, EyeOff, Check } from 'lucide-react'
+import { X, User, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckSquare, Square, Eye, EyeOff, Check, UserCheck } from 'lucide-react'
 import { appointOrUpdateDepartmentHeadAction, checkPhoneNumberAvailabilityAction, DepartmentHeadItem } from '../actions'
 import { DEPARTMENT_HEADS_CATALOG } from '@/lib/access-control'
 

@@ -47,6 +47,7 @@ import { AppointDepartmentHeadModal } from './AppointDepartmentHeadModal'
 import { AddWorkerModal } from './AddWorkerModal'
 import { ResetPasswordModal } from './ResetPasswordModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DashboardSectionHeader } from '@/app/dashboard/components/DashboardSectionHeader'
 
 const DIVISION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Palette,
@@ -315,7 +316,7 @@ export function DepartmentHeadsClient({
               <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Supervisor &amp; <span className="text-[#1D4ED8]">Workers</span>
               </h1>
-              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                 {divisions.length} Departments
               </span>
             </div>
@@ -350,227 +351,267 @@ export function DepartmentHeadsClient({
         </div>
       </div>
 
-      {/* 2. ROW 1: Written About the Owner - No pill clutter */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 sm:gap-6 transition-all">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-              <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
-                {owner.name}
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-500">
-                (Company Owner)
-              </span>
+      {/* 2. FACTORY LEADERSHIP SECTION: Owner + Production Manager (Card-contained on mobile < md, split cards on desktop >= md) */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-6">
+        <div className="md:hidden">
+          <DashboardSectionHeader
+            icon={Crown}
+            title="Factory"
+            accent="Leadership"
+            badge={primaryPM ? 'Owner & PM' : 'Owner'}
+          />
+        </div>
+
+        {/* ROW 1: Written About the Owner - No pill clutter */}
+        <div className="bg-slate-50/80 md:bg-white p-3.5 md:p-6 rounded-xl md:rounded-2xl border border-slate-200/80 shadow-2xs md:shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-6 transition-all">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+              <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
             </div>
-            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-base text-slate-700 font-mono mt-1 flex-wrap">
-              {owner.email && (
-                <span className="flex items-center gap-1.5 font-sans font-medium text-slate-600">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                  {owner.email}
+            <div>
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
+                  {owner.name}
                 </span>
-              )}
-              {owner.phone && (
-                <a href={`tel:+91${owner.phone}`} className="flex items-center gap-1.5 font-bold hover:underline text-[#0B1220]">
-                  <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                  +91 {owner.phone}
-                </a>
-              )}
+                <span className="text-xs sm:text-sm font-semibold text-slate-500">
+                  (Company Owner)
+                </span>
+              </div>
+              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-base text-slate-700 font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-1 flex-wrap">
+                {owner.email && (
+                  <span className="flex items-center gap-1.5 font-sans font-medium text-slate-600">
+                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                    {owner.email}
+                  </span>
+                )}
+                {owner.phone && (
+                  <a href={`tel:+91${owner.phone}`} className="flex items-center gap-1.5 font-bold hover:underline text-[#0B1220]">
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                    +91 {owner.phone}
+                  </a>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center">
-          <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            Full Factory Authority
-          </span>
-        </div>
-      </div>
-
-      {/* 3. ROW 2: Written About the Production Manager - High Contrast & Large Touch Buttons */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-all">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-            <Factory className="w-6 h-6 text-[#0B1220]" />
-          </div>
-          <div>
-            {primaryPM ? (
-              <>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
-                    {primaryPM.name}
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-slate-500">
-                    (Production Manager)
-                  </span>
-                  <span className={`text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full border ${
-                    primaryPM.isActive 
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                      : 'bg-rose-50 text-rose-700 border-rose-200'
-                  }`}>
-                    • {primaryPM.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-base text-slate-700 font-mono mt-1 flex-wrap">
-                  <a href={`tel:+91${primaryPM.phone}`} className="flex items-center gap-1.5 font-bold hover:underline text-[#0B1220]">
-                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                    +91 {primaryPM.phone}
-                  </a>
-                  {primaryPM.email && !primaryPM.email.endsWith('.local') && (
-                    <span className="flex items-center gap-1.5 font-sans font-medium text-slate-600">
-                      <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                      {primaryPM.email}
-                    </span>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center gap-2">
-                  <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
-                    Production Manager
-                  </span>
-                  <span className="text-xs sm:text-sm text-slate-400 font-medium">
-                    (Not Assigned)
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-                  No Production Manager appointed yet. Owner can delegate factory-wide oversight.
-                </p>
-              </>
-            )}
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              Full Factory Authority
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end shrink-0">
-          {primaryPM ? (
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              {isOwner && (
+        {/* ROW 2: Written About the Production Manager - High Contrast & Large Touch Buttons */}
+        <div className="bg-slate-50/80 md:bg-white p-3.5 md:p-6 rounded-xl md:rounded-2xl border border-slate-200/80 shadow-2xs md:shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 sm:gap-6 transition-all">
+          <div className="flex items-center gap-3.5 md:gap-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
+              <Factory className="w-5 h-5 md:w-6 md:h-6 text-[#0B1220]" />
+            </div>
+            <div>
+              {primaryPM ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => setPasswordModal({
-                      isOpen: true,
-                      userId: primaryPM.id,
-                      userName: primaryPM.name,
-                      username: primaryPM.username,
-                      phone: primaryPM.phone
-                    })}
-                    className="flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-                  >
-                    <KeyRound className="w-4 h-4" />
-                    <span>Reset Password</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleToggleStatus(primaryPM.id, 'PRODUCTION_MANAGER', primaryPM.isActive)}
-                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
-                    title={primaryPM.isActive ? 'Deactivate' : 'Activate'}
-                  >
-                    <PowerOff className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirm({
-                      isOpen: true,
-                      id: primaryPM.id,
-                      name: primaryPM.name,
-                      type: 'PRODUCTION_MANAGER'
-                    })}
-                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
-                    title="Remove Production Manager"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
+                      {primaryPM.name}
+                    </span>
+                    <span className="text-xs sm:text-sm font-semibold text-slate-500">
+                      (Production Manager)
+                    </span>
+                    <span className={`text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full border ${
+                      primaryPM.isActive 
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                    }`}>
+                      • {primaryPM.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-base text-slate-700 font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-1 flex-wrap">
+                    <a href={`tel:+91${primaryPM.phone}`} className="flex items-center gap-1.5 font-bold hover:underline text-[#0B1220]">
+                      <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                      +91 {primaryPM.phone}
+                    </a>
+                    {primaryPM.email && !primaryPM.email.endsWith('.local') && (
+                      <span className="flex items-center gap-1.5 font-sans font-medium text-slate-600">
+                        <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                        {primaryPM.email}
+                      </span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base sm:text-lg lg:text-xl font-bold text-[#0B1220]">
+                      Production Manager
+                    </span>
+                    <span className="text-xs sm:text-sm text-slate-400 font-medium">
+                      (Not Assigned)
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+                    No Production Manager appointed yet. Owner can delegate factory-wide oversight.
+                  </p>
                 </>
               )}
             </div>
-          ) : (
-            isOwner && (
-              <button
-                type="button"
-                onClick={() => setIsPmModalOpen(true)}
-                className="w-full sm:w-auto min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-              >
-                <Plus className="w-4 h-4 text-white" />
-                <span>Appoint Production Manager</span>
-              </button>
-            )
-          )}
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end shrink-0">
+            {primaryPM ? (
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                {isOwner && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setPasswordModal({
+                        isOpen: true,
+                        userId: primaryPM.id,
+                        userName: primaryPM.name,
+                        username: primaryPM.username,
+                        phone: primaryPM.phone
+                      })}
+                      className="flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 bg-white hover:bg-slate-100 md:bg-slate-100 md:hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                    >
+                      <KeyRound className="w-4 h-4" />
+                      <span>Reset Password</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(primaryPM.id, 'PRODUCTION_MANAGER', primaryPM.isActive)}
+                      className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-slate-200 bg-white md:bg-transparent text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                      title={primaryPM.isActive ? 'Deactivate' : 'Activate'}
+                    >
+                      <PowerOff className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirm({
+                        isOpen: true,
+                        id: primaryPM.id,
+                        name: primaryPM.name,
+                        type: 'PRODUCTION_MANAGER'
+                      })}
+                      className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 bg-white md:bg-transparent text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                      title="Remove Production Manager"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              isOwner && (
+                <button
+                  type="button"
+                  onClick={() => setIsPmModalOpen(true)}
+                  className="w-full sm:w-auto min-h-[42px] px-4.5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                >
+                  <Plus className="w-4 h-4 text-white" />
+                  <span>Appoint Production Manager</span>
+                </button>
+              )
+            )}
+          </div>
         </div>
       </div>
 
-      {/* 4. SECTION HEADER: Departments & Staff */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
-            Factory Departments
-          </h2>
-          <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
-            {filteredDivisions.length}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2.5 self-start sm:self-center">
-          <button
-            type="button"
-            onClick={expandAll}
-            className="min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
-          >
-            Expand All
-          </button>
-          <button
-            type="button"
-            onClick={collapseAll}
-            className="min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
-          >
-            Collapse All
-          </button>
-        </div>
-      </div>
-
-      {/* Table Column Header Guide for Perfect Vertical Alignment (Desktop) */}
-      <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2.5 text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
-        <div className="col-span-5">Department</div>
-        <div className="col-span-4">Department In-Charge</div>
-        <div className="col-span-2 text-center">Floor Staff</div>
-        <div className="col-span-1 text-right">Details</div>
-      </div>
-
-      {/* 5. DEPARTMENT ROWS: One by one aligned strictly in grid columns */}
-      <div className="space-y-3.5">
-        {filteredDivisions.length === 0 ? (
-          <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-3">
-            <Users className="w-12 h-12 text-slate-300 mx-auto" />
-            <h3 className="text-base sm:text-lg font-bold text-[#0B1220]">No Matching Departments</h3>
-            <p className="text-xs sm:text-sm text-slate-500">
-              No department, head, or worker matches "{searchQuery}".
-            </p>
+      {/* 3. FACTORY DEPARTMENTS SECTION (Screenshot 1 card-contained on < md, desktop >= md untouched) */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3.5 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-4">
+        {/* Mobile Dashboard-style Section Header (< md) */}
+        <div className="md:hidden space-y-3">
+          <DashboardSectionHeader
+            icon={Layers}
+            title="Factory"
+            accent="Departments"
+            badge={`${filteredDivisions.length}`}
+          />
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setSearchQuery('')}
-              className="min-h-[44px] px-6 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center justify-center cursor-pointer active:scale-[0.98]"
+              onClick={expandAll}
+              className="flex-1 min-h-[38px] px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
             >
-              Clear Filter
+              Expand All
+            </button>
+            <button
+              type="button"
+              onClick={collapseAll}
+              className="flex-1 min-h-[38px] px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+            >
+              Collapse All
             </button>
           </div>
-        ) : (
-          filteredDivisions.map(div => {
-            const isExpanded = expandedRoutes.has(div.route)
-            const IconComponent = DIVISION_ICONS[div.iconName] || Layers
-            const divWorkers = workersByDivision.get(div.route) || []
-            const head = div.appointedHead
-            const allHeadsForDiv = departmentHeadsList.filter(h => h.allowedModules.includes(div.route))
-            const totalHeadsCount = allHeadsForDiv.length
+        </div>
 
-            return (
-              <div
-                key={div.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
+        {/* Desktop Section Header (>= md untouched) */}
+        <div className="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">
+              Factory Departments
+            </h2>
+            <span className="text-xs sm:text-sm font-mono font-bold px-3 py-1 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+              {filteredDivisions.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5 self-start sm:self-center">
+            <button
+              type="button"
+              onClick={expandAll}
+              className="min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+            >
+              Expand All
+            </button>
+            <button
+              type="button"
+              onClick={collapseAll}
+              className="min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+            >
+              Collapse All
+            </button>
+          </div>
+        </div>
+
+        {/* Table Column Header Guide for Perfect Vertical Alignment (Desktop) */}
+        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2.5 text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
+          <div className="col-span-5">Department</div>
+          <div className="col-span-4">Department In-Charge</div>
+          <div className="col-span-2 text-center">Floor Staff</div>
+          <div className="col-span-1 text-right">Details</div>
+        </div>
+
+        {/* DEPARTMENT ROWS: One by one aligned strictly in grid columns */}
+        <div className="space-y-3 md:space-y-3.5">
+          {filteredDivisions.length === 0 ? (
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 md:bg-white md:rounded-2xl md:p-10 md:border-slate-200 text-center space-y-3">
+              <Users className="w-12 h-12 text-slate-300 mx-auto" />
+              <h3 className="text-base sm:text-lg font-bold text-[#0B1220]">No Matching Departments</h3>
+              <p className="text-xs sm:text-sm text-slate-500">
+                No department, head, or worker matches "{searchQuery}".
+              </p>
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="min-h-[44px] px-6 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 inline-flex items-center justify-center cursor-pointer active:scale-[0.98]"
               >
+                Clear Filter
+              </button>
+            </div>
+          ) : (
+            filteredDivisions.map(div => {
+              const isExpanded = expandedRoutes.has(div.route)
+              const IconComponent = DIVISION_ICONS[div.iconName] || Layers
+              const divWorkers = workersByDivision.get(div.route) || []
+              const head = div.appointedHead
+              const allHeadsForDiv = departmentHeadsList.filter(h => h.allowedModules.includes(div.route))
+              const totalHeadsCount = allHeadsForDiv.length
+
+              return (
+                <div
+                  key={div.id}
+                  className="bg-slate-50/80 hover:bg-slate-50 md:bg-white md:hover:bg-white rounded-xl md:rounded-2xl border border-slate-200/80 shadow-2xs md:shadow-xs hover:border-slate-300 transition-all overflow-hidden"
+                >
                 {/* 1. Desktop Clickable Row Header - Strict 12-column CSS Grid Alignment */}
                 <div
                   onClick={() => toggleExpand(div.route)}
@@ -635,15 +676,15 @@ export function DepartmentHeadsClient({
                 {/* 2. Mobile Clickable Row Header (390px Viewport Ergonomics) */}
                 <div
                   onClick={() => toggleExpand(div.route)}
-                  className="block md:hidden p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/60 transition-colors group"
+                  className="block md:hidden p-3.5 cursor-pointer select-none hover:bg-slate-100/60 transition-colors group"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                         <IconComponent className="w-5 h-5 text-[#0B1220]" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-base font-bold text-[#0B1220] truncate">
+                        <div className="text-[15px] font-bold font-[family-name:var(--font-heading)] text-[#0B1220] truncate">
                           {div.name}
                         </div>
                         <div className="text-xs font-semibold text-slate-500 truncate">
@@ -652,11 +693,11 @@ export function DepartmentHeadsClient({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[11px] font-[family-name:var(--font-heading)] tabular-nums font-bold px-2.5 py-1 rounded-full bg-white text-slate-800 border border-slate-200 shadow-2xs">
                         {divWorkers.length} {divWorkers.length === 1 ? 'Worker' : 'Workers'}
                       </span>
-                      <div className={`p-1.5 rounded-lg text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
+                      <div className={`p-1 rounded-lg text-slate-400 group-hover:text-[#0B1220] transition-transform duration-200 ${
                         isExpanded ? 'rotate-180 text-[#0B1220]' : ''
                       }`}>
                         <ChevronDown className="w-5 h-5" />
@@ -665,7 +706,7 @@ export function DepartmentHeadsClient({
                   </div>
 
                   {/* Mobile Sub-strip with In-charge details */}
-                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                  <div className="mt-2.5 pt-2.5 border-t border-slate-200/70 flex items-center justify-between gap-2 text-xs">
                     <div className="min-w-0 flex items-center gap-2">
                       <span className="font-semibold text-slate-400 uppercase tracking-wide text-[11px] shrink-0">In-Charge:</span>
                       {totalHeadsCount > 0 && head ? (
@@ -683,7 +724,7 @@ export function DepartmentHeadsClient({
                       )}
                     </div>
                     {totalHeadsCount > 0 && head && (
-                      <span className="font-mono font-bold text-slate-700 shrink-0">
+                      <span className="font-[family-name:var(--font-heading)] tabular-nums font-bold text-slate-700 shrink-0">
                         +91 {head.phone}
                       </span>
                     )}
@@ -692,10 +733,10 @@ export function DepartmentHeadsClient({
 
                 {/* EXPANDED CONTENT UNDER ROW */}
                 {isExpanded && (
-                  <div className="border-t border-slate-200/80 bg-[#F8FAFC]/70 p-4 sm:p-6 space-y-5 animate-in slide-in-from-top-1 duration-150">
+                  <div className="border-t border-slate-200/80 bg-white/80 md:bg-[#F8FAFC]/70 p-3 md:p-6 space-y-3.5 md:space-y-5 animate-in slide-in-from-top-1 duration-150">
                     
                     {/* SECTION A: Department In-charge Details */}
-                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs space-y-4">
+                    <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-200/80 shadow-2xs space-y-3.5 md:space-y-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                           <h4 className="text-base sm:text-lg font-bold text-[#0B1220]">
@@ -815,22 +856,22 @@ export function DepartmentHeadsClient({
                           </div>
 
                           {/* Mobile Dedicated Card List (No cramped tables on 390px screens) */}
-                          <div className="block md:hidden space-y-3.5">
+                          <div className="block md:hidden space-y-3">
                             {allHeadsForDiv.map((h) => (
-                              <div key={h.id} className="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+                              <div key={h.id} className="p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl shadow-2xs space-y-2.5">
                                 <div className="flex items-start justify-between gap-2">
                                   <div>
-                                    <div className="text-base font-bold text-[#0B1220]">
+                                    <div className="text-[15px] font-bold font-[family-name:var(--font-heading)] text-[#0B1220]">
                                       {h.displayName}
                                     </div>
-                                    <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-0.5">
+                                    <div className="text-xs font-semibold text-slate-600 mt-0.5">
                                       {h.designation}
                                     </div>
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => handleToggleStatus(h.id, 'DEPARTMENT_HEAD', h.isActive)}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer shrink-0 ${
                                       h.isActive
                                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                         : 'bg-rose-50 text-rose-700 border-rose-200'
@@ -840,7 +881,7 @@ export function DepartmentHeadsClient({
                                   </button>
                                 </div>
 
-                                <div className="text-sm font-mono font-bold text-slate-800 space-y-1">
+                                <div className="text-sm font-[family-name:var(--font-heading)] tabular-nums font-bold text-slate-800 space-y-1">
                                   <a href={`tel:+91${h.phone}`} className="flex items-center gap-2 hover:underline text-[#0B1220]">
                                     <Phone className="w-4 h-4 text-slate-400 shrink-0" />
                                     +91 {h.phone}
@@ -853,7 +894,7 @@ export function DepartmentHeadsClient({
                                   )}
                                 </div>
 
-                                <div className="pt-2.5 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                                <div className="pt-2.5 border-t border-slate-200/70 flex items-center gap-2 flex-wrap">
                                   {isOwner && (
                                     <button
                                       type="button"
@@ -864,7 +905,7 @@ export function DepartmentHeadsClient({
                                         username: h.username,
                                         phone: h.phone
                                       })}
-                                      className="flex-1 min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                                      className="flex-1 min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                                     >
                                       <KeyRound className="w-4 h-4" />
                                       <span>Reset Password</span>
@@ -875,7 +916,7 @@ export function DepartmentHeadsClient({
                                       <button
                                         type="button"
                                         onClick={() => handleOpenAppointHead(div.route, h)}
-                                        className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                        className="min-h-[42px] min-w-[42px] p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-[#0B1220] hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
                                         title="Edit Details"
                                       >
                                         <Edit2 className="w-4 h-4" />
@@ -888,7 +929,7 @@ export function DepartmentHeadsClient({
                                           name: h.displayName,
                                           type: 'DEPARTMENT_HEAD'
                                         })}
-                                        className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                        className="min-h-[42px] min-w-[42px] p-2.5 rounded-xl border border-rose-200 bg-white text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
                                         title="Remove Head"
                                       >
                                         <Trash2 className="w-4 h-4" />
@@ -901,7 +942,7 @@ export function DepartmentHeadsClient({
                           </div>
                         </>
                       ) : (
-                        <div className="bg-[#F8FAFC] rounded-2xl p-6 border border-dashed border-slate-300 text-center space-y-1.5">
+                        <div className="bg-[#F8FAFC] rounded-xl md:rounded-2xl p-5 md:p-6 border border-dashed border-slate-300 text-center space-y-1.5">
                           <p className="text-sm font-semibold text-slate-600">
                             No Department Head assigned for {div.name} yet.
                           </p>
@@ -910,7 +951,7 @@ export function DepartmentHeadsClient({
                     </div>
 
                     {/* SECTION B: Shop Floor Workers Roster */}
-                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs space-y-4">
+                    <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-200/80 shadow-2xs space-y-3.5 md:space-y-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                         <div>
                           <h4 className="text-base sm:text-lg font-bold text-[#0B1220]">
@@ -1020,19 +1061,19 @@ export function DepartmentHeadsClient({
                           </div>
 
                           {/* Mobile Dedicated Card List (No cramped tables on 390px screens) */}
-                          <div className="block md:hidden space-y-3.5">
+                          <div className="block md:hidden space-y-3">
                             {divWorkers.map(w => (
-                              <div key={w.id} className="p-4 bg-white border border-slate-200 rounded-2xl shadow-2xs space-y-3">
+                              <div key={w.id} className="p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl shadow-2xs space-y-2.5">
                                 <div className="flex items-start justify-between gap-2">
                                   <div>
-                                    <div className="text-base font-bold text-[#0B1220]">
+                                    <div className="text-[15px] font-bold font-[family-name:var(--font-heading)] text-[#0B1220]">
                                       {w.name}
                                     </div>
                                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                      <span className="text-xs sm:text-sm font-semibold text-slate-700">
+                                      <span className="text-xs font-semibold text-slate-700">
                                         {w.role}
                                       </span>
-                                      <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
+                                      <span className="text-xs font-[family-name:var(--font-heading)] tabular-nums font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded border border-slate-200">
                                         {w.shift}
                                       </span>
                                     </div>
@@ -1040,7 +1081,7 @@ export function DepartmentHeadsClient({
                                   <button
                                     type="button"
                                     onClick={() => handleToggleStatus(w.id, 'WORKER', w.status === 'ACTIVE', div.route)}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer shrink-0 ${
                                       w.status === 'ACTIVE'
                                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                         : 'bg-rose-50 text-rose-700 border-rose-200'
@@ -1050,14 +1091,14 @@ export function DepartmentHeadsClient({
                                   </button>
                                 </div>
 
-                                <div className="text-sm font-mono font-bold text-slate-800">
+                                <div className="text-sm font-[family-name:var(--font-heading)] tabular-nums font-bold text-slate-800">
                                   <a href={`tel:+91${w.phone}`} className="flex items-center gap-2 hover:underline text-[#0B1220]">
                                     <Phone className="w-4 h-4 text-slate-400 shrink-0" />
                                     +91 {w.phone}
                                   </a>
                                 </div>
 
-                                <div className="pt-2.5 border-t border-slate-100 flex items-center gap-2">
+                                <div className="pt-2.5 border-t border-slate-200/70 flex items-center gap-2">
                                   {isOwner && (
                                     <button
                                       type="button"
@@ -1068,7 +1109,7 @@ export function DepartmentHeadsClient({
                                         username: w.phone,
                                         phone: w.phone
                                       })}
-                                      className="flex-1 min-h-[44px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                                      className="flex-1 min-h-[42px] px-4 py-2 bg-white hover:bg-slate-100 border border-slate-300/80 text-[#0B1220] rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                                     >
                                       <KeyRound className="w-4 h-4" />
                                       <span>Reset Password</span>
@@ -1083,7 +1124,7 @@ export function DepartmentHeadsClient({
                                       type: 'WORKER',
                                       divisionRoute: div.route
                                     })}
-                                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
+                                    className="min-h-[42px] min-w-[42px] p-2.5 rounded-xl border border-rose-200 bg-white text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shadow-2xs active:scale-[0.98]"
                                     title="Remove Worker"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -1094,7 +1135,7 @@ export function DepartmentHeadsClient({
                           </div>
                         </>
                       ) : (
-                        <div className="bg-[#F8FAFC] rounded-2xl p-6 border border-dashed border-slate-300 text-center space-y-1.5">
+                        <div className="bg-[#F8FAFC] rounded-xl md:rounded-2xl p-5 md:p-6 border border-dashed border-slate-300 text-center space-y-1.5">
                           <Users className="w-7 h-7 text-slate-300 mx-auto" />
                           <p className="text-sm font-semibold text-slate-600">
                             No shop floor workers registered under {div.name} yet.
@@ -1110,6 +1151,7 @@ export function DepartmentHeadsClient({
             )
           })
         )}
+        </div>
       </div>
 
       {/* MODALS */}
