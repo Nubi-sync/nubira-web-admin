@@ -26,8 +26,7 @@ import {
   Info,
   CheckCircle2,
   X,
-  SlidersHorizontal,
-  Target,
+  BarChart3,
   ShoppingBag
 } from 'lucide-react'
 import {
@@ -36,6 +35,7 @@ import {
   BuyerOrderStatusItem
 } from '../actions'
 import { OwnerLoginActivitySection } from './OwnerLoginActivitySection'
+import { DashboardSectionHeader } from './DashboardSectionHeader'
 
 const DIVISION_ICONS: Record<string, React.ElementType> = {
   Scissors,

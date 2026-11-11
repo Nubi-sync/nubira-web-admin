@@ -129,13 +129,13 @@ export function IndianStateVectorMap({
   const pinR = geo ? Math.max(geo.width, geo.height) / 90 : 0
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col ${className}`}>
+    <div className={`bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 flex flex-col ${className}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
-            Your Current Location
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Current Location
           </span>
-          <h3 className="text-lg font-black text-[#0B1220] tracking-tight mt-0.5 font-[family-name:var(--font-heading)] truncate">
+          <h3 className="text-base sm:text-lg font-extrabold text-[#0B1220] tracking-tight mt-0.5 font-[family-name:var(--font-heading)] truncate">
             {isDetecting && !stateName ? 'Detecting…' : (geo?.state || stateName || 'Unknown')}
           </h3>
           {cityName && (
@@ -143,7 +143,7 @@ export function IndianStateVectorMap({
           )}
         </div>
         {geo && geo.districts.length > 1 && (
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shrink-0">
+          <span className="text-[10px] font-bold tabular-nums px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shrink-0">
             {geo.districts.length} {geo.slug === 'delhi' ? 'wards' : 'districts'}
           </span>
         )}
