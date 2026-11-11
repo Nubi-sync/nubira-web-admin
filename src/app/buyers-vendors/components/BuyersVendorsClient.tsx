@@ -401,7 +401,7 @@ export function BuyersVendorsClient({
       {/* =================================================================== */}
       {/* SECTION 1: BUYERS & CONTRACT HISTORY (Row Format with 5 Pagination) */}
       {/* =================================================================== */}
-      <div className="space-y-4 pt-2">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3.5 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:pt-2 md:shadow-none md:space-y-4">
         {/* Mobile Dashboard-style Section Header (< md) */}
         <div className="md:hidden space-y-3">
           <DashboardSectionHeader
@@ -490,9 +490,9 @@ export function BuyersVendorsClient({
         </div>
 
         {/* Buyer Rows */}
-        <div className="space-y-3.5">
+        <div className="space-y-3 md:space-y-3.5">
           {filteredBuyers.length === 0 ? (
-            <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-3">
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 md:bg-white md:rounded-2xl md:p-10 md:border-slate-200 text-center space-y-3">
               <Building2 className="w-12 h-12 text-slate-300 mx-auto" />
               <h3 className="text-base sm:text-lg font-bold text-[#0B1220]">No Matching Buyers</h3>
               <p className="text-xs sm:text-sm text-slate-500">
@@ -517,7 +517,7 @@ export function BuyersVendorsClient({
               return (
                 <div
                   key={buyer.id}
-                  className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
+                  className="bg-slate-50/80 hover:bg-slate-50 md:bg-white md:hover:bg-white rounded-xl md:rounded-2xl border border-slate-200/80 shadow-2xs md:shadow-xs hover:border-slate-300 transition-all overflow-hidden"
                 >
                   {/* Desktop Clickable Row Header (12-column grid) - SINGLE CLEAN STRAIGHT LINE */}
                   <div
@@ -745,7 +745,7 @@ export function BuyersVendorsClient({
 
         {/* Buyer List Pagination Controls (5 Buyers Per Page) */}
         {totalBuyerPages > 1 && (
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
+          <div className="bg-transparent pt-3 border-t border-slate-100 md:bg-white md:p-4 md:rounded-2xl md:border md:border-slate-200 flex items-center justify-between gap-4">
             <div className="text-xs sm:text-sm font-medium text-slate-600">
               Showing <strong className="text-slate-900">{(buyerCurrentPage - 1) * BUYERS_PER_PAGE + 1}</strong> to{' '}
               <strong className="text-slate-900">
@@ -799,7 +799,7 @@ export function BuyersVendorsClient({
       {/* =================================================================== */}
       {/* SECTION 2: 12 MODULES VENDOR ASSIGNMENT HUB                         */}
       {/* =================================================================== */}
-      <div className="space-y-4 pt-6 border-t border-slate-200">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3.5 md:bg-transparent md:rounded-none md:border-x-0 md:border-b-0 md:border-t md:border-slate-200 md:p-0 md:pt-6 md:shadow-none md:space-y-4">
         {/* Mobile Dashboard-style Section Header (< md) */}
         <div className="md:hidden space-y-3">
           <DashboardSectionHeader
@@ -881,7 +881,7 @@ export function BuyersVendorsClient({
         </div>
 
         {/* 12 Module Rows */}
-        <div className="space-y-3.5">
+        <div className="space-y-3 md:space-y-3.5">
           {filteredModules.map(mod => {
             const isExpanded = expandedModules.has(mod.moduleRoute)
             const IconComponent = MODULE_ICONS[mod.iconName] || Layers
@@ -890,7 +890,7 @@ export function BuyersVendorsClient({
             return (
               <div
                 key={mod.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
+                className="bg-slate-50/80 hover:bg-slate-50 md:bg-white md:hover:bg-white rounded-xl md:rounded-2xl border border-slate-200/80 shadow-2xs md:shadow-xs hover:border-slate-300 transition-all overflow-hidden"
               >
                 {/* Desktop Clickable Row (12-column grid) */}
                 <div
