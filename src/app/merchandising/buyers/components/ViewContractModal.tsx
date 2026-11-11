@@ -53,7 +53,7 @@ export function ViewContractModal({
                 <h2 className="text-xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
                   {buyer.buyer_name}
                 </h2>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-[family-name:var(--font-heading)] md:font-mono font-bold uppercase ${
                   isLinked 
                     ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                     : 'bg-amber-50 text-amber-800 border border-amber-200'
@@ -61,7 +61,7 @@ export function ViewContractModal({
                   {isLinked ? 'Contract Active' : 'Pending Article Link'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">
+              <p className="text-xs text-slate-500 font-[family-name:var(--font-sans)] tabular-nums md:font-mono mt-0.5">
                 Ref Code: <span className="font-bold text-[#0B1220]">{buyer.buyer_code}</span>
                 {buyer.brand_name && <span className="ml-2 font-normal">• Brand: {buyer.brand_name}</span>}
               </p>
@@ -82,28 +82,28 @@ export function ViewContractModal({
           {/* Key Financial & Volume Summary Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-mono font-bold uppercase text-slate-500 block">
+              <span className="text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-500 block">
                 Ordered Volume
               </span>
-              <span className="text-xl font-extrabold font-mono text-[#0B1220] mt-1 block">
+              <span className="text-xl font-extrabold font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-[#0B1220] mt-1 block">
                 {buyer.contracted_volume.toLocaleString('en-IN')} <span className="text-xs font-normal text-slate-600">Pcs</span>
               </span>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-mono font-bold uppercase text-slate-500 block">
+              <span className="text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-500 block">
                 Price / Piece
               </span>
-              <span className="text-xl font-extrabold font-mono text-slate-900 mt-1 block">
+              <span className="text-xl font-extrabold font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-slate-900 mt-1 block">
                 {currSym}{buyer.price_per_piece.toFixed(2)}
               </span>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-mono font-bold uppercase text-slate-500 block">
+              <span className="text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-500 block">
                 Total Contract Value
               </span>
-              <span className="text-xl font-extrabold font-mono text-slate-900 mt-1 block">
+              <span className="text-xl font-extrabold font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-slate-900 mt-1 block">
                 {currSym}{buyer.total_contract_value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -112,16 +112,16 @@ export function ViewContractModal({
           {/* Linked Article Status Section */}
           <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase text-slate-700 flex items-center gap-1.5">
+              <span className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-700 flex items-center gap-1.5">
                 <Layers className="w-4 h-4 text-[#0B1220]" />
                 Allocated Tech Pack Article
               </span>
               {isLinked ? (
-                <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-[family-name:var(--font-heading)] md:font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                   Linked &amp; Active
                 </span>
               ) : (
-                <span className="text-xs font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-[family-name:var(--font-heading)] md:font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                   Action Required
                 </span>
               )}
@@ -130,7 +130,7 @@ export function ViewContractModal({
             {isLinked ? (
               <div className="p-3 rounded-lg bg-indigo-50/60 border border-indigo-100 flex items-center justify-between">
                 <div>
-                  <div className="font-mono font-bold text-sm text-[#0B1220]">
+                  <div className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-sm text-[#0B1220]">
                     {buyer.linked_article_number}
                   </div>
                   <div className="text-xs text-slate-600 font-medium mt-0.5">
@@ -175,7 +175,7 @@ export function ViewContractModal({
           {/* Contract Details Table / Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <span className="font-mono font-bold uppercase text-[10px] text-slate-400 block">
+              <span className="font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-[10px] text-slate-400 block">
                 Commercial Information
               </span>
               <div className="flex justify-between py-1 border-b border-slate-100">
@@ -184,18 +184,18 @@ export function ViewContractModal({
               </div>
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">Currency:</span>
-                <span className="font-mono font-bold text-slate-800">{buyer.currency}</span>
+                <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-800">{buyer.currency}</span>
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-slate-500">Created Date:</span>
-                <span className="font-mono text-slate-700">
+                <span className="font-[family-name:var(--font-sans)] tabular-nums md:font-mono text-slate-700">
                   {buyer.created_at ? new Date(buyer.created_at).toLocaleDateString('en-GB') : '—'}
                 </span>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
-              <span className="font-mono font-bold uppercase text-[10px] text-slate-400 block">
+              <span className="font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-[10px] text-slate-400 block">
                 Point of Contact
               </span>
               <div className="flex justify-between py-1 border-b border-slate-100">
@@ -204,11 +204,11 @@ export function ViewContractModal({
               </div>
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">Contact Email:</span>
-                <span className="font-mono text-slate-800 truncate max-w-[140px]">{buyer.contact_email || '—'}</span>
+                <span className="font-[family-name:var(--font-sans)] tabular-nums md:font-mono text-slate-800 truncate max-w-[140px]">{buyer.contact_email || '—'}</span>
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-slate-500">Contract ID:</span>
-                <span className="font-mono text-[11px] text-slate-600 truncate max-w-[140px]">{buyer.id}</span>
+                <span className="font-[family-name:var(--font-sans)] tabular-nums md:font-mono text-[11px] text-slate-600 truncate max-w-[140px]">{buyer.id}</span>
               </div>
             </div>
           </div>
@@ -216,7 +216,7 @@ export function ViewContractModal({
           {/* Notes */}
           {buyer.notes && (
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-              <span className="font-mono font-bold uppercase text-[10px] text-slate-400 block mb-1">
+              <span className="font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-[10px] text-slate-400 block mb-1">
                 Contract Terms &amp; Special Conditions
               </span>
               <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{buyer.notes}</p>

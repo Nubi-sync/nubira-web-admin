@@ -92,7 +92,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 font-[family-name:var(--font-heading)]">
                 Contract New Active Buyer
               </h2>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="hidden md:block text-xs text-slate-500 font-medium mt-0.5">
                 Record buyer volume, unit price, and commercial contract terms
               </p>
             </div>
@@ -111,7 +111,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
           {/* Buyer Name & Code */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Buyer / Company Name <span className="text-rose-500">*</span>
               </label>
               <input
@@ -126,7 +126,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
               />
             </div>
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Buyer Reference Code
               </label>
               <input
@@ -136,7 +136,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                 value={buyerCode}
                 onChange={e => setBuyerCode(e.target.value.toUpperCase())}
                 placeholder="BYR-ZARA"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220] focus:ring-1 focus:ring-[#0B1220] transition-all"
               />
             </div>
           </div>
@@ -144,7 +144,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
           {/* Brand Name & Season */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Brand / Label Name
               </label>
               <input
@@ -158,7 +158,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
               />
             </div>
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Target Delivery Season
               </label>
               <input
@@ -175,13 +175,13 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
 
           {/* Volume, Price & Currency */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3.5">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0B1220] block">
+            <span className="text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-[#0B1220] block">
               Contract Volume &amp; Pricing Agreement
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-mono font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-600 mb-1">
                   Contracted Volume (Pcs) <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -193,12 +193,12 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                   value={contractedVolume}
                   onChange={e => setContractedVolume(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="5000"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-600 mb-1">
                   Offered Price / Pc <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -211,12 +211,12 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
                   value={pricePerPiece}
                   onChange={e => setPricePerPiece(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="450.00"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs sm:text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-900 focus:outline-hidden focus:border-[#0B1220]"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono font-bold uppercase text-slate-600 mb-1">
+                <label className="block text-[11px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-600 mb-1">
                   Currency
                 </label>
                 <select
@@ -236,7 +236,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
             {/* Total Contracted Value Calculation Banner */}
             <div className="mt-2 pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
               <span className="font-medium text-slate-600">Total Contract Value:</span>
-              <span className="font-mono font-extrabold text-sm sm:text-base text-slate-900">
+              <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-extrabold text-sm sm:text-base text-slate-900">
                 {currencySymbol}{totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -245,7 +245,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
           {/* Contact Person & Email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Buyer Contact Person
               </label>
               <input
@@ -259,7 +259,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
               />
             </div>
             <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Contact Email
               </label>
               <input
@@ -276,7 +276,7 @@ export function CreateBuyerModal({ isOpen, companyName, onClose, onBuyerCreated 
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Contract Terms / Internal Notes
             </label>
             <textarea

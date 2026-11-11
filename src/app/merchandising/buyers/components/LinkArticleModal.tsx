@@ -134,21 +134,21 @@ export function LinkArticleModal({
         {/* Buyer Summary Card */}
         <div className="p-4 sm:px-6 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block">Buyer Contract</span>
+            <span className="text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-400 block">Buyer Contract</span>
             <span className="text-sm font-bold text-slate-900">{buyer.buyer_name}</span>
-            <span className="text-xs text-slate-500 font-mono ml-2">({buyer.buyer_code})</span>
+            <span className="text-xs text-slate-500 font-[family-name:var(--font-sans)] tabular-nums md:font-mono ml-2">({buyer.buyer_code})</span>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block">Contracted Volume</span>
-              <span className="text-sm font-mono font-bold text-[#0B1220]">
+              <span className="text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-400 block">Contracted Volume</span>
+              <span className="text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-[#0B1220]">
                 {buyer.contracted_volume.toLocaleString('en-IN')} Pcs
               </span>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-mono font-bold uppercase text-slate-400 block">Rate / Pc</span>
-              <span className="text-sm font-mono font-bold text-slate-900">
+              <span className="text-[10px] font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase text-slate-400 block">Rate / Pc</span>
+              <span className="text-sm font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-900">
                 {currencySymbol}{buyer.price_per_piece.toFixed(2)}
               </span>
             </div>
@@ -168,7 +168,7 @@ export function LinkArticleModal({
           ) : (
             <>
               <div>
-                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   Select Tech Pack Article <span className="text-rose-500">*</span>
                 </label>
                 <select
@@ -184,7 +184,7 @@ export function LinkArticleModal({
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="hidden md:block text-[11px] text-slate-500 mt-1">
                   Only articles with finalized Tech Packs in Design Studio appear in this dropdown.
                 </p>
               </div>
@@ -194,32 +194,32 @@ export function LinkArticleModal({
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#0B1220] text-white">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase bg-[#0B1220] text-white">
                         {selectedArticle.art_number}
                       </span>
                       <span className="text-xs font-bold text-slate-900">
                         {selectedArticle.style_name}
                       </span>
                     </div>
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <span className="text-[10px] font-[family-name:var(--font-heading)] md:font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
                       Tech Pack Ready
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
                     <div>
-                      <span className="text-slate-400 font-mono text-[10px] uppercase block">Category &amp; Brand</span>
+                      <span className="text-slate-400 font-[family-name:var(--font-sans)] md:font-mono text-[10px] uppercase block">Category &amp; Brand</span>
                       <span className="font-semibold text-slate-800">{selectedArticle.category} • {selectedArticle.brand_name}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 font-mono text-[10px] uppercase block">Fabric &amp; Target GSM</span>
+                      <span className="text-slate-400 font-[family-name:var(--font-sans)] md:font-mono text-[10px] uppercase block">Fabric &amp; Target GSM</span>
                       <span className="font-semibold text-slate-800">{selectedArticle.fabric_composition} ({selectedArticle.target_gsm || 240} GSM)</span>
                     </div>
                   </div>
 
                   {selectedArticle.embellishment_sequence && (
                     <div className="pt-2 border-t border-slate-100 text-xs">
-                      <span className="text-slate-400 font-mono text-[10px] uppercase block">Embellishment Flow</span>
+                      <span className="text-slate-400 font-[family-name:var(--font-sans)] md:font-mono text-[10px] uppercase block">Embellishment Flow</span>
                       <span className="font-medium text-slate-700">
                         {selectedArticle.embellishment_sequence.replace(/_/g, ' ')}
                       </span>

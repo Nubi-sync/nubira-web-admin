@@ -39,6 +39,7 @@ import { CreateBuyerModal } from './CreateBuyerModal'
 import { LinkArticleModal } from './LinkArticleModal'
 import { ViewContractModal } from './ViewContractModal'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { DashboardSectionHeader } from '../../../dashboard/components/DashboardSectionHeader'
 
 interface ActiveBuyersClientProps {
   initialBuyers?: ActiveBuyer[]
@@ -184,10 +185,10 @@ export function ActiveBuyersClient({
             <Users className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#0B1220]" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)]">
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 font-[family-name:var(--font-heading)] tabular-nums">
               Active Buyers &amp; <span className="text-[#1D4ED8]">Accounts</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1">
               Contracted buyer order volumes, piece-rate pricing, and Tech Pack article allocations
             </p>
           </div>
@@ -215,77 +216,88 @@ export function ActiveBuyersClient({
         </div>
       </div>
 
-      {/* 3. Executive KPI Metric Cards (4 Cards Grid) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      {/* 3. Executive KPI Metric Cards (2x2 Grid on Mobile, 4 Cards on Desktop) */}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         
         {/* CARD 1: TOTAL BUYERS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-3.5 md:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
-              <Building2 className="w-5 h-5 text-[#0B1220]" />
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <Building2 className="w-4.5 h-4.5 md:w-5 md:h-5 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+          <div className="mt-3 md:mt-4">
+            <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider text-slate-500 md:text-slate-800 block truncate">
               Active Buyers
             </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
+            <h3 className="text-xl md:text-[28px] font-extrabold md:font-bold font-[family-name:var(--font-heading)] tabular-nums text-slate-900 mt-1 leading-none">
               {totalBuyersCount}
             </h3>
           </div>
         </div>
 
         {/* CARD 2: TOTAL CONTRACTED VOLUME */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-3.5 md:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
-              <Layers className="w-5 h-5 text-[#0B1220]" />
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <Layers className="w-4.5 h-4.5 md:w-5 md:h-5 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+          <div className="mt-3 md:mt-4">
+            <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider text-slate-500 md:text-slate-800 block truncate">
               Contracted Volume
             </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
+            <h3 className="text-xl md:text-[28px] font-extrabold md:font-bold font-[family-name:var(--font-heading)] tabular-nums text-slate-900 mt-1 leading-none">
               {totalContractedPcs.toLocaleString('en-IN')}
             </h3>
           </div>
         </div>
 
         {/* CARD 3: LINKED IN-ORDER PCS */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-3.5 md:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
-              <PackageCheck className="w-5 h-5 text-[#0B1220]" />
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <PackageCheck className="w-4.5 h-4.5 md:w-5 md:h-5 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+          <div className="mt-3 md:mt-4">
+            <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider text-slate-500 md:text-slate-800 block truncate">
               In Order
             </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
+            <h3 className="text-xl md:text-[28px] font-extrabold md:font-bold font-[family-name:var(--font-heading)] tabular-nums text-slate-900 mt-1 leading-none">
               {linkedPcs.toLocaleString('en-IN')}
             </h3>
           </div>
         </div>
 
         {/* CARD 4: TOTAL CONTRACT VALUE */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-3.5 md:p-5 border border-black/15 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
-              <DollarSign className="w-5 h-5 text-[#0B1220]" />
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shrink-0 shadow-2xs">
+              <DollarSign className="w-4.5 h-4.5 md:w-5 md:h-5 text-[#0B1220]" />
             </div>
           </div>
-          <div className="mt-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block truncate">
+          <div className="mt-3 md:mt-4">
+            <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider text-slate-500 md:text-slate-800 block truncate">
               Total Contract Value
             </span>
-            <h3 className="text-2xl sm:text-[28px] font-bold font-[family-name:var(--font-heading)] text-slate-900 mt-1 leading-none">
+            <h3 className="text-xl md:text-[28px] font-extrabold md:font-bold font-[family-name:var(--font-heading)] tabular-nums text-slate-900 mt-1 leading-none">
               ₹{totalContractValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
             </h3>
           </div>
         </div>
 
+      </div>
+
+      {/* Mobile Dashboard-style Section Header */}
+      <div className="md:hidden pt-1">
+        <DashboardSectionHeader
+          icon={FileText}
+          title="Buyer"
+          accent="Contracts"
+          badge={`${buyers.length} Total`}
+          withDivider={false}
+        />
       </div>
 
       {/* 4. Toolbar & Filter Controls */}
@@ -338,8 +350,110 @@ export function ActiveBuyersClient({
             />
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[680px]">
+          <>
+            {/* Mobile Stacked Cards View (< md) */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {filteredBuyers.map(buyer => {
+                const isLinked = Boolean(buyer.linked_article_number)
+                const curSym = buyer.currency === 'INR' ? '₹' : buyer.currency === 'USD' ? '$' : buyer.currency === 'EUR' ? '€' : '£'
+
+                return (
+                  <div key={buyer.id} className="p-3.5 space-y-2.5">
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0F766E] border border-[#14C8B4]/30 flex items-center justify-center font-[family-name:var(--font-heading)] font-extrabold text-xs shrink-0">
+                          {buyer.buyer_name.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-[family-name:var(--font-heading)] font-extrabold text-sm text-[#0B1220] truncate">
+                            {buyer.buyer_name}
+                          </div>
+                          <div className="text-[11px] font-semibold text-slate-500 tabular-nums truncate">
+                            {buyer.buyer_code}{buyer.brand_name && buyer.brand_name !== buyer.buyer_name ? ` • ${buyer.brand_name}` : ''}
+                          </div>
+                        </div>
+                      </div>
+
+                      {isLinked ? (
+                        <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F0FDFA] border border-[#14C8B4]/30 font-[family-name:var(--font-heading)] font-bold text-[11px] text-[#0B1220] tabular-nums">
+                          {buyer.linked_article_number}
+                        </span>
+                      ) : (
+                        <span className="shrink-0 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 font-[family-name:var(--font-heading)] font-bold text-[10px] text-amber-800">
+                          Pending Link
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2 text-xs tabular-nums">
+                      <span className="font-semibold text-slate-600">
+                        {buyer.contracted_volume.toLocaleString('en-IN')} Pcs • {curSym}{buyer.price_per_piece.toFixed(2)} / pc
+                      </span>
+                      <span className="font-[family-name:var(--font-heading)] font-extrabold text-[#0B1220]">
+                        {curSym}{buyer.total_contract_value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pt-0.5">
+                      {isLinked ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            Linked
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setLinkingBuyer(buyer)}
+                            className="text-xs text-[#1D4ED8] font-bold cursor-pointer"
+                          >
+                            Change Article
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleUnlink(buyer)}
+                            className="text-slate-400 hover:text-rose-600 p-1"
+                            title="Unlink article"
+                          >
+                            <Unlink className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setLinkingBuyer(buyer)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#1D4ED8] text-white rounded-lg text-xs font-bold cursor-pointer"
+                        >
+                          <LinkIcon className="w-3.5 h-3.5" />
+                          <span>Link Article</span>
+                        </button>
+                      )}
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setViewingBuyer(buyer)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[#0B1220] text-xs font-bold cursor-pointer"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>View Contract</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(buyer.id, buyer.buyer_name)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                          title="Delete buyer contract"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Desktop Primary Data Table (>= md untouched) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[680px]">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 font-mono text-[11px] uppercase tracking-wider border-b border-slate-200">
                   <th className="py-3.5 px-5 font-bold">Buyer</th>
@@ -457,6 +571,7 @@ export function ActiveBuyersClient({
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
