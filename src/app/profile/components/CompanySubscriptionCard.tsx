@@ -13,6 +13,7 @@ import {
   Lock
 } from 'lucide-react'
 import { upgradeTenantSubscriptionAction } from '../actions'
+import { DashboardSectionHeader } from '../../dashboard/components/DashboardSectionHeader'
 
 interface CompanySubscriptionCardProps {
   companyName: string
@@ -177,7 +178,19 @@ export function CompanySubscriptionCard({
         <div className="p-5 sm:p-7 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
-            <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
+            {/* Mobile Dashboard-style Header (< md) */}
+            <div className="md:hidden w-full">
+              <DashboardSectionHeader
+                icon={CreditCard}
+                title="Subscription &"
+                accent="License"
+                badge={isTrial ? '7-DAY TRIAL' : 'ACTIVE PLAN'}
+                withDivider={false}
+              />
+            </div>
+
+            {/* Desktop Header (>= md untouched) */}
+            <div className="hidden md:flex items-start sm:items-center gap-3.5 sm:gap-4">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15">
                 <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
@@ -250,15 +263,15 @@ export function CompanySubscriptionCard({
                 <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
                   Plan Tier
                 </span>
-                <span className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] mt-0.5 block truncate font-mono">
+                <span className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] mt-0.5 block truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                   {subscriptionTier === 'FULL_PLANT_AI'
                     ? 'Full Plant AI (12 Div)'
                     : (subscriptionTier === 'MODULAR' ? 'Modular Plan' : 'Enterprise Custom')}
                 </span>
-                <span className="text-xs text-slate-500 mt-0.5 block font-medium">
+                <span className="text-xs text-slate-500 mt-0.5 block font-medium tabular-nums">
                   ₹{monthlyBillingInr.toLocaleString('en-IN')}/month
                 </span>
               </div>
@@ -270,10 +283,10 @@ export function CompanySubscriptionCard({
                 <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
                   Start Date
                 </span>
-                <span className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] mt-0.5 block font-mono">
+                <span className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                   {issueDateStr}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -288,10 +301,10 @@ export function CompanySubscriptionCard({
                 <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
                   Valid Until
                 </span>
-                <span className={`text-base sm:text-lg md:text-xl font-extrabold mt-0.5 block font-mono ${isAccountExpired ? 'text-rose-600' : 'text-[#0B1220]'}`}>
+                <span className={`text-base sm:text-lg md:text-xl font-extrabold mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono ${isAccountExpired ? 'text-rose-600' : 'text-[#0B1220]'}`}>
                   {expiryDateStr}
                 </span>
                 <span className="text-xs text-slate-500 mt-0.5 block font-medium">
@@ -306,22 +319,22 @@ export function CompanySubscriptionCard({
                 <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
                   Account Status
                 </span>
                 <div className="mt-0.5 flex items-center gap-1.5">
                   {isAccountExpired ? (
-                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-rose-700 flex items-center gap-1.5 font-mono">
+                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-rose-700 flex items-center gap-1.5 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                       <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
                       Expired (Locked)
                     </span>
                   ) : daysLeft <= 3 && isTrial ? (
-                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-amber-700 flex items-center gap-1.5 font-mono">
+                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-amber-700 flex items-center gap-1.5 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                       <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
                       {daysLeft} {daysLeft === 1 ? 'Day' : 'Days'} Left
                     </span>
                   ) : (
-                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-emerald-700 flex items-center gap-1.5 font-mono">
+                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-emerald-700 flex items-center gap-1.5 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                       {isTrial ? `${daysLeft} Days Trial Left` : 'Active'}
                     </span>
@@ -386,7 +399,7 @@ export function CompanySubscriptionCard({
             <div className="space-y-5 pt-5">
               {/* 1. Requested Plan Card */}
               <div>
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
+                <label className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
                   Requested License Plan
                 </label>
                 <div className="p-4 sm:p-5 rounded-2xl bg-[#F0FDFA] border border-black/15 shadow-2xs">
@@ -394,7 +407,7 @@ export function CompanySubscriptionCard({
                     <span className="text-base font-extrabold text-[#0B1220]">
                       {activePlanTier === 'FULL_PLANT_AI' ? 'Full Plant AI' : 'Modular Plan'}
                     </span>
-                    <span className="text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
+                    <span className="text-xs font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#0B1220] text-white">
                       {activePlanTier === 'FULL_PLANT_AI' ? '12 Divisions' : 'Core Units'}
                     </span>
                   </div>
@@ -424,7 +437,7 @@ export function CompanySubscriptionCard({
 
               {/* 2. Select Duration */}
               <div>
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
+                <label className="text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-600 block mb-2.5">
                   Select Billing Period
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -483,7 +496,7 @@ export function CompanySubscriptionCard({
                 </div>
                 <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 text-slate-900">
                   <span className="font-bold text-sm">Total Payable:</span>
-                  <span className="font-mono font-extrabold text-[#0B1220] text-lg">
+                  <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-extrabold text-[#0B1220] text-lg">
                     ₹{totalAmount.toLocaleString('en-IN')}
                   </span>
                 </div>

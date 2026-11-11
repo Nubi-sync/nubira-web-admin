@@ -102,14 +102,14 @@ export default async function CompanyProfilePage(props: {
                 <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                   Company Profile &amp; <span className="text-[#1D4ED8]">Settings</span>
                 </h1>
-                <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
                   {tenant.companyName}
                 </span>
-                <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] shadow-xs tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] shadow-xs tracking-wider">
                   {tenant.isSuperAdmin ? 'Owner' : (userRole === 'ADMIN' ? 'Manager' : (userRole || 'Manager'))}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+              <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
                 Factory organization identity, master owner credentials, and live multi-division subscription entitlement.
               </p>
             </div>

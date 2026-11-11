@@ -621,7 +621,7 @@ export function ArticleContractDetailModal({
         {/* Modal Footer */}
         <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200/80 flex items-center justify-between gap-3 shrink-0">
           <div className="text-xs text-slate-500 font-medium hidden sm:block">
-            Article <strong className="text-slate-900 font-mono">{article.artNo}</strong> • Buyer <strong className="text-slate-900">{buyerName}</strong>
+            Article <strong className="text-slate-900 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{article.artNo}</strong> • Buyer <strong className="text-slate-900">{buyerName}</strong>
           </div>
           <button
             type="button"
