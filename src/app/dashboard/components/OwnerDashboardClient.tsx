@@ -213,41 +213,34 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
   return (
     <div className="p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-[1536px] w-full mx-auto select-none text-[#0B1220] font-[family-name:var(--font-public-sans)]">
       
-      {/* ==================================================================== */}
-      {/* 1. TOP HEADER CARD WITH ARTICLE FILTER DROPDOWN                      */}
-      {/* ==================================================================== */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-all">
-        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
-            <LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
+      {/* 1. TOP HEADER CARD WITH ARTICLE FILTER DROPDOWN */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3.5 transition-all">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#F0FDFA] text-[#0B1220] border border-black/15">
+            <LayoutDashboard className="w-5 h-5 text-[#0B1220]" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
-                Plant <span className="text-[#1D4ED8]">Operations Dashboard</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+                Plant <span className="text-[#1D4ED8]">Operations</span>
               </h1>
-              <span className="text-[9px] sm:text-[11px] font-mono font-bold uppercase px-2 py-0.5 sm:px-2.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 tracking-wider">
                 {data.companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
-              Real-time throughput, floor stage reconciliation, and per-article solo lifecycle analytics.
-            </p>
           </div>
         </div>
 
         {/* Top Controls: Article Selector Dropdown + Actions */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-between lg:justify-end">
-          
-          {/* ARTICLE FILTER DROPDOWN */}
-          <div className="relative flex-1 sm:flex-initial min-w-[220px] sm:min-w-[290px]">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 w-full lg:w-auto flex-wrap sm:flex-nowrap justify-between lg:justify-end">
+          <div className="relative flex-1 sm:flex-initial min-w-[200px] sm:min-w-[260px]">
             <div className="relative flex items-center">
               <Shirt className="w-4 h-4 text-[#1D4ED8] absolute left-3 pointer-events-none" />
               <select
                 aria-label="Filter Dashboard by Article"
                 value={selectedArticleId}
                 onChange={e => setSelectedArticleId(e.target.value)}
-                className="w-full pl-9 pr-9 py-2 sm:py-2.5 bg-slate-50 hover:bg-white text-xs sm:text-sm font-bold text-slate-800 border border-slate-300 rounded-xl appearance-none shadow-2xs hover:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] outline-none transition-all cursor-pointer truncate"
+                className="w-full pl-9 pr-9 py-2 bg-slate-50 hover:bg-white text-xs sm:text-sm font-bold font-[family-name:var(--font-heading)] text-slate-800 border border-slate-300 rounded-xl appearance-none shadow-2xs hover:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] outline-none transition-all cursor-pointer truncate"
               >
                 <option value="ALL">All Articles</option>
                 {data.articlesCatalog.map(art => (
@@ -260,14 +253,9 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             </div>
           </div>
 
-          <div className="text-right hidden xl:block">
-            <div className="text-[10px] text-slate-400 font-medium">Synced at</div>
-            <div className="text-xs font-bold text-slate-700 font-mono">{data.lastUpdated}</div>
-          </div>
-
           <button
             onClick={handleRefresh}
-            className="min-h-[38px] sm:min-h-[42px] px-3 sm:px-3.5 py-1.5 sm:py-2.5 text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="min-h-[38px] sm:min-h-[40px] px-3 sm:px-3.5 py-1.5 text-xs sm:text-sm font-bold font-[family-name:var(--font-heading)] text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             title="Refresh Live Data"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -276,7 +264,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
           <Link
             href="/reports"
-            className="min-h-[38px] sm:min-h-[42px] inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4.5 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 hover:bg-[#1E40AF] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+            className="min-h-[38px] sm:min-h-[40px] inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold font-[family-name:var(--font-heading)] bg-[#1D4ED8] text-white shadow-sm shadow-blue-500/20 hover:bg-[#1E40AF] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
           >
             <span>Reports</span>
             <ArrowRight className="w-3.5 h-3.5 text-white" />
@@ -284,168 +272,101 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         </div>
       </div>
 
-      {/* ==================================================================== */}
-      {/* 2. SOLO ARTICLE ACTIVE BANNER (MINIMALIST ZIGZA MES LIGHT THEME)    */}
-      {/* ==================================================================== */}
+      {/* 2. SOLO ARTICLE ACTIVE BANNER */}
       {isSoloMode && selectedArticle && (
-        <div className="bg-[#F0FDFA] border border-[#14C8B4]/40 rounded-2xl p-4 sm:p-5 text-[#0B1220] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-11 h-11 rounded-xl bg-white border border-[#14C8B4]/30 flex items-center justify-center shrink-0 shadow-2xs text-[#0B1220]">
-              <Shirt className="w-5 h-5 text-[#0B1220]" />
+        <div className="bg-[#F0FDFA] border border-[#14C8B4]/40 rounded-2xl p-3.5 sm:p-4 text-[#0B1220] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-white border border-[#14C8B4]/30 flex items-center justify-center shrink-0 text-[#0B1220]">
+              <Shirt className="w-4 h-4 text-[#0B1220]" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] sm:text-[11px] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-white text-[#0B1220] border border-[#14C8B4]/40 shadow-2xs">
-                  SOLO ARTICLE VIEW
+                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-white text-[#0B1220] border border-[#14C8B4]/40">
+                  Active Style
                 </span>
-                <span className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight truncate">
+                <span className="text-sm sm:text-base font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tracking-tight truncate">
                   {selectedArticle.artNo}
                 </span>
                 {selectedArticle.category && (
-                  <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                  <span className="text-[11px] font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-full border border-slate-200">
                     {selectedArticle.category}
                   </span>
                 )}
-                <span className="text-xs font-medium text-slate-600">
-                  Buyer: <strong className="text-[#0B1220] font-bold">{selectedArticle.buyerName}</strong> ({selectedArticle.poNumber})
-                </span>
               </div>
-              <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
-                Viewing production output, QC pass rate, and floor progress for style #{selectedArticle.artNo}.
-              </p>
+              <div className="text-xs text-slate-600 font-medium mt-0.5 truncate">
+                Buyer: <strong className="text-[#0B1220] font-semibold">{selectedArticle.buyerName}</strong> ({selectedArticle.poNumber})
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0 self-end md:self-center">
-            <div className="text-right hidden sm:block">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold">Style Target</div>
-              <div className="text-base sm:text-lg font-black text-[#0B1220] font-mono">
+          <div className="flex items-center justify-between w-full sm:w-auto gap-3 shrink-0 pt-1 sm:pt-0">
+            <div className="text-left sm:text-right">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Target</div>
+              <div className="text-sm sm:text-base font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
                 {formatNum(selectedArticle.buyerPoTarget)} pcs <span className="text-xs font-bold text-[#1D4ED8]">({selectedArticle.overallProgressPct}%)</span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setSelectedArticleId('ALL')}
-              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200/90 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0B1220] border border-slate-200/90 rounded-xl text-xs font-bold font-[family-name:var(--font-heading)] transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1"
             >
               <X className="w-3.5 h-3.5 text-slate-500" />
-              <span>Reset to All Articles</span>
+              <span>Reset</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* ==================================================================== */}
-      {/* 3. SECTION 1: FACTORY PULSE (6 KPI CARDS — DYNAMIC)                  */}
-      {/* ==================================================================== */}
+      {/* 3. SECTION 1: FACTORY PULSE (6 KPI CARDS) */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
-        
-        {/* Card 1: Active Styles */}
-        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
-            {isSoloMode ? 'Selected Style' : 'Active Styles'}
-          </span>
-          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {formatNum(pulse.activeStyles)}
+        {[
+          { label: isSoloMode ? 'Selected Style' : 'Active Styles', value: pulse.activeStyles },
+          { label: 'Running Orders', value: pulse.runningOrders },
+          { label: 'Target Pieces', value: pulse.targetPieces },
+          { label: "Today's Output", value: pulse.todayOutput },
+          { label: 'In Godown', value: pulse.godownStock },
+          { label: 'Dispatched', value: pulse.dispatchedPieces },
+        ].map(kpi => (
+          <div key={kpi.label} className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider block truncate">
+              {kpi.label}
+            </span>
+            <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums mt-1">
+              {formatNum(kpi.value)}
+            </div>
           </div>
-        </div>
-
-        {/* Card 2: Running Orders */}
-        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
-            Running Orders
-          </span>
-          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {formatNum(pulse.runningOrders)}
-          </div>
-        </div>
-
-        {/* Card 3: Target Pieces */}
-        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
-            Target Pieces
-          </span>
-          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {formatNum(pulse.targetPieces)}
-          </div>
-        </div>
-
-        {/* Card 4: Today's Output */}
-        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
-            Today&apos;s Output
-          </span>
-          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {formatNum(pulse.todayOutput)}
-          </div>
-        </div>
-
-        {/* Card 5: In Godown */}
-        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
-            In Godown
-          </span>
-          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {formatNum(pulse.godownStock)}
-          </div>
-        </div>
-
-        {/* Card 6: Dispatched */}
-        <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 p-3 sm:p-5 shadow-xs">
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider block truncate">
-            Dispatched
-          </span>
-          <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-mono mt-0.5 sm:mt-1">
-            {formatNum(pulse.dispatchedPieces)}
-          </div>
-        </div>
-
+        ))}
       </div>
 
-      {/* ==================================================================== */}
-      {/* 4. SECTION 2: LIVE PRODUCTION FLOW (HORIZONTAL PIPELINE)             */}
-      {/* ==================================================================== */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-              <span>Live Production Flow</span>
-              {isSoloMode && (
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                  {selectedArticle?.artNo}
-                </span>
-              )}
-            </h2>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              {isSoloMode 
-                ? `Current manufacturing station inventory for ${selectedArticle?.artNo}`
-                : 'Current pieces across all manufacturing stages for all factory articles'}
-            </p>
-          </div>
-          <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
-            7 Stages Active
-          </span>
-        </div>
+      {/* 4. SECTION 2: LIVE PRODUCTION FLOW */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+        <DashboardSectionHeader
+          icon={Layers}
+          title="Live Production"
+          accent="Flow"
+          badge={isSoloMode && selectedArticle ? selectedArticle.artNo : '7 Stages'}
+        />
 
-        <div className="overflow-x-auto pb-2">
-          <div className="min-w-[780px] flex items-center justify-between gap-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/60">
+        <div className="overflow-x-auto pb-1">
+          <div className="min-w-[740px] flex items-center justify-between gap-2 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/60">
             {pipeline.map((stage, index) => {
               const isLast = index === pipeline.length - 1
               return (
                 <React.Fragment key={stage.id}>
                   <div className="flex-1 bg-white rounded-xl border border-slate-200 p-3 shadow-xs text-center group hover:border-[#14C8B4] transition-all">
-                    <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#14C8B4] transition-colors">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider group-hover:text-[#14C8B4] transition-colors">
                       {stage.label}
                     </div>
-                    <div className="text-lg sm:text-xl font-extrabold text-[#0B1220] font-mono mt-1">
+                    <div className="text-lg sm:text-xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums mt-1">
                       {formatNum(stage.count)}
                     </div>
-                    <div className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                    <div className="text-[10px] font-medium text-slate-400 mt-0.5">
                       {stage.unit}
                     </div>
                   </div>
                   {!isLast && (
-                    <div className="flex items-center justify-center shrink-0 px-1 text-slate-300">
+                    <div className="flex items-center justify-center shrink-0 px-0.5 text-slate-300">
                       <ArrowRight className="w-4 h-4 text-slate-400" />
                     </div>
                   )}
@@ -456,31 +377,17 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         </div>
       </div>
 
-      {/* ==================================================================== */}
-      {/* 5. SECTION 3: PRODUCTION TRENDS & QUALITY CONTROL (2 COLUMNS)        */}
-      {/* ==================================================================== */}
+      {/* 5. SECTION 3: PRODUCTION TRENDS & QUALITY CONTROL */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         
         {/* 3A: 7-Day Output Trend */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                7-Day Daily Output Trend
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {isSoloMode 
-                  ? `Stitching & assembly output for ${selectedArticle?.artNo}`
-                  : 'Total finished garments passing inline assembly'}
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-[10px] text-slate-400 font-medium uppercase">Daily Average</div>
-              <div className="text-base sm:text-lg font-extrabold text-[#0B1220] font-mono">
-                {formatNum(dailyAverage)} pcs
-              </div>
-            </div>
-          </div>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
+          <DashboardSectionHeader
+            icon={BarChart3}
+            title="7-Day"
+            accent="Output Trend"
+            badge={`Avg ${formatNum(dailyAverage)} pcs/d`}
+          />
 
           <div className="h-44 sm:h-52 flex items-end gap-2 sm:gap-3 pt-6 pb-2 px-1">
             {outputTrend.map((item, idx) => {
@@ -494,9 +401,8 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                   onMouseEnter={() => setHoveredBarIndex(idx)}
                   onMouseLeave={() => setHoveredBarIndex(null)}
                 >
-                  {/* Tooltip on Hover */}
                   {isHovered && (
-                    <div className="absolute -top-10 px-2 py-1 bg-slate-900 text-white text-[11px] font-mono font-bold rounded-lg shadow-lg whitespace-nowrap z-10 pointer-events-none animate-in fade-in zoom-in-95 duration-100">
+                    <div className="absolute -top-10 px-2 py-1 bg-slate-900 text-white text-[11px] font-bold tabular-nums rounded-lg shadow-lg whitespace-nowrap z-10 pointer-events-none animate-in fade-in zoom-in-95 duration-100">
                       {formatNum(item.pieces)} pcs
                     </div>
                   )}
@@ -522,22 +428,13 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         </div>
 
         {/* 3B: Quality Control Donut & Top Defects */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                Quality Compliance &amp; Defects
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {isSoloMode 
-                  ? `Inspection metrics for ${selectedArticle?.artNo}`
-                  : 'AQL 2.5 inline floor auditing and defect breakdown'}
-              </p>
-            </div>
-            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              AQL 2.5 Standard
-            </span>
-          </div>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
+          <DashboardSectionHeader
+            icon={ShieldCheck}
+            title="Quality"
+            accent="Compliance"
+            badge="AQL 2.5"
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             {/* Donut SVG */}
@@ -565,7 +462,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                <span className="text-2xl font-extrabold text-[#0B1220] font-mono">
+                <span className="text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
                   {qc.passRatePct}%
                 </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -577,16 +474,16 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
             {/* Top Defects List */}
             <div className="space-y-2.5">
               <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Top Defect Categories
+                Top Defects
               </div>
               {qc.topDefects.length === 0 ? (
-                <div className="text-xs text-slate-400 italic">No defects recorded</div>
+                <div className="text-xs text-slate-400">No defects recorded</div>
               ) : (
                 qc.topDefects.map((defect, idx) => (
                   <div key={idx} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-semibold text-slate-700">{defect.name}</span>
-                      <span className="font-mono font-bold text-slate-900">{defect.count} pcs ({defect.pct}%)</span>
+                      <span className="font-bold tabular-nums text-slate-900">{defect.count} pcs ({defect.pct}%)</span>
                     </div>
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
@@ -603,162 +500,119 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
       </div>
 
-      {/* ==================================================================== */}
-      {/* 6. SOLO ARTICLE TECHNICAL STUDIO & CAD PREVIEW (ONLY IN SOLO MODE)   */}
-      {/* ==================================================================== */}
+      {/* 6. SOLO ARTICLE TECHNICAL SPECS */}
       {isSoloMode && selectedArticle && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5 animate-in fade-in duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div>
-              <h3 className="text-base sm:text-lg font-extrabold text-[#0B1220] flex items-center gap-2">
-                <Palette className="w-5 h-5 text-[#1D4ED8]" />
-                Technical Tech-Pack &amp; Production Specs
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Style #{selectedArticle.artNo} • Category: {selectedArticle.category} • Buyer: {selectedArticle.buyerName}
-              </p>
-            </div>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4 animate-in fade-in duration-200">
+          <DashboardSectionHeader
+            icon={Palette}
+            title="Tech-Pack &"
+            accent="Specs"
+            badge={selectedArticle.artNo}
+            action={(
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/all-designs"
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1 transition-all"
+                >
+                  <span>Design Studio</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                </Link>
+                <Link
+                  href="/buyers-vendors"
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1 transition-all"
+                >
+                  <span>Buyer Order</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                </Link>
+              </div>
+            )}
+          />
 
-            <div className="flex items-center gap-2">
-              <Link
-                href="/all-designs"
-                className="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-all shadow-2xs"
-              >
-                <span>View Design Studio</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-              </Link>
-              <Link
-                href="/buyers-vendors"
-                className="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-all shadow-2xs"
-              >
-                <span>View Buyer Order</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Spec Box 1: Fabric Spec */}
-            <div className="bg-[#F8FAFC] p-4 rounded-xl border border-slate-200/80 space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Fabric Specification</span>
-              <div className="text-sm sm:text-base font-bold text-[#0B1220]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200/80 space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Fabric</span>
+              <div className="text-sm font-extrabold font-[family-name:var(--font-heading)] text-[#0B1220]">
                 {selectedArticle.fabricType}
               </div>
-              <span className="text-[11px] text-slate-500 font-mono">
-                Target Weight: {selectedArticle.targetGsm} GSM
+              <span className="text-[11px] text-slate-500 tabular-nums">
+                {selectedArticle.targetGsm} GSM
               </span>
             </div>
 
-            {/* Spec Box 2: Embellishment Sequence */}
-            <div className="bg-[#F8FAFC] p-4 rounded-xl border border-slate-200/80 space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Embellishment Flow</span>
-              <div className="text-sm sm:text-base font-bold text-[#0B1220]">
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200/80 space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Embellishment</span>
+              <div className="text-sm font-extrabold font-[family-name:var(--font-heading)] text-[#0B1220]">
                 {selectedArticle.embellishmentSequence}
               </div>
               <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Floor Spec Approved
+                Approved
               </span>
             </div>
 
-            {/* Spec Box 3: Production Target */}
-            <div className="bg-[#F8FAFC] p-4 rounded-xl border border-slate-200/80 space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Contract Volume</span>
-              <div className="text-sm sm:text-base font-bold text-[#0B1220] font-mono">
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-slate-200/80 space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Contract Volume</span>
+              <div className="text-sm font-extrabold font-[family-name:var(--font-heading)] text-[#0B1220] tabular-nums">
                 {formatNum(selectedArticle.buyerPoTarget)} pcs
               </div>
-              <span className="text-[11px] text-[#1D4ED8] font-bold">
-                Overall Progress: {selectedArticle.overallProgressPct}%
+              <span className="text-[11px] text-[#1D4ED8] font-bold tabular-nums">
+                {selectedArticle.overallProgressPct}% complete
               </span>
             </div>
           </div>
 
-          {/* Stepper Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 pt-1">
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">1. Tech-Pack</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800">READY</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">CAD &amp; Specs</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">2. Buyer PO</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.buyerPoTarget)}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Target pieces</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">3. Raw Fabric</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.fabricMetersInStore)} m</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">In Godown</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">4. Cutting</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.cutPieces)}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Bundles cut</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-center ring-1 ring-[#14C8B4]/40">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-[#0e7490]">5. Stitching</div>
-              <div className="mt-1 text-sm font-extrabold text-[#0B1220] font-mono">{formatNum(selectedArticle.stitchedPieces)}</div>
-              <div className="text-[10px] font-bold text-[#0e7490] mt-0.5">Sewing active</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">6. QC Passed</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.qcPassedPieces)}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Cleared</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">7. Godown</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.godownPieces)}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Finished stock</div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">8. Dispatch</div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800 font-mono">{formatNum(selectedArticle.dispatchedPieces)}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Shipped</div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 pt-1">
+            {[
+              { step: '1. Tech-Pack', value: 'READY', active: false },
+              { step: '2. Buyer PO', value: formatNum(selectedArticle.buyerPoTarget), active: false },
+              { step: '3. Fabric', value: `${formatNum(selectedArticle.fabricMetersInStore)} m`, active: false },
+              { step: '4. Cutting', value: formatNum(selectedArticle.cutPieces), active: false },
+              { step: '5. Stitching', value: formatNum(selectedArticle.stitchedPieces), active: true },
+              { step: '6. QC Passed', value: formatNum(selectedArticle.qcPassedPieces), active: false },
+              { step: '7. Godown', value: formatNum(selectedArticle.godownPieces), active: false },
+              { step: '8. Dispatch', value: formatNum(selectedArticle.dispatchedPieces), active: false },
+            ].map(item => (
+              <div
+                key={item.step}
+                className={`p-3 rounded-xl border text-center ${
+                  item.active
+                    ? 'bg-teal-50 border-teal-200 ring-1 ring-[#14C8B4]/40'
+                    : 'bg-slate-50 border-slate-200'
+                }`}
+              >
+                <div className={`text-[10px] font-bold uppercase tracking-wider ${
+                  item.active ? 'text-[#0e7490]' : 'text-slate-500'
+                }`}>
+                  {item.step}
+                </div>
+                <div className={`mt-1 text-sm font-extrabold font-[family-name:var(--font-heading)] tabular-nums ${
+                  item.active ? 'text-[#0B1220]' : 'text-slate-800'
+                }`}>
+                  {item.value}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ==================================================================== */}
-      {/* 7. SECTION 4: BUYER PURCHASE ORDERS & FULFILLMENT                    */}
-      {/* ==================================================================== */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-              <ShoppingBag className="w-5 h-5 text-[#0B1220]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
-                  Buyer Purchase Orders &amp; <span className="text-[#1D4ED8]">Fulfillment</span>
-                </h2>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
-                  {buyerOrders.length} {buyerOrders.length === 1 ? 'Order' : 'Orders'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {isSoloMode 
-                  ? `Contract fulfillment progress for style #${selectedArticle?.artNo}`
-                  : 'Active contracts sorted by delivery progress.'}
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/buyers-vendors"
-            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1 shrink-0 self-end sm:self-center"
-          >
-            <span>Buyers Hub</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+      {/* 7. SECTION 4: BUYER ORDERS */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+        <DashboardSectionHeader
+          icon={ShoppingBag}
+          title="Buyer"
+          accent="Orders"
+          badge={`${buyerOrders.length} ${buyerOrders.length === 1 ? 'Order' : 'Orders'}`}
+          action={(
+            <Link
+              href="/buyers-vendors"
+              className="text-xs font-bold font-[family-name:var(--font-heading)] text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
+            >
+              <span>Buyers Hub</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
+        />
 
         {buyerOrders.length === 0 ? (
           <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-100">
@@ -779,8 +633,8 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                           {bo.poNumber}
                         </span>
                       </div>
-                      <span className="font-mono font-extrabold text-[#0B1220] shrink-0 ml-2">
-                        {bo.percent}% Fulfilled
+                      <span className="font-extrabold font-[family-name:var(--font-heading)] tabular-nums text-[#0B1220] shrink-0 ml-2">
+                        {bo.percent}%
                       </span>
                     </div>
 
@@ -791,9 +645,8 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                       />
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-0.5">
-                      <span>Delivered: <strong className="font-mono text-slate-700">{formatNum(bo.deliveredPieces)}</strong> pcs</span>
-                      <span>Target: <strong className="font-mono text-slate-700">{formatNum(bo.targetPieces)}</strong> pcs</span>
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-0.5 tabular-nums">
+                      <span>Delivered <strong className="text-slate-700">{formatNum(bo.deliveredPieces)}</strong> / {formatNum(bo.targetPieces)} pcs</span>
                     </div>
                   </div>
                 )
@@ -802,9 +655,9 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
             {/* Orders Pagination Controls */}
             {totalOrderPages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                <div>
-                  Showing <span className="font-bold text-slate-800">{(ordersPage - 1) * ordersPerPage + 1}</span>–<span className="font-bold text-slate-800">{Math.min(ordersPage * ordersPerPage, buyerOrders.length)}</span> of <span className="font-bold text-slate-800">{buyerOrders.length}</span> Orders
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                <div className="tabular-nums">
+                  <span className="font-bold text-slate-800">{(ordersPage - 1) * ordersPerPage + 1}</span>–<span className="font-bold text-slate-800">{Math.min(ordersPage * ordersPerPage, buyerOrders.length)}</span> of <span className="font-bold text-slate-800">{buyerOrders.length}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
@@ -854,46 +707,28 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         )}
       </div>
 
-      {/* ==================================================================== */}
-      {/* 8. SECTION 5: ARTICLE DIRECTORY & QUICK SELECTOR                     */}
-      {/* ==================================================================== */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-              <Shirt className="w-5 h-5 text-[#0B1220]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
-                  Company Articles &amp; <span className="text-[#1D4ED8]">Styles Directory</span>
-                </h2>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
-                  {data.articlesCatalog.length} {data.articlesCatalog.length === 1 ? 'Style' : 'Styles'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Garment styles catalog. Click any article below to inspect floor progress.
-              </p>
-            </div>
-          </div>
-
-          {isSoloMode && (
+      {/* 8. SECTION 5: COMPANY ARTICLES */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+        <DashboardSectionHeader
+          icon={Shirt}
+          title="Company"
+          accent="Articles"
+          badge={`${data.articlesCatalog.length} ${data.articlesCatalog.length === 1 ? 'Style' : 'Styles'}`}
+          action={isSoloMode ? (
             <button
               type="button"
               onClick={() => setSelectedArticleId('ALL')}
-              className="text-xs font-bold text-[#1D4ED8] hover:underline cursor-pointer shrink-0 self-end sm:self-center"
+              className="text-xs font-bold font-[family-name:var(--font-heading)] text-[#1D4ED8] hover:underline cursor-pointer"
             >
-              Switch Back to All Articles →
+              Show All →
             </button>
-          )}
-        </div>
+          ) : undefined}
+        />
 
         {data.articlesCatalog.length === 0 ? (
-          <div className="p-8 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-slate-200/60 space-y-1">
+          <div className="p-6 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-slate-200/60">
             <Info className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-            <div className="font-bold text-slate-700">No garment articles found for this company.</div>
-            <div>Create styles in Design &amp; Tech-Pack Studio or Merchandising to track live floor throughput.</div>
+            <div className="font-bold text-slate-700">No garment articles found</div>
           </div>
         ) : (
           <>
@@ -905,7 +740,7 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                   <div
                     key={art.id}
                     onClick={() => setSelectedArticleId(art.id)}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer select-none flex flex-col justify-between gap-3 ${
+                    className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer select-none flex flex-col justify-between gap-2.5 ${
                       isSelected
                         ? 'bg-blue-50/50 border-[#1D4ED8] ring-2 ring-[#1D4ED8]/20 shadow-xs'
                         : 'bg-slate-50/70 hover:bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
@@ -914,10 +749,10 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white text-slate-800 border border-slate-200 shadow-2xs">
+                          <span className="text-xs font-extrabold font-[family-name:var(--font-heading)] px-2 py-0.5 rounded bg-white text-slate-800 border border-slate-200">
                             {art.artNo}
                           </span>
-                          <span className="text-xs font-bold text-slate-700 truncate">
+                          <span className="text-xs font-semibold text-slate-700 truncate">
                             {art.category}
                           </span>
                         </div>
@@ -931,14 +766,14 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
                           ? 'bg-[#1D4ED8] text-white border-[#1D4ED8]'
                           : 'bg-white text-slate-600 border-slate-200'
                       }`}>
-                        {isSelected ? 'Active Solo' : 'Select Solo'}
+                        {isSelected ? 'Active' : 'Inspect'}
                       </span>
                     </div>
 
                     <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-                        <span>Contract: <strong className="font-mono text-slate-800">{formatNum(art.buyerPoTarget)} pcs</strong></span>
-                        <span>Progress: <strong className="text-[#1D4ED8]">{art.overallProgressPct}%</strong></span>
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 tabular-nums">
+                        <span>Target: <strong className="text-slate-800">{formatNum(art.buyerPoTarget)} pcs</strong></span>
+                        <span className="text-[#1D4ED8] font-bold">{art.overallProgressPct}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                         <div
@@ -954,9 +789,9 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
 
             {/* Articles Pagination Controls */}
             {totalArticlePages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                <div>
-                  Showing <span className="font-bold text-slate-800">{(articlesPage - 1) * articlesPerPage + 1}</span>–<span className="font-bold text-slate-800">{Math.min(articlesPage * articlesPerPage, data.articlesCatalog.length)}</span> of <span className="font-bold text-slate-800">{data.articlesCatalog.length}</span> Styles
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                <div className="tabular-nums">
+                  <span className="font-bold text-slate-800">{(articlesPage - 1) * articlesPerPage + 1}</span>–<span className="font-bold text-slate-800">{Math.min(articlesPage * articlesPerPage, data.articlesCatalog.length)}</span> of <span className="font-bold text-slate-800">{data.articlesCatalog.length}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
@@ -1006,42 +841,28 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
         )}
       </div>
 
-      {/* ==================================================================== */}
-      {/* 9. SECTION 6: LOGIN ACTIVITY (PAST 7 DAYS) & STATE GEOLOCATION       */}
-      {/* ==================================================================== */}
+      {/* 9. SECTION 6: PORTAL USAGE */}
       {data.loginActivity && (
         <OwnerLoginActivitySection activityData={data.loginActivity} />
       )}
 
-      {/* ==================================================================== */}
-      <div className="space-y-3 pt-2">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/60">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/10 flex items-center justify-center text-[#0B1220] shrink-0 shadow-2xs">
-              <Layers className="w-5 h-5 text-[#0B1220]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
-                  Division Heartbeat &amp; <span className="text-[#1D4ED8]">Subscribed Units</span>
-                </h2>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/10 shadow-2xs">
-                  {data.divisionHeartbeat.length} {data.divisionHeartbeat.length === 1 ? 'Unit' : 'Units'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Live status and single-click access to authorized factory floor departments.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/modules"
-            className="text-xs font-bold text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1 shrink-0 self-end sm:self-center"
-          >
-            <span>All {data.divisionHeartbeat.length} Modules</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+      {/* 10. SECTION 7: DIVISION HEARTBEAT */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+        <DashboardSectionHeader
+          icon={Layers}
+          title="Division"
+          accent="Heartbeat"
+          badge={`${data.divisionHeartbeat.length} ${data.divisionHeartbeat.length === 1 ? 'Unit' : 'Units'}`}
+          action={(
+            <Link
+              href="/modules"
+              className="text-xs font-bold font-[family-name:var(--font-heading)] text-[#1D4ED8] hover:text-[#1E40AF] hover:underline flex items-center gap-1"
+            >
+              <span>Modules</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
+        />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {data.divisionHeartbeat.map(div => {
@@ -1052,21 +873,21 @@ export function OwnerDashboardClient({ initialData }: { initialData: OwnerDashbo
               <Link
                 key={div.id}
                 href={div.route}
-                className="group bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs hover:border-[#14C8B4] hover:shadow-md transition-all flex flex-col justify-between"
+                className="group bg-slate-50/60 hover:bg-white rounded-xl border border-slate-200 p-3.5 hover:border-[#14C8B4] hover:shadow-sm transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="p-1.5 rounded-lg bg-slate-50 group-hover:bg-[#F0FDFA] group-hover:text-[#0B1220] text-slate-600 transition-colors">
+                    <span className="p-1.5 rounded-lg bg-white border border-slate-200/80 group-hover:bg-[#F0FDFA] text-slate-700 transition-colors">
                       <IconComp className="w-4 h-4" />
                     </span>
                     <span className={`w-2 h-2 rounded-full ${isIdle ? 'bg-slate-300' : 'bg-emerald-500'}`} />
                   </div>
-                  <div className="text-xs font-bold text-slate-800 group-hover:text-[#14C8B4] transition-colors line-clamp-1">
+                  <div className="text-xs font-extrabold font-[family-name:var(--font-heading)] text-[#0B1220] group-hover:text-[#1D4ED8] transition-colors line-clamp-1">
                     {div.name}
                   </div>
                 </div>
 
-                <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500 font-medium tabular-nums">
                   <span className="truncate">{div.metric}</span>
                   <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-slate-700 shrink-0 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>

@@ -3,8 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   Clock,
-  CheckCircle2,
-  Info
+  CheckCircle2
 } from 'lucide-react'
 import { IndianStateVectorMap } from './IndianStateVectorMap'
 import { DashboardSectionHeader } from './DashboardSectionHeader'
