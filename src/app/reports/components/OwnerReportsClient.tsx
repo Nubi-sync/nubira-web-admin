@@ -515,26 +515,42 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       {/* 4. TAB 1: ARTICLE LIFECYCLE & WORKER TRACEABILITY                    */}
       {/* ==================================================================== */}
       {activeTab === 'articles' && (
-        <div className="space-y-4">
-          
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-4">
+          <div className="md:hidden">
+            <DashboardSectionHeader
+              icon={Layers}
+              title="Article"
+              accent="Lifecycle"
+              badge={`${filteredArticles.length} styles`}
+              action={
+                <button
+                  onClick={handleExpandAll}
+                  className="text-xs font-bold text-[#1D4ED8] hover:underline cursor-pointer font-[family-name:var(--font-heading)]"
+                >
+                  {expandedArticleIds.size === filteredArticles.length && filteredArticles.length > 0 ? 'Collapse All' : 'Expand All'}
+                </button>
+              }
+            />
+          </div>
+
           {/* Filter Bar */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
-            <div className="flex flex-1 items-center gap-3">
-              <div className="relative flex-1 max-w-md">
+          <div className="bg-[#F8FAFC] md:bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col md:flex-row justify-between items-stretch md:items-center gap-2.5 md:gap-3">
+            <div className="flex flex-1 items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="relative flex-1 min-w-[160px] max-w-md">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search by article, buyer, or PO..."
+                  placeholder="Search article, buyer, PO..."
                   value={articleSearch}
                   onChange={e => setArticleSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8]"
+                  className="w-full pl-9 pr-4 py-2 bg-white md:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8]"
                 />
               </div>
 
               <select
                 value={stageFilter}
                 onChange={e => setStageFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] cursor-pointer"
+                className="px-3 py-2 bg-white md:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] cursor-pointer"
               >
                 <option value="ALL">All Stages</option>
                 <option value="In Cutting">In Cutting</option>
@@ -548,7 +564,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
               </select>
             </div>
 
-            <div className="flex items-center gap-2 justify-between md:justify-end">
+            <div className="hidden md:flex items-center gap-2 justify-end">
               <span className="text-xs font-semibold text-slate-500">
                 Showing <strong className="text-[#0B1220]">{filteredArticles.length}</strong> styles
               </span>
@@ -561,34 +577,37 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             </div>
           </div>
 
-          {/* Master Table */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          {/* Master Table / Mobile Cards */}
+          <div className="md:bg-white md:rounded-2xl md:border md:border-slate-200/80 md:shadow-xs overflow-hidden">
             {filteredArticles.length === 0 ? (
-              <div className="p-12 text-center">
+              <div className="p-8 md:p-12 text-center bg-[#F8FAFC] md:bg-transparent rounded-xl md:rounded-none border border-slate-200/80 md:border-0">
                 <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center mx-auto mb-3 shadow-2xs">
                   <FilterX className="w-6 h-6 text-[#0B1220]" />
                 </div>
-                <h3 className="text-sm font-bold text-[#0B1220]">No articles matched your criteria</h3>
-                <p className="text-xs text-slate-500 mt-1">Try adjusting your search query or stage filters.</p>
+                <h3 className="text-sm font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">No articles matched your criteria</h3>
+                <p className="hidden md:block text-xs text-slate-500 mt-1">Try adjusting your search query or stage filters.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="space-y-2.5 md:space-y-0 md:divide-y md:divide-slate-100">
                 {filteredArticles.map(article => {
                   const isExpanded = expandedArticleIds.has(article.id)
 
                   return (
-                    <div key={article.id} className="transition-colors hover:bg-slate-50/70">
+                    <div
+                      key={article.id}
+                      className="bg-[#F8FAFC] md:bg-transparent rounded-xl md:rounded-none border border-slate-200/80 md:border-0 overflow-hidden transition-colors md:hover:bg-slate-50/70"
+                    >
                       
                       {/* Master Row Header */}
                       <div
                         onClick={() => toggleArticleExpand(article.id)}
-                        className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer"
+                        className="p-3.5 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 md:gap-4 cursor-pointer"
                       >
                         {/* Article & Buyer Info */}
-                        <div className="flex items-start sm:items-center gap-3.5">
+                        <div className="flex items-start sm:items-center gap-3 sm:gap-3.5">
                           <button
                             type="button"
-                            className="w-8 h-8 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 text-[#0B1220] flex items-center justify-center shrink-0 transition-all shadow-2xs mt-0.5 sm:mt-0"
+                            className="w-8 h-8 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 md:border-black/15 text-[#0B1220] flex items-center justify-center shrink-0 transition-all shadow-2xs mt-0.5 sm:mt-0"
                             aria-label={isExpanded ? 'Collapse' : 'Expand'}
                           >
                             {isExpanded ? (
@@ -598,19 +617,65 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                             )}
                           </button>
 
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm sm:text-base font-extrabold text-[#0B1220] font-mono tracking-tight">
+                              <span className="text-sm sm:text-base font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono tracking-tight">
                                 {article.artNo}
                               </span>
-                              <span className="text-[11px] font-bold text-[#0B1220] bg-[#F0FDFA] border border-black/15 px-2 py-0.5 rounded-md shadow-2xs">
+                              <span className="text-[11px] font-bold text-[#0B1220] bg-[#F0FDFA] border border-black/10 md:border-black/15 px-2 py-0.5 rounded-md shadow-2xs truncate max-w-[190px] sm:max-w-none">
                                 {article.description}
                               </span>
                             </div>
-                            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+                            <div className="flex items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-1 flex-wrap">
                               <span>Buyer: <strong className="text-slate-800">{article.buyerName}</strong></span>
-                              <span>PO: <strong className="text-slate-800 font-mono">{article.poNumber}</strong></span>
-                              <span>Target: <strong className="text-slate-800 font-mono">{article.targetPcs.toLocaleString()}</strong> pcs</span>
+                              <span>PO: <strong className="text-slate-800 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{article.poNumber}</strong></span>
+                              <span>Target: <strong className="text-slate-800 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">{article.targetPcs.toLocaleString()}</strong> pcs</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Mobile Inset Pipeline Snapshot */}
+                        <div className="md:hidden bg-white rounded-xl border border-slate-200/80 p-2.5 space-y-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-bold text-slate-500">Pipeline Progress</span>
+                            <span className="font-extrabold text-[#1D4ED8] font-[family-name:var(--font-heading)] tabular-nums">
+                              {article.progressPct}%
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                            <div
+                              style={{ width: `${Math.min(100, (article.cutPcs / (article.targetPcs || 1)) * 100)}%` }}
+                              className="bg-sky-500 h-full"
+                            />
+                            <div
+                              style={{ width: `${Math.min(100, (article.stitchedPcs / (article.targetPcs || 1)) * 100)}%` }}
+                              className="bg-indigo-600 h-full"
+                            />
+                            <div
+                              style={{ width: `${Math.min(100, (article.qcPassedPcs / (article.targetPcs || 1)) * 100)}%` }}
+                              className="bg-emerald-500 h-full"
+                            />
+                            <div
+                              style={{ width: `${Math.min(100, (article.godownPcs / (article.targetPcs || 1)) * 100)}%` }}
+                              className="bg-amber-500 h-full"
+                            />
+                          </div>
+                          <div className="grid grid-cols-4 gap-1.5 pt-0.5 text-center">
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Cut</div>
+                              <div className="text-xs font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">{article.cutPcs}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Stitch</div>
+                              <div className="text-xs font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">{article.stitchedPcs}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">QC</div>
+                              <div className="text-xs font-extrabold text-emerald-700 font-[family-name:var(--font-heading)] tabular-nums">{article.qcPassedPcs}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Godown</div>
+                              <div className="text-xs font-extrabold text-amber-700 font-[family-name:var(--font-heading)] tabular-nums">{article.godownPcs}</div>
                             </div>
                           </div>
                         </div>
@@ -618,7 +683,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                         {/* Pipeline Progress Micro-bar & Badges */}
                         <div className="flex items-center gap-4 sm:gap-6 justify-between lg:justify-end">
                           
-                          {/* 7-Stage Micro Flow */}
+                          {/* 7-Stage Micro Flow (Desktop) */}
                           <div className="hidden md:flex flex-col gap-1 w-44">
                             <div className="flex justify-between text-[10px] font-bold text-slate-500">
                               <span>Pipeline Flow</span>
@@ -649,41 +714,41 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                           </div>
 
                           {/* Stage Status Badge */}
-                          <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-2xs ${
+                          <span className={`text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full border shadow-2xs font-[family-name:var(--font-heading)] ${
                             article.stageStatus === 'Dispatched'
                               ? 'bg-purple-50 text-purple-700 border-purple-200'
                               : article.stageStatus === 'In Godown'
                               ? 'bg-amber-50 text-amber-700 border-amber-200'
                               : article.stageStatus === 'QC Passed'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-[#F0FDFA] text-[#0B1220] border-black/15'
+                              : 'bg-[#F0FDFA] text-[#0B1220] border-[#14C8B4]/40 md:border-black/15'
                           }`}>
                             {article.stageStatus}
                           </span>
 
-                          <span className="text-xs font-bold text-[#1D4ED8] hover:underline flex items-center gap-1">
-                            <span>{isExpanded ? 'Hide Traceability' : 'View Operations'}</span>
+                          <span className="text-xs font-bold text-[#1D4ED8] hover:underline flex items-center gap-1 font-[family-name:var(--font-heading)]">
+                            <span>{isExpanded ? 'Hide Traceability' : `Operations (${article.operations.length})`}</span>
                           </span>
                         </div>
                       </div>
 
                       {/* Expanded Drilldown Sub-Ledger */}
                       {isExpanded && (
-                        <div className="bg-slate-50/90 border-t border-slate-200/80 p-4 sm:p-6 space-y-4">
+                        <div className="bg-white/70 md:bg-slate-50/90 border-t border-slate-200/80 p-3.5 sm:p-6 space-y-3 md:space-y-4">
                           <div className="flex items-center justify-between flex-wrap gap-2">
-                            <h4 className="text-xs font-extrabold text-[#0B1220] uppercase tracking-wider flex items-center gap-2">
+                            <h4 className="text-xs font-extrabold text-[#0B1220] uppercase tracking-wider flex items-center gap-2 font-[family-name:var(--font-heading)]">
                               <Users className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                              <span>Floor Worker Allocations &amp; Module Traceability</span>
+                              <span>Floor Allocations &amp; Traceability</span>
                             </h4>
                             <span className="text-[11px] font-semibold text-slate-500">
-                              {article.operations.length} registered task allocations
+                              {article.operations.length} task logs
                             </span>
                           </div>
 
                           {article.operations.length === 0 ? (
-                            <div className="bg-white p-5 rounded-xl border border-slate-200/80 text-center">
+                            <div className="bg-white p-4 md:p-5 rounded-xl border border-slate-200/80 text-center">
                               <p className="text-xs font-medium text-slate-600">
-                                No individual floor worker tasks recorded yet for style <strong>{article.artNo}</strong>.
+                                No floor worker tasks recorded yet for <strong>{article.artNo}</strong>.
                               </p>
                               <div className="flex items-center justify-center gap-3 mt-3">
                                 <Link
@@ -704,66 +769,130 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-x-auto">
-                              <table className="w-full text-left text-xs">
-                                <thead>
-                                  <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
-                                    <th className="p-3">Module / Division</th>
-                                    <th className="p-3">Assigned Worker</th>
-                                    <th className="p-3">Operation / Task</th>
-                                    <th className="p-3">Station / Machine</th>
-                                    <th className="p-3 text-right">Target</th>
-                                    <th className="p-3 text-right">Completed</th>
-                                    <th className="p-3 text-right">Rejected</th>
-                                    <th className="p-3 text-center">Status</th>
-                                    <th className="p-3 text-right">Timestamp</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-                                  {article.operations.map(op => {
-                                    const DivIcon = DIVISION_ICON_MAP[op.divisionRoute] || DIVISION_ICON_MAP[op.division] || Layers
-
-                                    return (
-                                      <tr key={op.id} className="hover:bg-slate-50/80">
-                                        <td className="p-3">
-                                          <div className="flex items-center gap-2">
-                                            <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
-                                              <DivIcon className="w-3.5 h-3.5 text-[#0B1220]" />
-                                            </div>
-                                            <span className="font-bold text-[#0B1220]">{op.division}</span>
+                            <>
+                              {/* Mobile Operations Cards (< md) */}
+                              <div className="md:hidden space-y-2">
+                                {article.operations.map(op => {
+                                  const DivIcon = DIVISION_ICON_MAP[op.divisionRoute] || DIVISION_ICON_MAP[op.division] || Layers
+                                  return (
+                                    <div key={op.id} className="bg-white rounded-xl border border-slate-200/80 p-3 space-y-2">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] border border-black/10 flex items-center justify-center shrink-0">
+                                            <DivIcon className="w-3.5 h-3.5 text-[#0B1220]" />
                                           </div>
-                                        </td>
-                                        <td className="p-3">
-                                          <div className="font-bold text-slate-900">{op.workerName}</div>
-                                          {op.workerPhone && (
-                                            <div className="text-[10px] text-slate-500 font-mono">{op.workerPhone}</div>
-                                          )}
-                                        </td>
-                                        <td className="p-3 font-semibold text-slate-700">{op.operation}</td>
-                                        <td className="p-3 font-mono text-[11px] text-slate-600">{op.workstation}</td>
-                                        <td className="p-3 text-right font-mono font-bold">{op.targetPcs.toLocaleString()}</td>
-                                        <td className="p-3 text-right font-mono font-bold text-emerald-700">{op.completedPcs.toLocaleString()}</td>
-                                        <td className="p-3 text-right font-mono font-bold text-rose-600">
-                                          {op.rejectedPcs > 0 ? op.rejectedPcs.toLocaleString() : '-'}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${
-                                            op.status === 'COMPLETED' || op.status === 'DONE'
-                                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                              : op.status === 'IN_PROGRESS'
-                                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                              : 'bg-slate-100 text-slate-700 border-slate-200'
-                                          }`}>
-                                            {op.status}
-                                          </span>
-                                        </td>
-                                        <td className="p-3 text-right text-[11px] font-mono text-slate-500">{op.timestamp || 'Today'}</td>
-                                      </tr>
-                                    )
-                                  })}
-                                </tbody>
-                              </table>
-                            </div>
+                                          <div className="min-w-0">
+                                            <div className="text-xs font-extrabold text-[#0B1220] truncate font-[family-name:var(--font-heading)]">
+                                              {op.workerName}
+                                            </div>
+                                            <div className="text-[11px] font-semibold text-slate-500 truncate">
+                                              {op.division} • {op.operation}
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 font-[family-name:var(--font-heading)] ${
+                                          op.status === 'COMPLETED' || op.status === 'DONE'
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                            : op.status === 'IN_PROGRESS'
+                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                                        }`}>
+                                          {op.status}
+                                        </span>
+                                      </div>
+
+                                      <div className="grid grid-cols-3 gap-2 bg-[#F8FAFC] rounded-lg p-2 text-center border border-slate-100">
+                                        <div>
+                                          <div className="text-[10px] font-semibold text-slate-400">Target</div>
+                                          <div className="text-xs font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
+                                            {op.targetPcs.toLocaleString()}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="text-[10px] font-semibold text-slate-400">Done</div>
+                                          <div className="text-xs font-extrabold text-emerald-700 font-[family-name:var(--font-heading)] tabular-nums">
+                                            {op.completedPcs.toLocaleString()}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="text-[10px] font-semibold text-slate-400">Rejected</div>
+                                          <div className="text-xs font-extrabold text-rose-600 font-[family-name:var(--font-heading)] tabular-nums">
+                                            {op.rejectedPcs > 0 ? op.rejectedPcs.toLocaleString() : '-'}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500">
+                                        <span>Station: <strong className="text-slate-700">{op.workstation}</strong></span>
+                                        <span className="font-[family-name:var(--font-heading)] tabular-nums">{op.timestamp || 'Today'}</span>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+
+                              {/* Desktop Operations Table (md+) */}
+                              <div className="hidden md:block bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-x-auto">
+                                <table className="w-full text-left text-xs">
+                                  <thead>
+                                    <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                                      <th className="p-3">Module / Division</th>
+                                      <th className="p-3">Assigned Worker</th>
+                                      <th className="p-3">Operation / Task</th>
+                                      <th className="p-3">Station / Machine</th>
+                                      <th className="p-3 text-right">Target</th>
+                                      <th className="p-3 text-right">Completed</th>
+                                      <th className="p-3 text-right">Rejected</th>
+                                      <th className="p-3 text-center">Status</th>
+                                      <th className="p-3 text-right">Timestamp</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                                    {article.operations.map(op => {
+                                      const DivIcon = DIVISION_ICON_MAP[op.divisionRoute] || DIVISION_ICON_MAP[op.division] || Layers
+
+                                      return (
+                                        <tr key={op.id} className="hover:bg-slate-50/80">
+                                          <td className="p-3">
+                                            <div className="flex items-center gap-2">
+                                              <div className="w-7 h-7 rounded-lg bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                                                <DivIcon className="w-3.5 h-3.5 text-[#0B1220]" />
+                                              </div>
+                                              <span className="font-bold text-[#0B1220]">{op.division}</span>
+                                            </div>
+                                          </td>
+                                          <td className="p-3">
+                                            <div className="font-bold text-slate-900">{op.workerName}</div>
+                                            {op.workerPhone && (
+                                              <div className="text-[10px] text-slate-500 font-mono">{op.workerPhone}</div>
+                                            )}
+                                          </td>
+                                          <td className="p-3 font-semibold text-slate-700">{op.operation}</td>
+                                          <td className="p-3 font-mono text-[11px] text-slate-600">{op.workstation}</td>
+                                          <td className="p-3 text-right font-mono font-bold">{op.targetPcs.toLocaleString()}</td>
+                                          <td className="p-3 text-right font-mono font-bold text-emerald-700">{op.completedPcs.toLocaleString()}</td>
+                                          <td className="p-3 text-right font-mono font-bold text-rose-600">
+                                            {op.rejectedPcs > 0 ? op.rejectedPcs.toLocaleString() : '-'}
+                                          </td>
+                                          <td className="p-3 text-center">
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${
+                                              op.status === 'COMPLETED' || op.status === 'DONE'
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                : op.status === 'IN_PROGRESS'
+                                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                : 'bg-slate-100 text-slate-700 border-slate-200'
+                                            }`}>
+                                              {op.status}
+                                            </span>
+                                          </td>
+                                          <td className="p-3 text-right text-[11px] font-mono text-slate-500">{op.timestamp || 'Today'}</td>
+                                        </tr>
+                                      )
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </>
                           )}
                         </div>
                       )}
@@ -780,65 +909,73 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       {/* 5. TAB 2: WORKER PIECE-RATE LEDGER & FLOOR LOG                       */}
       {/* ==================================================================== */}
       {activeTab === 'workers' && (
-        <div className="space-y-4">
-          
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-4">
+          <div className="md:hidden">
+            <DashboardSectionHeader
+              icon={Users}
+              title="Worker"
+              accent="Piece Ledger"
+              badge={`${filteredWorkerLedger.length} logs`}
+            />
+          </div>
+
           {/* Summary Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Active Operators</span>
-              <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-mono mt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+            <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Active Operators</span>
+              <div className="text-xl sm:text-2xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-1">
                 {workerStats.activeWorkers}
               </div>
-              <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Logged floor pieces</p>
+              <p className="hidden md:block text-[10px] text-slate-500 font-semibold mt-0.5">Logged floor pieces</p>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Pieces Done</span>
-              <div className="text-xl sm:text-2xl font-extrabold text-emerald-700 font-mono mt-1">
+            <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Pieces Done</span>
+              <div className="text-xl sm:text-2xl font-extrabold text-emerald-700 font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-1">
                 {workerStats.totalCompleted.toLocaleString()}
               </div>
-              <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Sum of finished operations</p>
+              <p className="hidden md:block text-[10px] text-slate-500 font-semibold mt-0.5">Sum of finished operations</p>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Floor Defect Rate</span>
-              <div className="text-xl sm:text-2xl font-extrabold text-rose-600 font-mono mt-1">
+            <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Floor Defect Rate</span>
+              <div className="text-xl sm:text-2xl font-extrabold text-rose-600 font-[family-name:var(--font-heading)] tabular-nums md:font-mono mt-1">
                 {workerStats.defectRatePct}%
               </div>
               <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
-                {workerStats.totalRejected} rejected pieces
+                {workerStats.totalRejected} rejected
               </p>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Top Floor Contributor</span>
-              <div className="text-sm sm:text-base font-extrabold text-[#1D4ED8] truncate mt-1">
+            <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Top Contributor</span>
+              <div className="text-sm sm:text-base font-extrabold text-[#1D4ED8] truncate mt-1 font-[family-name:var(--font-heading)]">
                 {workerStats.topWorkerName}
               </div>
               <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
-                <span className="font-mono font-bold text-slate-700">{workerStats.topWorkerPieces.toLocaleString()}</span> pcs completed
+                <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-slate-700">{workerStats.topWorkerPieces.toLocaleString()}</span> pcs
               </p>
             </div>
           </div>
 
           {/* Filter Bar */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
-            <div className="flex flex-1 items-center gap-3 flex-wrap">
-              <div className="relative flex-1 min-w-[200px] max-w-md">
+          <div className="bg-[#F8FAFC] md:bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col md:flex-row justify-between items-stretch md:items-center gap-2.5 md:gap-3">
+            <div className="flex flex-1 items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="relative flex-1 min-w-[180px] max-w-md">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search worker name, article, operation..."
+                  placeholder="Search worker, article, op..."
                   value={workerSearch}
                   onChange={e => setWorkerSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8]"
+                  className="w-full pl-9 pr-4 py-2 bg-white md:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8]"
                 />
               </div>
 
               <select
                 value={divisionFilter}
                 onChange={e => setDivisionFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] cursor-pointer"
+                className="flex-1 sm:flex-none px-3 py-2 bg-white md:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] cursor-pointer"
               >
                 <option value="ALL">All Divisions</option>
                 {uniqueDivisions.map(div => (
@@ -849,7 +986,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
               <select
                 value={workerStatusFilter}
                 onChange={e => setWorkerStatusFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] cursor-pointer"
+                className="flex-1 sm:flex-none px-3 py-2 bg-white md:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] cursor-pointer"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="COMPLETED">Completed</option>
@@ -858,23 +995,99 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
               </select>
             </div>
 
-            <span className="text-xs font-semibold text-slate-500">
+            <span className="hidden md:inline text-xs font-semibold text-slate-500">
               Showing <strong className="text-[#0B1220]">{filteredWorkerLedger.length}</strong> piecework records
             </span>
           </div>
 
-          {/* Worker Piecework Ledger Table */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
+          {/* Worker Piecework Ledger (Mobile Cards + Desktop Table) */}
+          <div className="md:bg-white md:rounded-2xl md:border md:border-slate-200/80 md:shadow-xs overflow-x-auto">
             {filteredWorkerLedger.length === 0 ? (
-              <div className="p-12 text-center">
+              <div className="p-8 md:p-12 text-center bg-[#F8FAFC] md:bg-transparent rounded-xl md:rounded-none border border-slate-200/80 md:border-0">
                 <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center mx-auto mb-3 shadow-2xs">
                   <Users className="w-6 h-6 text-[#0B1220]" />
                 </div>
-                <h3 className="text-sm font-bold text-[#0B1220]">No worker piece records found</h3>
-                <p className="text-xs text-slate-500 mt-1">Try resetting search filters or assign floor tasks in modules.</p>
+                <h3 className="text-sm font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">No worker piece records found</h3>
+                <p className="hidden md:block text-xs text-slate-500 mt-1">Try resetting search filters or assign floor tasks in modules.</p>
               </div>
             ) : (
-              <table className="w-full text-left text-xs">
+              <>
+                {/* Mobile Worker Ledger Cards (< md) */}
+                <div className="md:hidden space-y-2.5">
+                  {filteredWorkerLedger.map(item => {
+                    const DivIcon = DIVISION_ICON_MAP[item.divisionRoute] || DIVISION_ICON_MAP[item.division] || Layers
+
+                    return (
+                      <div key={item.id} className="bg-[#F8FAFC] rounded-xl border border-slate-200/80 p-3.5 space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                              <DivIcon className="w-4 h-4 text-[#0B1220]" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-sm font-extrabold text-[#0B1220] truncate font-[family-name:var(--font-heading)]">
+                                {item.workerName}
+                              </div>
+                              <div className="text-[11px] font-semibold text-slate-500 truncate">
+                                {item.division} • {item.role}
+                              </div>
+                            </div>
+                          </div>
+
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 font-[family-name:var(--font-heading)] ${
+                            item.status === 'COMPLETED' || item.status === 'DONE'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : item.status === 'IN_PROGRESS'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </div>
+
+                        <div className="bg-white rounded-xl border border-slate-200/80 p-2.5 space-y-2">
+                          <div className="flex items-center justify-between gap-2 text-xs">
+                            <span className="font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
+                              {item.articleNo}
+                            </span>
+                            <span className="font-semibold text-slate-600 truncate">
+                              {item.operationName}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-2 pt-1.5 border-t border-slate-100 text-center">
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Target</div>
+                              <div className="text-xs font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
+                                {item.targetPieces.toLocaleString()}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Completed</div>
+                              <div className="text-xs font-extrabold text-emerald-700 font-[family-name:var(--font-heading)] tabular-nums">
+                                {item.completedPieces.toLocaleString()}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Defects</div>
+                              <div className="text-xs font-extrabold text-rose-600 font-[family-name:var(--font-heading)] tabular-nums">
+                                {item.rejectedPieces > 0 ? item.rejectedPieces.toLocaleString() : '-'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                          <span className="truncate">Station: <strong className="text-slate-700">{item.workstationRef}</strong></span>
+                          <span className="font-[family-name:var(--font-heading)] tabular-nums shrink-0">{item.date}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Desktop Table (md+) */}
+                <table className="hidden md:table w-full text-left text-xs">
                 <thead>
                   <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
                     <th className="p-3.5">Worker Name</th>
@@ -945,8 +1158,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                       </tr>
                     )
                   })}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </>
             )}
           </div>
         </div>
@@ -956,59 +1170,135 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       {/* 6. TAB 3: PLANT OPERATIONS & BUYER PO FULFILLMENT AUDIT              */}
       {/* ==================================================================== */}
       {activeTab === 'audit' && (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           
+          {/* Mobile Output & QC Trend Snapshot (md:hidden) */}
+          <div className="md:hidden bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3">
+            <DashboardSectionHeader
+              icon={BarChart3}
+              title="Output &"
+              accent="QC Trend"
+              badge={`Avg ${data.dailyAverage.toLocaleString()}/d`}
+            />
+
+            {(() => {
+              const recentProd = data.productionTrend.slice(-7)
+              const maxProd = Math.max(1, ...recentProd.map(p => p.pieces))
+              const totalQcPass = data.qcTrend.reduce((acc, q) => acc + q.passed, 0)
+              const totalQcReject = data.qcTrend.reduce((acc, q) => acc + q.rejected, 0)
+
+              return (
+                <div className="space-y-2.5">
+                  <div className="bg-[#F8FAFC] rounded-xl border border-slate-200/80 p-3 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
+                      <span>7-Day Floor Output</span>
+                      <span className="text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
+                        {recentProd.reduce((s, p) => s + p.pieces, 0).toLocaleString()} pcs
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1.5 items-end h-20 pt-2">
+                      {recentProd.map((pt, idx) => {
+                        const pct = Math.max(8, Math.round((pt.pieces / maxProd) * 100))
+                        return (
+                          <div key={idx} className="flex flex-col items-center gap-1 h-full justify-end">
+                            <div className="w-full flex-1 flex items-end">
+                              <div
+                                style={{ height: `${pct}%` }}
+                                className={`w-full rounded-t-md ${pt.pieces > 0 ? 'bg-[#1D4ED8]' : 'bg-slate-200'}`}
+                              />
+                            </div>
+                            <span className="text-[9px] font-bold text-slate-500 truncate max-w-full font-[family-name:var(--font-heading)]">
+                              {pt.label}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-[#F8FAFC] rounded-xl border border-slate-200/80 p-2.5 text-center">
+                      <div className="text-[10px] font-semibold text-slate-500">Pass Rate</div>
+                      <div className="text-sm font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums mt-0.5">
+                        {data.kpis.qcPassRate}%
+                      </div>
+                    </div>
+                    <div className="bg-[#F8FAFC] rounded-xl border border-slate-200/80 p-2.5 text-center">
+                      <div className="text-[10px] font-semibold text-slate-500">QC Passed</div>
+                      <div className="text-sm font-extrabold text-emerald-700 font-[family-name:var(--font-heading)] tabular-nums mt-0.5">
+                        {totalQcPass.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-[#F8FAFC] rounded-xl border border-slate-200/80 p-2.5 text-center">
+                      <div className="text-[10px] font-semibold text-slate-500">Rejected</div>
+                      <div className="text-sm font-extrabold text-rose-600 font-[family-name:var(--font-heading)] tabular-nums mt-0.5">
+                        {totalQcReject.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+
           {/* Division Scorecards Grid */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-3">
+            <div className="md:hidden">
+              <DashboardSectionHeader
+                icon={Layers}
+                title="Division"
+                accent="Scorecards"
+                badge={`${data.divisionComparison.length} units`}
+              />
+            </div>
+
+            <div className="hidden md:flex items-center justify-between">
               <h3 className="text-sm font-extrabold text-[#0B1220] uppercase tracking-wider font-[family-name:var(--font-heading)]">
                 Plant Division Operational Scorecards
               </h3>
               <span className="text-xs font-semibold text-slate-500">Subscribed manufacturing modules</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3.5">
               {data.divisionComparison.map(div => {
                 const DivIcon = DIVISION_ICON_MAP[div.divisionRoute] || DIVISION_ICON_MAP[div.division] || Layers
 
                 return (
                   <div
                     key={div.division}
-                    className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all"
+                    className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-5 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all"
                   >
                     <div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {/* Signature Cyan Icon Wrapper with Black Border & Icon */}
-                          <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[#F0FDFA] border border-[#14C8B4]/40 md:border-black/15 flex items-center justify-center text-[#0B1220] shadow-2xs shrink-0">
                             <DivIcon className="w-4 h-4 text-[#0B1220]" />
                           </div>
-                          <div>
-                            <h4 className="text-sm font-extrabold text-[#0B1220]">{div.division}</h4>
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-extrabold text-[#0B1220] truncate font-[family-name:var(--font-heading)]">{div.division}</h4>
                             <p className="text-[11px] font-semibold text-slate-500">{div.workerCount} active operators</p>
                           </div>
                         </div>
 
-                        {/* Signature Cyan Shortcut Button with Black Outline */}
                         <Link
                           href={div.divisionRoute}
-                          className="w-8 h-8 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 text-[#0B1220] flex items-center justify-center transition-all shadow-2xs shrink-0"
+                          className="w-8 h-8 rounded-xl bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 md:border-black/15 text-[#0B1220] flex items-center justify-center transition-all shadow-2xs shrink-0"
                           title="Open Module Workspace"
                         >
                           <ExternalLink className="w-3.5 h-3.5 text-[#0B1220]" />
                         </Link>
                       </div>
 
-                      <div className="mt-4">
-                        <div className="text-base font-extrabold text-[#0B1220] font-mono">
+                      <div className="mt-3 md:mt-4">
+                        <div className="text-sm md:text-base font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
                           {div.metricLabel}
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-500">Throughput Level</span>
-                      <span className="font-mono font-bold text-[#1D4ED8]">{div.totalOutput.toLocaleString()} pcs</span>
+                    <div className="mt-3 md:mt-4 pt-2.5 md:pt-3 border-t border-slate-200/80 md:border-slate-100 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-500">Throughput</span>
+                      <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold text-[#1D4ED8]">{div.totalOutput.toLocaleString()} pcs</span>
                     </div>
                   </div>
                 )
@@ -1017,8 +1307,17 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           </div>
 
           {/* Buyer PO Fulfillment Table */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-3">
+            <div className="md:hidden">
+              <DashboardSectionHeader
+                icon={Briefcase}
+                title="Buyer PO"
+                accent="Delivery Ledger"
+                badge={`${data.buyerFulfillments.length} contracts`}
+              />
+            </div>
+
+            <div className="hidden md:flex items-center justify-between">
               <h3 className="text-sm font-extrabold text-[#0B1220] uppercase tracking-wider font-[family-name:var(--font-heading)]">
                 Buyer Purchase Order Delivery Ledger
               </h3>
@@ -1027,17 +1326,97 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
+            <div className="md:bg-white md:rounded-2xl md:border md:border-slate-200/80 md:shadow-xs overflow-x-auto">
               {data.buyerFulfillments.length === 0 ? (
-                <div className="p-12 text-center">
+                <div className="p-8 md:p-12 text-center bg-[#F8FAFC] md:bg-transparent rounded-xl md:rounded-none border border-slate-200/80 md:border-0">
                   <div className="w-12 h-12 rounded-2xl bg-[#F0FDFA] border border-black/15 text-[#0B1220] flex items-center justify-center mx-auto shadow-2xs mb-3">
                     <Briefcase className="w-6 h-6 text-[#0B1220]" />
                   </div>
-                  <h3 className="text-sm font-bold text-[#0B1220]">No merchandising contracts found</h3>
-                  <p className="text-xs text-slate-500 mt-1">Orders created in Merchandising will appear here automatically.</p>
+                  <h3 className="text-sm font-bold text-[#0B1220] font-[family-name:var(--font-heading)]">No merchandising contracts found</h3>
+                  <p className="hidden md:block text-xs text-slate-500 mt-1">Orders created in Merchandising will appear here automatically.</p>
                 </div>
               ) : (
-                <table className="w-full text-left text-xs">
+                <>
+                  {/* Mobile Buyer Fulfillment Cards (< md) */}
+                  <div className="md:hidden space-y-2.5">
+                    {data.buyerFulfillments.map(b => (
+                      <div key={b.poNumber} className="bg-[#F8FAFC] rounded-xl border border-slate-200/80 p-3.5 space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
+                                {b.poNumber}
+                              </span>
+                              {b.isOverdue && (
+                                <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 font-[family-name:var(--font-heading)]">
+                                  Overdue
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs font-bold text-slate-700 truncate mt-0.5">
+                              {b.buyerName}
+                            </div>
+                          </div>
+
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 font-[family-name:var(--font-heading)] ${
+                            b.status === 'Fully Shipped'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : b.status === 'Partially Dispatched'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-blue-50 text-[#1D4ED8] border-blue-200'
+                          }`}>
+                            {b.status}
+                          </span>
+                        </div>
+
+                        <div className="bg-white rounded-xl border border-slate-200/80 p-2.5 space-y-2">
+                          <div className="grid grid-cols-3 gap-2 text-center">
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Target</div>
+                              <div className="text-xs font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">
+                                {b.targetPieces.toLocaleString()}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Dispatched</div>
+                              <div className="text-xs font-extrabold text-purple-700 font-[family-name:var(--font-heading)] tabular-nums">
+                                {b.deliveredPieces.toLocaleString()}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-semibold text-slate-400">Godown</div>
+                              <div className="text-xs font-extrabold text-amber-700 font-[family-name:var(--font-heading)] tabular-nums">
+                                {b.godownPieces.toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                              <span>Fulfillment</span>
+                              <span className="text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums">{b.percent}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                style={{ width: `${b.percent}%` }}
+                                className={`h-full ${b.percent >= 100 ? 'bg-emerald-500' : 'bg-[#1D4ED8]'}`}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-500">
+                          <span className="font-[family-name:var(--font-heading)] tabular-nums">Due: {b.deliveryDate}</span>
+                          <span className="truncate font-[family-name:var(--font-heading)]">
+                            {b.challanNumbers.length > 0 ? b.challanNumbers.join(', ') : 'Pending Challan'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table (md+) */}
+                  <table className="hidden md:table w-full text-left text-xs">
                   <thead>
                     <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
                       <th className="p-3.5">PO Number</th>
@@ -1108,6 +1487,7 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
                     ))}
                   </tbody>
                 </table>
+                </>
               )}
             </div>
           </div>
