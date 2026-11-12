@@ -186,7 +186,6 @@ export function CompanySubscriptionCard({
                 accent="License"
                 badge={isTrial ? '7-DAY TRIAL' : 'ACTIVE PLAN'}
                 withDivider={false}
-                padding="p-0"
               />
             </div>
 

@@ -60,7 +60,6 @@ export function CompanyProfileCard({ company }: CompanyProfileCardProps) {
               accent="Identity"
               badge="ACTIVE"
               withDivider={false}
-              padding="p-0"
               action={
                 <button
                   type="button"

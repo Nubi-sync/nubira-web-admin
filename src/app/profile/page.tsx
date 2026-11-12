@@ -129,6 +129,17 @@ export default async function CompanyProfilePage(props: {
           </div>
         </div>
 
+        {/* 2. Factory Registration & Organization Identity Card */}
+        <CompanyProfileCard
+          company={{
+            company_name: companyData?.company_name || tenant.companyName,
+            factory_address: companyData?.factory_address || '',
+            gstin: companyData?.gstin || '',
+            contact_phone: companyData?.contact_phone || adminPhone,
+            contact_email: companyData?.contact_email || tenant.userEmail,
+          }}
+        />
+
         {/* 3. Company Subscription & Evaluation License Status Card */}
         <CompanySubscriptionCard
           companyName={tenant.companyName}
