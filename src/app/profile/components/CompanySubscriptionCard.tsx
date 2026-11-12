@@ -148,26 +148,26 @@ export function CompanySubscriptionCard({
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden transition-all">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs md:shadow-2xs overflow-hidden transition-all">
         {/* Expired / Warning Banner */}
         {isAccountExpired && (
-          <div className="bg-rose-50 border-b border-rose-200 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-800">
+          <div className="bg-rose-50 border-b border-rose-200 px-4 md:px-5 py-3.5 md:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0 text-rose-600">
-                <Lock className="w-5 h-5" />
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-rose-100 flex items-center justify-center shrink-0 text-rose-600">
+                <Lock className="w-4 h-4 md:w-5 md:h-5" />
               </div>
               <div>
-                <p className="text-sm sm:text-base font-extrabold">
+                <p className="text-xs sm:text-base font-extrabold font-[family-name:var(--font-heading)]">
                   Evaluation / Subscription Expired
                 </p>
-                <p className="text-xs sm:text-sm text-rose-700 font-medium">
+                <p className="text-[11px] sm:text-sm text-rose-700 font-medium font-[family-name:var(--font-public-sans)]">
                   Access to operational manufacturing divisions is paused. Please renew or upgrade to continue.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="min-h-[44px] px-6 py-2.5 rounded-xl bg-rose-600 text-white text-sm sm:text-base font-bold hover:bg-rose-700 active:scale-[0.98] shadow-2xs cursor-pointer shrink-0 transition-all text-center"
+              className="min-h-[40px] px-5 py-2 rounded-xl bg-rose-600 text-white text-xs sm:text-base font-bold hover:bg-rose-700 active:scale-[0.98] shadow-2xs cursor-pointer shrink-0 transition-all text-center font-[family-name:var(--font-heading)]"
             >
               Pay Now
             </button>
@@ -175,9 +175,9 @@ export function CompanySubscriptionCard({
         )}
 
         {/* Card Content */}
-        <div className="p-5 sm:p-7 space-y-6">
+        <div className="p-4 sm:p-7 space-y-3.5 md:space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 pb-3.5 md:pb-5 border-b border-slate-100">
             {/* Mobile Dashboard-style Header (< md) */}
             <div className="md:hidden w-full">
               <DashboardSectionHeader
@@ -186,6 +186,7 @@ export function CompanySubscriptionCard({
                 accent="License"
                 badge={isTrial ? '7-DAY TRIAL' : 'ACTIVE PLAN'}
                 withDivider={false}
+                padding="p-0"
               />
             </div>
 
@@ -239,7 +240,7 @@ export function CompanySubscriptionCard({
                   setIsModalOpen(true)
                   setTimeout(() => setIsOpeningModal(false), 400)
                 }}
-                className={`relative z-10 min-h-[42px] px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0 flex items-center justify-center gap-2 ${
+                className={`relative z-10 min-h-[40px] md:min-h-[42px] px-4 md:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer w-full sm:w-auto text-center shrink-0 flex items-center justify-center gap-2 font-[family-name:var(--font-heading)] ${
                   isHighlighted ? 'ring-4 ring-blue-300 ring-offset-2 scale-[1.03] shadow-xl shadow-blue-600/50' : ''
                 }`}
               >
@@ -255,93 +256,125 @@ export function CompanySubscriptionCard({
             </div>
           </div>
 
-          {/* Details 4-Column Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4.5 pt-1">
+          {/* Details 4-Card Responsive Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4.5 md:pt-1">
             {/* 1. Plan Tier */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+            <div className="flex flex-col md:flex-row items-start gap-2 md:gap-3.5 p-3 md:p-4.5 rounded-xl md:rounded-2xl bg-[#F8FAFC] md:bg-slate-50/70 md:hover:bg-white border border-slate-200/80 md:hover:border-black/20 md:hover:shadow-xs transition-all">
+              <div className="hidden md:flex w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
                 <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+              <div className="md:hidden w-full flex items-center justify-between gap-1.5">
+                <span className="text-[10px] font-[family-name:var(--font-public-sans)] font-bold uppercase tracking-wider text-slate-500 truncate">
                   Plan Tier
                 </span>
-                <span className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] mt-0.5 block truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
-                  {subscriptionTier === 'FULL_PLANT_AI'
-                    ? 'Full Plant AI (12 Div)'
-                    : (subscriptionTier === 'MODULAR' ? 'Modular Plan' : 'Enterprise Custom')}
+                <div className="w-6 h-6 rounded-md bg-[#F0FDFA] border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                  <CreditCard className="w-3 h-3 text-[#0B1220]" />
+                </div>
+              </div>
+              <div className="min-w-0 w-full flex-1">
+                <span className="hidden md:block text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Plan Tier
                 </span>
-                <span className="text-xs text-slate-500 mt-0.5 block font-medium tabular-nums">
-                  ₹{monthlyBillingInr.toLocaleString('en-IN')}/month
+                <span className="text-xs sm:text-base md:text-xl font-extrabold text-[#0B1220] md:mt-0.5 block truncate font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
+                  {subscriptionTier === 'FULL_PLANT_AI'
+                    ? 'Full Plant AI'
+                    : (subscriptionTier === 'MODULAR' ? 'Modular Plan' : 'Custom')}
+                </span>
+                <span className="text-[10px] md:text-xs text-slate-500 mt-0.5 block font-medium tabular-nums truncate">
+                  ₹{monthlyBillingInr.toLocaleString('en-IN')}/mo
                 </span>
               </div>
             </div>
 
-            {/* 2. Start Date */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+            {/* 2. Account Status */}
+            <div className="flex flex-col md:flex-row items-start gap-2 md:gap-3.5 p-3 md:p-4.5 rounded-xl md:rounded-2xl bg-[#F8FAFC] md:bg-slate-50/70 md:hover:bg-white border border-slate-200/80 md:hover:border-black/20 md:hover:shadow-xs transition-all">
+              <div className="hidden md:flex w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] items-center justify-center shrink-0 border border-black/15 text-[#0B1220] shadow-2xs">
+                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
+              </div>
+              <div className="md:hidden w-full flex items-center justify-between gap-1.5">
+                <span className="text-[10px] font-[family-name:var(--font-public-sans)] font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Status
+                </span>
+                <div className="w-6 h-6 rounded-md bg-[#F0FDFA] border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-3 h-3 text-[#0B1220]" />
+                </div>
+              </div>
+              <div className="min-w-0 w-full flex-1">
+                <span className="hidden md:block text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Account Status
+                </span>
+                <div className="md:mt-0.5 flex items-center gap-1.5">
+                  {isAccountExpired ? (
+                    <span className="text-xs sm:text-base md:text-xl font-extrabold text-rose-700 flex items-center gap-1 font-[family-name:var(--font-heading)] tabular-nums md:font-mono truncate">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                      Expired
+                    </span>
+                  ) : daysLeft <= 3 && isTrial ? (
+                    <span className="text-xs sm:text-base md:text-xl font-extrabold text-amber-700 flex items-center gap-1 font-[family-name:var(--font-heading)] tabular-nums md:font-mono truncate">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                      {daysLeft}d Left
+                    </span>
+                  ) : (
+                    <span className="text-xs sm:text-base md:text-xl font-extrabold text-emerald-700 flex items-center gap-1 font-[family-name:var(--font-heading)] tabular-nums md:font-mono truncate">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      {isTrial ? `${daysLeft}d Trial` : 'Active'}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] md:text-xs text-slate-500 mt-0.5 block font-medium truncate">
+                  {isAccountExpired ? 'Renew Required' : 'All Divisions'}
+                </span>
+              </div>
+            </div>
+
+            {/* 3. Start Date */}
+            <div className="flex flex-col md:flex-row items-start gap-2 md:gap-3.5 p-3 md:p-4.5 rounded-xl md:rounded-2xl bg-[#F8FAFC] md:bg-slate-50/70 md:hover:bg-white border border-slate-200/80 md:hover:border-black/20 md:hover:shadow-xs transition-all">
+              <div className="hidden md:flex w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
                 <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+              <div className="md:hidden w-full flex items-center justify-between gap-1.5">
+                <span className="text-[10px] font-[family-name:var(--font-public-sans)] font-bold uppercase tracking-wider text-slate-500 truncate">
                   Start Date
                 </span>
-                <span className="text-base sm:text-lg md:text-xl font-extrabold text-[#0B1220] mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
+                <div className="w-6 h-6 rounded-md bg-[#F0FDFA] border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                  <Calendar className="w-3 h-3 text-[#0B1220]" />
+                </div>
+              </div>
+              <div className="min-w-0 w-full flex-1">
+                <span className="hidden md:block text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Start Date
+                </span>
+                <span className="text-xs sm:text-base md:text-xl font-extrabold text-[#0B1220] md:mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono truncate">
                   {issueDateStr}
                 </span>
-                <span className="text-xs text-slate-500 mt-0.5 block font-medium">
+                <span className="text-[10px] md:text-xs text-slate-500 mt-0.5 block font-medium truncate">
                   Account Initialized
                 </span>
               </div>
             </div>
 
-            {/* 3. Valid Until */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
+            {/* 4. Valid Until */}
+            <div className="flex flex-col md:flex-row items-start gap-2 md:gap-3.5 p-3 md:p-4.5 rounded-xl md:rounded-2xl bg-[#F8FAFC] md:bg-slate-50/70 md:hover:bg-white border border-slate-200/80 md:hover:border-black/20 md:hover:shadow-xs transition-all">
+              <div className="hidden md:flex w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] items-center justify-center shrink-0 text-[#0B1220] border border-black/15 shadow-2xs">
                 <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
               </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
+              <div className="md:hidden w-full flex items-center justify-between gap-1.5">
+                <span className="text-[10px] font-[family-name:var(--font-public-sans)] font-bold uppercase tracking-wider text-slate-500 truncate">
                   Valid Until
                 </span>
-                <span className={`text-base sm:text-lg md:text-xl font-extrabold mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono ${isAccountExpired ? 'text-rose-600' : 'text-[#0B1220]'}`}>
+                <div className="w-6 h-6 rounded-md bg-[#F0FDFA] border border-[#14C8B4]/40 flex items-center justify-center shrink-0">
+                  <Clock className="w-3 h-3 text-[#0B1220]" />
+                </div>
+              </div>
+              <div className="min-w-0 w-full flex-1">
+                <span className="hidden md:block text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 truncate">
+                  Valid Until
+                </span>
+                <span className={`text-xs sm:text-base md:text-xl font-extrabold md:mt-0.5 block font-[family-name:var(--font-heading)] tabular-nums md:font-mono truncate ${isAccountExpired ? 'text-rose-600' : 'text-[#0B1220]'}`}>
                   {expiryDateStr}
                 </span>
-                <span className="text-xs text-slate-500 mt-0.5 block font-medium">
+                <span className="text-[10px] md:text-xs text-slate-500 mt-0.5 block font-medium truncate">
                   {isTrial ? '7-Day Evaluation' : 'Active Cycle'}
-                </span>
-              </div>
-            </div>
-
-            {/* 4. Status */}
-            <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-black/20 hover:shadow-xs transition-all">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#F0FDFA] flex items-center justify-center shrink-0 border border-black/15 text-[#0B1220] shadow-2xs">
-                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[11px] sm:text-xs font-[family-name:var(--font-sans)] md:font-mono font-bold uppercase tracking-wider text-slate-500 block truncate">
-                  Account Status
-                </span>
-                <div className="mt-0.5 flex items-center gap-1.5">
-                  {isAccountExpired ? (
-                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-rose-700 flex items-center gap-1.5 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
-                      Expired (Locked)
-                    </span>
-                  ) : daysLeft <= 3 && isTrial ? (
-                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-amber-700 flex items-center gap-1.5 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                      {daysLeft} {daysLeft === 1 ? 'Day' : 'Days'} Left
-                    </span>
-                  ) : (
-                    <span className="text-base sm:text-lg md:text-xl font-extrabold text-emerald-700 flex items-center gap-1.5 font-[family-name:var(--font-heading)] tabular-nums md:font-mono">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                      {isTrial ? `${daysLeft} Days Trial Left` : 'Active'}
-                    </span>
-                  )}
-                </div>
-                <span className="text-xs text-slate-500 mt-0.5 block font-medium">
-                  {isAccountExpired ? 'Renewal Required' : 'All Divisions Active'}
                 </span>
               </div>
             </div>
