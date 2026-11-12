@@ -26,8 +26,10 @@ import {
   AlertCircle,
   ExternalLink,
   Phone,
-  FilterX
+  FilterX,
+  BarChart3
 } from 'lucide-react'
+import { DashboardSectionHeader } from '@/app/dashboard/components/DashboardSectionHeader'
 import {
   ReportsData,
   ArticleReportRow,
@@ -270,11 +272,11 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                 Plant <span className="text-[#1D4ED8]">Reports &amp; Analytics</span>
               </h1>
-              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs tracking-wider">
+              <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/40 md:border-black/15 shadow-2xs tracking-wider">
                 {data.companyName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
+            <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">
               Production ledgers, worker piece-rate logs, and article progress traceability.
             </p>
           </div>
@@ -284,12 +286,12 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto justify-between lg:justify-end">
           
           {/* Preset Buttons */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-bold text-slate-600 overflow-x-auto">
+          <div className="flex items-center bg-[#F8FAFC] md:bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-[11px] sm:text-xs font-bold text-slate-600 overflow-x-auto font-[family-name:var(--font-heading)]">
             <button
               onClick={() => setDateFilter('today')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 dateFilter === 'today'
-                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
                   : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
@@ -297,9 +299,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             </button>
             <button
               onClick={() => setDateFilter('7days')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 dateFilter === '7days'
-                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
                   : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
@@ -307,9 +309,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             </button>
             <button
               onClick={() => setDateFilter('30days')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 dateFilter === '30days'
-                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
                   : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
@@ -317,9 +319,9 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
             </button>
             <button
               onClick={() => setDateFilter('all')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                 dateFilter === 'all'
-                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+                  ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
                   : 'hover:bg-[#F0FDFA]/60 text-slate-600'
               }`}
             >
@@ -331,16 +333,17 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportExcel}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 md:border-black/15 transition-all shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
               title="Download full 3-sheet Excel workbook"
             >
               <Download className="w-3.5 h-3.5 text-[#0B1220]" />
-              <span>Export Excel</span>
+              <span className="md:hidden">Excel</span>
+              <span className="hidden md:inline">Export Excel</span>
             </button>
 
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-black/15 transition-all shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold text-[#0B1220] bg-[#F0FDFA] hover:bg-[#E6FAF7] border border-[#14C8B4]/40 md:border-black/15 transition-all shadow-2xs cursor-pointer font-[family-name:var(--font-heading)]"
               title="Print report or save as PDF"
             >
               <Printer className="w-3.5 h-3.5 text-[#0B1220]" />
@@ -353,77 +356,88 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       {/* ==================================================================== */}
       {/* 2. TOP EXECUTIVE PULSE KPIS (4 CYAN CARDS)                           */}
       {/* ==================================================================== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        
-        {/* KPI 1: Total Produced */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Output</span>
-            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-              <Package className="w-4 h-4 text-[#0B1220]" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono tracking-tight">
-              {data.kpis.totalProduced.toLocaleString()}
-            </div>
-            <p className="text-[11px] font-semibold text-slate-500 mt-1">
-              Avg <span className="font-mono text-slate-700 font-bold">{data.dailyAverage.toLocaleString()}</span> pcs / day
-            </p>
-          </div>
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3 md:bg-transparent md:rounded-none md:border-0 md:p-0 md:shadow-none md:space-y-0">
+        <div className="md:hidden">
+          <DashboardSectionHeader
+            icon={BarChart3}
+            title="Plant"
+            accent="Overview"
+            badge={dateFilter === 'today' ? 'Today' : dateFilter === '7days' ? '7 Days' : dateFilter === '30days' ? '30 Days' : 'All Time'}
+          />
         </div>
 
-        {/* KPI 2: QC Pass Rate */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">QC Pass Rate</span>
-            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-              <ShieldCheck className="w-4 h-4 text-[#0B1220]" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          
+          {/* KPI 1: Total Produced */}
+          <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-5 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider font-[family-name:var(--font-public-sans)]">Total Output</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 md:border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
+              </div>
+            </div>
+            <div className="mt-2.5 sm:mt-3">
+              <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono tracking-tight">
+                {data.kpis.totalProduced.toLocaleString()}
+              </div>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-slate-500 mt-1">
+                Avg <span className="font-[family-name:var(--font-heading)] tabular-nums md:font-mono text-slate-700 font-bold">{data.dailyAverage.toLocaleString()}</span> / day
+              </p>
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono tracking-tight">
-              {data.kpis.qcPassRate}%
-            </div>
-            <p className="text-[11px] font-semibold text-emerald-700 mt-1">
-              Quality inspection standard
-            </p>
-          </div>
-        </div>
 
-        {/* KPI 3: In Godown Stock */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Godown Ready</span>
-            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-              <Warehouse className="w-4 h-4 text-[#0B1220]" />
+          {/* KPI 2: QC Pass Rate */}
+          <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-5 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider font-[family-name:var(--font-public-sans)]">QC Pass Rate</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 md:border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
+              </div>
+            </div>
+            <div className="mt-2.5 sm:mt-3">
+              <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono tracking-tight">
+                {data.kpis.qcPassRate}%
+              </div>
+              <p className="hidden md:block text-[11px] font-semibold text-emerald-700 mt-1">
+                Quality inspection standard
+              </p>
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono tracking-tight">
-              {data.kpis.netWarehouseStock.toLocaleString()}
-            </div>
-            <p className="text-[11px] font-semibold text-slate-500 mt-1">
-              Finished goods in inventory
-            </p>
-          </div>
-        </div>
 
-        {/* KPI 4: Dispatched Units */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dispatched</span>
-            <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/15 flex items-center justify-center shadow-2xs shrink-0">
-              <Truck className="w-4 h-4 text-[#0B1220]" />
+          {/* KPI 3: In Godown Stock */}
+          <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-5 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider font-[family-name:var(--font-public-sans)]">Godown Ready</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 md:border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+                <Warehouse className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
+              </div>
+            </div>
+            <div className="mt-2.5 sm:mt-3">
+              <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono tracking-tight">
+                {data.kpis.netWarehouseStock.toLocaleString()}
+              </div>
+              <p className="hidden md:block text-[11px] font-semibold text-slate-500 mt-1">
+                Finished goods in inventory
+              </p>
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] font-mono tracking-tight">
-              {data.kpis.totalDispatched.toLocaleString()}
+
+          {/* KPI 4: Dispatched Units */}
+          <div className="bg-[#F8FAFC] md:bg-white p-3.5 sm:p-5 rounded-xl md:rounded-2xl border border-slate-200/80 md:shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider font-[family-name:var(--font-public-sans)]">Dispatched</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F0FDFA] text-[#0B1220] border border-black/10 md:border-black/15 flex items-center justify-center shadow-2xs shrink-0">
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0B1220]" />
+              </div>
             </div>
-            <p className="text-[11px] font-semibold text-slate-500 mt-1">
-              Shipped via delivery challans
-            </p>
+            <div className="mt-2.5 sm:mt-3">
+              <div className="text-xl sm:text-3xl font-extrabold text-[#0B1220] font-[family-name:var(--font-heading)] tabular-nums md:font-mono tracking-tight">
+                {data.kpis.totalDispatched.toLocaleString()}
+              </div>
+              <p className="hidden md:block text-[11px] font-semibold text-slate-500 mt-1">
+                Shipped via delivery challans
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -431,20 +445,21 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
       {/* ==================================================================== */}
       {/* 3. SEGMENTED VIEW SWITCHER (CYAN ACTIVE TAB STYLING)                 */}
       {/* ==================================================================== */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 overflow-x-auto">
+      <div className="grid grid-cols-3 md:flex items-center gap-1.5 md:gap-2 p-1.5 bg-white md:bg-slate-100/90 rounded-2xl border border-slate-200/80 shadow-xs md:shadow-none md:overflow-x-auto font-[family-name:var(--font-heading)]">
         
         {/* Tab 1 Trigger */}
         <button
           onClick={() => setActiveTab('articles')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center justify-center md:justify-start gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'articles'
-              ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+              ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
               : 'text-slate-600 hover:text-[#0B1220] hover:bg-[#F0FDFA]/60 font-semibold border border-transparent'
           }`}
         >
-          <Layers className="w-4 h-4 text-[#0B1220]" />
-          <span>Article Lifecycle &amp; Traceability</span>
-          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+          <Layers className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#0B1220] shrink-0" />
+          <span className="md:hidden truncate">Articles</span>
+          <span className="hidden md:inline">Article Lifecycle &amp; Traceability</span>
+          <span className={`text-[10px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold px-1.5 md:px-2 py-0.5 rounded-full ${
             activeTab === 'articles'
               ? 'bg-[#0B1220] text-white shadow-2xs'
               : 'bg-slate-200/80 text-slate-700'
@@ -456,15 +471,16 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         {/* Tab 2 Trigger */}
         <button
           onClick={() => setActiveTab('workers')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center justify-center md:justify-start gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'workers'
-              ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+              ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
               : 'text-slate-600 hover:text-[#0B1220] hover:bg-[#F0FDFA]/60 font-semibold border border-transparent'
           }`}
         >
-          <Users className="w-4 h-4 text-[#0B1220]" />
-          <span>Worker Piece-Rate Ledger</span>
-          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+          <Users className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#0B1220] shrink-0" />
+          <span className="md:hidden truncate">Workers</span>
+          <span className="hidden md:inline">Worker Piece-Rate Ledger</span>
+          <span className={`text-[10px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold px-1.5 md:px-2 py-0.5 rounded-full ${
             activeTab === 'workers'
               ? 'bg-[#0B1220] text-white shadow-2xs'
               : 'bg-slate-200/80 text-slate-700'
@@ -476,15 +492,16 @@ export function OwnerReportsClient({ initialData }: OwnerReportsClientProps) {
         {/* Tab 3 Trigger */}
         <button
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center justify-center md:justify-start gap-1.5 md:gap-2 px-2.5 md:px-4 py-2 md:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'audit'
-              ? 'bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-2xs font-bold'
+              ? 'bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/50 md:border-black/15 shadow-2xs font-bold'
               : 'text-slate-600 hover:text-[#0B1220] hover:bg-[#F0FDFA]/60 font-semibold border border-transparent'
           }`}
         >
-          <Briefcase className="w-4 h-4 text-[#0B1220]" />
-          <span>Plant &amp; Buyer PO Audit</span>
-          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+          <Briefcase className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#0B1220] shrink-0" />
+          <span className="md:hidden truncate">PO Audit</span>
+          <span className="hidden md:inline">Plant &amp; Buyer PO Audit</span>
+          <span className={`text-[10px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold px-1.5 md:px-2 py-0.5 rounded-full ${
             activeTab === 'audit'
               ? 'bg-[#0B1220] text-white shadow-2xs'
               : 'bg-slate-200/80 text-slate-700'
