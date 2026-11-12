@@ -92,21 +92,25 @@ export default async function CompanyProfilePage(props: {
     <AdminShell userEmail={user.email} userRole={userRole} companyName={tenant.companyName}>
       <div className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-[1536px] w-full mx-auto space-y-3.5 sm:space-y-6 select-none text-[#0B1220]">
         {/* 1. Page Header Banner - Matching Master Tab Header Standard */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 sm:gap-6 transition-all">
-          <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-black/15 mt-0.5 sm:mt-0">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-6 transition-all">
+          <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 w-full sm:w-auto">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/40 md:border-black/15 mt-0.5 sm:mt-0">
               <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B1220]" />
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
+                <h1 className="text-base sm:text-2xl font-extrabold tracking-tight text-[#0B1220] font-[family-name:var(--font-heading)]">
                   Company Profile &amp; <span className="text-[#1D4ED8]">Settings</span>
                 </h1>
-                <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-black/15 shadow-xs tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2 sm:px-2.5 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/40 md:border-black/15 shadow-2xs tracking-wider">
                   {tenant.companyName}
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] shadow-xs tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] tabular-nums md:font-mono font-bold uppercase px-2 sm:px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] shadow-2xs tracking-wider">
                   {tenant.isSuperAdmin ? 'Owner' : (userRole === 'ADMIN' ? 'Manager' : (userRole || 'Manager'))}
+                </span>
+                <span className="md:hidden inline-flex items-center gap-1 text-[10px] font-[family-name:var(--font-heading)] font-bold uppercase px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0B1220] border border-[#14C8B4]/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {tenant.accessType === 'DEMO_TRIAL' ? 'Trial Active' : 'Active'}
                 </span>
               </div>
               <p className="hidden md:block text-xs sm:text-sm text-slate-600 mt-1 font-medium font-[family-name:var(--font-public-sans)] leading-relaxed">

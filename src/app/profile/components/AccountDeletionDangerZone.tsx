@@ -83,8 +83,49 @@ export function AccountDeletionDangerZone({
   return (
     <>
       {/* Danger Zone Container (Minimal Executive Neutral Container with Refined Crimson Accents) */}
-      <div className="bg-white rounded-2xl border border-black/10 shadow-2xs p-5 sm:p-7 relative transition-all">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      <div className="bg-white rounded-2xl border border-slate-200/80 md:border-black/10 shadow-xs md:shadow-2xs p-4 sm:p-7 relative transition-all">
+        {/* Mobile Box-inside-Box Layout (< md) */}
+        <div className="md:hidden space-y-3">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <h2 className="text-[15px] font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)] leading-snug">
+                  Danger <span className="text-rose-600">Zone</span>
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/80 font-[family-name:var(--font-heading)]">
+                  IRREVERSIBLE
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#FFF1F2]/60 border border-rose-200/80 rounded-xl p-3.5 space-y-3">
+            <p className="text-xs text-slate-600 leading-relaxed font-[family-name:var(--font-public-sans)] font-medium">
+              Submit an official decommission request to{' '}
+              <strong className="text-[#0B1220] font-[family-name:var(--font-heading)]">support@zigza.in</strong>{' '}
+              to archive records and close this company account.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(true)
+                setIsSuccess(false)
+                setErrorMsg(null)
+                setConfirmText('')
+              }}
+              className="min-h-[40px] w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-[0.98] shadow-2xs transition-all cursor-pointer font-[family-name:var(--font-heading)]"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Request Account Deletion</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Layout (>= md untouched) */}
+        <div className="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center shrink-0 shadow-2xs">
               <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -94,13 +135,13 @@ export function AccountDeletionDangerZone({
                 <h2 className="text-lg sm:text-2xl font-extrabold text-[#0B1220] tracking-tight font-[family-name:var(--font-heading)]">
                   Danger Zone: <span className="text-rose-600">Account Decommission</span>
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-[family-name:var(--font-heading)] md:font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs">
                   IRREVERSIBLE
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed font-[family-name:var(--font-public-sans)] font-medium">
                 Need to decommission or close this company account? Submit an official deletion request.
-                Our administration desk at <strong className="text-slate-900 font-[family-name:var(--font-heading)] md:font-mono">support@zigza.in</strong> will
+                Our administration desk at <strong className="text-slate-900 font-mono">support@zigza.in</strong> will
                 verify your company credentials and securely archive all production records.
               </p>
             </div>
